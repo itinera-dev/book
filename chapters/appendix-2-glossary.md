@@ -1,0 +1,104 @@
+# Glossary
+
+Every word of Itinera's vocabulary, in plain language, grouped as the specification groups them. The words are not synonyms of each other: each means exactly one thing, defined in [chapter 1 of the specification](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md), which each group links to. Where this glossary and the specification differ, the specification is right.
+
+## The idea
+
+Defined in [1.1, The idea](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#11-the-idea).
+
+- **Business rule:** a decision about what the business does, such as whether an order can be charged. Business rules live in steps.
+- **Flow control:** a decision about what happens around that work: try again, give up, finish early. Flow control lives in policies, whose hooks the executor calls after each outcome. A step cannot reach the workflow that runs it, so the two kinds of decision stay apart by construction, not by discipline.
+
+## Workflows and steps
+
+Defined in [1.2, Workflows and steps](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#12-workflows-and-steps).
+
+- **Workflow:** the plan. The steps in the order they run, with the policies, input adapters, roles and reporters attached to it. Everything in it is fixed before anything runs, and it can be listed without running it. In the shop: reserve, charge, then ship.
+- **Step:** one business unit, such as charging an order. It has a name, unique within its workflow, though the step itself never knows that name. It declares the data it needs, does its work, contributes data back and reports an outcome. It knows nothing of the workflow, the executor or the other steps.
+- **Workflow descriptor:** the workflow's declaration: its name, its step descriptors, its workflow policy descriptors and its input adapters. It never changes once made, and every instance of the workflow shares it.
+- **Step descriptor:** what the workflow holds for one step: its name, how to build it, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any.
+- **Policy descriptor:** the description of one policy: its name, the hooks it defines, and how to build an instance of it.
+- **Outcome:** what a step reports when it runs to the end. It says what happened, never what to do next. It is one of:
+  - **Success:** the step did its work.
+  - **Failure:** the step could not do its work. A failure carries a **reason**, made of a code such as `expired-card`, an optional message and optional details, and a **retriable** flag: whether the step believes trying again might help.
+  - **Skipped:** the step decided, from what it knows of its domain, not to do its work, as the ship step can for a digital order. A skipped step leaves the flow.
+- **Abnormal termination:** a recoverable failure that escapes a running step, thrown or returned, instead of an outcome the step chose. It ends the attempt as a failure; whether it is tried again is the step descriptor's choice.
+- **Attempt:** one execution of a step. The first is attempt 1.
+- **Retry:** any attempt after the first, except the attempt that follows a rescue step.
+- **Retry budget:** how many retries a step allows. Shipping with a retry budget of 1 is tried at most twice.
+- **Rescue step:** a step that fixes the cause of another step's failure, after which the failed step runs once more. A step has at most one, and a step that has one has no retry budget. It is named after the step it rescues, such as `charge_rescue`, and runs when that step fails or ends in an abnormal termination. If it succeeds, the failed step runs once more; a step is rescued at most once per journey. If it fails, the journey fails, and the failed step never runs again. A rescue step that skips aborts the journey with `rescue skipped`; some languages do not let you write one at all.
+- **Step status:** where a step stands in a journey: `NotExecuted` (not run yet, or never), `Executing` (an attempt is running), `MustRetry` (it failed and will be tried again), `Rescuing` (it failed and its failure was handed to its rescue step; it stays so until it runs again, or for good if the rescue fails), `Succeeded`, `Failed` (it will not be tried again), `Skipped`, or `Aborted` (the journey was aborted while it was running, waiting to retry, or being rescued).
+
+## Data
+
+Defined in [1.3, Data](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#13-data).
+
+- **Value:** data that can be written down and read back: null, true or false, numbers, text, lists and objects, and any type of your language that turns into them. Functions, connections and handles are not values.
+- **Data bag:** the journey's data: a map from text keys to values. It starts with the instance's initial data, and changes only when a contribution is committed. When a journey succeeds or fails, its data bag is the journey's output.
+- **Data from the workflow:** a value a step or hook asks for by a key and a type, as **required** (the journey cannot go on without it) or **optional** (it may be absent). Where it comes from is the workflow's decision, never the asker's.
+- **Input adapter:** a named part of the workflow, attached to one or more of its steps, that decides where a step's inputs come from. A step has at most one. Asked for each input when the step is built, it returns a value, or nothing, in which case the input is read from the data bag. Without one, every input comes from the data bag under its key.
+- **Adapter:** in this version, always an input adapter. There are no adapters for data from a step.
+- **Data from the step:** a value a step hook asks for from the step it acts on, or a rescue step from the step it rescues, by key and type, required or optional. It is exactly what that step contributed.
+- **Contributor:** what a step or a hook is given to add data, as key and value pairs. It is the only way to change the data bag, and it works only during the attempt or hook it was given for.
+- **Contribution:** one key and value given to a contributor. A step's contributions are **committed**, that is written to the data bag, only when its attempt succeeds; a hook's are committed when the hook returns.
+
+## Policies, hooks and lifecycles
+
+Defined in [1.4, Policies, hooks and lifecycles](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#14-policies-hooks-and-lifecycles).
+
+- **Policy:** a reusable object that defines one or more hooks. A **step policy** defines only step hooks and is attached to steps, such as `audit` on the charge. A **workflow policy** defines only workflow hooks and is attached to workflows, such as `notify`.
+- **Hook:** a function of a policy that the executor calls. **Step hooks** (`on step success`, `on step failure`, `on step retry`, `on step abnormal termination`) are called in response to a step's outcome. **Workflow hooks** (`on workflow success`, `on workflow failure`) are called when the journey ends. A hook that no attached policy defines keeps its default behaviour.
+- **Lifecycle:** what a hook may return to tell the executor to do something other than the default. In tier 1 there are two: `FailWorkflow`, which fails the journey at once, and `FinishWorkflow`, which ends it at once as succeeded.
+- **Cause:** why the failure hook or the retry hook was called, or why a step was given up, retried or rescued: `failure`, `retriable failure`, `abnormal termination` or `retries exhausted`, and, for a step given up by a hook, `FailWorkflow`.
+- **Workflow role:** an interface of operations that a workflow implements and offers to policies, such as telling the customer something. A hook asks for the roles it needs. Roles carry operations, never data.
+
+## Running
+
+Defined in [1.5, Running](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#15-running).
+
+- **Workflow instance:** what your own code creates from a workflow for each journey, with that journey's initial data, its journey ID and its reporters. It holds the data bag and the rest of the journey's state.
+- **Custom code:** any code of yours that the executor calls: building and running steps, input adapters, policies and their hooks, role operations, reporters, and dispatcher factories and dispatchers.
+- **Executor:** runs a workflow instance, and carries out what the hooks decide. The **local executor** runs a journey inside your program, keeping nothing once it ends.
+- **Journey:** one execution of a workflow instance from start to end: one order going through the shop. In later tiers a journey may move between workflows.
+- **Run:** one workflow executed within a journey. In this version a journey has exactly one run, so the two are the same.
+- **Journey ID:** the identifier of a journey, made while the instance is created; a random UUID unless the workflow makes its own, for example from the order.
+- **The scan:** how the executor chooses what to do next: again and again, it looks at the first step that is not finished.
+- **Result:** what running a journey returns, in business terms: the journey ID, how it ended (succeeded, failed or aborted) with what explains it, and, unless it was aborted, the data bag. Which steps ran, and how, is in the event stream instead.
+- **Failed journey:** a journey that ended because a step failed or a hook returned `FailWorkflow`. A failure is a legitimate end, decided by the outcomes and the policies, such as a declined card.
+- **Aborted journey:** a journey stopped because something illegal happened: a configuration error found while running, a hook or reporter that failed, or something stored or emitted that is not a value. No hook runs after an abort, and the journey has no output and is never resumed. Each abort has an **abort reason**, such as `required data missing`.
+- **Unrecoverable failure:** a failure your language itself treats as unrecoverable. It is outside the model: the journey stops as if the program had crashed.
+
+## Events
+
+Defined in [1.6, Events](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#16-events).
+
+- **Event:** a record of something that happened in a journey, with fixed fields. **Engine events** come from the executor. A step can also emit its own events, `step_info`, `step_warning` and `step_error`, and a hook can emit `journey_info`, `journey_warning` and `journey_error`.
+- **Fact** and **decision:** the two kinds of engine event. A fact records something that happened, such as a step succeeding. A decision records what the executor decided to do next, such as retrying a step or failing the journey, and who decided it.
+- **Event stream:** every event of one journey, in order. It is never rolled back or rewritten. It is how you observe a journey.
+- **Reporter:** receives events one at a time and decides on its own what to do with them, such as writing them to a log. The workflow lists its reporters. A step receives a **step reporter** to emit its own events.
+- **Dispatcher:** holds a journey's reporters and delivers each event to them. The executor creates one for each journey, from a **dispatcher factory**.
+
+## Configuration and admission
+
+Defined in [1.7, Configuration and admission](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#17-configuration-and-admission).
+
+- **Configuration error:** anything wrong with how a workflow is put together or supplied, which its author is responsible for.
+- **Violation:** one configuration error, by name, such as `duplicate step name`.
+- **Refusal:** what running an instance reports instead of a result when a journey cannot start: the workflow was refused at admission, or your code called before the journey starts failed. A refusal has no journey and no events.
+- **Admission:** checking how a workflow is put together before any journey: when the workflow is built, and, for what depends on the executor, when the instance is handed to it. A workflow refused at admission has no journey and no events.
+
+## Tiers and capabilities
+
+Defined in [1.8, Tiers and capabilities](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#18-tiers-and-capabilities).
+
+- **Tier:** a level of what Itinera means, each including everything before it. Tier 1 is a single workflow. What a tier contains is fixed for each version of the specification.
+- **Capability:** a property of an executor or a language that varies independently of the tier. In tier 1, the capabilities are the execution modes an executor accepts, `sync` and `async`.
+- **Execution mode:** whether a step, hook or reporter is synchronous or asynchronous.
+
+## Words arriving with services
+
+These words come from a design that is agreed but not yet part of the specification: [services](https://github.com/itinera-dev/spec/issues/95). They join chapter 1 when that design is accepted, and may still change until then.
+
+- **Service:** an object of operations a step uses to do its business, such as a payment client or a stock store. It is not a value, so it never enters the data bag, an event or the result.
+- **Service provider:** the part of the workflow that supplies the service of one key. It may be attached to particular steps, and then serves them instead of the provider of the same key that serves the others.
+- **Scope:** how long an instance a provider makes is used: the whole **journey**, shared by every step that asks for it, or one **attempt**.

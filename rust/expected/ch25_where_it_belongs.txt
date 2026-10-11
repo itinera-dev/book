@@ -1,0 +1,8 @@
+to Ann: order A-1 is complete
+A-1: succeeded
+to Ben: order A-2 is complete
+A-2: succeeded
+to Cat: we could not complete order A-3
+A-3: failed, failure: expired-card
+to Dan: we could not complete order A-4
+A-4: failed, FailWorkflow: payment-network-down
