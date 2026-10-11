@@ -1,0 +1,4 @@
+A-1 succeeded: charged 40, confirm the order
+A-2 failed (failure: nothing-to-charge): tell the customer
+A-2 still holds stock: release it
+A-3 aborted (required data missing: price): call the developers
