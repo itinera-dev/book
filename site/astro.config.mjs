@@ -69,6 +69,6 @@ export default defineConfig({
 	vite: {
 		plugins: [watchTheBook()],
 		// Mermaid is large, and is fetched only by a page that has a diagram.
-		build: { chunkSizeWarningLimit: 3000 },
+		build: { chunkSizeWarningLimit: 1000 },
 	},
 });

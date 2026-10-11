@@ -27,7 +27,7 @@ name: ch14_rescue
 region: workflow
 ```
 
-Two orders go through, both with an expired card: Ben's, A-2, and Dan's, A-4. Both banks have issued a new card, but Dan's bank refuses his.
+The program runs two orders, both with an expired card: Ben's, A-2, and Dan's, A-4. Both banks have issued a new card, but Dan's bank refuses his.
 
 ```example
 name: ch14_rescue
@@ -49,7 +49,7 @@ Ben's journey reports, in order:
 5. the charge's attempt 2 starts with the new card and succeeds, and `charged` is committed;
 6. the ship step runs, and the journey succeeds, with the new card and the amount charged.
 
-Dan's journey starts the same way, up to the charge's attempt 2. That attempt fails with `declined`, and since a step is rescued at most once, the charge is given up with the cause `failure`, and the journey fails at `charge`, with nothing charged. Had his bank no new card at all, `charge_rescue` would have failed with `nothing-to-renew`, and the journey would have failed at `charge_rescue` instead, as the third order of [chapter 25](25-step-rescue-step-or-policy.md) does.
+Dan's journey starts the same way, up to the charge's attempt 2. That attempt fails with `declined`, and since a step is rescued at most once, the charge is given up with the cause `failure`, and the journey fails at `charge`, with nothing charged. Had his bank no new card at all, `charge_rescue` would have failed with `nothing-to-renew`, and the journey would have failed at `charge_rescue` instead, as the third order of [chapter 25](25-step-rescue-step-or-policy.md) does, whose card is declined rather than expired.
 
 ## How it works
 

@@ -58,7 +58,7 @@ impl Charge {
 // ANCHOR: rescue
 /// Asks the customer's bank for the card that replaced an expired one. A charge that failed for
 /// any other reason, or ended in an abnormal termination, which has no reason, leaves nothing to
-/// renew.
+/// renew, and so does a bank that has issued no new card.
 #[derive(RescueStep)]
 struct RenewCard {
     #[input]

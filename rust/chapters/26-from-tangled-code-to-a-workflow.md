@@ -35,7 +35,7 @@ region: payment
 
 As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("carrier-down")`, and doesn't call another carrier.
 
-For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, because services aren't in `itinera` yet. Move 7 takes those away.
+For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, because services aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). Move 7 takes those away.
 
 ```example
 name: ch26_workflow

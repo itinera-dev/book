@@ -40,7 +40,7 @@ if (figures.length > 0) {
 			while (drawn < requested) {
 				const current = requested;
 				const scheme = dark.matches ? 'dark' : 'light';
-				mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: palette(), securityLevel: 'strict' });
+				mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: palette(), securityLevel: 'strict', suppressErrorRendering: true });
 				for (const figure of figures) await drawOne(mermaid, figure);
 				drawn = current;
 				if (drawn === requested) root.dataset.diagrams = scheme;
@@ -83,20 +83,20 @@ if (figures.length > 0) {
 		drawings += 1;
 		const { svg } = await mermaid.render(`diagram-drawing-${drawings}`, source.textContent ?? '');
 		figure.querySelector('.diagram__drawing')?.remove();
-		const drawing = document.createElement('div');
-		drawing.className = 'diagram__drawing';
-		drawing.innerHTML = svg;
-		box.append(drawing);
+		const holder = document.createElement('div');
+		holder.className = 'diagram__drawing';
+		holder.innerHTML = svg;
+		box.append(holder);
 		source.hidden = true;
-		const picture = drawing.querySelector('svg');
+		const picture = holder.querySelector('svg');
 		nameByCaption(figure, picture);
 		const [, , width, height] = (picture?.getAttribute('viewBox') ?? '').split(/\s+/).map(Number);
 		if (width > WIDE * height) makeWide(figure, box);
 	};
 
-	// The figure's caption, the diagram's accTitle, names the drawing too, so
-	// that a screen reader hears one name, not the caption and Mermaid's own
-	// title of the same words.
+	// The drawing is named by the figure's visible caption, the diagram's
+	// accTitle, rather than by Mermaid's own title of the same words, which
+	// would also show as a tooltip.
 	const nameByCaption = (figure: HTMLElement, picture: SVGSVGElement | null) => {
 		const caption = figure.querySelector('figcaption');
 		if (!picture || !caption) return;
