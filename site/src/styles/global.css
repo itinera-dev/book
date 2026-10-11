@@ -449,12 +449,21 @@ pre.shiki code {
 	margin: 2rem 0;
 }
 
-.diagram picture,
-.diagram img {
+.diagram__drawing svg {
 	display: block;
 	max-width: 100%;
 	height: auto;
 	margin: 0 auto;
+}
+
+/* Until it is drawn, and for a reader without JavaScript, a diagram is its
+   source, as plain text. */
+.diagram__source {
+	margin: 0;
+	white-space: pre-wrap;
+	font-family: var(--font-code);
+	font-size: var(--step--1);
+	color: var(--ink-muted);
 }
 
 .diagram__scroll {
@@ -470,7 +479,7 @@ pre.shiki code {
 	transform: translateX(-50%);
 }
 
-.diagram--wide img {
+.diagram--wide svg {
 	min-width: 64rem;
 }
 

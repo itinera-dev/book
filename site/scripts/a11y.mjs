@@ -11,7 +11,7 @@ import AxeBuilderImport from '@axe-core/playwright';
 import { chromium } from 'playwright';
 
 import { base } from '../book.config.mjs';
-import { findPages, serve } from './serve.mjs';
+import { diagramsDrawn, findPages, serve } from './serve.mjs';
 
 const AxeBuilder = AxeBuilderImport.default ?? AxeBuilderImport;
 const WORKERS = 4;
@@ -30,6 +30,7 @@ async function worker() {
 		const issues = [];
 		for (const scheme of ['light', 'dark']) {
 			await page.emulateMedia({ colorScheme: scheme });
+			await diagramsDrawn(page, scheme);
 			const { violations } = await new AxeBuilder({ page })
 				.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
 				.analyze();

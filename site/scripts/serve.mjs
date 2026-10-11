@@ -66,3 +66,18 @@ export async function serve() {
 	const origin = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
 	return { origin, close: () => new Promise((resolve) => server.close(resolve)) };
 }
+
+/**
+ * Waits until a page's diagrams, if it has any, are drawn in the given colour
+ * scheme: `src/scripts/diagrams.ts` draws them in the browser after the page
+ * has loaded, and again when the scheme changes.
+ */
+export async function diagramsDrawn(page, scheme) {
+	await page.waitForFunction(
+		(wanted) => {
+			const state = document.documentElement.dataset.diagrams;
+			return state === undefined || state === wanted;
+		},
+		scheme,
+	);
+}

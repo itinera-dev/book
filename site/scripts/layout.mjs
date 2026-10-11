@@ -5,7 +5,7 @@
 
 import { chromium } from 'playwright';
 
-import { findPages, serve } from './serve.mjs';
+import { diagramsDrawn, findPages, serve } from './serve.mjs';
 
 const WIDTHS = [360, 390, 768, 1280];
 const TOLERANCE = 1;
@@ -14,7 +14,7 @@ function measure() {
 	const root = document.documentElement;
 	const viewport = root.clientWidth;
 	const main = document.querySelector('main')?.getBoundingClientRect();
-	const wide = [...document.querySelectorAll('pre, .table-scroll, .diagram__scroll, .diagram:not(.diagram--wide) img, .listing')]
+	const wide = [...document.querySelectorAll('pre, .table-scroll, .diagram__scroll, .diagram:not(.diagram--wide) svg, .listing')]
 		.map((element) => ({ element, box: element.getBoundingClientRect() }))
 		.filter(({ box }) => box.right > viewport + 1 || box.left < -1)
 		.map(({ element }) => element.getAttribute('aria-labelledby') ?? element.className ?? element.tagName.toLowerCase());
@@ -31,6 +31,7 @@ await Promise.all(
 		const page = await browser.newPage({ viewport: { width, height: 900 } });
 		for (const path of pages) {
 			await page.goto(origin + path, { waitUntil: 'load' });
+			await diagramsDrawn(page, 'light');
 			const m = await page.evaluate(measure);
 			if (m.scrollWidth > m.viewport + TOLERANCE) {
 				problems.push(`${path} at ${width}px scrolls sideways: ${m.scrollWidth}px wide in ${m.viewport}px.`);

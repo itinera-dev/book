@@ -3,7 +3,6 @@
 import { join } from 'node:path';
 
 import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype';
-import rehypeMermaid from 'rehype-mermaid';
 import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
 import remarkGfm from 'remark-gfm';
@@ -40,9 +39,7 @@ function create() {
 		.use(remarkBookLinks, { pages })
 		.use(remarkBookDirectives, { edition: build.edition })
 		.use(remarkRehype)
-		// Drawn at build time as two images, one per colour scheme, so a diagram
-		// needs no JavaScript and its text alternative is its accDescr.
-		.use(rehypeMermaid, { strategy: 'img-svg', dark: true })
+		// Before the highlighter, which would otherwise colour a diagram's source.
 		.use(rehypeDiagrams)
 		.use(rehypeShiki, {
 			themes: { light: 'github-light-default', dark: 'github-dark-default' },

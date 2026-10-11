@@ -5,13 +5,12 @@ To read the book locally, from a clone of this repository:
 ```sh
 cd site
 npm ci
-npx playwright install chromium
 npm run dev
 ```
 
 Then open <http://localhost:4321/book/rust/>.
 
-- `npx playwright install chromium` is needed once per machine: the diagrams of chapters 3 and 25 are drawn in that browser, and without it those pages fail. On Linux, `npx playwright install --with-deps chromium` also installs the system libraries the browser needs.
+- The diagrams are drawn in the reader's browser by [Mermaid](https://mermaid.js.org), as GitHub draws them, so building or serving the site needs no browser of its own.
 - It needs Node 22.12 or later.
 - The dev server reloads the page when a chapter or a file of the Rust book changes: anything in `../rust/chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/compile-errors/` or `../rust/pending/`. When the contents, `../rust/chapters/README.md`, changes, or a chapter file is added or removed, the server restarts on its own, which takes a few seconds.
 
@@ -20,7 +19,8 @@ Then open <http://localhost:4321/book/rust/>.
 An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.github.io/book/>, with one edition per programming language under it: `/book/rust/` for Rust. Nothing of the book is copied here. At build time the pages read each language's book from its directory, such as `../rust/`: the chapters from `../rust/chapters/`, the order of the book from `../rust/chapters/README.md`, and the code and output the directives name, as [FORMAT.md](../FORMAT.md) lays them out.
 
 - `book.config.mjs` holds the list of editions and says which one a build renders. Every link, the edition switcher and the contents derive from it. Adding a language is one entry in its list.
-- `src/lib/` renders the Markdown: `contents.ts` reads the contents, `directives.ts` replaces each directive with the code or output it names, `links.ts` turns links between chapters into links between pages, and `render.ts` puts the pipeline together.
+- `src/lib/` renders the Markdown: `contents.ts` reads the contents, `directives.ts` replaces each directive with the code or output it names, `links.ts` turns links between chapters into links between pages, `rehype.ts` puts code blocks, diagrams and tables in their boxes, and `render.ts` puts the pipeline together.
+- `src/scripts/diagrams.ts` draws each page's diagrams in the reader's browser, in the page's colours, and again when the reader's colour scheme changes. Until it has, and for a reader without JavaScript, a diagram shows its source as text.
 - `src/pages/` has the front page, the edition's contents, one page per chapter, and the 404 page.
 - `scripts/` holds the checks that `npm run verify` runs.
 
@@ -46,7 +46,7 @@ A directive that names a file which does not exist, a region missing from its pr
 2. `npm run contrast`: the pairs of colours the pages use, read from `src/styles/tokens.css`, against WCAG AA in the light and the dark scheme, and the layout's `theme-color` against the page colour of each scheme.
 3. `npm run build:strict`: a forced build, ignoring every cache, that also fails when the build printed an error.
 4. `npm run pages`: that every page exists (the front page, the 404 page, the contents, and one page for each file of the edition's `chapters/`), that each has one level 1 heading and a body, and that every internal link and image leads to something that was built.
-5. `npm run a11y`: axe on every page, in the light and the dark scheme.
+5. `npm run a11y`: axe on every page, in the light and the dark scheme, once its diagrams are drawn in that scheme.
 6. `npm run layout`: every page at 360, 390, 768 and 1280 pixels wide, checking that nothing scrolls sideways except code and tables, inside their own box.
 
-The last two drive Playwright's Chromium, as the build does for the diagrams, so `npx playwright install chromium` must have run once.
+The last two open the pages in Playwright's Chromium, so they need it installed once per machine, with `npx playwright install chromium`; on Linux, `npx playwright install --with-deps chromium` also installs the system libraries it needs.

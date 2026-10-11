@@ -1,6 +1,6 @@
 // Small finishing passes over the rendered HTML.
 
-import type { Element, Properties, Root } from 'hast';
+import type { Element, Root } from 'hast';
 import { toString } from 'hast-util-to-string';
 import { visit } from 'unist-util-visit';
 
@@ -38,54 +38,49 @@ export function rehypeListingNames() {
 }
 
 /**
- * How much wider than tall a diagram is before it scrolls on a narrow screen
- * instead of shrinking until its words are too small to read.
- */
-const WIDE = 2;
-
-/**
- * Puts each diagram in a figure captioned with its title.
+ * Puts each Mermaid diagram in a figure captioned with its title, to be drawn
+ * in the reader's browser, as GitHub draws one.
  *
- * The diagrams are drawn at build time as images, one for each colour scheme,
- * and the image's text alternative is the diagram's `accDescr`. Its `accTitle`
- * arrives as a `title` attribute, which most screen readers either ignore or
- * read twice; it becomes the figure's visible caption instead. The text after
+ * The diagram's source stays in the page, so a reader without JavaScript still
+ * reads it as text; `src/scripts/diagrams.ts` draws it in its place. Its
+ * `accTitle` becomes the figure's visible caption, and the drawing carries its
+ * `accTitle` and `accDescr` as its own title and description. The text after
  * each diagram in the chapter still says everything it shows.
  *
- * A wide diagram, such as two pictures side by side, keeps a size its words
- * can be read at and scrolls inside its own box on a narrow screen. Like a
- * table's, that box is a focusable group, named by the diagram's caption.
+ * Each diagram sits in a box of its own. A wide one, such as two pictures side
+ * by side, keeps a size its words can be read at and scrolls inside that box
+ * on a narrow screen; the script then makes the box a focusable group named by
+ * the caption, as a table's is.
  */
 export function rehypeDiagrams() {
 	return (tree: Root) => {
 		let diagrams = 0;
 		visit(tree, 'element', (node, index, parent) => {
-			if (node.tagName !== 'picture' || !parent || index === undefined) return;
-			const image = node.children.find((child): child is Element => child.type === 'element' && child.tagName === 'img');
-			if (!image) return;
-			const title = typeof image.properties.title === 'string' ? image.properties.title : '';
-			delete image.properties.title;
-			image.properties.loading = 'lazy';
-			image.properties.decoding = 'async';
-			const wide = Number(image.properties.width) > WIDE * Number(image.properties.height);
+			if (node.tagName !== 'pre' || !parent || index === undefined) return;
+			const code = node.children.find((child): child is Element => child.type === 'element' && child.tagName === 'code');
+			if (!code || !hasClass(code, 'language-mermaid')) return;
+			const source = toString(code).replace(/\n+$/, '');
+			const title = /^\s*accTitle\s*:\s*(.+?)\s*$/m.exec(source)?.[1] ?? '';
 			diagrams += 1;
 			const caption = `diagram-${diagrams}`;
-			const scroll: Properties = { className: ['diagram__scroll'], role: 'group', tabIndex: 0 };
-			if (title === '') scroll.ariaLabel = 'Diagram';
-			else scroll.ariaLabelledBy = [caption];
 			const figure: Element = {
 				type: 'element',
 				tagName: 'figure',
-				properties: { className: wide ? ['diagram', 'diagram--wide'] : ['diagram'] },
+				properties: { className: ['diagram'] },
 				children: [
-					wide
-						? {
+					{
+						type: 'element',
+						tagName: 'div',
+						properties: { className: ['diagram__scroll'] },
+						children: [
+							{
 								type: 'element',
-								tagName: 'div',
-								properties: scroll,
-								children: [node],
-							}
-						: node,
+								tagName: 'pre',
+								properties: { className: ['diagram__source'] },
+								children: [{ type: 'text', value: source }],
+							},
+						],
+					},
 					...(title === ''
 						? []
 						: [
