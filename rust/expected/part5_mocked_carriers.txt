@@ -1,0 +1,6 @@
+ok: a working main carrier ships the order
+ok: the backup is never called
+main carrier failed for A-2: unavailable, trying the backup
+ok: a failing main carrier falls back
+ok: the main carrier is called once
+ok: the backup is called once

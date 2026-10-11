@@ -1,0 +1,6 @@
+order A-1
+the journey succeeded
+audit: charge took 40
+order A-2
+the journey failed
+audit: charge declined: nothing-to-charge

@@ -1,0 +1,17 @@
+order A-1
+  stock busy, trying again
+  card expired, charging the renewed card
+  charged, receipt R-40
+  main carrier: CarrierDown, using the backup
+  done: backup-A-1
+order A-2
+  charged, receipt R-15
+  done: download D-A-2
+order A-3
+  charged, receipt R-25
+  main carrier: CarrierDown, using the backup
+  done: backup-A-3
+order A-4
+  charged, receipt R-30
+  main carrier: BreakerOpen, using the backup
+  done: backup-A-4

@@ -1,0 +1,4 @@
+the journey succeeded
+message: Order A-1 is on its way, tracking T-A-1.
+the journey failed
+message: We could not take order A-2.

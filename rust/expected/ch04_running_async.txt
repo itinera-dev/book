@@ -1,0 +1,30 @@
+A-1:
+  1 journey_started: card, customer, discount, order, price
+  2 attempt_started: reserve, attempt 1
+  3 step_succeeded: reserve
+  4 attempt_started: charge, attempt 1
+  5 step_succeeded: charge
+  6 contribution_committed: charged
+  7 hook_called: audit, on step success
+  8 contribution_committed: audit
+  9 attempt_started: ship, attempt 1
+  10 step_succeeded: ship
+  11 contribution_committed: tracking
+  to Ann: order A-1 is on its way: RAPID-A-1
+  12 hook_called: notify, on workflow success
+  13 journey_succeeded
+the journey succeeded
+its data bag holds: audit, card, charged, customer, discount, order, price, tracking
+A-2:
+  1 journey_started: card, customer, order, price
+  2 attempt_started: reserve, attempt 1
+  3 step_succeeded: reserve
+  4 attempt_started: charge, attempt 1
+  5 optional_input_absent: discount
+  6 step_failed: charge, declined
+  7 step_given_up: charge, failure
+  to Dan: order A-2 could not be completed
+  8 hook_called: notify, on workflow failure
+  9 journey_failed: charge, failure
+the journey failed
+its data bag holds: card, customer, order, price

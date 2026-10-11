@@ -1,0 +1,8 @@
+A-1: the journey succeeded
+  charged: 35
+  audit: charged 35
+  tracking: RAPID-A-1
+A-2: the journey failed, nothing-to-charge
+  charged: -
+  audit: -
+  tracking: -

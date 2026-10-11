@@ -1,0 +1,4 @@
+email to Ada: Order A-1 is on its way, tracking T-A-1.
+the journey succeeded
+email to Ben: We could not take order A-2.
+the journey failed

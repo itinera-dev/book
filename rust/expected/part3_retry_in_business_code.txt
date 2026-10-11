@@ -1,0 +1,5 @@
+attempt 1 timed out, trying again
+the bank charges 40
+the carrier collects order A-1
+A-1: tracking T-A-1
+A-2: not shipped: the bank refused the charge

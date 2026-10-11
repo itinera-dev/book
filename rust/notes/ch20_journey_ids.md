@@ -1,0 +1,3 @@
+In Rust, the ID generator is a method of the workflow, in an `impl` block marked `#[workflow]`, with `#[id_generator]`. It may take the initial data as `&DataBag`, and returns `Result<String, Error>`; it takes `&self`, so it may also use the workflow's own fields, such as a shop's prefix. A workflow has at most one: two do not compile. The instance's ID is read with `journey_id()`, from the `WorkflowInstance` trait, and the result's from its `journey_id` field.
+
+When the generator returns `Err`, `create()` returns `InstanceError::JourneyId`, which displays as the message printed above. `DataBag::required` reads a key as a type, and fails when the key is absent or holds another type.

@@ -1,0 +1,23 @@
+order A-1
+  attempt_started charge 1
+  step_succeeded charge 1
+  hook_called downloads on step success: returned nothing
+  attempt_started ship 1
+  step_succeeded ship 1
+  journey_succeeded, decided by default
+the journey succeeded
+tracking T-A-1
+order A-2
+  attempt_started charge 1
+  step_succeeded charge 1
+  hook_called downloads on step success: returned FinishWorkflow
+  journey_succeeded, decided by downloads
+the journey succeeded
+download D-A-2
+order A-3
+  attempt_started charge 1
+  step_abnormal_termination charge 1: the payment network is down
+  hook_called outage on step abnormal termination: returned FailWorkflow
+  step_given_up charge 1: FailWorkflow, decided by outage on step abnormal termination
+  journey_failed at charge: FailWorkflow
+the journey failed: payment-network-down

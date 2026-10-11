@@ -1,0 +1,3 @@
+A-1: succeeded, charged 35
+A-2: succeeded, charged 40
+A-3: aborted, required data missing: price

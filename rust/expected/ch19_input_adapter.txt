@@ -1,0 +1,6 @@
+order A-1
+  pricing supplied amount to charge
+R-A-1: charged 35
+order A-2
+  pricing supplied amount to charge
+R-A-2: charged 40

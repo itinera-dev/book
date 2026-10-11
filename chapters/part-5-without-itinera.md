@@ -1,0 +1,131 @@
+# Without Itinera
+
+Part 5 ran the shop for real: many journeys, their results, their events and their tests. This section shows two things that are usually hard without Itinera, written the usual way, then with Itinera beside them.
+
+## Logging that depends on who wrote the code
+
+### The usual code
+
+The checkout has three parts, each written by a different person, and each logs in its own way. The warehouse code logs before every call.
+
+```example
+name: part5_scattered_logging
+region: inventory
+```
+
+The payments code logs only what goes wrong.
+
+```example
+name: part5_scattered_logging
+region: payments
+```
+
+The shipping code decided that a carrier refusing a parcel is not worth failing the order for, so it drops the error and logs nothing.
+
+```example
+name: part5_scattered_logging
+region: shipping
+```
+
+The checkout calls the three parts in turn.
+
+```example
+name: part5_scattered_logging
+region: checkout
+```
+
+Three orders go through it. It prints:
+
+```output
+name: part5_scattered_logging
+```
+
+Ask what happened to order A-2. The log says it is done, with no tracking number, and nothing else. To learn that the carrier refused it, you read the shipping code, find the dropped error, and work out from the customer's address why the carrier said no. Each part of this code mixes its business rule with a logging habit of its own, and the shipping part also hides a flow decision: a refused delivery does not stop the order. Reconstructing what happened to one order means reading all three parts and knowing which of them stays silent.
+
+### With Itinera
+
+The same three parts are steps. None of them logs: each reports its outcome, and the ship step fails with the reason `no-delivery` when the carrier refuses.
+
+```example
+name: part5_one_event_stream
+region: steps
+```
+
+One reporter, listed on the workflow, writes every event of every journey to the log.
+
+```example
+name: part5_one_event_stream
+region: log
+```
+
+It prints:
+
+```output
+name: part5_one_event_stream
+```
+
+Every journey reports the same stream of events, in the same order, whoever wrote the steps. Order A-2's stream says the stock was reserved, the price was charged, and the ship step failed with `no-delivery`, then the journey failed at the ship step. Nothing could stay silent: a step reports an outcome, or the executor reports why it did not. A refused delivery is a failure the ship step reports, and what follows from it is the workflow's business, in plain sight, rather than an error dropped inside the shipping code. Where the events go is the reporter's decision alone: change the reporter, and every journey of the shop is logged the new way.
+
+## Testing a flow by mocking it
+
+### The usual code
+
+Shipping falls back to the backup carrier when the main one fails. The fallback lives inside the shipping code.
+
+```example
+name: part5_mocked_carriers
+region: ship
+```
+
+To test the fallback, the test mocks both carriers, and each mock counts how often it is called.
+
+```example
+name: part5_mocked_carriers
+region: mock
+```
+
+The tests then check the tracking number and count the calls.
+
+```example
+name: part5_mocked_carriers
+region: tests
+```
+
+It prints:
+
+```output
+name: part5_mocked_carriers
+```
+
+These tests check two rules at once, how to ship and when to fall back, and to do so they must know how shipping is built inside: which carrier it calls first, and how many times. Counting calls checks the code's structure rather than what happened to the order. Change the fallback, for example to use the backup carrier first at weekends, and the mocks and their counts are rewritten, though shipping itself has not changed.
+
+### With Itinera
+
+The ship step ships through the carrier it is lent, and knows nothing of a second one. Its retry budget lets it be tried twice, and the workflow's provider gives each attempt a fresh carrier: the main carrier on the first attempt, the backup carrier after. The test's carriers are fakes that are up or down as the test says, and count nothing.
+
+```example
+name: part5_testing_the_fallback
+region: fake
+```
+
+The ship step is tested alone, lent one fake carrier: it ships when the carrier is up, and fails in a way worth trying again when the carrier is down.
+
+```example
+name: part5_testing_the_fallback
+region: step_alone
+```
+
+The fallback belongs to the workflow, so it is tested on a whole journey, by its events: with the main carrier down and the backup up, the ship step's first attempt fails, the executor decides to try it again, and the second attempt succeeds.
+
+```example
+name: part5_testing_the_fallback
+region: journey
+```
+
+Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are.
+
+## What you gain
+
+1. **One place to read the flow.** What follows a refused delivery, and which carrier each attempt of shipping uses, are read from the workflow and the outcomes it reacts to, not searched for through the business code.
+2. **Business code you can test alone.** Each step is checked through its data and its outcome, with one fake for what it uses, without mocking the rest of the shop.
+3. **Observation that is the same everywhere.** Every journey reports the same events in the same order, so one reporter logs the whole shop, and tests read the same stream to check what happened.

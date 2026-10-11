@@ -1,0 +1,13 @@
+error[E0271]: type mismatch resolving `<Instance<Orders, Asynchronous> as WorkflowInstance>::Mode == Synchronous`
+   --> compile-errors/ch27_mode_not_accepted.rs:25:43
+    |
+ 25 |     let result = LocalExecutor::new().run(Orders::builder().create()?)?;
+    |                                       --- ^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Synchronous`, found `Asynchronous`
+    |                                       |
+    |                                       required by a bound introduced by this call
+    |
+note: required by a bound in `LocalExecutor::<F>::run`
+   --> itinera-rs/crates/itinera-core/src/executor.rs:115:36
+    |
+115 |     pub fn run<I: WorkflowInstance<Mode = Synchronous>>(
+    |                                    ^^^^^^^^^^^^^^^^^^ required by this bound in `LocalExecutor::<F>::run`

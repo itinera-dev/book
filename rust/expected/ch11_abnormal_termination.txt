@@ -1,0 +1,3 @@
+A-1: succeeded, receipt R-A-1
+A-2: failed, failure: card-declined
+A-3: failed, abnormal termination: the payment network is down

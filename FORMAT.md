@@ -7,9 +7,11 @@ Where each part of the book lives in this repository, and how the shared text na
 1. Each chapter is one file under [chapters/](chapters/), named after its number and title, for example `chapters/06-a-workflow-of-one-step.md`. [chapters/README.md](chapters/README.md) lists the parts and chapters in reading order.
 2. Each "Without Itinera" section is a file of its own, named after the part it closes, for example `chapters/part-2-without-itinera.md`.
 3. Each appendix is a file named `chapters/appendix-N-short-name.md`.
-4. A chapter opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember".
-5. Every name a chapter gives to an example, a note or a compile error starts with the chapter's number, such as `ch06_one_step`, or with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, so names never clash between chapters.
-6. The shared text never names a language. Code, output and anything that differs between languages are named by directives, below, and each language supplies them.
+4. A chapter opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them.
+5. A "Without Itinera" section opens with the level 1 heading "Without Itinera", and an appendix with its own title; both choose their own level 2 and level 3 headings.
+6. Every name a chapter gives to an example, a note or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, or with the appendix's, such as `appendix1_cheat_sheet`, so names never clash between chapters.
+7. Any chapter, "Without Itinera" section or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
+8. The shared text never names a language. Code, output and anything that differs between languages are named by directives, below, and each language supplies them.
 
 ## Directives
 
@@ -34,7 +36,7 @@ name: ch06_one_step
 ```
 ````
 
-What the example `ch06_one_step` prints, as recorded next to it.
+What the example `ch06_one_step` prints, as recorded next to it. An example that is still pending (see "Each language", below) has no recorded output, so no `output` directive names it: the chapter says in its prose what the program does when it runs, and gains the directive when the example stops being pending.
 
 ### Note
 
@@ -66,8 +68,8 @@ Each language has a directory of its own, named after it, for example [rust/](ru
 
 1. `examples/NAME.EXT`: each example, a complete program, compiled and run in CI;
 2. `expected/NAME.txt`: what each example prints, compared with what it prints in CI;
-3. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message;
+3. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message. The message keeps the lines that say what is wrong and point at the code, and leaves out the build tool's progress lines. Paths in it are written as a reader of this repository sees them: the program as `compile-errors/NAME.EXT`, and a file of the implementation as a path inside its repository, such as `itinera-rs/crates/...`, never as a path on the machine that recorded it;
 4. `notes/NAME.md`: each note;
-5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled. When the feature arrives, each moves to `examples/` and gains its recorded output.
+5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled and have no recorded output. When the feature arrives, each moves to `examples/` and gains its recorded output, and the chapters showing it gain their `output` directives. Pending examples exist only while a language prepares a release: a released edition has none, and a feature its release lacks is shown as BOOK.md says, with a short note.
 
 Every example prints the same thing on every run: a journey ID or a timestamp that changes from run to run is never printed.
