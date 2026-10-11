@@ -44,7 +44,7 @@ export function rehypeListingNames() {
  *
  * The diagram's source stays in the page, so a reader without JavaScript still
  * reads it as text; `src/scripts/diagrams.ts` draws it in its place. Its
- * `accTitle` becomes the figure's visible caption, which also names the
+ * `accTitle` is made into the figure's visible caption, which also names the
  * drawing, and its `accDescr` describes the drawing. A diagram without either
  * fails the build. The text after each diagram in the chapter still says
  * everything it shows.
@@ -63,7 +63,7 @@ export function rehypeDiagrams() {
 			if (!code || !hasClass(code, 'language-mermaid')) return;
 			const source = toString(code).replace(/\n+$/, '');
 			const title = /^[ \t]*accTitle[ \t]*:[ \t]*(\S.*?)[ \t]*$/m.exec(source)?.[1];
-			if (title === undefined || !/^[ \t]*accDescr[ \t]*(:[ \t]*\S|\{)/m.test(source)) {
+			if (title === undefined || !/^[ \t]*accDescr[ \t]*(:[ \t]*\S|\{\s*[^\s}])/m.test(source)) {
 				const where = `${file.data.repositoryPath ?? 'a chapter'}, line ${node.position?.start.line ?? '?'}`;
 				throw new Error(`${where}: a diagram needs an accTitle and an accDescr, which name and describe it for a screen reader.`);
 			}
