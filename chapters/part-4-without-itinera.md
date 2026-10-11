@@ -89,21 +89,21 @@ region: ship
 
 Shipping now knows about two carriers, a breaker, a retry policy and a fallback. The breaker's state is hidden inside it: when the fourth order goes to the backup carrier, only one log line hints at why.
 
-With Itinera, the ship step only ships, through the carrier it is lent, and says which carrier that was:
+With Itinera, the ship step only ships, through the carrier it is lent, without knowing which one it is:
 
 ```example
 name: part4_circuit_breaker
 region: step
 ```
 
-A step policy sees how every attempt to ship went, and records it through a role the workflow provides. The breaker's state belongs to the workflow, which keeps it across journeys:
+A step policy sees how every attempt to ship went, and records it, with the attempt's number, through a role the workflow provides. The breaker's state belongs to the workflow, which keeps it across journeys:
 
 ```example
 name: part4_circuit_breaker
 region: policy
 ```
 
-The carrier's provider, part of the workflow too, reads that state before it hands out a carrier, and gives the backup one while the breaker is open:
+The carrier's provider, part of the workflow too, reads that state before it hands out a carrier, and gives the backup one while the breaker is open. The role counts only the attempts that went to the main carrier, which it tells apart by the same rule as the provider:
 
 ```example
 name: part4_circuit_breaker

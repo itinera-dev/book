@@ -1,8 +1,8 @@
-to the customer of A-1: your order is complete
+to Ann: order A-1 is complete
 A-1: succeeded
-to the customer of A-2: your order is complete
+to Ben: order A-2 is complete
 A-2: succeeded
-to the customer of A-3: we could not complete your order
+to Cat: we could not complete order A-3
 A-3: failed, failure: expired-card
-to the customer of A-4: we could not complete your order
+to Dan: we could not complete order A-4
 A-4: failed, FailWorkflow: payments-down

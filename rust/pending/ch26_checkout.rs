@@ -32,9 +32,9 @@ trait StockStore: Send + Sync {
     fn hand_over(&self, order: &str);
 }
 
-/// A carrier: it collects a parcel and gives a tracking number, when it can take it.
+/// A carrier: it takes a parcel and gives back its tracking number, when it can take it.
 trait Carrier: Send + Sync {
-    fn collect(&self, order: &str) -> Option<String>;
+    fn send(&self, order: &str) -> Option<String>;
 }
 // ANCHOR_END: services
 
@@ -97,7 +97,7 @@ const BACKUP_CARRIER: Van = Van {
 };
 
 impl Carrier for Van {
-    fn collect(&self, order: &str) -> Option<String> {
+    fn send(&self, order: &str) -> Option<String> {
         if self.cannot_take.contains(&order) {
             return None;
         }
@@ -204,7 +204,7 @@ impl Ship {
         #[service] stock: &dyn StockStore,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
-        let Some(tracking) = carrier.collect(&self.order) else {
+        let Some(tracking) = carrier.send(&self.order) else {
             return Self::fail_retriably("carrier-unavailable");
         };
         stock.hand_over(&self.order);

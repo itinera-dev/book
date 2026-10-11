@@ -13,7 +13,7 @@ name: ch14_rescue
 region: charge
 ```
 
-The repair is a step of its own, `RenewCard`, the rescue step of the charge. It reads why the charge failed. When the card had expired, it asks the bank for the new one and contributes it under `card`, the key the charge reads. For any other failure it cannot help, and fails.
+The repair is a step of its own, `RenewCard`, the rescue step of the charge. It reads why the charge failed. When the card had expired, it asks the bank for the new one and contributes it under `card`, the key the charge reads. For any other failure it cannot help, and fails; so too when the charge ended in an abnormal termination, which gives no reason at all.
 
 ```example
 name: ch14_rescue
@@ -43,7 +43,7 @@ name: ch14_rescue
 ## How it works
 
 1. **A rescue step repairs, then hands back.** When the charge fails, whether it reported a failure or ended in an abnormal termination, the executor runs its rescue step next, then the charge once more. The charge's second run is its attempt 2, built afresh from the data bag, so it sees the card the rescue step contributed.
-2. **The rescue step sees why the step failed.** Besides its own inputs from the data bag, it can ask for what the failed attempt reported: its reason, its error, and what it contributed before failing. `RenewCard` reads the reason, so it repairs only what it knows how to repair.
+2. **The rescue step sees why the step failed.** Besides its own inputs from the data bag, it can ask for what the failed attempt reported: its reason, if it reported a failure; its error, if it ended in an abnormal termination, which has no reason; and what it contributed before failing. `RenewCard` reads the reason, when there is one, so it repairs only what it knows how to repair.
 3. **The rescue step is an ordinary step otherwise.** It is built once, runs once, contributes data and reports an outcome. Its contributions are committed only when it succeeds, as for any step.
 4. **A rescued step is never retried.** The rescue takes the place of retrying, so a step with a rescue step has no retry budget: declaring one is refused before any journey starts. Neither the step's first run, nor the rescue step, nor the second run is tried again, and a step is rescued at most once in a journey.
 5. **If the rescue fails, the journey fails.** The rescue step is a step that failed, so the journey ends there, naming the rescue step, and the charge does not run again. If the rescue succeeds but the second run of the charge fails, the charge is given up as any step would be, and the journey fails too.

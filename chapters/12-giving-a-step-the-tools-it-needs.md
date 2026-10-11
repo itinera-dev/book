@@ -34,7 +34,7 @@ name: ch12_services
 region: run
 ```
 
-When it runs, the warehouse opens one stock store, which reserves the order and later hands it over for shipping; the bank charges 40; the shop books the carrier for the shipping's attempt, and the carrier collects the order. The journey succeeds, with the receipt `R-A-1` and the tracking number `T-A-1`.
+When it runs, the warehouse opens one stock store, which reserves the order; the bank charges 40 to the customer's card; the shop books the carrier for the shipping's attempt, the carrier collects the order, and the same stock store hands it over. The journey succeeds, with the receipt `R-ann-card-40` and the tracking number `T-A-1`.
 
 ```note
 name: ch12_services
@@ -50,7 +50,7 @@ name: ch12_services
    2. **For every attempt:** the provider is called for each attempt of each step that asks for the key, retries included, and that instance serves that attempt only. Each attempt of the shipping gets a fresh booking with the carrier, so a failed attempt's booking is never reused. Chapter 13 uses this to give the second attempt the backup carrier.
 5. **A provider can serve only some steps.** The stock store's provider is attached to the reservation and the shipping, and serves those two steps only. When a workflow has both a provider attached to some steps and one for every step, under the same key, the attached one takes the place of the other for its steps.
 6. **The step has the service only for its attempt.** The service is lent to the step for its attempt, as its contributor is. When the attempt ends, the step no longer has it, and the provider's decision about its lifetime holds.
-7. **A service's errors are the step's to handle.** What a step does with a service is its business, and the executor does not record it. An error from the service that the step lets escape is an abnormal termination, as chapter 11 shows; the step can also turn it into an outcome. A provider that fails, on the other hand, means the step cannot be built, and the journey is aborted with `step could not be built`.
+7. **What a service answers is the step's to handle.** What a step does with a service is its business, and the executor does not record it. Here each step turns its service's answer into an outcome: a card the bank refuses is a failure, and a carrier that cannot take the parcel is a failure that might work next time. An error from a service that the step lets escape is an abnormal termination, as chapter 11 shows. A provider that fails, on the other hand, means the step cannot be built, and the journey is aborted with `step could not be built`.
 8. **Only steps ask for services.** Policies act on the outside world through roles instead, as chapter 18 shows.
 
 ## Remember

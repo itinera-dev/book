@@ -54,19 +54,20 @@ impl Charge {
 
 // ANCHOR: rescue
 /// Asks the customer's bank for the renewed card, after the charge failed because the card had
-/// expired. Any other failure is not its to repair.
+/// expired. Any other failure, or an abnormal termination, which has no reason, is not its to
+/// repair.
 #[derive(Step)]
 struct RenewCard {
     #[input]
     card: String,
     #[reason]
-    reason: Reason,
+    reason: Option<Reason>,
 }
 
 #[step]
 impl RenewCard {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        if self.reason.code() != "expired-card" {
+        if self.reason.as_ref().map(Reason::code) != Some("expired-card") {
             return Self::fail("not-repairable");
         }
         contributor.contribute("card", renewed_card(&self.card));

@@ -15,6 +15,7 @@ use itinera::workflow::{ListedStep, Violations, WorkflowDescriptor};
 const PRICE: Input<i64> = Input::new("price");
 const CHARGED: Input<i64> = Input::new("charged");
 const ORDER: Input<String> = Input::new("order");
+const CUSTOMER: Input<String> = Input::new("customer");
 
 // ANCHOR: step
 /// Charges an order's price, for one attempt.
@@ -79,7 +80,7 @@ impl OnStepSuccess<Orders> for Audit {
 
 /// The shop's way of telling a customer something.
 trait Messages {
-    fn tell(&self, order: &str, message: &str);
+    fn tell(&self, customer: &str, message: &str);
 }
 
 /// Tells the customer once the order is complete.
@@ -87,16 +88,19 @@ struct Notify;
 
 impl OnWorkflowSuccess<Orders> for Notify {
     fn needs() -> HookNeeds<WorkflowSuccess> {
-        HookNeeds::new().from_workflow(&ORDER)
+        HookNeeds::new()
+            .from_workflow(&CUSTOMER)
+            .from_workflow(&ORDER)
     }
 
     fn on_workflow_success(
         &self,
         mut got: Requested<'_, Orders, WorkflowSuccess>,
     ) -> Result<(), Error> {
+        let customer = got.from_workflow(&CUSTOMER)?;
         let order = got.from_workflow(&ORDER)?;
         let messages: &dyn Messages = got.role();
-        messages.tell(&order, "your order is complete");
+        messages.tell(&customer, &format!("order {order} is complete"));
         Ok(())
     }
 }
@@ -107,8 +111,8 @@ impl OnWorkflowSuccess<Orders> for Notify {
 struct Orders;
 
 impl Messages for Orders {
-    fn tell(&self, order: &str, message: &str) {
-        println!("to the customer of {order}: {message}");
+    fn tell(&self, customer: &str, message: &str) {
+        println!("to {customer}: {message}");
     }
 }
 
@@ -170,6 +174,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instance = orders
         .instance(Orders)
         .data("order", "A-1".to_owned())
+        .data("customer", "Ann".to_owned())
         .data("price", 40_i64)
         .create()?;
     let result = LocalExecutor::new().run(instance)?;

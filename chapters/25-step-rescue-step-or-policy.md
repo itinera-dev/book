@@ -59,7 +59,7 @@ It prints:
 name: ch25_where_it_belongs
 ```
 
-The order paid with an expired card fails, because nothing repairs the card yet. The repair belongs in a rescue step of the charge, which reads why the charge failed and, when the card had expired, asks the bank for the renewed one and contributes it.
+The order paid with an expired card fails, because nothing repairs the card yet. The repair belongs in a rescue step of the charge, which reads why the charge failed, when the charge gave a reason, and, when the card had expired, asks the bank for the renewed one and contributes it.
 
 ```example
 name: ch25_rescue

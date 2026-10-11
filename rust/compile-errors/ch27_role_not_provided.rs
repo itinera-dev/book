@@ -19,7 +19,7 @@ impl Charge {
 
 /// The shop's way of telling a customer something.
 trait Messages {
-    fn tell(&self, message: &str);
+    fn tell(&self, customer: &str, message: &str);
 }
 
 /// Tells the customer once the order is complete.
@@ -29,8 +29,12 @@ struct Notify;
 #[workflow_policy(name = "notify")]
 impl Notify {
     #[on_workflow_success]
-    fn completed(&self, #[role] messages: &dyn Messages) -> Result<(), Error> {
-        messages.tell("your order is complete");
+    fn completed(
+        &self,
+        #[from_workflow] customer: String,
+        #[role] messages: &dyn Messages,
+    ) -> Result<(), Error> {
+        messages.tell(&customer, "your order is complete");
         Ok(())
     }
 }
@@ -41,8 +45,8 @@ impl Notify {
 struct Orders;
 
 impl Messages for Orders {
-    fn tell(&self, message: &str) {
-        println!("to the customer: {message}");
+    fn tell(&self, customer: &str, message: &str) {
+        println!("to {customer}: {message}");
     }
 }
 

@@ -13,11 +13,8 @@ use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::{role, workflow};
 
-/// What the shop asks of a carrier.
+/// What the shop asks of a carrier: take a parcel and give back its tracking number.
 trait Carrier: Send + Sync {
-    /// The carrier's name, as the shop knows it.
-    fn name(&self) -> &'static str;
-
     /// Returns the tracking number, or nothing when the carrier is down.
     fn send(&self, order: &str) -> Option<String>;
 }
@@ -30,17 +27,13 @@ struct Parcels {
 }
 
 impl Carrier for Parcels {
-    fn name(&self) -> &'static str {
-        self.name
-    }
-
     fn send(&self, order: &str) -> Option<String> {
         self.up.then(|| format!("{}-{order}", self.name))
     }
 }
 
 // ANCHOR: step
-/// Ships an order through the carrier it is lent, and says which carrier that was.
+/// Ships an order through the carrier it is lent.
 #[derive(Step)]
 struct Ship {
     #[input]
@@ -54,7 +47,6 @@ impl Ship {
         #[service] carrier: &dyn Carrier,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
-        contributor.contribute("carrier", carrier.name().to_owned());
         match carrier.send(&self.order) {
             Some(tracking) => {
                 contributor.contribute("tracking", tracking);
@@ -67,10 +59,10 @@ impl Ship {
 // ANCHOR_END: step
 
 // ANCHOR: role
-/// What the shop's breaker offers its policies: recording how each call to a carrier went.
+/// What the shop's breaker offers its policies: recording how each attempt to ship went.
 trait CircuitBreaker {
-    fn failed(&self, carrier: &str);
-    fn succeeded(&self, carrier: &str);
+    fn failed(&self, attempt: NonZeroU32);
+    fn succeeded(&self, attempt: NonZeroU32);
 }
 // ANCHOR_END: role
 
@@ -84,32 +76,30 @@ impl Watch {
     #[on_step_success]
     fn shipped(
         &self,
-        #[from_step] carrier: String,
+        #[attempt] attempt: NonZeroU32,
         #[role] breaker: &dyn CircuitBreaker,
     ) -> Result<Option<OnSuccess>, Error> {
-        breaker.succeeded(&carrier);
+        breaker.succeeded(attempt);
         Self::carry_on()
     }
 
     #[on_step_retry]
     fn retried(
         &self,
-        #[from_step] carrier: String,
+        #[attempt] attempt: NonZeroU32,
         #[role] breaker: &dyn CircuitBreaker,
     ) -> Result<Option<FailWorkflow>, Error> {
-        breaker.failed(&carrier);
+        breaker.failed(attempt);
         Self::carry_on()
     }
 
     #[on_step_failure]
     fn gave_up(
         &self,
-        #[from_step] carrier: Option<String>,
+        #[attempt] attempt: NonZeroU32,
         #[role] breaker: &dyn CircuitBreaker,
     ) -> Result<Option<FailWorkflow>, Error> {
-        if let Some(carrier) = carrier {
-            breaker.failed(&carrier);
-        }
+        breaker.failed(attempt);
         Self::carry_on()
     }
 }
@@ -137,28 +127,37 @@ struct Orders {
     breaker: Arc<Breaker>,
 }
 
+impl Orders {
+    /// Whether an attempt to ship goes to the main carrier: only attempt 1, and only while the
+    /// breaker is closed.
+    fn main_carrier_for(&self, attempt: NonZeroU32) -> bool {
+        attempt.get() == 1 && !self.breaker.is_open()
+    }
+}
+
 #[workflow]
 impl Orders {
     /// A fresh carrier for every attempt: the main one on attempt 1, unless the breaker is open.
     #[provider(per_attempt)]
     fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
-        if attempt.get() == 1 && !self.breaker.is_open() {
+        if self.main_carrier_for(attempt) {
             return Ok(Box::new(self.main.clone()));
         }
         Ok(Box::new(self.backup.clone()))
     }
 }
 
+/// The breaker counts only the main carrier's attempts, which it tells apart as the provider does.
 #[role]
 impl CircuitBreaker for Orders {
-    fn failed(&self, carrier: &str) {
-        if carrier == self.main.name {
+    fn failed(&self, attempt: NonZeroU32) {
+        if self.main_carrier_for(attempt) {
             self.breaker.failures.fetch_add(1, Ordering::Relaxed);
         }
     }
 
-    fn succeeded(&self, carrier: &str) {
-        if carrier == self.main.name {
+    fn succeeded(&self, attempt: NonZeroU32) {
+        if self.main_carrier_for(attempt) {
             self.breaker.failures.store(0, Ordering::Relaxed);
         }
     }

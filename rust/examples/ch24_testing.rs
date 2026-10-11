@@ -50,7 +50,7 @@ impl Ship {
 
 /// The role the shop provides to policies: telling a customer something.
 trait Messages {
-    fn tell(&self, message: &str) -> Result<(), Error>;
+    fn tell(&self, customer: &str, message: &str);
 }
 
 /// Tells the customer how the order went.
@@ -63,25 +63,32 @@ impl Notify {
     fn paid(
         &self,
         #[journey_id] order: &JourneyId,
+        #[from_workflow] customer: String,
         #[from_workflow] charged: i64,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(&format!("{order}: paid {charged}"))
+        messages.tell(&customer, &format!("{order}: paid {charged}"));
+        Ok(())
     }
 
     #[on_workflow_failure]
     fn sorry(
         &self,
         #[journey_id] order: &JourneyId,
+        #[from_workflow] customer: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(&format!("{order}: we could not complete your order"))
+        messages.tell(
+            &customer,
+            &format!("{order}: we could not complete your order"),
+        );
+        Ok(())
     }
 }
 
 /// Where the shop's messages go: an email service in production.
 trait Outbox: Send + Sync {
-    fn send(&self, text: &str) -> Result<(), Error>;
+    fn send(&self, to: &str, text: &str);
 }
 
 /// The shop's workflow: charge, then ship, then tell the customer, through its outbox.
@@ -94,8 +101,8 @@ struct Orders {
 
 #[role]
 impl Messages for Orders {
-    fn tell(&self, message: &str) -> Result<(), Error> {
-        self.outbox.send(message)
+    fn tell(&self, customer: &str, message: &str) {
+        self.outbox.send(customer, message);
     }
 }
 
@@ -111,19 +118,22 @@ impl Orders {
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
+    customer: String,
     price: i64,
 }
 // ANCHOR_END: shop
 
 // ANCHOR: fakes
-/// An outbox that sends nothing, and keeps every text for the test to read.
+/// An outbox that sends nothing, and keeps every text for the test to read. It fails the test,
+/// by panicking, if the test has stopped reading.
 struct FakeOutbox {
     sent: Sender<String>,
 }
 
 impl Outbox for FakeOutbox {
-    fn send(&self, text: &str) -> Result<(), Error> {
-        Ok(self.sent.send(text.to_owned())?)
+    fn send(&self, to: &str, text: &str) {
+        let kept = self.sent.send(format!("to {to}: {text}"));
+        assert!(kept.is_ok(), "the test stopped reading the outbox");
     }
 }
 
@@ -258,8 +268,8 @@ struct NotifyAlone {
 
 #[role]
 impl Messages for NotifyAlone {
-    fn tell(&self, message: &str) -> Result<(), Error> {
-        self.outbox.send(message)
+    fn tell(&self, customer: &str, message: &str) {
+        self.outbox.send(customer, message);
     }
 }
 
@@ -275,6 +285,7 @@ impl NotifyAlone {
 #[derive(InitialData)]
 struct Ending {
     order: String,
+    customer: String,
     charged: i64,
     succeeds: bool,
 }
@@ -292,22 +303,24 @@ fn told_after(ending: Ending) -> Result<Vec<String>, Box<dyn std::error::Error>>
 fn the_notify_policy_alone() -> Result<(), Box<dyn std::error::Error>> {
     let told = told_after(Ending {
         order: "A-1".to_owned(),
+        customer: "Ann".to_owned(),
         charged: 40,
         succeeds: true,
     })?;
     check(
         "notify tells the customer an order is paid",
-        told == ["A-1: paid 40"],
+        told == ["to Ann: A-1: paid 40"],
     )?;
 
     let told = told_after(Ending {
         order: "A-2".to_owned(),
+        customer: "Ben".to_owned(),
         charged: 0,
         succeeds: false,
     })?;
     check(
         "notify tells the customer an order could not be completed",
-        told == ["A-2: we could not complete your order"],
+        told == ["to Ben: A-2: we could not complete your order"],
     )?;
     Ok(())
 }
@@ -321,6 +334,7 @@ fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
         .outbox(Box::new(FakeOutbox { sent }))
         .initial_data(NewOrder {
             order: "A-2".to_owned(),
+            customer: "Ben".to_owned(),
             price: 0,
         })
         .reporter(Recorder { lines })
@@ -345,7 +359,7 @@ fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
     )?;
     check(
         "a free order's customer is told",
-        received(&outbox) == ["A-2: we could not complete your order"],
+        received(&outbox) == ["to Ben: A-2: we could not complete your order"],
     )?;
     Ok(())
 }

@@ -103,7 +103,7 @@ impl Outage {
 
 /// The shop's way of telling a customer something.
 trait Messages {
-    fn tell(&self, order: &str, message: &str);
+    fn tell(&self, customer: &str, message: &str);
 }
 
 /// Tells the customer how the order went.
@@ -115,20 +115,22 @@ impl Notify {
     #[on_workflow_success]
     fn completed(
         &self,
+        #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(&order, "your order is complete");
+        messages.tell(&customer, &format!("order {order} is complete"));
         Ok(())
     }
 
     #[on_workflow_failure]
     fn not_completed(
         &self,
+        #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(&order, "we could not complete your order");
+        messages.tell(&customer, &format!("we could not complete order {order}"));
         Ok(())
     }
 }
@@ -143,8 +145,8 @@ struct Orders;
 
 #[role]
 impl Messages for Orders {
-    fn tell(&self, order: &str, message: &str) {
-        println!("to the customer of {order}: {message}");
+    fn tell(&self, customer: &str, message: &str) {
+        println!("to {customer}: {message}");
     }
 }
 // ANCHOR_END: workflow
@@ -153,6 +155,7 @@ impl Messages for Orders {
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
+    customer: String,
     price: i64,
     card: String,
     digital: bool,
@@ -172,16 +175,17 @@ fn described(status: &JourneyStatus) -> String {
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
-        ("A-1", "card-ok", false),
-        ("A-2", "card-ok", true),
-        ("A-3", "card-expired", false),
-        ("A-4", "card-offline", false),
+        ("A-1", "Ann", "card-ok", false),
+        ("A-2", "Ben", "card-ok", true),
+        ("A-3", "Cat", "card-expired", false),
+        ("A-4", "Dan", "card-offline", false),
     ];
     let mut executor = LocalExecutor::new();
-    for (order, card, digital) in orders {
+    for (order, customer, card, digital) in orders {
         let instance = Orders::builder()
             .initial_data(NewOrder {
                 order: order.to_owned(),
+                customer: customer.to_owned(),
                 price: 40,
                 card: card.to_owned(),
                 digital,

@@ -45,19 +45,21 @@ impl Charge {
 // ANCHOR_END: charge
 
 // ANCHOR: rescue
-/// Asks the customer's bank for the card that replaced an expired one.
+/// Asks the customer's bank for the card that replaced an expired one. A charge that failed for
+/// any other reason, or ended in an abnormal termination, which has no reason, cannot be
+/// repaired this way.
 #[derive(Step)]
 struct RenewCard {
     #[input]
     customer: String,
     #[reason]
-    reason: Reason,
+    reason: Option<Reason>,
 }
 
 #[step]
 impl RenewCard {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        if self.reason.code() != "expired-card" {
+        if self.reason.as_ref().map(Reason::code) != Some("expired-card") {
             return Self::fail("nothing-to-renew");
         }
         match Bank::renewed_card(&self.customer) {

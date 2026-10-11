@@ -29,7 +29,7 @@ impl Charge {
 
 /// The shop's way of telling a customer something.
 trait Messages {
-    fn tell(&self, order: &str, message: &str);
+    fn tell(&self, customer: &str, message: &str);
 }
 
 // ANCHOR: policy
@@ -61,10 +61,10 @@ impl Notify {
     #[on_workflow_success]
     fn completed(
         &self,
-        #[from_workflow] order: String,
+        #[from_workflow] customer: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(&order, self.completed);
+        messages.tell(&customer, self.completed);
         Ok(())
     }
 }
@@ -88,8 +88,8 @@ struct Orders;
 
 #[role]
 impl Messages for Orders {
-    fn tell(&self, order: &str, message: &str) {
-        println!("to the customer of {order}: {message}");
+    fn tell(&self, customer: &str, message: &str) {
+        println!("to {customer}: {message}");
     }
 }
 
@@ -97,6 +97,7 @@ impl Messages for Orders {
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
+    customer: String,
     price: i64,
 }
 
@@ -105,6 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instance = Orders::builder()
         .initial_data(NewOrder {
             order: "A-1".to_owned(),
+            customer: "Ann".to_owned(),
             price: 40,
         })
         .create()?;
