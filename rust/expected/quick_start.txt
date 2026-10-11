@@ -4,8 +4,8 @@
   contribution_committed charged
   attempt_started ship 1
   optional_input_absent carrier
-  step_failed ship 1: carrier-down
-  hook_called
+  step_failed ship 1: carrier-down, retriable
+  hook_called fallback on step retry
   contribution_committed carrier
   step_retrying
   attempt_started ship 2

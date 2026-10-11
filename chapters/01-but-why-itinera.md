@@ -6,7 +6,7 @@ Fair question. You already know how to write a checkout, so why would you hand i
 
 You run a small online shop. When a customer checks out, the shop reserves the goods, charges the card, ships the parcel and tells the customer how it went. You want to answer simple questions about any order: what the shop tried, in what order, what it did when something failed, and who was told.
 
-This chapter looks at a checkout written the usual way, by a competent developer, and asks it those questions. No Itinera yet: just the cases.
+This chapter looks at a checkout written the usual way, by a competent developer, and asks it those questions. No Itinera yet: just the usual code, and four orders to try it on.
 
 ## The code
 

@@ -10,14 +10,14 @@ On the book's web pages, the **programming language** selector at the top of eve
 
 ## Meet the shop
 
-Every example belongs to the same small online shop, and to the same four customers:
+Every example belongs to the same small online shop, and to the same four customers. In chapter 1 you meet them like this:
 
-1. **Ann**, whose orders go through without trouble.
+1. **Ann**, whose order goes through without trouble.
 2. **Ben**, whose card has expired, so the shop has to get his new one.
 3. **Cat**, whose parcel the main carrier cannot take, so it goes to the backup carrier.
 4. **Dan**, whose card has expired too, and whose bank refuses the new one.
 
-Their orders are numbered A-1, A-2, A-3 and A-4, in that order. A chapter may use only some of them, or give one of them a different problem, but the shop and its people stay the same, so you never have to learn a new example.
+Their orders are numbered A-1, A-2, A-3 and A-4, in that order. Other chapters use only some of them, or give them other problems, such as a declined card or an address the carrier does not know, whatever the chapter is about. The names and the order numbers stay the same, so you never have to learn a new example.
 
 ## The shape of a chapter
 
@@ -30,11 +30,11 @@ Every chapter has the same four sections, so you can jump straight to the one yo
 
 ## Code you can trust
 
-Every piece of code in the book is part of a complete program that compiles and runs, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does.
+Every piece of code in the book is part of a complete program in the book's repository, checked every time the book changes, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does.
 
 Each block of code has a caption naming the program it comes from, with a link to the whole program. A few captions carry a mark:
 
-1. **The asynchronous form.** Itinera can run a workflow synchronously or asynchronously, and the two differ very little. Each chapter shows the synchronous form first. Where the asynchronous form of the same code differs, it follows right after, and its caption says so. A language that offers only one of the two shows only that one.
+1. **The asynchronous form.** A step, a hook or a reporter can be synchronous or asynchronous, and the two forms differ very little. Each chapter shows the synchronous form first. Where the asynchronous form of the same code differs, it follows right after, and its caption says so. A language that offers only one of the two shows only that one.
 2. **Not compiled yet.** A program that uses a feature not released yet is shown, but it isn't compiled until that feature arrives, and its caption says so.
 3. **Does not compile.** Some mistakes can't even be written: the language refuses them before your program ever runs. When the book shows one, the caption says the program does not compile, and what the compiler says follows it, word for word.
 
@@ -42,7 +42,7 @@ Notes about your language appear in a box headed with its name. They say what is
 
 ## Words with one meaning
 
-Itinera has a small vocabulary: step, workflow, policy, hook, executor, journey, data bag and a few more. Each word has exactly one meaning, defined by the specification, and the book never uses two of them as if they were the same thing. The first time a word appears it is in **bold**, with its meaning in plain words. When you forget one, the [glossary](appendix-2-glossary.md) has them all, and the [cheat sheet](appendix-1-cheat-sheet.md) has every declaration on one page.
+Itinera has a small vocabulary: step, workflow, policy, hook, executor, journey, data bag and a few more. Each word has exactly one meaning, defined by the specification, and the book never uses two of them as if they were the same thing. Where a chapter introduces a word, it is in **bold**, with its meaning in plain words. When you forget one, the [glossary](appendix-2-glossary.md) has them all, and the [cheat sheet](appendix-1-cheat-sheet.md) has every declaration on one page.
 
 ## Diagrams, read aloud
 

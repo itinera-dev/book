@@ -20,8 +20,8 @@ Itinera gives every kind of decision a place of its own:
 
 1. **A step** holds one business rule, such as "charge the order its price, less any discount". It asks for the data it needs, contributes the data it produces, and reports how it went. It never knows what comes before it or after it.
 2. **A workflow** lists the steps in the order they run, how many times each may be tried again, and the policies attached to them. Read it, and you know what will run.
-3. **A policy** holds the flow decisions. After each outcome, the executor calls the policy's hooks, and they decide what happens next: carry on, try again with something different, or stop.
-4. **The executor** runs the workflow, once for each order, and reports everything it does as events, the same way for every workflow you write.
+3. **A policy** holds the flow decisions. After each outcome, the executor calls the policy's hooks, and they decide what happens next: carry on, perhaps changing the data the next attempt will use, finish the journey early, or fail it.
+4. **The executor** runs a workflow instance, one for each order, and reports everything it does as events, the same way for every workflow you write.
 
 That's all. There is no branching inside a workflow, no hidden retries, and nothing a step can call to change what comes next. Itinera makes the separation part of the structure, so it no longer depends on everyone's discipline.
 
@@ -31,11 +31,11 @@ Itinera is also more than one library. Its behaviour is defined once, in a [spec
 
 *Itinera* is Latin. It is the plural of *iter*, which means a journey, a route, the way from one place to another. It is where the word "itinerary" comes from.
 
-That is exactly what Itinera runs. Every time a workflow runs for one order, that run is a **journey**: it starts with what you know about the order, passes through the steps in order, and ends with what happened. One workflow, many journeys: *itinera*.
+That is exactly what Itinera runs. One execution of a workflow for one order is a **journey**: it starts with what you know about the order, passes through the steps in order, and ends with what happened. One workflow, many journeys: *itinera*.
 
 ## How this book is laid out
 
-The book follows one small online shop from start to finish. It charges orders, ships them through a carrier, falls back to another carrier when the first one fails, audits every charge, and tells customers how their order went. The shop grows a little in every chapter.
+The book follows one small online shop from start to finish. It charges orders, ships them through a carrier, falls back to another carrier when the first one fails, audits every successful charge, and tells customers how their order went. The shop grows a little in every chapter.
 
 1. Before Part 1 come three short pages: this welcome, [how to read this book](how-to-read-this-book.md), and a [quick start](quick-start.md) that shows a whole workflow on one page.
 2. **Part 1, Introduction,** asks why you would want Itinera at all, then gives you the few ideas it is built on.

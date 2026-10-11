@@ -57,7 +57,7 @@ name: quick_start
 
 Read the output from the top, and you are watching the journey:
 
-1. The journey starts, and the charge succeeds on its first attempt. What it contributed, `charged`, joins the journey's data.
+1. The journey starts, and the charge succeeds on its first attempt. What it contributed, `charged`, is committed to the data bag, the journey's store of data.
 2. Shipping's first attempt has no carrier to use, so it tries the main carrier, which is down. It fails with the reason `carrier-down`, and says that trying again might work.
 3. Shipping may be tried once more, so the executor calls the fallback policy's hook first. The hook contributes `carrier`, and the executor tries shipping again.
 4. The second attempt gets the backup carrier, and succeeds with a tracking number.

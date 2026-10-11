@@ -1,6 +1,6 @@
 ---
-// One page of the book, in the edition this build renders: a page of the front
-// matter, a chapter, the "Without Itinera" section that closes a part, or an
+// One page of the book, in the edition this build renders: a welcome page, a
+// chapter, the "Without Itinera" section that closes a part, or an
 // appendix.
 
 import { build, pageHref } from '../../../book.config.mjs';
@@ -24,7 +24,7 @@ interface Props {
 
 const { page, previous, next } = Astro.props;
 const { title, html } = await renderPage(page);
-const labels = { front: undefined, chapter: `Chapter ${page.number}`, appendix: 'Appendix', 'without-itinera': 'Closing the part' };
+const labels = { welcome: undefined, chapter: `Chapter ${page.number}`, appendix: 'Appendix', 'without-itinera': 'Closing the part' };
 const label = labels[page.kind];
 const pageTitle = page.kind === 'without-itinera' ? `${title}, ${page.part.title}` : pageName(page);
 ---

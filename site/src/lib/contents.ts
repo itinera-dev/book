@@ -12,7 +12,7 @@ import { unified } from 'unified';
 import { root } from '../../book.config.mjs';
 import { readText } from './text.ts';
 
-export type PageKind = 'front' | 'chapter' | 'without-itinera' | 'appendix';
+export type PageKind = 'welcome' | 'chapter' | 'without-itinera' | 'appendix';
 
 export interface Page {
 	/** The file name without `.md`, which is also the page's URL segment. */
@@ -22,7 +22,7 @@ export interface Page {
 	kind: PageKind;
 	/** The chapter's number, for a chapter. */
 	number?: number;
-	/** How the contents names the page: the chapter's or front page's title, "Without Itinera", or "Appendix 1: Cheat sheet". */
+	/** How the contents names the page: the chapter's or welcome page's title, "Without Itinera", or "Appendix 1: Cheat sheet". */
 	label: string;
 	/** The part the page belongs to. */
 	part: Part;
@@ -56,11 +56,11 @@ function text(nodes: PhrasingContent[]): string {
 		.join('');
 }
 
-/** A numbered entry is a chapter; an unnumbered one is front matter, unless its file says otherwise. */
+/** A numbered entry is a chapter; an unnumbered one is a welcome page, unless its file name marks it as a "Without Itinera" section or an appendix. */
 function kindOf(slug: string, numbered: boolean): PageKind {
 	if (/^part-\d+-without-itinera$/.test(slug)) return 'without-itinera';
 	if (/^appendix-\d+-/.test(slug)) return 'appendix';
-	return numbered ? 'chapter' : 'front';
+	return numbered ? 'chapter' : 'welcome';
 }
 
 function pageOf(item: ListItem, number: number | undefined, part: Part): Page {
@@ -81,7 +81,7 @@ function pageOf(item: ListItem, number: number | undefined, part: Part): Page {
 		file: `chapters/${slug}.md`,
 		kind,
 		number: kind === 'chapter' ? number : undefined,
-		label: kind === 'chapter' || kind === 'front' ? text(link.children).trim() : label,
+		label: kind === 'chapter' || kind === 'welcome' ? text(link.children).trim() : label,
 		part,
 	};
 }
