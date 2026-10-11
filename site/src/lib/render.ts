@@ -1,6 +1,5 @@
 // Turns the book's Markdown into HTML for the edition this build renders.
 
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype';
@@ -19,6 +18,7 @@ import { contents, type Page } from './contents.ts';
 import remarkBookDirectives from './directives.ts';
 import { rewriteLinks } from './links.ts';
 import { rehypeDiagrams, rehypeListingNames, rehypeTables } from './rehype.ts';
+import { readText } from './text.ts';
 
 function remarkBookLinks(options: { pages: () => ReadonlySet<string> }) {
 	return (tree: Root, file: VFile) => {
@@ -79,7 +79,7 @@ export interface RenderedPage {
  * once anyway, and the dev server must show a chapter as it is now.
  */
 export async function renderPage(page: Page): Promise<RenderedPage> {
-	const source = readFileSync(join(root, page.file), 'utf8');
+	const source = readText(join(root, page.file));
 	const heading = /^# (.+)$/m.exec(source);
 	if (!heading) throw new Error(`${page.file}: the page has no level 1 heading.`);
 	return { title: heading[1].replace(/`/g, '').trim(), html: await renderMarkdown(source, page.file) };

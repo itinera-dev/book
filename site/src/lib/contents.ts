@@ -3,7 +3,6 @@
 // previous and next links and the part a page belongs to all come from here,
 // so the README stays the one place that orders the book.
 
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { Heading, List, ListItem, Paragraph, PhrasingContent, Root } from 'mdast';
@@ -11,6 +10,7 @@ import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 
 import { root } from '../../book.config.mjs';
+import { readText } from './text.ts';
 
 export type PageKind = 'chapter' | 'without-itinera' | 'appendix';
 
@@ -93,7 +93,7 @@ function slugOf(title: string): string {
 }
 
 function read(): Contents {
-	const source = readFileSync(join(root, CONTENTS), 'utf8');
+	const source = readText(join(root, CONTENTS));
 	const tree = unified().use(remarkParse).parse(source) as Root;
 	const parts: Part[] = [];
 	const introduction: string[] = [];

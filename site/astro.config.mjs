@@ -1,6 +1,6 @@
 // @ts-check
 
-import { join, sep } from 'node:path';
+import { join, normalize, sep } from 'node:path';
 
 import { defineConfig } from 'astro/config';
 
@@ -32,16 +32,16 @@ function watchTheBook() {
 	const chapters = join(root, 'chapters');
 	const contents = join(chapters, 'README.md');
 	/** @param {string} file */
-	const inTheBook = (file) => directories.some((directory) => file.startsWith(directory + sep));
+	const inTheBook = (file) => directories.some((directory) => normalize(file).startsWith(directory + sep));
 	/** @param {string} file */
-	const shapesTheBook = (file) => file.startsWith(chapters + sep);
+	const shapesTheBook = (file) => normalize(file).startsWith(chapters + sep);
 	return {
 		name: 'itinera-book:watch',
 		apply: 'serve',
 		configureServer(server) {
 			server.watcher.add(directories);
 			server.watcher.on('change', (file) => {
-				if (file === contents) server.restart();
+				if (normalize(file) === contents) server.restart();
 				else if (inTheBook(file)) server.ws.send({ type: 'full-reload', path: '*' });
 			});
 			/** @param {string} file */

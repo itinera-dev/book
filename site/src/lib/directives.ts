@@ -30,7 +30,7 @@
 // else fails the build with a message naming the chapter and the file, since a
 // page with a missing example would teach nothing and say nothing about it.
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 import type { Code, PhrasingContent, Root, RootContent } from 'mdast';
@@ -41,6 +41,7 @@ import type { VFile } from 'vfile';
 
 import { build, type Edition, root, sourceHref } from '../../book.config.mjs';
 import { rewriteLinks } from './links.ts';
+import { readText } from './text.ts';
 
 export interface DirectiveOptions {
 	edition: Edition;
@@ -91,7 +92,7 @@ const ANCHOR_LINE = /\bANCHOR(?:_END)?:\s*[\w-]+\s*$/;
 
 /** The lines of a program between two anchors, or the whole program, with every anchor line removed. */
 function region(source: string, anchor: string | undefined, where: string): string {
-	const lines = source.replace(/\r\n/g, '\n').replace(/\n+$/, '').split('\n');
+	const lines = source.replace(/\n+$/, '').split('\n');
 	let start = -1;
 	let end = lines.length;
 	if (anchor !== undefined) {
@@ -141,7 +142,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			if (!existsSync(full)) {
 				throw new Error(`${chapter}: ${what}, but ${repoPath(path)} does not exist.`);
 			}
-			return readFileSync(full, 'utf8');
+			return readText(full);
 		};
 
 		const figure = ({ classes, caption, lang, code }: Listing): RootContent => {
@@ -258,7 +259,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 		const note = (name: string): RootContent[] => {
 			const path = `notes/${name}.md`;
 			if (!existsSync(join(directory, path))) return [];
-			const parsed = notes.parse(readFileSync(join(directory, path), 'utf8')) as Root;
+			const parsed = notes.parse(readText(join(directory, path))) as Root;
 			rewriteLinks(parsed, repoPath(path), pages());
 			listings += 1;
 			const id = `note-${listings}`;
@@ -279,7 +280,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					`${chapter}: a compile-error directive names ${directive.name}, but neither ${repoPath(program)} nor the note ${repoPath('notes', `${directive.name}.md`)} that would replace it exists.`,
 				);
 			}
-			const code = region(readFileSync(join(directory, program), 'utf8'), undefined, `${chapter}: ${repoPath(program)}`);
+			const code = region(readText(join(directory, program)), undefined, `${chapter}: ${repoPath(program)}`);
 			const message = read(`compile-errors/${directive.name}.txt`, `the compile error ${directive.name} is shown`).replace(/\n+$/, '');
 			return [
 				figure({
