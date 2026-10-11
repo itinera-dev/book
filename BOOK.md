@@ -28,7 +28,7 @@ Every example belongs to one small online shop taking orders, which grows a litt
 
 1. it charges an order, less any discount;
 2. it reserves the stock and ships the order through a carrier, falling back to another carrier when the first one fails;
-3. it audits every charge;
+3. it audits every successful charge;
 4. it tells the customer how the order went.
 
 Each chapter's example is a complete program that compiles, runs and shows what it prints. Every example runs on its own, so a reader can start at any chapter.
@@ -85,7 +85,7 @@ Without Itinera: the same two calls made directly, one after the other, and what
 9. **Passing data on.** Contributions and the data bag, and why only a successful attempt's contributions are committed.
 10. **Saying how it went.** Succeed; fail with a reason; fail in a way that might work next time; skip. When to use each.
 11. **When something goes wrong inside a step.** Throwing or returning an error (an abnormal termination) versus failing on purpose, and why an unrecoverable failure is outside the model.
-12. **Giving a step the tools it needs.** Services: a payment client, a stock store or a carrier, which a step asks for by a key and uses without knowing which implementation it got. The workflow supplies each through a provider, which decides how long an instance lasts: one shared by the whole journey, such as the stock store used by both reserving and shipping, or a fresh one for every attempt. A provider can also serve only some steps. The step can never keep a service after its attempt.
+12. **Giving a step the tools it needs.** Services: a payment client, a stock store or a carrier, which a step asks for by a key and uses without knowing which implementation it got. The workflow supplies each through a provider, which decides how long an instance lasts: one shared by the whole journey, such as the stock store used by both reserving and shipping, or a fresh one for every attempt. A provider can also serve only some steps. The step is lent the service for its attempt only.
 
 Without Itinera:
 
@@ -94,10 +94,10 @@ Without Itinera:
 
 ### Part 4: Controlling the flow
 
-13. **Trying again.** Retry budgets, and which failures are retried. Shipping is tried twice, and its carrier service hands the second attempt to the backup carrier, so the ship step never knows there are two.
-14. **Repairing, then trying once more.** Rescue steps: when the charge fails because the card has expired, its rescue step reads why the charge failed, asks the customer's bank for the new card and contributes it, and the charge runs once more. A rescued step is never retried, since the rescue takes the place of retrying. If the rescue fails, the journey fails and the charge never runs again; if the second run fails, the journey fails too. The events show the step being rescued and how the rescue went.
-15. **Reacting to what a step did.** Step policies and their hooks, for example auditing every charge.
-16. **Ending a journey early.** Finishing the journey once the charge step has contributed that the order is digital, so nothing is left to ship; giving up at once, instead of spending the retry budget, when the payment provider reports an outage.
+13. **Trying again.** Retry budgets, and which failures are retried. Shipping is tried twice, and the carrier's provider gives the second attempt the backup carrier, so the ship step never knows there are two.
+14. **Repairing, then trying once more.** Rescue steps: when the charge fails because the card has expired, its rescue step reads why the charge failed, asks the customer's bank for the new card and contributes it, and the charge runs once more. A rescued step is never retried, since the rescue takes the place of retrying. If the rescue fails, the journey fails and the charge never runs again; if the second run fails, the journey fails too. The events show the step being rescued and how the rescue went. Declaring a retry budget on a step that has a rescue step is refused before any journey, and a rescue step cannot skip: doing so aborts the journey.
+15. **Reacting to what a step did.** Step policies and their hooks, for example auditing every successful charge.
+16. **Ending a journey early.** Finishing the journey once the charge step has contributed that the order is digital, so nothing is left to ship; giving up at once, instead of rescuing the charge, when the payment network is down and the charge ends in an abnormal termination: the `on step abnormal termination` hook of a step policy fails the journey.
 17. **Doing something when the journey ends.** Workflow policies, for example telling the customer.
 18. **Letting policies act on the outside world.** Roles: the shop provides "tell the customer", and the policy uses it without knowing how it is done.
 19. **Deciding where a step's data comes from.** Input adapters, for example charging the order total less the discount already in the data bag, without the step knowing where the amount came from.
@@ -108,7 +108,7 @@ Without Itinera:
 1. **Retry strategies that multiply.** One call retried in a loop, another through a decorator, a third through a library, each with its own limits and none visible from outside. With Itinera every retry budget is in the workflow's declaration, every other decision to give up follows from the step's outcome, and any earlier stop is decided by a policy, all of it visible in the events.
 2. **Flow decisions in business code.** A charge function that knows shipping comes next and does not call it for digital goods. With Itinera the charge only charges, what follows is in the workflow, and whether a digital order ships is decided where it belongs: the ship step reports that it skipped, or a policy finishes the journey from what the charge contributed.
 3. **A circuit breaker.** The usual breaker wrapped around a client, deciding inside the call whether the call happens. With Itinera, a policy sees every failure and records it through a role, and the carrier's provider, which belongs to the workflow, hands out the backup carrier while the breaker is open. The step only ships.
-4. **Another provider on the next attempt.** The usual fallback: try the main carrier, catch the failure, call the backup, all inside the shipping code. With Itinera the ship step only ships, through the carrier service it is given. The provider makes a fresh service for every attempt and picks the carrier from the attempt number, or from a choice a retry hook contributed.
+4. **Another carrier on the next attempt.** The usual fallback: try the main carrier, catch the failure, call the backup, all inside the shipping code. With Itinera the ship step only ships, through the carrier service it is given. The provider makes a fresh service for every attempt and picks the carrier from the attempt number, or from a choice that the `on step retry` hook of a step policy contributed, which the provider reads as data from the workflow.
 5. **Repair code inside the business rule.** The usual charge that catches an expired card, fetches the new one and tries again, all in one function. With Itinera the repair is a rescue step of its own, the charge stays a charge, and the events say when a rescue happened and how it went.
 
 ### Part 5: Running it for real
@@ -121,7 +121,7 @@ Without Itinera:
 Without Itinera:
 
 1. **Logging that depends on who wrote the code.** One module logs before each call, another only on errors, a third swallows the error and logs nothing; reconstructing what happened to one order means reading all three. With Itinera every journey reports the same stream of events, in the same order, and a reporter decides where it goes.
-2. **Testing a flow by mocking it.** Testing the retry of a charge by mocking a client and counting calls. With Itinera the step is tested alone, the policy alone, and the journey by its events.
+2. **Testing a flow by mocking it.** Testing the fallback of shipping by mocking two carriers and counting calls. With Itinera the step is tested alone, the policy alone, and the journey by its events.
 
 ### Part 6: Designing with Itinera
 
@@ -162,6 +162,6 @@ A language that lacks a feature a chapter needs shows that chapter as a short no
 
 ## Open points
 
-1. **Services and rescue steps** are being added to tier 1. Their designs are agreed in [spec#95](https://github.com/itinera-dev/spec/issues/95) and [spec#3](https://github.com/itinera-dev/spec/issues/3), and chapters 12 and 14 and the comparisons of part 4 follow them. They are written once the proposals are accepted and the language implements them, and change with the designs if those change before then.
-2. **The circuit breaker** of part 4 relies on a role whose operations record failures and answer whether the breaker is open, and on the provider reading the breaker before it hands out a carrier. It is checked against the accepted specification before it is written.
+1. **Services and rescue steps** are being added to tier 1. Their designs are agreed in [spec#95](https://github.com/itinera-dev/spec/issues/95) and [spec#3](https://github.com/itinera-dev/spec/issues/3), and the story, chapters 12 to 14 and 25, and the comparisons of part 4 follow them. They are written once the proposals are accepted and each language implements them, and change with the designs if those change before then.
+2. **The circuit breaker** of part 4 relies on the workflow's own code holding the breaker's state across journeys, behind a role whose operations record failures and answer whether the breaker is open, and on the provider, as part of the workflow, reading that state before it hands out a carrier, since providers request no roles. It is checked against the accepted specification before it is written.
 3. **Where the prose lives:** with the examples in this repository, or with the site. Keeping it here, next to the code it quotes, lets one pull request change both.
