@@ -5,8 +5,8 @@
 // Mermaid is loaded only by a page that has a diagram. While the diagrams are
 // being drawn, the page's root element carries `data-diagrams="drawing"`;
 // once they are all drawn, `data-diagrams` names the colour scheme they were
-// drawn in, `light` or `dark`, so the browser checks of `npm run verify` know
-// when to look at them.
+// drawn in, `light` or `dark`, and `failed` if Mermaid could not draw them, so
+// the browser checks of `npm run verify` know when to look at them.
 
 /** How much wider than tall a diagram is before it scrolls on a narrow screen instead of shrinking. */
 const WIDE = 2;
@@ -18,13 +18,38 @@ if (figures.length > 0) {
 	const root = document.documentElement;
 	let drawings = 0;
 
-	const draw = async () => {
-		const scheme = dark.matches ? 'dark' : 'light';
+	// One drawing of every diagram at a time: a change of scheme while the
+	// diagrams are being drawn waits for that drawing to end, then draws them
+	// all again in the new scheme, so the last drawing is always in the scheme
+	// in use.
+	let requested = 0;
+	let drawn = 0;
+	let drawing: Promise<void> | undefined;
+
+	const request = () => {
+		requested += 1;
 		root.dataset.diagrams = 'drawing';
-		const { default: mermaid } = await import('mermaid');
-		mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: palette(), securityLevel: 'strict' });
-		for (const figure of figures) await drawOne(mermaid, figure);
-		root.dataset.diagrams = scheme;
+		drawing ??= drawUntilCurrent().finally(() => {
+			drawing = undefined;
+		});
+	};
+
+	const drawUntilCurrent = async () => {
+		try {
+			const { default: mermaid } = await import('mermaid');
+			while (drawn < requested) {
+				const current = requested;
+				const scheme = dark.matches ? 'dark' : 'light';
+				mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: palette(), securityLevel: 'strict' });
+				for (const figure of figures) await drawOne(mermaid, figure);
+				drawn = current;
+				if (drawn === requested) root.dataset.diagrams = scheme;
+			}
+		} catch (error) {
+			drawn = requested;
+			root.dataset.diagrams = 'failed';
+			console.error('The diagrams could not be drawn.', error);
+		}
 	};
 
 	// The diagrams take the page's own colours, from the tokens of the scheme
@@ -64,8 +89,19 @@ if (figures.length > 0) {
 		box.append(drawing);
 		source.hidden = true;
 		const picture = drawing.querySelector('svg');
+		nameByCaption(figure, picture);
 		const [, , width, height] = (picture?.getAttribute('viewBox') ?? '').split(/\s+/).map(Number);
 		if (width > WIDE * height) makeWide(figure, box);
+	};
+
+	// The figure's caption, the diagram's accTitle, names the drawing too, so
+	// that a screen reader hears one name, not the caption and Mermaid's own
+	// title of the same words.
+	const nameByCaption = (figure: HTMLElement, picture: SVGSVGElement | null) => {
+		const caption = figure.querySelector('figcaption');
+		if (!picture || !caption) return;
+		picture.querySelector(':scope > title')?.remove();
+		picture.setAttribute('aria-labelledby', caption.id);
 	};
 
 	// A wide diagram leaves the text column, and its box scrolls. A box that
@@ -76,10 +112,9 @@ if (figures.length > 0) {
 		box.tabIndex = 0;
 		box.setAttribute('role', 'group');
 		const caption = figure.querySelector('figcaption');
-		if (caption?.id) box.setAttribute('aria-labelledby', caption.id);
-		else box.setAttribute('aria-label', 'Diagram');
+		if (caption) box.setAttribute('aria-labelledby', caption.id);
 	};
 
-	void draw();
-	dark.addEventListener('change', () => void draw());
+	request();
+	dark.addEventListener('change', request);
 }

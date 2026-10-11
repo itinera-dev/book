@@ -73,7 +73,7 @@ name: ch25_rescue
 region: workflow
 ```
 
-A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields can be its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`. The executor names it after the step it rescues, `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` won't compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
+A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields can be its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`. The executor names it after the step it rescues, `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` above 0 won't compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
 
 It prints:
 

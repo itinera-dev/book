@@ -4,7 +4,7 @@ Part 1 has already set the two versions of the shop against each other: the chec
 
 ## The usual checkout
 
-The checkout of chapter 1 is spread over Rust modules: payments, shipping, the checkout itself, the log and the audit trail. It is written honestly, the way a competent developer writes it, and it works. Its top level reserves, charges and ships, and tells the customer how it went:
+The checkout of [chapter 1](01-but-why-itinera.md) is spread over Rust modules: payments, shipping, the checkout itself, the log and the audit trail. It is written honestly, the way a competent developer writes it, and it works. Its top level reserves, charges and ships, and tells the customer how it went:
 
 ```example
 name: ch01_checkout
@@ -20,7 +20,7 @@ What it mixes, in almost every function:
 
 ## The same shop with Itinera
 
-Here is the workflow of chapter 3 again. Its program uses services, which are not in `itinera` yet, so it is not compiled yet.
+Here is the workflow of [chapter 3](03-read-the-workflow-know-what-happens.md) again. Its program uses services, which are not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so it is not compiled yet.
 
 ```example
 name: ch03_shop

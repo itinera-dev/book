@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-You want to pull apart the two kinds of decision that chapter 1 mixed together. The charge should only charge. Auditing a charge should be something that reacts to a successful charge, not a line hidden at the end of the payment code. And one place should say what runs, in what order, and how many times it may be tried.
+You want to pull apart the two kinds of decision that [chapter 1](01-but-why-itinera.md) mixed together. The charge should only charge. Auditing a charge should be something that reacts to a successful charge, not a line hidden at the end of the payment code. And one place should say what runs, in what order, and how many times it may be tried.
 
 Itinera gives each of those its own home: a step, a policy and a workflow.
 

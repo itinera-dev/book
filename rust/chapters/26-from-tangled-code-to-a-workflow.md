@@ -26,7 +26,7 @@ Read the checkout and put each thing it does in one of a few kinds. The kind say
 
 ### 2. Turn each business rule into a step
 
-Here is the payment code of chapter 1 again. It holds one business rule, charging the card, and three other things: a repair, an audit and a log line.
+Here is the payment code of [chapter 1](01-but-why-itinera.md) again. It holds one business rule, charging the card, and three other things: a repair, an audit and a log line.
 
 ```example
 name: ch01_checkout
@@ -62,7 +62,7 @@ region: policies
 
 ### 5. Replace the log lines with a reporter
 
-The steps and policies no longer log anything. One reporter receives every event of every journey and writes, in one format, the failures and the decisions that the modules of chapter 1 each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
+The steps and policies no longer log anything. One reporter receives every event of every journey and writes, in one format, the failures and the decisions that the modules of [chapter 1](01-but-why-itinera.md) each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
 
 ```example
 name: ch26_workflow
@@ -71,7 +71,7 @@ region: reporter
 
 ### 6. Run what you have
 
-The same four orders as in chapter 1:
+The same four orders as in [chapter 1](01-but-why-itinera.md):
 
 ```example
 name: ch26_workflow
@@ -104,7 +104,7 @@ name: ch03_shop
 region: ship
 ```
 
-The workflow supplies each service through a provider. The payment client and the stock store last for the whole journey. The carrier is made afresh for every attempt: the main carrier on the first, the backup carrier after. The fallback of chapter 1 is now these few lines, together with the retry budget of `ship`.
+The workflow supplies each service through a provider. The payment client and the stock store last for the whole journey. The carrier is made afresh for every attempt: the main carrier on the first, the backup carrier after. The fallback of [chapter 1](01-but-why-itinera.md) is now these few lines, together with the retry budget of `ship`.
 
 ```example
 name: ch03_shop
@@ -139,9 +139,9 @@ Move 7 uses the syntax planned for services, and move 8 the rescue steps `itiner
 - A step asks for a service with a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only.
 - A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. It returns a `Result<Box<dyn Trait>, Error>`, such as `Box<dyn Carrier>` for the carrier, and may request the attempt number with `#[attempt]`.
 - A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
-- The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` on the same line won't compile.
+- The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` above 0 on the same line won't compile.
 
-When it runs, the orders go as they did in chapter 1. Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge runs once more and succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the second run of the charge fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
+When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
 
 ## How it works
 

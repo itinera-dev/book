@@ -66,5 +66,9 @@ export default defineConfig({
 	base,
 	trailingSlash: 'always',
 	build: { format: 'directory' },
-	vite: { plugins: [watchTheBook()] },
+	vite: {
+		plugins: [watchTheBook()],
+		// Mermaid is large, and is fetched only by a page that has a diagram.
+		build: { chunkSizeWarningLimit: 3000 },
+	},
 });

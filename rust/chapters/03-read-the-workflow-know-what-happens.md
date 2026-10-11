@@ -31,9 +31,9 @@ name: ch03_shop
 region: rescue
 ```
 
-A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`; data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`; the reason of that failure, marked `#[reason]`; and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`. There is no way to skip, so a rescue step that skips cannot be written in Rust. The workflow attaches it with `rescue = RenewCard` on the step's `#[with_step(...)]` line; a `rescue` together with a `retry_budget` on the same line will not compile.
+A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`; data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`; the reason of that failure, marked `#[reason]`; and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`. There is no way to skip, so a rescue step that skips cannot be written in Rust. The workflow attaches it with `rescue = RenewCard` on the step's `#[with_step(...)]` line; a `rescue` together with a `retry_budget` above 0 on the same line will not compile.
 
-The program runs the four orders of chapter 1. When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
+The program runs the four orders of [chapter 1](01-but-why-itinera.md). When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
 
 ## How it works
 
@@ -49,7 +49,7 @@ Read the declaration from top to bottom. It tells you the order of the steps, ho
 
 The providers answer the questions about the outside world. One payment client serves the whole journey, shared by the charge and its rescue step. One stock store serves the whole journey, shared by `reserve` and `ship`. Every attempt of `ship` gets a carrier of its own, chosen from the attempt number.
 
-Compare that with chapter 1, where each answer meant following calls through modules. Here every decision about the flow is in the declaration, or is a default that applies because the declaration says nothing. What the steps decide is only their own business, and each of them says it in one place: the ship step that a carrier's refusal is worth another try, the rescue step which failures it can repair.
+Compare that with [chapter 1](01-but-why-itinera.md), where each answer meant following calls through modules. Here every decision about the flow is in the declaration, or is a default that applies because the declaration says nothing. What the steps decide is only their own business, and each of them says it in one place: the ship step that a carrier's refusal is worth another try, the rescue step which failures it can repair.
 
 The diagram follows one journey through the shop, from the order's data to the end.
 

@@ -10,7 +10,7 @@ On the web pages, the **programming language** selector at the top of every page
 
 ## Meet the shop
 
-Every example belongs to the same small online shop, and to the same four customers. In chapter 1 you meet them like this:
+Every example belongs to the same small online shop, and to the same four customers. In [chapter 1](01-but-why-itinera.md) you meet them like this:
 
 1. **Ann**, whose order goes through without trouble.
 2. **Ben**, whose card has expired, so the shop has to get his new one.

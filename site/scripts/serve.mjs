@@ -70,14 +70,16 @@ export async function serve() {
 /**
  * Waits until a page's diagrams, if it has any, are drawn in the given colour
  * scheme: `src/scripts/diagrams.ts` draws them in the browser after the page
- * has loaded, and again when the scheme changes.
+ * has loaded, and again when the scheme changes. Fails when they could not be
+ * drawn.
  */
 export async function diagramsDrawn(page, scheme) {
-	await page.waitForFunction(
+	const state = await page.waitForFunction(
 		(wanted) => {
 			const state = document.documentElement.dataset.diagrams;
-			return state === undefined || state === wanted;
+			return (state === undefined || state === wanted || state === 'failed') && (state ?? 'none');
 		},
 		scheme,
 	);
+	if ((await state.jsonValue()) === 'failed') throw new Error(`${page.url()}: the diagrams could not be drawn; the browser console says why.`);
 }

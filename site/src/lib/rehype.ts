@@ -2,6 +2,7 @@
 
 import type { Element, Root } from 'hast';
 import { toString } from 'hast-util-to-string';
+import type { VFile } from 'vfile';
 import { visit } from 'unist-util-visit';
 
 const hasClass = (node: Element, name: string) => {
@@ -43,9 +44,10 @@ export function rehypeListingNames() {
  *
  * The diagram's source stays in the page, so a reader without JavaScript still
  * reads it as text; `src/scripts/diagrams.ts` draws it in its place. Its
- * `accTitle` becomes the figure's visible caption, and the drawing carries its
- * `accTitle` and `accDescr` as its own title and description. The text after
- * each diagram in the chapter still says everything it shows.
+ * `accTitle` becomes the figure's visible caption, which also names the
+ * drawing, and its `accDescr` describes the drawing. A diagram without either
+ * fails the build. The text after each diagram in the chapter still says
+ * everything it shows.
  *
  * Each diagram sits in a box of its own. A wide one, such as two pictures side
  * by side, keeps a size its words can be read at and scrolls inside that box
@@ -53,14 +55,18 @@ export function rehypeListingNames() {
  * the caption, as a table's is.
  */
 export function rehypeDiagrams() {
-	return (tree: Root) => {
+	return (tree: Root, file: VFile) => {
 		let diagrams = 0;
 		visit(tree, 'element', (node, index, parent) => {
 			if (node.tagName !== 'pre' || !parent || index === undefined) return;
 			const code = node.children.find((child): child is Element => child.type === 'element' && child.tagName === 'code');
 			if (!code || !hasClass(code, 'language-mermaid')) return;
 			const source = toString(code).replace(/\n+$/, '');
-			const title = /^\s*accTitle\s*:\s*(.+?)\s*$/m.exec(source)?.[1] ?? '';
+			const title = /^\s*accTitle\s*:\s*(.+?)\s*$/m.exec(source)?.[1];
+			if (title === undefined || !/^\s*accDescr\s*[:{]/m.test(source)) {
+				const where = `${file.data.repositoryPath ?? 'a chapter'}, line ${node.position?.start.line ?? '?'}`;
+				throw new Error(`${where}: a diagram needs an accTitle and an accDescr, which name and describe it for a screen reader.`);
+			}
 			diagrams += 1;
 			const caption = `diagram-${diagrams}`;
 			const figure: Element = {
@@ -81,16 +87,12 @@ export function rehypeDiagrams() {
 							},
 						],
 					},
-					...(title === ''
-						? []
-						: [
-								{
-									type: 'element' as const,
-									tagName: 'figcaption',
-									properties: { id: caption, className: ['diagram__caption'] },
-									children: [{ type: 'text' as const, value: `Diagram: ${title}` }],
-								},
-							]),
+					{
+						type: 'element',
+						tagName: 'figcaption',
+						properties: { id: caption, className: ['diagram__caption'] },
+						children: [{ type: 'text', value: `Diagram: ${title}` }],
+					},
 				],
 			};
 			parent.children[index] = figure;

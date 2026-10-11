@@ -105,7 +105,7 @@ These tests check two rules at once, how to ship and when to fall back, and to d
 
 The ship step ships through the carrier it is lent as a service, a `#[service] carrier: &dyn Carrier` parameter of its `run`, and knows nothing of a second one. Its retry budget lets it be tried twice, and the workflow's `#[provider(per_attempt)]` method gives each attempt a fresh carrier: the main carrier on the first attempt, the backup carrier after. The test's carriers are fakes that are up or down as the test says, and count nothing.
 
-Services are not in `itinera` yet, so this program waits in `pending/`: it is written against the syntax planned for them, which may still change, and it is neither compiled nor run yet.
+Services are not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so this program waits in `pending/`: it is written against the syntax planned for them, which may still change, and it is neither compiled nor run yet.
 
 ```example
 name: part5_testing_the_fallback

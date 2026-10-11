@@ -9,18 +9,27 @@ use itinera::report::Reporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::workflow;
 
-/// The customers' bank, faked: it knows which cards have expired, and which card replaced each.
+/// The customers' bank, faked: it knows which cards have expired, which card replaced each, and
+/// which of those it refuses.
 struct Bank;
 
 impl Bank {
-    /// Whether a card can still be charged.
-    fn accepts(card: &str) -> bool {
-        card != "card-2019"
+    /// Whether a card can be charged.
+    fn accepts(card: &str) -> Result<(), &'static str> {
+        match card {
+            "card-2019" => Err("expired-card"),
+            "card-2030" => Err("declined"),
+            _ => Ok(()),
+        }
     }
 
     /// The card the bank issued to a customer after their old one expired, if any.
     fn renewed_card(customer: &str) -> Option<String> {
-        (customer == "Ann").then(|| "card-2031".to_owned())
+        match customer {
+            "Ben" => Some("card-2031".to_owned()),
+            "Dan" => Some("card-2030".to_owned()),
+            _ => None,
+        }
     }
 }
 
@@ -37,8 +46,8 @@ struct Charge {
 #[step]
 impl Charge {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        if !Bank::accepts(&self.card) {
-            return Self::fail("expired-card");
+        if let Err(code) = Bank::accepts(&self.card) {
+            return Self::fail(code);
         }
         contributor.contribute("charged", self.price);
         Self::succeed()
@@ -155,14 +164,14 @@ struct Charged {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         NewOrder {
-            order: "A-1".to_owned(),
-            customer: "Ann".to_owned(),
+            order: "A-2".to_owned(),
+            customer: "Ben".to_owned(),
             price: 40,
             card: "card-2019".to_owned(),
         },
         NewOrder {
-            order: "A-2".to_owned(),
-            customer: "Ben".to_owned(),
+            order: "A-4".to_owned(),
+            customer: "Dan".to_owned(),
             price: 25,
             card: "card-2019".to_owned(),
         },

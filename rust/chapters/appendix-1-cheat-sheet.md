@@ -32,7 +32,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 
 ## In Rust
 
-With the `macros` feature, which is on by default, each line of the table is written as follows. Types and attributes are imported through `itinera`, as in `use itinera::step::{Outcome, Step, step};`; the API documentation of `itinera` has every item. Lines marked planned are for services, which are not in `itinera` yet, and may still change before they arrive.
+With the `macros` feature, which is on by default, each line of the table is written as follows. Types and attributes are imported through `itinera`, as in `use itinera::step::{Outcome, Step, step};`; the API documentation of `itinera` has every item. Lines marked planned are for services, which are not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), and may still change before they arrive.
 
 | What you declare | How you write it | Chapter |
 |---|---|---|
