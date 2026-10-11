@@ -30,15 +30,15 @@ That's all. There is no branching inside a workflow, no hidden retries, and noth
 Separating the decisions is not only tidier. Because the executor carries out every decision itself, everything around your business code becomes standard.
 
 1. **You always know what is going on.** Every journey reports what happens as events, in the same form and the same order, whatever the workflow does and whoever wrote its steps. You never depend on what someone thought worth logging: one reporter tells you the whole story of every workflow you have.
-2. **A step is a business rule, by design.** A step doesn't know who runs it, which workflow it belongs to, which order it is working on, what came before it, what comes after, or whether it will be tried again. It gets its data, does its work and says how it went. With nothing else to reach, all a step can hold is a business rule, so you can read it, test it and change it on its own.
-3. **Every decision about a step is in plain sight.** Trying again, repairing, falling back, auditing, telling the customer, giving up: each lives in a policy or a rescue step that the workflow names. Look at the workflow, and you see at a glance everything that can happen to every step.
+2. **A step is a business rule, by design.** A step doesn't know who runs it, which workflow it belongs to, which journey it is part of, what came before it, what comes after, or whether it will be tried again. It gets its data, does its work and says how it went. With nothing else to reach, a step cannot decide anything about the flow: what it holds is its business rule, so you can read it, test it and change it on its own.
+3. **Every decision about a step is in plain sight.** Trying again, repairing, falling back, auditing, telling the customer, giving up: each is declared in the workflow, as a step's retry budget, its rescue step or a policy attached to it. Look at the workflow, and you see at a glance everything that can happen to every step.
 
 Here is the same shop both ways. On the left, written by hand: each function mixes its business rule with flow decisions and its own logging. On the right, with Itinera: each concern has one place, and the executor connects them.
 
 ```mermaid
 flowchart LR
   accTitle: The shop written by hand, and the same shop with Itinera
-  accDescr: Two pictures side by side. Written by hand, the checkout calls the payment and shipping functions; each function holds its business rule, its own flow decisions and its own logging, and each writes to the log in its own way. With Itinera, the workflow lists the steps, rescue steps and policies; the executor runs the steps, which hold only business rules, calls the policies after each outcome, and sends every event, in one standard form, to the reporters.
+  accDescr: Two pictures side by side. Written by hand, the checkout calls the payment and shipping functions; each function holds its business rule, its own flow decisions and its own logging, and each writes to the log in its own way. With Itinera, the workflow lists the steps, how many attempts each has, the rescue steps and the policies; the executor runs the steps, which hold business rules, calls the policies, which hold flow decisions, after each outcome and when the journey ends, and sends every event, in one standard form, to the reporters.
   subgraph by_hand [Written by hand]
     direction TB
     checkout["checkout: tell the customer, log"]
@@ -53,10 +53,10 @@ flowchart LR
   end
   subgraph with_itinera [With Itinera]
     direction TB
-    workflow["workflow: steps, attempts, policies"]
+    workflow["workflow: steps, attempts, rescue steps, policies"]
     executor["executor"]
-    steps["steps: business rules"]
-    policies["policies: flow decisions"]
+    steps["steps: business rules, such as charge, renew the card, ship"]
+    policies["policies: flow decisions, such as audit, pick the backup carrier, tell the customer"]
     reporters[("reporters: standard events")]
     workflow --> executor
     executor --> steps
@@ -77,8 +77,8 @@ With Itinera:
 
 1. The workflow lists the steps in order, how many attempts each has, and which rescue step and policies are attached.
 2. The executor reads the workflow and carries out every decision.
-3. It runs the steps, which hold only business rules: charge the card, renew the card, ship the parcel.
-4. After each outcome it calls the policies, which audit the charge, pick the backup carrier and tell the customer.
+3. It runs the steps, which hold business rules, such as charging the card, renewing the card and shipping the parcel.
+4. After each outcome, and when the journey ends, it calls the policies, which hold flow decisions, such as auditing the charge, picking the backup carrier and telling the customer.
 5. It sends every event of every journey to the reporters, in one standard form.
 
 Itinera is also more than one library. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each language's implementation is checked against the same conformance suite. A workflow means the same thing in every language, and so does this book.

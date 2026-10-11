@@ -1,6 +1,6 @@
 // Small finishing passes over the rendered HTML.
 
-import type { Element, Root } from 'hast';
+import type { Element, Properties, Root } from 'hast';
 import { toString } from 'hast-util-to-string';
 import { visit } from 'unist-util-visit';
 
@@ -38,7 +38,7 @@ export function rehypeListingNames() {
 }
 
 /**
- * How much wider than tall a diagram is before it scrolls at phone width
+ * How much wider than tall a diagram is before it scrolls on a narrow screen
  * instead of shrinking until its words are too small to read.
  */
 const WIDE = 2;
@@ -53,11 +53,12 @@ const WIDE = 2;
  * each diagram in the chapter still says everything it shows.
  *
  * A wide diagram, such as two pictures side by side, keeps a size its words
- * can be read at and scrolls inside its own box at phone width. Like a table's,
- * that box is a focusable group named after the diagram.
+ * can be read at and scrolls inside its own box on a narrow screen. Like a
+ * table's, that box is a focusable group, named by the diagram's caption.
  */
 export function rehypeDiagrams() {
 	return (tree: Root) => {
+		let diagrams = 0;
 		visit(tree, 'element', (node, index, parent) => {
 			if (node.tagName !== 'picture' || !parent || index === undefined) return;
 			const image = node.children.find((child): child is Element => child.type === 'element' && child.tagName === 'img');
@@ -67,6 +68,11 @@ export function rehypeDiagrams() {
 			image.properties.loading = 'lazy';
 			image.properties.decoding = 'async';
 			const wide = Number(image.properties.width) > WIDE * Number(image.properties.height);
+			diagrams += 1;
+			const caption = `diagram-${diagrams}`;
+			const scroll: Properties = { className: ['diagram__scroll'], role: 'group', tabIndex: 0 };
+			if (title === '') scroll.ariaLabel = 'Diagram';
+			else scroll.ariaLabelledBy = [caption];
 			const figure: Element = {
 				type: 'element',
 				tagName: 'figure',
@@ -76,7 +82,7 @@ export function rehypeDiagrams() {
 						? {
 								type: 'element',
 								tagName: 'div',
-								properties: { className: ['diagram__scroll'], role: 'group', tabIndex: 0, ariaLabel: `Diagram: ${title}` },
+								properties: scroll,
 								children: [node],
 							}
 						: node,
@@ -86,7 +92,7 @@ export function rehypeDiagrams() {
 								{
 									type: 'element' as const,
 									tagName: 'figcaption',
-									properties: { className: ['diagram__caption'] },
+									properties: { id: caption, className: ['diagram__caption'] },
 									children: [{ type: 'text' as const, value: `Diagram: ${title}` }],
 								},
 							]),

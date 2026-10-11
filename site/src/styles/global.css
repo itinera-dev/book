@@ -489,7 +489,7 @@ pre.shiki code {
 }
 
 /* A wide diagram leaves the text column for as much of the screen as it can
-   use, and at phone width keeps a readable size and scrolls instead. */
+   use, and on a narrower screen keeps a readable size and scrolls instead. */
 .diagram--wide {
 	width: min(100vw - 2rem, 90rem);
 	margin-left: 50%;
