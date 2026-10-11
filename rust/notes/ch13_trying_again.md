@@ -1,5 +1,0 @@
-The retry budget is part of the step's line in the workflow: `#[with_step(Ship, name = "ship", retry_budget = 1)]`. Adding `abnormal_termination_retriable` to the same line lets an `Err` returned from `run` be retried within that budget. A step marks a failure retriable with `Self::fail_retriably(...)`; `Self::fail(...)` is never retried.
-
-A step policy is a type whose `impl` block carries `#[step_policy(name = "...")]`, and each hook is a method marked with its name, here `#[on_step_retry]`. The retry hook returns `Result<Option<FailWorkflow>, Error>`: `Self::carry_on()` lets the retry happen, and `Self::fail_workflow(...)` stops it. The executor builds the policy with `Default`, so it derives `Default`. An optional input is a field of type `Option<T>`, which is `None` when the key is absent.
-
-The second version of the ship step uses services, which `itinera` does not have yet, so it is not compiled. It follows the agreed design: the step takes `#[service] carrier: &dyn Carrier` as a parameter of `run`, borrowed for the attempt only, and the workflow supplies it from a method marked `#[provider(per_attempt)]`, which may take `#[attempt] attempt: NonZeroU32`.

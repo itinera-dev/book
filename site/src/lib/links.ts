@@ -4,7 +4,7 @@
 // The chapters link to each other by file name, `06-a-workflow-of-one-step.md`,
 // so that they work on GitHub. On the site such a link goes to the edition's
 // page for that chapter. A link to any other file of the repository, such as
-// `../BOOK.md`, goes to that file on GitHub. A link with a scheme, or one to a
+// `../../BOOK.md`, goes to that file on GitHub. A link with a scheme, or one to a
 // fragment of the same page, is left alone. A link to a chapter that is not in
 // the contents fails the build, since it would be a dead link.
 
@@ -13,7 +13,7 @@ import { posix } from 'node:path';
 import type { Root } from 'mdast';
 import { visit } from 'unist-util-visit';
 
-import { pageHref, sourceHref } from '../../book.config.mjs';
+import { chapters, pageHref, sourceHref } from '../../book.config.mjs';
 
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
@@ -35,8 +35,8 @@ export function resolveLink(url: string, from: string, pages: ReadonlySet<string
 		throw new Error(`${from}: the link "${url}" leaves the repository.`);
 	}
 
-	if (target === 'chapters/README.md') return pageHref() + fragment;
-	const chapter = /^chapters\/([a-z0-9-]+)\.md$/.exec(target);
+	if (target === `${chapters}/README.md`) return pageHref() + fragment;
+	const chapter = target.startsWith(`${chapters}/`) ? /^([a-z0-9-]+)\.md$/.exec(target.slice(chapters.length + 1)) : null;
 	if (chapter) {
 		if (!pages.has(chapter[1])) {
 			throw new Error(`${from}: the link "${url}" names ${target}, which is not a page of the book's contents.`);

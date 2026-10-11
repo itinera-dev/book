@@ -5,21 +5,21 @@
 // The pages that must exist are worked out here from the repository, not from
 // the site's own code, so a chapter that the contents forgot is caught too:
 // the front page, the 404 page, and for the edition this build renders its
-// contents and one page for every file of chapters/ but the README.
+// contents and one page for every file of its chapters/ but the README.
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { base, build, editions, root } from '../book.config.mjs';
+import { base, build, chapters, editions, root } from '../book.config.mjs';
 import { DIST, fileFor, findPages } from './serve.mjs';
 
 const problems = [];
 
 const edition = `${base}/${build.segment}/`;
-const chapters = readdirSync(join(root, 'chapters'))
+const chapterPages = readdirSync(join(root, chapters))
 	.filter((name) => name.endsWith('.md') && name !== 'README.md')
 	.map((name) => `${edition}${name.replace(/\.md$/, '')}/`);
-const expected = [`${base}/`, edition, ...chapters];
+const expected = [`${base}/`, edition, ...chapterPages];
 
 const built = await findPages();
 for (const page of expected) {

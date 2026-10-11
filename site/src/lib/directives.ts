@@ -7,8 +7,8 @@
 //     region: step
 //     ```
 //
-// and each edition replaces them with what its language supplies, from the
-// language's directory of this repository:
+// and the site replaces them with what the edition's language directory of
+// this repository holds:
 //
 // - `example`: the region of `examples/NAME.EXT` between `ANCHOR: region` and
 //   `ANCHOR_END: region`, every anchor line removed, as highlighted code under a
@@ -20,12 +20,8 @@
 // - `output`: `expected/NAME.txt`, as a plain block captioned as what the
 //   program prints. With `asynchronous: NAME`, what the asynchronous form
 //   prints follows, under the same two conditions.
-// - `note`: `notes/NAME.md`, as ordinary paragraphs of the chapter, since a
-//   reader of the edition chose its language; nothing when the language has no
-//   such note.
-// - `compile-error`: the program, captioned as one that does not compile, then
-//   the compiler's message. A language that cannot make the mistake a compile
-//   error supplies a note of the same name, shown instead.
+// - `compile-error`: `compile-errors/NAME.EXT`, captioned as a program that
+//   does not compile, then the compiler's message from `compile-errors/NAME.txt`.
 //
 // Every file a directive names must exist, and so must every region: anything
 // else fails the build with a message naming the chapter and the file, since a
@@ -35,27 +31,20 @@ import { existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 import type { Code, PhrasingContent, Root, RootContent } from 'mdast';
-import remarkGfm from 'remark-gfm';
-import remarkParse from 'remark-parse';
-import { unified } from 'unified';
 import type { VFile } from 'vfile';
 
 import { build, type Edition, root, sourceHref } from '../../book.config.mjs';
-import { rewriteLinks } from './links.ts';
 import { readText } from './text.ts';
 
 export interface DirectiveOptions {
 	edition: Edition;
-	/** The slugs of the book's pages, for the links inside notes. */
-	pages: () => ReadonlySet<string>;
 }
 
-type Kind = 'example' | 'output' | 'note' | 'compile-error';
+type Kind = 'example' | 'output' | 'compile-error';
 
 const KEYS: Record<Kind, readonly string[]> = {
 	example: ['name', 'region', 'asynchronous'],
 	output: ['name', 'asynchronous'],
-	note: ['name'],
 	'compile-error': ['name'],
 };
 
@@ -127,11 +116,9 @@ interface Listing {
 
 /** Renders the directives of one chapter. */
 export default function remarkBookDirectives(options: DirectiveOptions) {
-	const { edition, pages } = options;
+	const { edition } = options;
 	const directory = join(root, edition.directory);
 	const repoPath = (...parts: string[]) => [edition.directory, ...parts].join('/');
-
-	const notes = unified().use(remarkParse).use(remarkGfm);
 
 	return (tree: Root, file: VFile) => {
 		const chapter = file.path ? relative(root, file.path) : 'a chapter';
@@ -257,24 +244,9 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return shown;
 		};
 
-		const note = (name: string): RootContent[] => {
-			const path = `notes/${name}.md`;
-			if (!existsSync(join(directory, path))) return [];
-			const parsed = notes.parse(readText(join(directory, path))) as Root;
-			rewriteLinks(parsed, repoPath(path), pages());
-			return parsed.children;
-		};
-
 		const compileError = (directive: Directive): RootContent[] => {
 			const program = `compile-errors/${directive.name}.${edition.extension}`;
-			if (!existsSync(join(directory, program))) {
-				const instead = note(directive.name);
-				if (instead.length > 0) return instead;
-				throw new Error(
-					`${chapter}: a compile-error directive names ${directive.name}, but neither ${repoPath(program)} nor the note ${repoPath('notes', `${directive.name}.md`)} that would replace it exists.`,
-				);
-			}
-			const code = region(readText(join(directory, program)), undefined, `${chapter}: ${repoPath(program)}`);
+			const code = region(read(program, `the compile error ${directive.name} is shown`), undefined, `${chapter}: ${repoPath(program)}`);
 			const message = read(`compile-errors/${directive.name}.txt`, `the compile error ${directive.name} is shown`).replace(/\n+$/, '');
 			return [
 				figure({
@@ -301,8 +273,6 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					return example(directive);
 				case 'output':
 					return output(directive);
-				case 'note':
-					return note(directive.name);
 				case 'compile-error':
 					return compileError(directive);
 			}

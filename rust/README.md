@@ -1,8 +1,8 @@
-# The book's Rust examples
+# The Rust book
 
-The examples, notes and compile errors of the book's Rust edition, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` at the commit or version pinned in [Cargo.toml](Cargo.toml).
+The Rust book: its [chapters](chapters/README.md), and the examples and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` at the commit or version pinned in [Cargo.toml](Cargo.toml).
 
-## Running them
+## Running the examples
 
 From this directory:
 

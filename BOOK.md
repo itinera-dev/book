@@ -1,6 +1,6 @@
 # The Itinera book
 
-What the Itinera book contains, and how it is written. It is one book, written for several languages: a reader picks a language and reads the whole book in it. This document is to the book what the specification is to the implementations: it is written once, without naming a language, and the book's edition in each language follows it. Each chapter and part below later becomes its own issue, so the work can be split across sessions and languages.
+What the Itinera book contains, and how it is written. There is one book for each language: a reader picks a language and reads a whole book written for it. This document is to the books what the specification is to the implementations: it is written once, without naming a language, and every language's book follows it. The books share their story, their parts, the shape of their chapters and their voice; each is written for its own language, naming it, showing its syntax in the prose, and covering what its readers need in as much detail as they need. Each chapter and part below later becomes its own issue, so the work can be split across sessions and languages.
 
 ## Who the book is for
 
@@ -64,8 +64,8 @@ The usual code is real code in the book's language too, compiled and run like ev
 
 Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
 
-1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every run of a workflow is a journey. How the book is laid out, part by part.
-2. **How to read this book.** The conventions every page shares: the edition for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
+1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part.
+2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
 3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
 
 ### Part 1: Introduction
@@ -152,14 +152,14 @@ Each tier adds a part, in the same style, once its proposals are accepted and th
 
 ## What each language provides
 
-For every chapter, each language's edition provides:
+For every chapter, each language's book provides:
 
-1. the chapter's prose, following this document, with the language's own notes where it differs, such as how recoverable and unrecoverable failures work in that language. A reader of an edition chose its language, so a note reads as part of the chapter: it is not set apart, and it never opens by naming the language;
+1. the chapter's prose, following this document and written for that language, such as how recoverable and unrecoverable failures work in it. A new language's book usually starts as a copy of an existing one and is then rewritten for its language;
 2. the chapter's example as a complete program, with marked regions the book quotes, and its recorded output;
 3. for the "Without Itinera" sections, the usual code as a complete program too;
 4. for chapter 27, compile-fail cases with their recorded compiler messages, where the language turns mistakes into compile errors.
 
-A language that lacks a feature a chapter needs shows that chapter as a short note saying the feature is not in this language yet, with a link to its implementation issue.
+A language that lacks a feature a chapter needs shows that chapter as a short section saying the feature is not in this language yet, with a link to its implementation issue.
 
 ## How the examples are checked
 
@@ -172,4 +172,4 @@ A language that lacks a feature a chapter needs shows that chapter as a short no
 
 1. **Services and rescue steps** are being added to tier 1. Rescue steps are accepted, as chapter 7 of the specification; the design of services is agreed in [spec#95](https://github.com/itinera-dev/spec/issues/95) and not accepted yet. The story, chapters 12 to 14 and 25, and the comparisons of part 4 follow them. Their examples are compiled once each language implements them, and change with the design of services if it changes before it is accepted.
 2. **The circuit breaker** of part 4 relies on the workflow's own code holding the breaker's state across journeys, behind a role whose operations record failures and answer whether the breaker is open, and on the provider, as part of the workflow, reading that state before it hands out a carrier, since providers request no roles. It is checked against the accepted specification before it is written.
-3. **Where the prose lives:** with the examples in this repository, or with the site. Keeping it here, next to the code it quotes, lets one pull request change both.
+3. **Where the prose lives:** with the examples, in each language's directory of this repository, so one pull request changes both.

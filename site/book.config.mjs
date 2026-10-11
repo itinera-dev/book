@@ -31,7 +31,7 @@ export const editions = [
 ];
 
 /** The directories of a language's directory that the book reads. */
-export const editionDirectories = ['examples', 'expected', 'notes', 'compile-errors', 'pending'];
+export const editionDirectories = ['chapters', 'examples', 'expected', 'compile-errors', 'pending'];
 
 /** The site's origin, and the path the whole book is served under. */
 export const site = 'https://itinera-dev.github.io';
@@ -40,7 +40,7 @@ export const base = '/book';
 /** The repository on GitHub, for links to files that are not pages of the book. */
 export const repository = 'https://github.com/itinera-dev/book';
 
-/** The checkout of this repository: the directory holding `chapters/` and each language's directory. */
+/** The checkout of this repository: the directory holding each language's directory. */
 export const root = resolve(process.env.BOOK_ROOT ?? resolve(process.cwd(), '..'));
 
 const SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
@@ -82,6 +82,9 @@ function configured() {
 }
 
 export const build = configured();
+
+/** The directory of the chapters this build renders, relative to the repository: `rust/chapters`. */
+export const chapters = `${build.edition.directory}/chapters`;
 
 /**
  * The URL of a page of the edition this build renders.

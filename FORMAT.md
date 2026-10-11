@@ -1,22 +1,24 @@
 # How the book is laid out
 
-Where each part of the book lives in this repository, and how the shared text names the code each language supplies. [BOOK.md](BOOK.md) says what the book contains; this file says how it is stored.
+Where each part of the book lives in this repository, and how a chapter shows code that is compiled and run. [BOOK.md](BOOK.md) says what the book contains; this file says how it is stored.
 
-## The shared text
+## Each language's book
 
-1. Each chapter is one file under [chapters/](chapters/), named after its number and title, for example `chapters/06-a-workflow-of-one-step.md`. [chapters/README.md](chapters/README.md) lists the parts and chapters in reading order.
-2. Each "Without Itinera" section is a file of its own, named after the part it closes, for example `chapters/part-2-without-itinera.md`.
-3. Each appendix is a file named `chapters/appendix-N-short-name.md`.
-4. Each welcome page before Part 1 is a file named after its title, without a number, for example `chapters/quick-start.md`. [chapters/README.md](chapters/README.md) lists them unnumbered, under the heading "Welcome".
+Each language has a book of its own, in its own directory, such as [rust/](rust/). Every book follows BOOK.md: the same shop, the same parts, the same shape of a chapter and the same voice. Beyond that, each is written for its language: it names the language, shows its syntax in the prose, and covers what its readers need, in as much detail as they need. A new language's book usually starts as a copy of an existing one, and is then rewritten for its language.
+
+1. Each chapter is one file under the language's `chapters/`, named after its number and title, for example `rust/chapters/06-a-workflow-of-one-step.md`. The `chapters/README.md` next to it lists the parts and chapters in reading order.
+2. Each "Without Itinera" section is a file of its own, named after the part it closes, for example `part-2-without-itinera.md`.
+3. Each appendix is a file named `appendix-N-short-name.md`.
+4. Each welcome page before Part 1 is a file named after its title, without a number, for example `quick-start.md`. The contents list them unnumbered, under the heading "Welcome".
 5. A chapter, and the quick start, opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them.
 6. A "Without Itinera" section opens with the level 1 heading "Without Itinera", and an appendix or any other welcome page with its own title; they choose their own level 2 and level 3 headings.
-7. Every name a chapter gives to an example, a note or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, with the appendix's, such as `appendix1_cheat_sheet`, or, for the quick start, is `quick_start`, so names never clash between chapters.
+7. Every name a chapter gives to an example or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, with the appendix's, such as `appendix1_cheat_sheet`, or, for the quick start, is `quick_start`, so names never clash between chapters.
 8. Any chapter, "Without Itinera" section or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
-9. The shared text never names a language. Code, output and anything that differs between languages are named by directives, below, and each language supplies them.
+9. A chapter never holds code that is meant to compile. Code that compiles, what it prints and what the compiler refuses are named by directives, below, so every listing in the book is checked. A short fragment that is not a program, such as one attribute or a type's name, may be written inline in the prose.
 
 ## Directives
 
-A directive is a fenced block whose info string is the directive's kind, holding `key: value` lines. Each language's edition of the book replaces it with what that language supplies. On GitHub a directive shows as a small block naming what will be there.
+A directive is a fenced block whose info string is the directive's kind, holding `key: value` lines. It names a file of the language's directory, and the web pages replace it with that file's content. On GitHub a directive shows as a small block naming what will be there.
 
 ### Example
 
@@ -39,16 +41,6 @@ name: ch06_one_step
 
 What the example `ch06_one_step` prints, as recorded next to it. An example that is still pending (see "Each language", below) has no recorded output, so no `output` directive names it: the chapter says in its prose what the program does when it runs, and gains the directive when the example stops being pending.
 
-### Note
-
-````markdown
-```note
-name: ch05_installing
-```
-````
-
-The language's own note of that name, inserted as prose. A note says what differs in that language, such as how its errors work. A chapter that needs no note for a language is shown without it, so a language may leave out a note it has nothing to say in.
-
 ### Compile error
 
 ````markdown
@@ -57,24 +49,25 @@ name: ch27_role_not_provided
 ```
 ````
 
-A program the language refuses to compile, followed by the compiler's message, as recorded next to it. A language that cannot turn this mistake into a compile error supplies a note of the same name instead, saying how the mistake shows instead.
+A program the language refuses to compile, followed by the compiler's message, as recorded next to it.
 
 ### Asynchronous
 
-A directive may add `asynchronous: name`, naming the example's asynchronous form. Where a language's asynchronous form differs, the edition shows it after the synchronous one; where it does not, or the language has only one execution mode, it is left out.
+A directive may add `asynchronous: name`, naming the example's asynchronous form. Where the asynchronous form differs, the web pages show it after the synchronous one; where it does not, it is left out. A language with only one execution mode never uses the key.
 
 ## Each language
 
 Each language has a directory of its own, named after it, for example [rust/](rust/). Its README says how to build and run its examples. Inside it:
 
-1. `examples/NAME.EXT`: each example, a complete program, compiled and run in CI;
-2. `expected/NAME.txt`: what each example prints, compared with what it prints in CI;
-3. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message. The message keeps the lines that say what is wrong and point at the code, and leaves out the build tool's progress lines. Paths in it are written as a reader of this repository sees them: the program as `compile-errors/NAME.EXT`, and a file of the implementation as a path inside its repository, such as `itinera-rs/crates/...`, never as a path on the machine that recorded it;
-4. `notes/NAME.md`: each note;
-5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled and have no recorded output. When the feature arrives, each moves to `examples/` and gains its recorded output, and the chapters showing it gain their `output` directives. Pending examples exist only while a language prepares a release: a released edition has none, and a feature its release lacks is shown as BOOK.md says, with a short note.
+1. `chapters/`: the language's book, as above;
+
+2. `examples/NAME.EXT`: each example, a complete program, compiled and run in CI;
+3. `expected/NAME.txt`: what each example prints, compared with what it prints in CI;
+4. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message. The message keeps the lines that say what is wrong and point at the code, and leaves out the build tool's progress lines. Paths in it are written as a reader of this repository sees them: the program as `compile-errors/NAME.EXT`, and a file of the implementation as a path inside its repository, such as `itinera-rs/crates/...`, never as a path on the machine that recorded it;
+5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled and have no recorded output. When the feature arrives, each moves to `examples/` and gains its recorded output, and the chapters showing it gain their `output` directives. Pending examples exist only while a language prepares a release: a released edition has none, and a feature its release lacks is shown as BOOK.md says.
 
 Every example prints the same thing on every run: a journey ID or a timestamp that changes from run to run is never printed.
 
 ## Web pages
 
-The web pages of the book are built by the site in [site/](site/), which reads the chapters and each language's directory at build time and keeps no copy of them. For each edition, an `example` becomes the named region of the program, highlighted and captioned with the program's name, followed by its asynchronous form only where that region differs and the language has one; a program still in `pending/` is marked as not compiled yet, and fails the build of a released edition. An `output` becomes the recorded output, captioned as what the program prints, followed in the same way by what the asynchronous form prints where that differs; a `note` becomes the language's note, as ordinary paragraphs of the chapter, since a reader of that edition chose its language, or nothing when the language has none; and a `compile-error` becomes the program, captioned as one that does not compile, followed by the compiler's message, or the note that replaces it. A directive that names a file which does not exist fails the build, naming the chapter and the file. Links between chapters become links between the edition's pages, and links to other files of this repository point to them on GitHub.
+The web pages of the book are built by the site in [site/](site/), which reads each language's directory at build time and keeps no copy of it. For each language, an `example` becomes the named region of the program, highlighted and captioned with the program's name, followed by its asynchronous form only where that region differs and the language has one; a program still in `pending/` is marked as not compiled yet, and fails the build of a released edition. An `output` becomes the recorded output, captioned as what the program prints, followed in the same way by what the asynchronous form prints where that differs; and a `compile-error` becomes the program, captioned as one that does not compile, followed by the compiler's message. A directive that names a file which does not exist fails the build, naming the chapter and the file. Links between chapters become links between the edition's pages, and links to other files of this repository point to them on GitHub.

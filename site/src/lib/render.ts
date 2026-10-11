@@ -38,7 +38,7 @@ function create() {
 		.use(remarkParse)
 		.use(remarkGfm)
 		.use(remarkBookLinks, { pages })
-		.use(remarkBookDirectives, { edition: build.edition, pages })
+		.use(remarkBookDirectives, { edition: build.edition })
 		.use(remarkRehype)
 		// Drawn at build time as two images, one per colour scheme, so a diagram
 		// needs no JavaScript and its text alternative is its accDescr.

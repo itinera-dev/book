@@ -1,1 +1,0 @@
-Each step of the workflow is one `#[with_step(...)]` line below `#[workflow(...)]`, in the order the steps run, with the step's type and its name. One step type may be listed twice under two names. Two steps of the same name, or a workflow with no step at all, do not compile.

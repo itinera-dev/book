@@ -1,3 +1,0 @@
-The usual code is plain Rust, with no dependency: its breaker and warehouse keep their state in `Cell`s, since one thread runs every order, and its retry helper takes a closure, which is how a retry decorator is usually written in Rust.
-
-Services and rescue steps are not in `itinera` yet, so the Itinera versions of the circuit breaker, the carrier's provider and the card's repair are not compiled; they follow the agreed designs, and their syntax may change. In the breaker, the workflow keeps the breaker's state in an `Arc` field, shared by every instance the shop creates. A workflow is `Send` and `Sync`, so the state is held in atomics rather than `Cell`s.

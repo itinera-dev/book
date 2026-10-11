@@ -1,8 +1,8 @@
 ---
-// The contents of the edition this build renders, as chapters/README.md lists
+// The contents of the edition this build renders, as its chapters/README.md lists
 // them: the parts in order, the chapters numbered as there.
 
-import { build, pageHref } from '../../../book.config.mjs';
+import { build, chapters, pageHref } from '../../../book.config.mjs';
 import Base from '../../layouts/Base.astro';
 import { contents } from '../../lib/contents.ts';
 import { renderMarkdown } from '../../lib/render.ts';
@@ -12,7 +12,7 @@ export function getStaticPaths() {
 }
 
 const book = contents();
-const introduction = await renderMarkdown(book.introduction, 'chapters/README.md');
+const introduction = await renderMarkdown(book.introduction, `${chapters}/README.md`);
 ---
 
 <Base

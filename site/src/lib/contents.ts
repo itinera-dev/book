@@ -1,4 +1,4 @@
-// The book's contents, read from chapters/README.md: the parts in order, each
+// The book's contents, read from the edition's chapters/README.md: the parts in order, each
 // with its pages, numbered as the README numbers them. The navigation, the
 // previous and next links and the part a page belongs to all come from here,
 // so the README stays the one place that orders the book.
@@ -9,7 +9,7 @@ import type { Heading, List, ListItem, Paragraph, PhrasingContent, Root } from '
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 
-import { root } from '../../book.config.mjs';
+import { chapters, root } from '../../book.config.mjs';
 import { readText } from './text.ts';
 
 export type PageKind = 'welcome' | 'chapter' | 'without-itinera' | 'appendix';
@@ -44,7 +44,7 @@ export interface Contents {
 	pages: Page[];
 }
 
-const CONTENTS = 'chapters/README.md';
+const CONTENTS = `${chapters}/README.md`;
 
 function text(nodes: PhrasingContent[]): string {
 	return nodes
@@ -78,7 +78,7 @@ function pageOf(item: ListItem, number: number | undefined, part: Part): Page {
 	const label = text(paragraph.children).trim();
 	return {
 		slug,
-		file: `chapters/${slug}.md`,
+		file: `${chapters}/${slug}.md`,
 		kind,
 		number: kind === 'chapter' ? number : undefined,
 		label: kind === 'chapter' || kind === 'welcome' ? text(link.children).trim() : label,

@@ -1,10 +1,10 @@
 # The Itinera book
 
-A book about [Itinera](https://github.com/itinera-dev/spec), a workflow framework that keeps business rules separate from flow control, written for several languages. You pick the language you build with, and read the whole book in it, with examples that compile and run.
+A book about [Itinera](https://github.com/itinera-dev/spec), a workflow framework that keeps business rules separate from flow control, written once for each language. You pick the language you build with, and read a whole book written for it, with examples that compile and run.
 
 ## Status
 
-Not published yet. The first edition will be for Rust, with [itinera-rs](https://github.com/itinera-dev/itinera-rs). Once published, the book will be at <https://itinera-dev.github.io/book/>, built by [the site](site/README.md).
+Not published yet. The first book is for Rust, in [rust/](rust/), with [itinera-rs](https://github.com/itinera-dev/itinera-rs). Once published, the book will be at <https://itinera-dev.github.io/book/>, built by [the site](site/README.md).
 
 ## Who it is for
 
@@ -12,7 +12,9 @@ People building software for others with Itinera, and the AI agents doing that w
 
 ## What is here
 
-- [BOOK.md](BOOK.md): what the book contains and how it is written, the same for every language.
+- [BOOK.md](BOOK.md): what the book contains and how it is written, the plan every language's book follows.
+- [rust/](rust/): the Rust book, its chapters in [rust/chapters/](rust/chapters/README.md) and its examples beside them.
+- [FORMAT.md](FORMAT.md): how a book is stored, and how its chapters show compiled code.
 - [AGENTS.md](AGENTS.md): the working manual for anyone, human or agent, working in this repository.
 
 Built with AI under the terms of [A manifesto for software engineering with AI](https://marlon-sousa.com/blog/manifesto/); see [how Itinera is built](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#how-itinera-is-built).

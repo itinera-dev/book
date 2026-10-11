@@ -1,3 +1,0 @@
-A step's `run` returns its outcome through the shorthands that `#[step]` gives it: `Self::succeed()`, `Self::fail(reason)`, `Self::fail_retriably(reason)`, `Self::skip()` and `Self::skip_because(reason)`. A reason is a `Reason`, or a text, which becomes its code; `Reason::new("nothing-to-charge").with_message(...)` adds a message, and `.with_details(...)` adds details, which must be a value.
-
-The result's `status` is a `JourneyStatus`. A failed journey holds a `Failure`, whose variant is its cause: `Failure::Failure(reason)` for a failure that is not retriable, `Failure::RetriesExhausted(...)` when the retry budget is spent. Both enums may grow, so a `match` on them ends with a wildcard arm.
