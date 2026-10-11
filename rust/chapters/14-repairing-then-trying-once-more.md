@@ -49,7 +49,7 @@ Ben's journey reports, in order:
 5. the charge's attempt 2 starts with the new card and succeeds, and `charged` is committed;
 6. the ship step runs, and the journey succeeds, with the new card and the amount charged.
 
-Dan's journey starts the same way, up to the charge's attempt 2. That attempt fails with `declined`, and since a step is rescued at most once, the charge is given up with the cause `failure`, and the journey fails at `charge`, with nothing charged. Had his bank no new card at all, `charge_rescue` would have failed with `nothing-to-renew`, and the journey would have failed at `charge_rescue` instead, as the third order of [chapter 25](25-step-rescue-step-or-policy.md) does, whose card is declined rather than expired.
+Dan's journey starts the same way, up to the charge's attempt 2. That attempt fails with `declined`, and since a step is rescued at most once, the charge is given up with the cause `failure`, and the journey fails at `charge`, with nothing charged. Had his bank no new card at all, `charge_rescue` would have failed with `nothing-to-renew`, and the journey would have failed at `charge_rescue` instead, as order A-3 of [chapter 25](25-step-rescue-step-or-policy.md) does once it has a rescue step: its card is declined rather than expired, so there is nothing to renew.
 
 ## How it works
 

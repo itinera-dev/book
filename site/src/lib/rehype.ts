@@ -63,7 +63,7 @@ export function rehypeDiagrams() {
 			if (!code || !hasClass(code, 'language-mermaid')) return;
 			const source = toString(code).replace(/\n+$/, '');
 			const title = /^[ \t]*accTitle[ \t]*:[ \t]*(\S.*?)[ \t]*$/m.exec(source)?.[1];
-			if (title === undefined || !/^\s*accDescr\s*[:{]/m.test(source)) {
+			if (title === undefined || !/^[ \t]*accDescr[ \t]*(:[ \t]*\S|\{)/m.test(source)) {
 				const where = `${file.data.repositoryPath ?? 'a chapter'}, line ${node.position?.start.line ?? '?'}`;
 				throw new Error(`${where}: a diagram needs an accTitle and an accDescr, which name and describe it for a screen reader.`);
 			}

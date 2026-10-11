@@ -94,9 +94,9 @@ if (figures.length > 0) {
 		if (width > WIDE * height) makeWide(figure, box);
 	};
 
-	// The drawing is named by the figure's visible caption, the diagram's
-	// accTitle, rather than by Mermaid's own title of the same words, which
-	// would also show as a tooltip.
+	// The drawing is named by the figure's visible caption, made from the
+	// diagram's accTitle, rather than by Mermaid's own title, which would also
+	// show as a tooltip.
 	const nameByCaption = (figure: HTMLElement, picture: SVGSVGElement | null) => {
 		const caption = figure.querySelector('figcaption');
 		if (!picture || !caption) return;
