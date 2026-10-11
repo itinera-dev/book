@@ -1,0 +1,2 @@
+not shipped: the carrier has no address
+Order { order: "A-2", customer: "Ben", price: 40, charged: Some(40), tracking: Some("T-A-2") }

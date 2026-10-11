@@ -1,0 +1,5 @@
+the carrier is down
+the carrier collects order A-1
+A-1: succeeded, tracking T-A-1
+A-2: succeeded, nothing shipped
+A-3: failed, nothing-to-charge: the order costs nothing

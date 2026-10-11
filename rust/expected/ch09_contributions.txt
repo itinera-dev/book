@@ -1,0 +1,5 @@
+the carrier books order A-1
+the parcel leaves with receipt R-A-1
+A-1: succeeded, charged 40, receipt R-A-1, tracking T-A-1
+the carrier books order A-2
+A-2: failed, charged 40, receipt R-A-2, tracking none

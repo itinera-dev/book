@@ -1,0 +1,3 @@
+In Rust, a step asks for its contributor as a parameter of `run` marked `#[contributor]`, of type `Contributor<'_>`. Its `contribute` method takes the key and the value by value, so what was contributed cannot change afterwards. The contributor borrows the attempt: keeping it after `run` returns, or contributing something that is not a value, does not compile.
+
+To read a journey's data whether it succeeded or failed, derive `Output` on a struct and call `result.output()`. A field of type `Option<T>` is `None` when its key is absent, as `tracking` is after Ben's journey. Reading the output of an aborted journey returns an error, since it has no data.
