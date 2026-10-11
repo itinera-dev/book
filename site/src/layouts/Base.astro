@@ -1,0 +1,85 @@
+---
+// Every page: the skip link, the masthead, the main landmark and the footer.
+// A page of an edition passes `edition`, which adds the edition's name, a link
+// to its contents and the switcher between editions to the masthead.
+
+import '../styles/global.css';
+
+import { base, build, pageHref, repository, sourceHref } from '../../book.config.mjs';
+import EditionSwitcher from '../components/EditionSwitcher.astro';
+
+interface Props {
+	/** The page's title, before the book's name. */
+	title: string;
+	description: string;
+	/** For a page of the edition: the chapter's slug, or an empty string for the contents. */
+	edition?: { page: string };
+}
+
+const { title, description, edition } = Astro.props;
+const fullTitle = edition
+	? `${title} · The Itinera book in ${build.edition.name}`
+	: title === 'The Itinera book'
+		? title
+		: `${title} · The Itinera book`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en-GB">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="theme-color" content="#fbf9f4" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#171a19" media="(prefers-color-scheme: dark)" />
+		<title>{fullTitle}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to the text</a>
+		<header class="masthead">
+			<div class="masthead__inner">
+				<p class="masthead__book">
+					<a class="masthead__title" href={`${base}/`}>The Itinera book</a>
+					{edition && <span class="masthead__edition">{build.edition.name} edition{build.version && `, ${build.version}`}</span>}
+				</p>
+				{
+					edition && (
+						<div class="masthead__nav">
+							<nav aria-label="Book">
+								<ul>
+									<li>
+										{edition.page === '' ? (
+											<span aria-current="page">Contents</span>
+										) : (
+											<a href={pageHref()}>Contents</a>
+										)}
+									</li>
+								</ul>
+							</nav>
+							<EditionSwitcher page={edition.page} />
+						</div>
+					)
+				}
+			</div>
+		</header>
+		<main id="main" tabindex="-1" class="page">
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<div class="site-footer__inner">
+				<p>
+					The Itinera book teaches <a href="https://github.com/itinera-dev/spec">the Itinera specification</a>, which
+					defines what Itinera does.
+				</p>
+				<p>
+					<a href={repository}>Source on GitHub</a>, licensed under{' '}
+					<a href={sourceHref('LICENSE-APACHE')}>Apache 2.0</a> or <a href={sourceHref('LICENSE-MIT')}>MIT</a>.
+				</p>
+			</div>
+		</footer>
+	</body>
+</html>

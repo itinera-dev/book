@@ -1,0 +1,43 @@
+/*
+ * The book's colours, and nothing else. scripts/contrast.mjs reads this file and
+ * checks every pair the pages use against WCAG AA, in both schemes, so a colour
+ * changed here is checked by `npm run verify` before it is published. Keep each
+ * value a six-digit hex on a line of its own.
+ *
+ * Warm paper and ink for reading, one green for links and focus, and an amber
+ * kept for one meaning only: code that is not compiled yet.
+ */
+
+:root {
+	color-scheme: light dark;
+
+	--paper: #fbf9f4;
+	--paper-raised: #f2eee4;
+	--ink: #1d1b18;
+	--ink-body: #2b2925;
+	--ink-muted: #5e5a52;
+	--rule: #d8d1c2;
+	--rule-strong: #8b8578;
+	--accent: #1f6b5c;
+	--accent-strong: #134a3f;
+	--pending-ink: #8a4b0f;
+	--pending-paper: #fbefdc;
+	--code-paper: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #171a19;
+		--paper-raised: #212624;
+		--ink: #f3efe6;
+		--ink-body: #e0dbd0;
+		--ink-muted: #aaa498;
+		--rule: #343a37;
+		--rule-strong: #6b716e;
+		--accent: #7cc7b4;
+		--accent-strong: #a9e0d1;
+		--pending-ink: #f0b878;
+		--pending-paper: #2c2318;
+		--code-paper: #0d1117;
+	}
+}

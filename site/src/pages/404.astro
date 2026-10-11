@@ -1,0 +1,10 @@
+---
+import { base } from '../../book.config.mjs';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="There is no page of the Itinera book at this address.">
+	<h1>Page not found</h1>
+	<p>There is no page of the Itinera book at this address. It may have moved, or the address may be mistyped.</p>
+	<p><a href={`${base}/`}>Go to the front of the book</a> to pick a language and find the chapter you want.</p>
+</Base>

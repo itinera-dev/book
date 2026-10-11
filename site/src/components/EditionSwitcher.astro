@@ -1,0 +1,37 @@
+---
+// The editions of the book, one per programming language, with the one being
+// read marked and every other one linked to the same page in that language.
+// Built from the list in book.config.mjs, so a new language appears here as
+// soon as it has an entry there.
+
+import { build, editionHref, editions } from '../../book.config.mjs';
+
+interface Props {
+	/** The page being read: a chapter's slug, or an empty string for the contents. */
+	page: string;
+}
+
+const { page } = Astro.props;
+---
+
+<nav class="editions" aria-labelledby="editions-label">
+	<span class="editions__label" id="editions-label">Language</span>
+	<ul>
+		{
+			editions.map((edition) =>
+				edition.language === build.edition.language ? (
+					<li>
+						<span aria-current="true">
+							{edition.name}
+							<span class="visually-hidden">, the edition you are reading</span>
+						</span>
+					</li>
+				) : (
+					<li>
+						<a href={editionHref(edition, page || undefined)}>{edition.name}</a>
+					</li>
+				),
+			)
+		}
+	</ul>
+</nav>

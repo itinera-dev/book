@@ -1,0 +1,34 @@
+---
+// The book's front door: what the book is, and a choice of language.
+
+import { editionHref, editions } from '../../book.config.mjs';
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+	title="The Itinera book"
+	description="A book about Itinera, a workflow framework that keeps business rules separate from flow control, with an edition for each programming language."
+>
+	<h1>The Itinera book</h1>
+	<p class="lede">
+		Itinera is a workflow framework that keeps business rules separate from flow control. This book shows you how to
+		build with it, one small online shop at a time.
+	</p>
+	<p>
+		It is one book, written for several programming languages. Pick the language you build with, and read the whole
+		book in it: every example is a complete program that compiles and runs, and what it prints is shown underneath.
+	</p>
+	<h2>Pick a language</h2>
+	<ul class="edition-list">
+		{
+			editions.map((edition) => (
+				<li>
+					<a href={editionHref(edition)}>
+						<span class="edition-list__name">{edition.name}</span>
+						<span class="edition-list__detail">The whole book, with its examples in {edition.name}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</Base>
