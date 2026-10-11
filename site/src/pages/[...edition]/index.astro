@@ -1,0 +1,57 @@
+---
+// The contents of the edition this build renders, as chapters/README.md lists
+// them: the parts in order, the chapters numbered as there.
+
+import { build, pageHref } from '../../../book.config.mjs';
+import Base from '../../layouts/Base.astro';
+import { contents } from '../../lib/contents.ts';
+import { renderMarkdown } from '../../lib/render.ts';
+
+export function getStaticPaths() {
+	return [{ params: { edition: build.segment } }];
+}
+
+const book = contents();
+const introduction = await renderMarkdown(book.introduction, 'chapters/README.md');
+---
+
+<Base
+	title="Contents"
+	description={`The contents of the Itinera book in ${build.edition.name}: every part and chapter in reading order.`}
+	edition={{ page: '' }}
+>
+	<div class="toc">
+		<p class="eyebrow">{build.edition.name} edition</p>
+		<h1>Contents</h1>
+		<div class="prose" set:html={introduction} />
+		{
+			book.parts.map((part) => {
+				const numbered = part.pages.filter((page) => page.number !== undefined);
+				const others = part.pages.filter((page) => page.number === undefined);
+				return (
+					<section aria-labelledby={part.id}>
+						<h2 id={part.id}>{part.title}</h2>
+						{numbered.length > 0 && (
+							<ol start={numbered[0].number}>
+								{numbered.map((page) => (
+									<li>
+										<a href={pageHref(page.slug)}>{page.label}</a>
+									</li>
+								))}
+							</ol>
+						)}
+						{others.length > 0 && (
+							<ul>
+								{others.map((page) => (
+									<li>
+										<a href={pageHref(page.slug)}>{page.label}</a>
+									</li>
+								))}
+							</ul>
+						)}
+					</section>
+				);
+			})
+		}
+	</div>
+</Base>
