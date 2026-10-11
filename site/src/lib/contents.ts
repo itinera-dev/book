@@ -123,11 +123,11 @@ function read(): Contents {
 let cached: Contents | undefined;
 
 /**
- * The contents. A build reads the README once; the dev server reads it on every
- * request, so a change to the contents shows on the next reload.
+ * The contents, read once. The dev server restarts when the README changes or a
+ * chapter file is added or removed (see astro.config.mjs), and a restart reads
+ * them again.
  */
 export function contents(): Contents {
-	if (import.meta.env.DEV) return read();
 	cached ??= read();
 	return cached;
 }

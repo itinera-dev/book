@@ -41,10 +41,13 @@ const introduction = await renderMarkdown(book.introduction, 'chapters/README.md
 							</ol>
 						)}
 						{others.length > 0 && (
-							<ul>
+							<ul role="list">
 								{others.map((page) => (
 									<li>
-										<a href={pageHref(page.slug)}>{page.label}</a>
+										<a href={pageHref(page.slug)}>
+											{page.label}
+											{page.kind === 'without-itinera' && <span class="visually-hidden">, {part.title}</span>}
+										</a>
 									</li>
 								))}
 							</ul>

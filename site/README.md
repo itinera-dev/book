@@ -5,18 +5,21 @@ To read the book locally, from a clone of this repository:
 ```sh
 cd site
 npm ci
+npx playwright install chromium
 npm run dev
 ```
 
-Then open <http://localhost:4321/book/rust/>. The dev server reloads the page when a chapter, or a file of the Rust edition, changes: anything in `../chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/notes/`, `../rust/compile-errors/` or `../rust/pending/`.
+Then open <http://localhost:4321/book/rust/>.
 
-It needs Node 22.12 or later. The diagrams are drawn at build time in Playwright's Chromium; if Playwright has no browser on your machine, `npx playwright install chromium` installs it once.
+- `npx playwright install chromium` is needed once per machine: the diagrams of chapters 3 and 25 are drawn in that browser, and without it those pages fail. On Linux, `npx playwright install --with-deps chromium` also installs the system libraries the browser needs.
+- It needs Node 22.12 or later.
+- The dev server reloads the page when a chapter, or a file of the Rust edition, changes: anything in `../chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/notes/`, `../rust/compile-errors/` or `../rust/pending/`. When the contents, `../chapters/README.md`, changes, or a chapter file is added or removed, the server restarts on its own, which takes a few seconds.
 
 ## What this is
 
 An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.github.io/book/>, with one edition per programming language under it: `/book/rust/` for Rust. Nothing of the book is copied here. At build time the pages read the chapters from `../chapters/`, the order of the book from `../chapters/README.md`, and each language's code, output and notes from its directory, such as `../rust/`, as [FORMAT.md](../FORMAT.md) lays them out.
 
-- `book.config.mjs` holds the list of editions and says which one a build renders. A build renders one edition, at `/book/LANGUAGE/` or, when `BOOK_VERSION` is set, `/book/LANGUAGE/VERSION/`; `BOOK_LANGUAGE` picks the language, and defaults to `rust`. Every link, the edition switcher and the contents derive from it. Adding a language is one entry in its list.
+- `book.config.mjs` holds the list of editions and says which one a build renders. Every link, the edition switcher and the contents derive from it. Adding a language is one entry in its list.
 - `src/lib/` renders the Markdown: `contents.ts` reads the contents, `directives.ts` replaces each directive with what the edition supplies, `links.ts` turns links between chapters into links between pages, and `render.ts` puts the pipeline together.
 - `src/pages/` has the front page, the edition's contents, one page per chapter, and the 404 page.
 - `scripts/` holds the checks that `npm run verify` runs.
@@ -25,7 +28,13 @@ An [Astro](https://astro.build) site that renders the book for the web, publishe
 
 - `npm run build` builds the site into `dist/`.
 - `npm run preview` serves that build at <http://localhost:4321/book/>.
-- `BOOK_VERSION=next npm run build` builds the same edition at `/book/rust/next/`.
+
+A build renders one edition. These environment variables, read only in `book.config.mjs`, say which, and from where:
+
+- `BOOK_LANGUAGE`: the edition's language, such as `rust`. Without it, the first edition in the list.
+- `BOOK_VERSION`: a version segment, such as `next` or `0.1.0`, which puts the edition at `/book/rust/VERSION/` instead of `/book/rust/`. A version other than `next` is a released edition, and a released edition has no pending examples: a directive that names one fails the build.
+- `BOOK_SOURCE_REF`: the git branch, tag or commit that links to files of this repository point at on GitHub, such as the program under each example. Without it, `main`.
+- `BOOK_ROOT`: the checkout of this repository that the book is read from. Without it, the directory above `site/`. It lets the site render another checkout, such as a tag being prepared for release.
 
 A directive that names a file which does not exist, a region missing from its program, or a link to a chapter that is not in the contents fails the build, with a message naming the chapter and the file.
 
@@ -34,10 +43,10 @@ A directive that names a file which does not exist, a region missing from its pr
 `npm run verify` is the gate the Pages workflow runs on every pull request and before every deployment. It runs, in order, and stops at the first failure:
 
 1. `npm run check`: Astro's type check of the site's code.
-2. `npm run contrast`: every pair of colours in `src/styles/tokens.css` against WCAG AA, in the light and the dark scheme.
+2. `npm run contrast`: the pairs of colours the pages use, read from `src/styles/tokens.css`, against WCAG AA in the light and the dark scheme, and the layout's `theme-color` against the page colour of each scheme.
 3. `npm run build:strict`: a forced build, ignoring every cache, that also fails when the build printed an error.
 4. `npm run pages`: that every page exists (the front page, the 404 page, the contents, and one page for each file of `../chapters/`), that each has one level 1 heading and a body, and that every internal link and image leads to something that was built.
 5. `npm run a11y`: axe on every page, in the light and the dark scheme.
 6. `npm run layout`: every page at 360, 390, 768 and 1280 pixels wide, checking that nothing scrolls sideways except code and tables, inside their own box.
 
-The last two drive Playwright's Chromium, as the build does for the diagrams.
+The last two drive Playwright's Chromium, as the build does for the diagrams, so `npx playwright install chromium` must have run once.

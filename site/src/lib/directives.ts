@@ -13,11 +13,13 @@
 // - `example`: the region of `examples/NAME.EXT` between `ANCHOR: region` and
 //   `ANCHOR_END: region`, every anchor line removed, as highlighted code under a
 //   caption naming the program. When the program is in `pending/` instead, the
-//   caption says it uses a feature not released yet and is not compiled. With
-//   `asynchronous: NAME`, the asynchronous form follows, only when its region
-//   differs.
+//   caption says it uses a feature not released yet and is not compiled; a
+//   released edition has no pending examples, so there it fails the build.
+//   With `asynchronous: NAME`, the asynchronous form follows, only when its
+//   region differs and the language has an asynchronous execution mode.
 // - `output`: `expected/NAME.txt`, as a plain block captioned as what the
-//   program prints.
+//   program prints. With `asynchronous: NAME`, what the asynchronous form
+//   prints follows, under the same two conditions.
 // - `note`: `notes/NAME.md`, as prose in a box headed for the language; nothing
 //   when the language has no such note.
 // - `compile-error`: the program, captioned as one that does not compile, then
@@ -37,7 +39,7 @@ import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 import type { VFile } from 'vfile';
 
-import { type Edition, root, sourceHref } from '../../book.config.mjs';
+import { build, type Edition, root, sourceHref } from '../../book.config.mjs';
 import { rewriteLinks } from './links.ts';
 
 export interface DirectiveOptions {
@@ -50,7 +52,7 @@ type Kind = 'example' | 'output' | 'note' | 'compile-error';
 
 const KEYS: Record<Kind, readonly string[]> = {
 	example: ['name', 'region', 'asynchronous'],
-	output: ['name'],
+	output: ['name', 'asynchronous'],
 	note: ['name'],
 	'compile-error': ['name'],
 };
@@ -99,7 +101,9 @@ function region(source: string, anchor: string | undefined, where: string): stri
 		if (end === -1) throw new Error(`${where}: "ANCHOR: ${anchor}" is never closed.`);
 	}
 	const kept = lines.slice(start + 1, end).filter((line) => !ANCHOR_LINE.test(line));
-	if (kept.every((line) => line.trim() === '')) throw new Error(`${where}: the region "${anchor}" is empty.`);
+	if (kept.every((line) => line.trim() === '')) {
+		throw new Error(anchor === undefined ? `${where}: the program is empty.` : `${where}: the region "${anchor}" is empty.`);
+	}
 	const indent = Math.min(...kept.filter((line) => line.trim() !== '').map((line) => /^\s*/.exec(line)?.[0].length ?? 0));
 	return kept.map((line) => line.slice(indent)).join('\n');
 }
@@ -160,17 +164,28 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 		const locate = (name: string, role: string) => {
 			const program = `${name}.${edition.extension}`;
 			if (existsSync(join(directory, 'examples', program))) return { path: `examples/${program}`, pending: false };
-			if (existsSync(join(directory, 'pending', program))) return { path: `pending/${program}`, pending: true };
+			if (existsSync(join(directory, 'pending', program))) {
+				if (build.release) {
+					throw new Error(
+						`${chapter}: ${role} names the example ${name}, which is still in ${repoPath('pending', program)}. A released edition has no pending examples.`,
+					);
+				}
+				return { path: `pending/${program}`, pending: true };
+			}
 			throw new Error(
 				`${chapter}: ${role} names the example ${name}, but neither ${repoPath('examples', program)} nor ${repoPath('pending', program)} exists.`,
 			);
 		};
 
-		const pendingMarker = (): PhrasingContent[] => [
+		/** A visible marker inside a caption, so it is also part of the code block's name. */
+		const marker = (label: string): PhrasingContent[] => [
 			text('. '),
-			element('strong', { className: ['listing__pending'] }, [text('Not compiled yet.')]) as PhrasingContent,
-			text(' It uses a feature that is not released yet, so it is neither compiled nor run.'),
+			element('strong', { className: ['listing__marker'] }, [text(label)]) as PhrasingContent,
 		];
+		const pendingMarker = () => marker('Not compiled yet: it uses a feature not released yet');
+
+		/** The asynchronous form a directive names, when the language has one. */
+		const asynchronousOf = (directive: Directive) => (edition.asynchronous ? directive.asynchronous : undefined);
 
 		const example = (directive: Directive): RootContent[] => {
 			const found = locate(directive.name, 'an example directive');
@@ -183,10 +198,11 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					code,
 				}),
 			];
-			if (directive.asynchronous) {
-				const other = locate(directive.asynchronous, `the asynchronous form of ${directive.name}`);
+			const asynchronous = asynchronousOf(directive);
+			if (asynchronous) {
+				const other = locate(asynchronous, `the asynchronous form of ${directive.name}`);
 				const otherCode = region(
-					read(other.path, `the asynchronous form ${directive.asynchronous} is shown`),
+					read(other.path, `the asynchronous form ${asynchronous} is shown`),
 					directive.region,
 					`${chapter}: ${repoPath(other.path)}`,
 				);
@@ -194,7 +210,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					shown.push(
 						figure({
 							classes: ['listing--example', 'listing--asynchronous', ...(other.pending ? ['listing--pending'] : [])],
-							caption: programCaption(', the same in its asynchronous form, from the program ', directive.asynchronous, other.path, other.pending ? pendingMarker() : []),
+							caption: programCaption(', the same in its asynchronous form, from the program ', asynchronous, other.path, other.pending ? pendingMarker() : []),
 							lang: edition.highlight,
 							code: otherCode,
 						}),
@@ -204,17 +220,39 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return shown;
 		};
 
+		const recorded = (name: string, what: string) => {
+			const path = `expected/${name}.txt`;
+			return { path, text: read(path, what).replace(/\n+$/, '') };
+		};
+
 		const output = (directive: Directive): RootContent[] => {
-			const path = `expected/${directive.name}.txt`;
-			const recorded = read(path, `an output directive names ${directive.name}`).replace(/\n+$/, '');
-			return [
+			const sync = recorded(directive.name, `an output directive names ${directive.name}`);
+			const shown = [
 				figure({
 					classes: ['listing--output'],
-					caption: [text('What '), link(sourceHref(repoPath(path)), directive.name), text(' prints')],
+					caption: [text(`What ${directive.name} prints, recorded in `), link(sourceHref(repoPath(sync.path)), `${directive.name}.txt`)],
 					lang: 'text',
-					code: recorded,
+					code: sync.text,
 				}),
 			];
+			const asynchronous = asynchronousOf(directive);
+			if (asynchronous) {
+				const other = recorded(asynchronous, `the output of the asynchronous form ${asynchronous} is shown`);
+				if (other.text !== sync.text) {
+					shown.push(
+						figure({
+							classes: ['listing--output', 'listing--asynchronous'],
+							caption: [
+								text(`What the asynchronous form ${asynchronous} prints, recorded in `),
+								link(sourceHref(repoPath(other.path)), `${asynchronous}.txt`),
+							],
+							lang: 'text',
+							code: other.text,
+						}),
+					);
+				}
+			}
+			return shown;
 		};
 
 		const note = (name: string): RootContent[] => {
@@ -246,15 +284,15 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return [
 				figure({
 					classes: ['listing--example', 'listing--refused'],
-					caption: programCaption(', the program ', directive.name, program, [text(', which does not compile')]),
+					caption: programCaption(', the program ', directive.name, program, marker('Does not compile')),
 					lang: edition.highlight,
 					code,
 				}),
 				figure({
 					classes: ['listing--output', 'listing--compiler'],
 					caption: [
-						text('What the compiler says about '),
-						link(sourceHref(repoPath(`compile-errors/${directive.name}.txt`)), directive.name),
+						text(`What the compiler says about ${directive.name}, recorded in `),
+						link(sourceHref(repoPath(`compile-errors/${directive.name}.txt`)), `${directive.name}.txt`),
 					],
 					lang: 'text',
 					code: message,
@@ -282,8 +320,10 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					const replacement = render(parse(child, child.lang, chapter));
 					parent.children.splice(index, 1, ...replacement);
 					index += replacement.length - 1;
-				} else if ('children' in child && child.type !== 'bookElement' as string) {
-					walk(child as { children: RootContent[] });
+				} else if ('children' in child) {
+					// A replacement is skipped by the index above, so only the
+					// chapter's own nodes are walked.
+					walk(child);
 				}
 			}
 		};

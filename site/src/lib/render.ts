@@ -28,7 +28,7 @@ function remarkBookLinks(options: { pages: () => ReadonlySet<string> }) {
 
 let processor: ReturnType<typeof create> | undefined;
 
-/** The slugs of the book's pages, read again on every call so the dev server sees a chapter added to the contents. */
+/** The slugs of the book's pages, which links to chapters are checked against. */
 function pages(): ReadonlySet<string> {
 	return new Set(contents().pages.map((page) => page.slug));
 }

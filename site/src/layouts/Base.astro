@@ -9,19 +9,16 @@ import { base, build, pageHref, repository, sourceHref } from '../../book.config
 import EditionSwitcher from '../components/EditionSwitcher.astro';
 
 interface Props {
-	/** The page's title, before the book's name. */
-	title: string;
+	/** The page's title, before the book's name; the front page has none. */
+	title?: string;
 	description: string;
 	/** For a page of the edition: the chapter's slug, or an empty string for the contents. */
 	edition?: { page: string };
 }
 
 const { title, description, edition } = Astro.props;
-const fullTitle = edition
-	? `${title} · The Itinera book in ${build.edition.name}`
-	: title === 'The Itinera book'
-		? title
-		: `${title} · The Itinera book`;
+const book = edition ? `The Itinera book in ${build.edition.name}` : 'The Itinera book';
+const fullTitle = title ? `${title} · ${book}` : book;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -31,6 +28,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
+		{/* The page colour of each scheme; scripts/contrast.mjs checks they match tokens.css. */}
 		<meta name="theme-color" content="#fbf9f4" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#171a19" media="(prefers-color-scheme: dark)" />
 		<title>{fullTitle}</title>

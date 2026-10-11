@@ -14,8 +14,10 @@ const hasClass = (node: Element, name: string) => {
  *
  * The highlighter makes every `<pre>` focusable, so a keyboard can scroll a
  * wide block at phone width. A focusable element that announces nothing is a
- * dead stop in the tab order, so each one is labelled by the caption of the
- * figure it sits in: "Rust, from the program ch06_one_step".
+ * dead stop in the tab order, so each one is a group labelled by the caption
+ * of the figure it sits in: "Rust, from the program ch06_one_step". The role
+ * is what lets a screen reader announce that name: on a bare `<pre>`, many
+ * ignore it.
  */
 export function rehypeListingNames() {
 	return (tree: Root) => {
@@ -28,8 +30,8 @@ export function rehypeListingNames() {
 			// `<pre>` is looked for anywhere inside the figure.
 			visit(node, 'element', (inner) => {
 				if (inner.tagName !== 'pre') return;
+				inner.properties.role = 'group';
 				inner.properties.ariaLabelledBy = [id];
-				inner.properties.tabIndex = 0;
 			});
 		});
 	};

@@ -6,7 +6,6 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base
-	title="The Itinera book"
 	description="A book about Itinera, a workflow framework that keeps business rules separate from flow control, with an edition for each programming language."
 >
 	<h1>The Itinera book</h1>
@@ -19,7 +18,7 @@ import Base from '../layouts/Base.astro';
 		book in it: every example is a complete program that compiles and runs, and what it prints is shown underneath.
 	</p>
 	<h2>Pick a language</h2>
-	<ul class="edition-list">
+	<ul class="edition-list" role="list">
 		{
 			editions.map((edition) => (
 				<li>

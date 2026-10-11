@@ -15,16 +15,13 @@ const { page } = Astro.props;
 ---
 
 <nav class="editions" aria-labelledby="editions-label">
-	<span class="editions__label" id="editions-label">Language</span>
+	<span class="editions__label" id="editions-label">Programming language</span>
 	<ul>
 		{
 			editions.map((edition) =>
 				edition.language === build.edition.language ? (
 					<li>
-						<span aria-current="true">
-							{edition.name}
-							<span class="visually-hidden">, the edition you are reading</span>
-						</span>
+						<span aria-current="true">{edition.name}<span class="visually-hidden">, the edition you are reading</span></span>
 					</li>
 				) : (
 					<li>

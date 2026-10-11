@@ -20,11 +20,14 @@ import { resolve } from 'node:path';
  *   `examples/`, `expected/`, `notes/`, `compile-errors/` and `pending/`.
  * @property {string} extension The extension of its programs, without the dot.
  * @property {string} highlight The highlighter's name for the language.
+ * @property {boolean} asynchronous Whether the language's executors have an
+ *   asynchronous execution mode. Without one, every `asynchronous` key of a
+ *   directive is ignored and only the synchronous form is shown.
  */
 
 /** @type {readonly Edition[]} */
 export const editions = [
-	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust' },
+	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust', asynchronous: true },
 ];
 
 /** The directories of a language's directory that the book reads. */
@@ -42,12 +45,15 @@ export const root = resolve(process.env.BOOK_ROOT ?? resolve(process.cwd(), '..'
 
 const SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
 
+/** The version segment of the edition built from main, ahead of any release. */
+const NEXT = 'next';
+
 /**
  * The edition this build renders: its language, from BOOK_LANGUAGE, and an
  * optional version segment, from BOOK_VERSION.
  */
 function configured() {
-	const language = process.env.BOOK_LANGUAGE || 'rust';
+	const language = process.env.BOOK_LANGUAGE || editions[0].language;
 	const version = process.env.BOOK_VERSION || '';
 	const edition = editions.find((candidate) => candidate.language === language);
 	if (!edition) {
@@ -63,6 +69,11 @@ function configured() {
 	return {
 		edition,
 		version,
+		/**
+		 * Whether this build is a released edition: one whose version names a
+		 * release, not `next`. A released edition has no pending examples.
+		 */
+		release: version !== '' && version !== NEXT,
 		/** The edition's path under the base, without slashes at either end: `rust` or `rust/next`. */
 		segment: version === '' ? edition.language : `${edition.language}/${version}`,
 		/** The git ref links to repository files point at. */

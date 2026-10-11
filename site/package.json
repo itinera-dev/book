@@ -19,8 +19,8 @@
     "verify": "npm run check && npm run contrast && npm run build:strict && npm run pages && npm run a11y && npm run layout"
   },
   "dependencies": {
-    "@shikijs/rehype": "4.5.0",
-    "astro": "7.3.8",
+    "@shikijs/rehype": "4.4.3",
+    "astro": "7.3.5",
     "hast-util-to-string": "3.0.1",
     "playwright": "1.56.1",
     "rehype-mermaid": "3.0.0",
@@ -38,7 +38,8 @@
     "@axe-core/playwright": "4.13.0",
     "@types/hast": "3.0.5",
     "@types/mdast": "4.0.4",
-    "@types/node": "22.20.5",
+    "@types/node": "22.20.4",
+    "playwright-core": "1.56.1",
     "typescript": "6.0.3"
   }
 }

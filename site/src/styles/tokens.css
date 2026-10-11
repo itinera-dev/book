@@ -5,7 +5,9 @@
  * value a six-digit hex on a line of its own.
  *
  * Warm paper and ink for reading, one green for links and focus, and an amber
- * kept for one meaning only: code that is not compiled yet.
+ * kept for one meaning only: code the reader cannot run as shown, because it is
+ * not compiled yet or because it does not compile, and the compiler's message
+ * about it.
  */
 
 :root {
@@ -20,8 +22,8 @@
 	--rule-strong: #8b8578;
 	--accent: #1f6b5c;
 	--accent-strong: #134a3f;
-	--pending-ink: #8a4b0f;
-	--pending-paper: #fbefdc;
+	--caution-ink: #8a4b0f;
+	--caution-paper: #fbefdc;
 	--code-paper: #ffffff;
 }
 
@@ -36,8 +38,8 @@
 		--rule-strong: #6b716e;
 		--accent: #7cc7b4;
 		--accent-strong: #a9e0d1;
-		--pending-ink: #f0b878;
-		--pending-paper: #2c2318;
+		--caution-ink: #f0b878;
+		--caution-paper: #2c2318;
 		--code-paper: #0d1117;
 	}
 }

@@ -214,8 +214,7 @@ a:hover {
 	color: var(--ink-muted);
 	font-family: var(--font-ui);
 	font-size: var(--step--1);
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
+	font-weight: 600;
 }
 
 .eyebrow a {
@@ -395,14 +394,14 @@ th {
 	font-weight: 600;
 }
 
-.listing__pending {
+/* "Not compiled yet" and "Does not compile": code a reader cannot run as shown. */
+.listing__marker {
 	display: inline-block;
-	margin: 0 0.25rem 0 0.15rem;
 	padding: 0 0.4rem;
-	background: var(--pending-paper);
+	background: var(--caution-paper);
 	border: 1px solid currentColor;
 	border-radius: 0.2rem;
-	color: var(--pending-ink);
+	color: var(--caution-ink);
 }
 
 pre.shiki {
@@ -421,7 +420,11 @@ pre.shiki code {
 }
 
 .listing--pending pre.shiki {
-	border: 2px dashed var(--pending-ink);
+	border: 2px dashed var(--caution-ink);
+}
+
+.listing--refused pre.shiki {
+	border: 2px solid var(--caution-ink);
 }
 
 .listing--output pre.shiki {
@@ -429,7 +432,7 @@ pre.shiki code {
 }
 
 .listing--compiler pre.shiki {
-	border-left-color: var(--pending-ink);
+	border-left-color: var(--caution-ink);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -464,8 +467,6 @@ pre.shiki code {
 	font-family: var(--font-ui);
 	font-size: var(--step--1);
 	font-weight: 700;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
 }
 
 /* Diagrams. */
@@ -563,7 +564,6 @@ pre.shiki code {
 
 .toc ul {
 	list-style: none;
-	padding-left: 2.25rem;
 }
 
 .toc li::marker {
