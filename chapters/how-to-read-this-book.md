@@ -4,9 +4,9 @@ A few things work the same way on every page of the book. Here they are, once, s
 
 ## Pick your language
 
-This is one book, written once and published in an edition for each programming language that has an Itinera. The text is the same in every edition; the code, what it prints and the notes about the language are not.
+This book is written once and published in an edition for each programming language that has an Itinera. You are reading one of them: every program, every output and every detail of the language here is in the language you chose.
 
-On the book's web pages, the **programming language** selector at the top of every page lists the editions. The one you are reading is marked. Pick another, and you land on the same page in that language, so you can compare two languages chapter by chapter. If you are reading the book's files instead, each language has a directory of its own, holding its programs, what they print and its notes.
+If you work in more than one language, the **programming language** selector at the top of every page lets you read the same page in another edition, so you can compare two languages chapter by chapter.
 
 ## Meet the shop
 
@@ -37,8 +37,6 @@ Each block of code has a caption naming the program it comes from, with a link t
 1. **The asynchronous form.** A step, a hook or a reporter can be synchronous or asynchronous, and the two forms differ very little. Each chapter shows the synchronous form first. Where the asynchronous form of the same code differs, it follows right after, and its caption says so. A language that offers only one of the two shows only that one.
 2. **Not compiled yet.** A program that uses a feature not released yet is shown, but it isn't compiled until that feature arrives, and its caption says so.
 3. **Does not compile.** Some mistakes can't even be written: the language refuses them before your program ever runs. When the book shows one, the caption says the program does not compile, and what the compiler says follows it, word for word.
-
-Notes about your language appear in a box headed with its name. They say what is particular to that language, such as how it spells a declaration, and the text around them never does.
 
 ## Words with one meaning
 

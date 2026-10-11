@@ -443,32 +443,6 @@ pre.shiki code {
 	}
 }
 
-/* A language's own note. */
-
-.note {
-	margin: 1.75rem 0;
-	padding: 1rem 1.25rem;
-	background: var(--paper-raised);
-	border-left: 4px solid var(--accent);
-	border-radius: 0 0.375rem 0.375rem 0;
-}
-
-.note :not(pre) > code {
-	background: var(--paper);
-}
-
-.note > :last-child {
-	margin-bottom: 0;
-}
-
-.note__title {
-	margin-bottom: 0.5rem;
-	color: var(--ink);
-	font-family: var(--font-ui);
-	font-size: var(--step--1);
-	font-weight: 700;
-}
-
 /* Diagrams. */
 
 .diagram {

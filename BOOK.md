@@ -65,7 +65,7 @@ The usual code is real code in the book's language too, compiled and run like ev
 Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
 
 1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every run of a workflow is a journey. How the book is laid out, part by part.
-2. **How to read this book.** The conventions every page shares: the edition for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); the language's notes; words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
+2. **How to read this book.** The conventions every page shares: the edition for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
 3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
 
 ### Part 1: Introduction
@@ -154,7 +154,7 @@ Each tier adds a part, in the same style, once its proposals are accepted and th
 
 For every chapter, each language's edition provides:
 
-1. the chapter's prose, following this document, with the language's own notes where it differs, such as how recoverable and unrecoverable failures work in that language;
+1. the chapter's prose, following this document, with the language's own notes where it differs, such as how recoverable and unrecoverable failures work in that language. A reader of an edition chose its language, so a note reads as part of the chapter: it is not set apart, and it never opens by naming the language;
 2. the chapter's example as a complete program, with marked regions the book quotes, and its recorded output;
 3. for the "Without Itinera" sections, the usual code as a complete program too;
 4. for chapter 27, compile-fail cases with their recorded compiler messages, where the language turns mistakes into compile errors.

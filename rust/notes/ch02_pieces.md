@@ -1,4 +1,4 @@
-In Rust, a step is a struct and an `impl` block. Deriving `Step` makes each field marked `#[input]` an input, named after the field; a field of type `Option<T>`, such as `discount`, is an optional input. The `#[step]` attribute declares `run`, which takes the step by value and returns `Result<Outcome, Error>`, built with `Self::succeed()` or `Self::fail(...)`.
+A step is a struct and an `impl` block. Deriving `Step` makes each field marked `#[input]` an input, named after the field; a field of type `Option<T>`, such as `discount`, is an optional input. The `#[step]` attribute declares `run`, which takes the step by value and returns `Result<Outcome, Error>`, built with `Self::succeed()` or `Self::fail(...)`.
 
 A step policy is an `impl` block marked `#[step_policy(name = "audit")]`, whose hooks are methods marked with their names, such as `#[on_step_success]`. Each parameter of a hook says what it requests: `#[from_step]` reads what the step contributed under the parameter's name, and `#[contributor]` lets the hook contribute. `on step success` returns `Result<Option<OnSuccess>, Error>`; `Self::carry_on()` returns `Ok(None)`, which keeps the default.
 

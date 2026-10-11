@@ -1,4 +1,4 @@
-In Rust, the retry budget is part of the step's line in the workflow: `#[with_step(Ship, name = "ship", retry_budget = 1)]`. Adding `abnormal_termination_retriable` to the same line lets an `Err` returned from `run` be retried within that budget. A step marks a failure retriable with `Self::fail_retriably(...)`; `Self::fail(...)` is never retried.
+The retry budget is part of the step's line in the workflow: `#[with_step(Ship, name = "ship", retry_budget = 1)]`. Adding `abnormal_termination_retriable` to the same line lets an `Err` returned from `run` be retried within that budget. A step marks a failure retriable with `Self::fail_retriably(...)`; `Self::fail(...)` is never retried.
 
 A step policy is a type whose `impl` block carries `#[step_policy(name = "...")]`, and each hook is a method marked with its name, here `#[on_step_retry]`. The retry hook returns `Result<Option<FailWorkflow>, Error>`: `Self::carry_on()` lets the retry happen, and `Self::fail_workflow(...)` stops it. The executor builds the policy with `Default`, so it derives `Default`. An optional input is a field of type `Option<T>`, which is `None` when the key is absent.
 

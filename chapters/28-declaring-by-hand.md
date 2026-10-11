@@ -103,7 +103,7 @@ name: ch28_by_hand
    - a declaration put together when the program starts, from the shop's configuration, for example adding a gift-wrapping step only in the shops that offer it. It is still fixed before any journey starts;
    - seeing every violation as data when the workflow is built.
 
-   Some languages have more cases, which the note above lists. Otherwise, the short form says the same thing in fewer lines, and is easier to read as the plan of the business.
+   Some languages have more cases, listed above. Otherwise, the short form says the same thing in fewer lines, and is easier to read as the plan of the business.
 
 ## Remember
 

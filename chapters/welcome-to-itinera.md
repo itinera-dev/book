@@ -31,7 +31,7 @@ Separating the decisions is not only tidier. Because the executor carries out ev
 
 1. **You always know what is going on.** Every journey reports what happens as events, in the same form and the same order, whatever the workflow does and whoever wrote its steps. You never depend on what someone thought worth logging: one reporter tells you the whole story of every workflow you have.
 2. **A step is a business rule, by design.** A step doesn't know who runs it, which workflow it belongs to, which journey it is part of, what came before it, what comes after, or whether it will be tried again. It gets its data, does its work and says how it went. With nothing else to reach, a step cannot decide anything about the flow: what it holds is its business rule, so you can read it, test it and change it on its own.
-3. **Every decision about a step is in plain sight.** Trying again, repairing, falling back, auditing, telling the customer, giving up: each is declared in the workflow, as a step's retry budget, its rescue step or a policy attached to it. Look at the workflow, and you see at a glance everything that can happen to every step.
+3. **Every flow decision is in plain sight.** Trying again, repairing, falling back, auditing, telling the customer, giving up: each is declared in the workflow, as a step's retry budget, its rescue step, or a policy attached to a step or to the workflow. Look at the workflow, and you see at a glance everything that can happen to every step.
 
 Here is the same shop both ways. On the left, written by hand: each function mixes its business rule with flow decisions and its own logging. On the right, with Itinera: each concern has one place, and the executor connects them.
 

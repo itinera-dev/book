@@ -20,8 +20,9 @@
 // - `output`: `expected/NAME.txt`, as a plain block captioned as what the
 //   program prints. With `asynchronous: NAME`, what the asynchronous form
 //   prints follows, under the same two conditions.
-// - `note`: `notes/NAME.md`, as prose in a box headed for the language; nothing
-//   when the language has no such note.
+// - `note`: `notes/NAME.md`, as ordinary paragraphs of the chapter, since a
+//   reader of the edition chose its language; nothing when the language has no
+//   such note.
 // - `compile-error`: the program, captioned as one that does not compile, then
 //   the compiler's message. A language that cannot make the mistake a compile
 //   error supplies a note of the same name, shown instead.
@@ -261,14 +262,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			if (!existsSync(join(directory, path))) return [];
 			const parsed = notes.parse(readText(join(directory, path))) as Root;
 			rewriteLinks(parsed, repoPath(path), pages());
-			listings += 1;
-			const id = `note-${listings}`;
-			return [
-				element('div', { className: ['note'], role: 'note', ariaLabelledBy: id }, [
-					element('p', { id, className: ['note__title'] }, [text(`In ${edition.name}`)]),
-					...parsed.children,
-				]),
-			];
+			return parsed.children;
 		};
 
 		const compileError = (directive: Directive): RootContent[] => {

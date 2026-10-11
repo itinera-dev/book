@@ -1,6 +1,6 @@
 # Cheat sheet
 
-Everything you declare with Itinera, in the order the book teaches it, with the chapter to read for more. The note that follows the table gives, for each line, how your language writes it.
+Everything you declare with Itinera, in the order the book teaches it, with the chapter to read for more. After the table comes how each line is written.
 
 ## What you declare
 

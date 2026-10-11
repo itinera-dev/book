@@ -1,6 +1,6 @@
-In Rust, with the `macros` feature, each line of the table is written as follows. Paths are those applications write, through `itinera`.
+With the `macros` feature, each line of the table is written as follows. Paths are those applications write, through `itinera`.
 
-| What you declare | In Rust | Chapter |
+| What you declare | How you write it | Chapter |
 |---|---|---|
 | A step | `#[derive(Step)]` on its struct, and `#[step]` on the block holding `fn run(self, ...) -> Result<Outcome, Error>` | 6 |
 | A step's inputs | a field marked `#[input]`, or `#[input("key")]`; an `Option<T>` field is optional, and `#[input(required)]` makes its key required; `#[default]` marks a field that is not an input | 8 |

@@ -1,6 +1,6 @@
 // Checks every built page in a real browser at a phone's width and a laptop's,
 // and fails when the page scrolls sideways, when the text column runs off the
-// screen, or when a code block, a table, a note or a diagram is wider than the
+// screen, or when a code block, a table or a diagram is wider than the
 // screen instead of scrolling inside its own box.
 
 import { chromium } from 'playwright';
@@ -14,7 +14,7 @@ function measure() {
 	const root = document.documentElement;
 	const viewport = root.clientWidth;
 	const main = document.querySelector('main')?.getBoundingClientRect();
-	const wide = [...document.querySelectorAll('pre, .table-scroll, .diagram__scroll, .diagram:not(.diagram--wide) img, .note, .listing')]
+	const wide = [...document.querySelectorAll('pre, .table-scroll, .diagram__scroll, .diagram:not(.diagram--wide) img, .listing')]
 		.map((element) => ({ element, box: element.getBoundingClientRect() }))
 		.filter(({ box }) => box.right > viewport + 1 || box.left < -1)
 		.map(({ element }) => element.getAttribute('aria-labelledby') ?? element.className ?? element.tagName.toLowerCase());
