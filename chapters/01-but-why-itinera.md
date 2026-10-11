@@ -1,10 +1,12 @@
-# The hardest part is knowing what is going on
+# But why Itinera?
 
 ## What you want to do
 
+Fair question. You already know how to write a checkout, so why would you hand its flow to a framework? Let's not argue about it in the abstract. Let's look at code you have probably written yourself, and see what it costs.
+
 You run a small online shop. When a customer checks out, the shop reserves the goods, charges the card, ships the parcel and tells the customer how it went. You want to answer simple questions about any order: what the shop tried, in what order, what it did when something failed, and who was told.
 
-This chapter looks at a checkout written the usual way, by a competent developer, and asks it those questions.
+This chapter looks at a checkout written the usual way, by a competent developer, and asks it those questions. No Itinera yet: just the cases.
 
 ## The code
 
@@ -50,7 +52,7 @@ name: ch01_checkout
 
 ## How it works
 
-Every piece of this code is reasonable. Now try to answer some questions about it.
+Every piece of this code is reasonable. We would have written it this way too. Now try to answer some questions about it.
 
 1. **In what order does a checkout do its work?** This one is easy: the function that reserves, charges and ships says it in three lines. But each of those lines hides decisions of its own, and nothing in the checkout shows them.
 2. **What happens to an order when the card is declined twice?** The checkout does not say. You follow the charge into the payments module. There, a card declined because it has expired is renewed with the bank and charged once more. If the bank refuses that second charge, the refusal travels silently back up through two functions to the checkout, which logs a warning and tells the customer. A card refused for any other reason is never tried again. To learn this you read three functions in two modules, and the bank's list of reasons for refusing a charge. Dan's order shows the answer, but its log does not say that it was the new card the bank refused.
@@ -60,7 +62,7 @@ Every piece of this code is reasonable. Now try to answer some questions about i
 
 The code mixes two kinds of decision. **Business rules** decide what the shop does: an order is charged its price less any discount, goods are reserved before they are shipped, a parcel goes to a carrier. **Flow control** decides what happens around that work: renew the card and try once more, fall back to another carrier, give up, audit, tell the customer. Logging is woven through both. Every flow decision lives inside a business function, so the only way to find it is to read that function, and the one it calls, and the one after.
 
-That is why the hardest part of understanding a system like this is knowing what is going on. Answering one question means reading every module, and a decision is easy to miss: the audit tucked into the payment function, the backup carrier's error dropped, the second refusal that travels up without a word. Changing a decision is harder still, because you first have to find every place that makes it.
+That is the answer to "why Itinera?": the hardest part of understanding a system like this is knowing what is going on. Answering one question means reading every module, and a decision is easy to miss: the audit tucked into the payment function, the backup carrier's error dropped, the second refusal that travels up without a word. Changing a decision is harder still, because you first have to find every place that makes it.
 
 The next chapters write the same shop with Itinera, where every flow decision has one place to live, and you can answer each of these questions by reading one declaration.
 

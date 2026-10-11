@@ -2,9 +2,15 @@
 
 The chapters of the book in reading order. What each one covers is in [BOOK.md](../BOOK.md).
 
+## Welcome
+
+- [Welcome to Itinera](welcome-to-itinera.md)
+- [How to read this book](how-to-read-this-book.md)
+- [Quick start](quick-start.md)
+
 ## Part 1: Introduction
 
-1. [The hardest part is knowing what is going on](01-the-hardest-part-is-knowing-what-is-going-on.md)
+1. [But why Itinera?](01-but-why-itinera.md)
 2. [Steps, policies and workflows](02-steps-policies-and-workflows.md)
 3. [Read the workflow, know what happens](03-read-the-workflow-know-what-happens.md)
 4. [What happens when it runs](04-what-happens-when-it-runs.md)

@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-You want to answer the questions of [chapter 1](01-the-hardest-part-is-knowing-what-is-going-on.md) about the shop: in what order the work happens, how many times the card is charged, what happens when a carrier cannot take a parcel, what is audited and who is told. This time you start from one thing: the shop's workflow.
+You want to answer the questions of [chapter 1](01-but-why-itinera.md) about the shop: in what order the work happens, how many times the card is charged, what happens when a carrier cannot take a parcel, what is audited and who is told. This time you start from one thing: the shop's workflow.
 
 ## The code
 

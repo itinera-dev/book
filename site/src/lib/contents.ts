@@ -12,7 +12,7 @@ import { unified } from 'unified';
 import { root } from '../../book.config.mjs';
 import { readText } from './text.ts';
 
-export type PageKind = 'chapter' | 'without-itinera' | 'appendix';
+export type PageKind = 'front' | 'chapter' | 'without-itinera' | 'appendix';
 
 export interface Page {
 	/** The file name without `.md`, which is also the page's URL segment. */
@@ -22,7 +22,7 @@ export interface Page {
 	kind: PageKind;
 	/** The chapter's number, for a chapter. */
 	number?: number;
-	/** How the contents names the page: the chapter's title, "Without Itinera", or "Appendix 1: Cheat sheet". */
+	/** How the contents names the page: the chapter's or front page's title, "Without Itinera", or "Appendix 1: Cheat sheet". */
 	label: string;
 	/** The part the page belongs to. */
 	part: Part;
@@ -56,10 +56,11 @@ function text(nodes: PhrasingContent[]): string {
 		.join('');
 }
 
-function kindOf(slug: string): PageKind {
+/** A numbered entry is a chapter; an unnumbered one is front matter, unless its file says otherwise. */
+function kindOf(slug: string, numbered: boolean): PageKind {
 	if (/^part-\d+-without-itinera$/.test(slug)) return 'without-itinera';
 	if (/^appendix-\d+-/.test(slug)) return 'appendix';
-	return 'chapter';
+	return numbered ? 'chapter' : 'front';
 }
 
 function pageOf(item: ListItem, number: number | undefined, part: Part): Page {
@@ -73,14 +74,14 @@ function pageOf(item: ListItem, number: number | undefined, part: Part): Page {
 		throw new Error(`${CONTENTS}: "${link.url}" in "${part.title}" is not a chapter file of this directory.`);
 	}
 	const slug = match[1];
-	const kind = kindOf(slug);
+	const kind = kindOf(slug, number !== undefined);
 	const label = text(paragraph.children).trim();
 	return {
 		slug,
 		file: `chapters/${slug}.md`,
 		kind,
 		number: kind === 'chapter' ? number : undefined,
-		label: kind === 'chapter' ? text(link.children).trim() : label,
+		label: kind === 'chapter' || kind === 'front' ? text(link.children).trim() : label,
 		part,
 	};
 }

@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-You have code like the checkout of [chapter 1](01-the-hardest-part-is-knowing-what-is-going-on.md): business rules, retries, fallbacks, audits, messages and logging, all woven together. You want to turn it into a workflow, one move at a time, so that you can do the same with your own code. This chapter rewrites that checkout, and gathers what each "Without Itinera" section of the book showed.
+You have code like the checkout of [chapter 1](01-but-why-itinera.md): business rules, retries, fallbacks, audits, messages and logging, all woven together. You want to turn it into a workflow, one move at a time, so that you can do the same with your own code. This chapter rewrites that checkout, and gathers what each "Without Itinera" section of the book showed.
 
 ## The code
 

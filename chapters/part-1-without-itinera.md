@@ -1,6 +1,6 @@
 # Without Itinera
 
-Part 1 has already set the two versions of the shop against each other: the checkout of [chapter 1](01-the-hardest-part-is-knowing-what-is-going-on.md), written the usual way, and the workflow of [chapter 3](03-read-the-workflow-know-what-happens.md). This section puts them side by side.
+Part 1 has already set the two versions of the shop against each other: the checkout of [chapter 1](01-but-why-itinera.md), written the usual way, and the workflow of [chapter 3](03-read-the-workflow-know-what-happens.md). This section puts them side by side.
 
 ## The usual checkout
 

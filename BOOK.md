@@ -17,7 +17,7 @@ A reader finishes the book able to:
 
 ### Voice
 
-1. Plain language, in the second person, aimed at a developer who knows their language but has never heard of Itinera.
+1. Plain language, warm and personal, aimed at a developer who knows their language but has never heard of Itinera. The book talks to the reader as "you", and the people who make Itinera speak as "we", the way a colleague would explain it over coffee: it says hello, says why something matters before how it works, and admits when the usual way is perfectly reasonable. Being friendly never costs precision: the rules stay exact, and the vocabulary stays the specification's.
 2. The vocabulary of the specification's chapter 1 is used exactly, since its words are not synonyms of each other. Each word is explained in plain language the first time the book uses it, and the glossary collects them.
 3. The book never describes behaviour the specification does not define. Where a language makes a rule impossible to express, the book shows it as a compile error, with the real message.
 4. Everything is written for a screen reader: headings, lists, prose and simple tables. Diagrams are Mermaid, with `accTitle` and `accDescr`, always followed by text that says everything they show.
@@ -35,7 +35,7 @@ Each chapter's example is a complete program that compiles, runs and shows what 
 
 ### The shape of a chapter
 
-Every chapter has the same four sections, in this order, so a screen reader user can jump straight to the part they need and an agent knows where to look:
+Every chapter, and the quick start, has the same four sections, in this order, so a screen reader user can jump straight to the part they need and an agent knows where to look:
 
 1. **What you want to do,** in one or two sentences, in the shop's terms.
 2. **The code,** with what it prints underneath.
@@ -60,11 +60,19 @@ The usual code is real code in the book's language too, compiled and run like ev
 
 ## Contents
 
+### Welcome
+
+Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
+
+1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every run of a workflow is a journey. How the book is laid out, part by part.
+2. **How to read this book.** The conventions every page shares: the edition for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); the language's notes; words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
+3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
+
 ### Part 1: Introduction
 
 The introduction makes one argument: the hardest part of understanding a system that mixes business rules with flow control is knowing what is going on, and with Itinera you find out by reading one workflow. Every chapter of the part serves that argument, and no later chapter is needed to follow it.
 
-1. **The hardest part is knowing what is going on.** The shop written the usual way: a checkout that charges, retries, falls back, ships, logs and notifies, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed.
+1. **But why Itinera?** The shop written the usual way, before any Itinera: a checkout that charges, retries, falls back, ships, logs and notifies, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed.
 2. **Steps, policies and workflows.** The three ideas that separate the two kinds of decision. A step holds one business rule, reports what happened and knows nothing of what comes next. A policy holds the flow decisions, through hooks the executor calls after each outcome. A workflow lists the steps in the order they run, with their retry budgets and the policies attached to them. Each idea is shown with the smallest piece of the shop that makes it clear.
 3. **Read the workflow, know what happens.** The shop's workflow declaration, on its own. The reader answers the questions of chapter 1 from it alone, in a few lines: the order of the steps, how many times the charge is tried, which policy decides what after a failure, what happens at the end. The chapter closes with a diagram of a journey through the shop, and the text that says everything it shows.
 4. **What happens when it runs.** The remaining words, each in a paragraph: workflow instance, journey, executor, data bag, result and event, and the two execution modes, synchronous and asynchronous, introduced once here. Where Itinera fits, and what it is not: not a job queue, not BPMN, no branching inside a workflow.

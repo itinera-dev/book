@@ -7,11 +7,12 @@ Where each part of the book lives in this repository, and how the shared text na
 1. Each chapter is one file under [chapters/](chapters/), named after its number and title, for example `chapters/06-a-workflow-of-one-step.md`. [chapters/README.md](chapters/README.md) lists the parts and chapters in reading order.
 2. Each "Without Itinera" section is a file of its own, named after the part it closes, for example `chapters/part-2-without-itinera.md`.
 3. Each appendix is a file named `chapters/appendix-N-short-name.md`.
-4. A chapter opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them.
-5. A "Without Itinera" section opens with the level 1 heading "Without Itinera", and an appendix with its own title; both choose their own level 2 and level 3 headings.
-6. Every name a chapter gives to an example, a note or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, or with the appendix's, such as `appendix1_cheat_sheet`, so names never clash between chapters.
-7. Any chapter, "Without Itinera" section or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
-8. The shared text never names a language. Code, output and anything that differs between languages are named by directives, below, and each language supplies them.
+4. Each welcome page before Part 1 is a file named after its title, without a number, for example `chapters/quick-start.md`. [chapters/README.md](chapters/README.md) lists them unnumbered, under the heading "Welcome".
+5. A chapter, and the quick start, opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them.
+6. A "Without Itinera" section opens with the level 1 heading "Without Itinera", and an appendix or any other welcome page with its own title; they choose their own level 2 and level 3 headings.
+7. Every name a chapter gives to an example, a note or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, with the appendix's, such as `appendix1_cheat_sheet`, or, for the quick start, is `quick_start`, so names never clash between chapters.
+8. Any chapter, "Without Itinera" section or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
+9. The shared text never names a language. Code, output and anything that differs between languages are named by directives, below, and each language supplies them.
 
 ## Directives
 
