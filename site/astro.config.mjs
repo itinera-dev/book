@@ -32,20 +32,24 @@ function watchTheBook() {
 	const chapters = join(root, 'chapters');
 	const contents = join(chapters, 'README.md');
 	/** @param {string} file */
-	const inTheBook = (file) => directories.some((directory) => normalize(file).startsWith(directory + sep));
+	const inTheBook = (file) => directories.some((directory) => file.startsWith(directory + sep));
 	/** @param {string} file */
-	const shapesTheBook = (file) => normalize(file).startsWith(chapters + sep);
+	const shapesTheBook = (file) => file.startsWith(chapters + sep);
 	return {
 		name: 'itinera-book:watch',
 		apply: 'serve',
 		configureServer(server) {
 			server.watcher.add(directories);
-			server.watcher.on('change', (file) => {
-				if (normalize(file) === contents) server.restart();
+			// On Windows the watcher reports some paths with forward slashes and
+			// others with backslashes, so each is normalised before it is compared.
+			server.watcher.on('change', (reported) => {
+				const file = normalize(reported);
+				if (file === contents) server.restart();
 				else if (inTheBook(file)) server.ws.send({ type: 'full-reload', path: '*' });
 			});
-			/** @param {string} file */
-			const addedOrRemoved = (file) => {
+			/** @param {string} reported */
+			const addedOrRemoved = (reported) => {
+				const file = normalize(reported);
 				if (shapesTheBook(file)) server.restart();
 				else if (inTheBook(file)) server.ws.send({ type: 'full-reload', path: '*' });
 			};
