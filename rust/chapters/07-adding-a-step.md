@@ -13,14 +13,12 @@ name: ch07_two_steps
 region: step
 ```
 
-The workflow now lists two steps. They run in the order they are written: the charge, then the shipping.
+The workflow now lists two steps, one `#[with_step(...)]` line each. They run in the order they are written: the charge, then the shipping.
 
 ```example
 name: ch07_two_steps
 region: workflow
 ```
-
-Each step of the workflow is one `#[with_step(...)]` line below `#[workflow(...)]`, in the order the steps run, with the step's type and its name. One step type may be listed twice under two names. Two steps of the same name, or a workflow with no step at all, do not compile.
 
 The order now carries its ID as well as its price, and the shop reads back both what was charged and where the parcel is.
 
@@ -44,13 +42,13 @@ name: ch07_two_steps
 
 ## How it works
 
-1. **The workflow's list is the order.** Steps run in the order the workflow lists them, and nothing reorders them. To read what the shop does with an order, you read that list, top to bottom.
+1. **The workflow's list is the order.** Each step of the workflow is one `#[with_step(...)]` line below `#[workflow(...)]`, with the step's type and its name, and the steps run in the order of those lines. Nothing reorders them. To read what the shop does with an order, you read that list, top to bottom. One step type may be listed twice under two names, but two steps of the same name, or a workflow with no step at all, do not compile.
 2. **The steps do not know about each other.** The charge does not call the shipping, and the shipping does not check that the charge happened. Neither knows it is part of a list. The workflow alone puts one after the other.
-3. **Each step asks only for what it needs.** The charge asks for the price, and the shipping asks for the order's ID. Both come from the same journey data, which started with the order you gave, and each step receives only what it declared.
-4. **The next step runs only when the previous one is finished.** The executor considers the first step that is not finished, runs it, and moves on only once it has succeeded, or skipped itself, as [chapter 10](10-saying-how-it-went.md) shows. If the charge fails, the journey fails there: the shipping never runs, and keeps the status `NotExecuted`, the status of a step that has not run.
+3. **Each step asks only for what it needs.** The charge asks for the price, and the shipping asks for the order's ID, with its field `order: String` marked `#[input]`. Both come from the same journey data, which started with the order you gave, and each step receives only what it declared.
+4. **The next step runs only when the previous one is finished.** The executor considers the first step that is not finished, runs it, and moves on only once it has succeeded, or skipped itself, as [chapter 10](10-saying-how-it-went.md) shows. If the charge fails, the journey fails there: the shipping never runs, and keeps the status the specification calls `NotExecuted`, the status of a step that has not run.
 5. **The output holds everything committed.** When the journey succeeds, its data bag holds the order you started with plus what each step contributed: `charged` from the charge and `tracking` from the shipping.
 
-Try changing the price to 0: the charge fails with `nothing-to-charge`, the carrier is never called, and the journey fails, so its data bag never receives `charged` or `tracking`. The program prints that the journey failed, then stops with an error when it tries to read them.
+Try changing the price to 0: the charge fails with `nothing-to-charge`, the carrier is never called, and the journey fails, so its data bag never receives `charged` or `tracking`. The program prints that the journey failed, then stops with an error when `result.output()` tries to read them into `Shipped`.
 
 ## Remember
 

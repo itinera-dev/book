@@ -170,6 +170,6 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 
 ## Open points
 
-1. **Services and rescue steps** are being added to tier 1. Rescue steps are accepted, as chapter 7 of the specification; the design of services is agreed in [spec#95](https://github.com/itinera-dev/spec/issues/95) and not accepted yet. The story, chapters 12 to 14 and 25, and the comparisons of part 4 follow them. Their examples are compiled once each language implements them, and change with the design of services if it changes before it is accepted.
+1. **Services and rescue steps** are being added to tier 1. Both are accepted in the specification: rescue steps as proposal 0003 and its chapter 7, services as proposal 0095. The story, chapters 12 to 14 and 25, and the comparisons of part 4 follow them. Their examples are compiled once each language implements them.
 2. **The circuit breaker** of part 4 relies on the workflow's own code holding the breaker's state across journeys, behind a role whose operations record failures and answer whether the breaker is open, and on the provider, as part of the workflow, reading that state before it hands out a carrier, since providers request no roles. It is checked against the accepted specification before it is written.
 3. **Where the prose lives:** with the examples, in each language's directory of this repository, so one pull request changes both.

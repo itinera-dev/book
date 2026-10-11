@@ -33,7 +33,9 @@ name: ch01_checkout
 region: payment
 ```
 
-As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it does not renew the card, log or give up: it reports a failure with a reason, `expired-card` or `declined`. The ship step does the same with the carrier: when the carrier cannot take the parcel, it reports a failure that might work next time, `carrier-down`, and does not call another carrier.
+As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("carrier-down")`, and doesn't call another carrier.
+
+For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, because services aren't in `itinera` yet. Move 7 takes those away.
 
 ```example
 name: ch26_workflow
@@ -42,7 +44,7 @@ region: steps
 
 ### 3. Write the order down
 
-The order of the work, and how many times shipping may be tried, go in the workflow's declaration.
+The order of the work, and how many times shipping may be tried, go in the workflow's declaration: one `#[with_step(...)]` line per step, in order, with `retry_budget = 1` on `ship`.
 
 ```example
 name: ch26_workflow
@@ -60,7 +62,7 @@ region: policies
 
 ### 5. Replace the log lines with a reporter
 
-The steps and policies no longer log anything. One reporter receives every event of every journey and writes, in one format, the failures and the decisions that the modules of chapter 1 each logged in their own way.
+The steps and policies no longer log anything. One reporter receives every event of every journey and writes, in one format, the failures and the decisions that the modules of chapter 1 each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
 
 ```example
 name: ch26_workflow
@@ -82,13 +84,13 @@ It prints:
 name: ch26_workflow
 ```
 
-Until services arrive in itinera, the steps of this program reach the faked bank, warehouse and carrier through constants, such as `BANK`, which is why moves 7 and 8 show the program of chapter 3 instead, which waits in `pending/` for services and rescue steps. The reporter is a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`; the workflow makes one with `Default` for every journey. `EventBody` is marked `#[non_exhaustive]`, so a reporter's `match` always ends with an arm for the events it does not handle.
-
-Ann's order goes through. The others fail, and the log says exactly why, without a line of logging in the steps. Ben's and Dan's charges fail with `expired-card`, because nothing renews a card yet. Cat's parcel is tried twice with the main carrier, because nothing picks the backup carrier yet. The program runs at every move of the rewrite, and its events show you what has not moved yet.
+Ann's order goes through. The others fail, and the log says exactly why, without a line of logging in the steps. Ben's and Dan's charges fail with `expired-card`, because nothing renews a card yet. Cat's parcel is tried twice with the main carrier, because nothing picks the backup carrier yet. Each move of a rewrite leaves a program that compiles and runs, and its events show you what hasn't moved yet.
 
 ### 7. Give the steps their tools
 
-The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md), which waits for services and rescue steps, so it is not run yet.
+The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. Each service is a trait, so the step never knows which implementation it was given.
+
+From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md). Services and rescue steps are in the specification now, but not in `itinera` yet, so that program waits in `pending/` and is neither compiled nor run. Both arrive in `itinera` before `0.1.0-rc.1`; until then the program is written against the syntax planned for them, which may still change.
 
 ```example
 name: ch03_shop
@@ -132,12 +134,12 @@ name: ch03_shop
 region: workflow
 ```
 
-Services and rescue steps are not in itinera yet, so this program waits in `pending/` and is neither compiled nor run. Rescue steps are in the specification now; services are agreed in their [proposal](https://github.com/itinera-dev/spec/issues/95) but not yet accepted. Both arrive in itinera before `0.1.0-rc.1`, and the program is written against the syntax planned for them, which may still change.
+Moves 7 and 8 use the syntax planned for services and rescue steps:
 
-- A step asks for a service as a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only.
+- A step asks for a service with a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only.
 - A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. It returns `Result<Box<dyn Carrier>, Error>`, and may request the attempt number with `#[attempt]`.
-- A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields are its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there is no way to skip, so a rescue step that skips cannot be written in Rust.
-- The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` on the same line will not compile.
+- A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields are its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
+- The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` on the same line won't compile.
 
 When it runs, the orders go as they did in chapter 1. Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge runs once more and succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the second run of the charge fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
 

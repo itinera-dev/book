@@ -1,41 +1,49 @@
 # What this version supports
 
-What the release this book covers implements, how you can check it, and what comes next. The specification defines what each version means; your language's conformance report says which parts of it a release passes.
+What the version of `itinera` this book covers implements, how you can check it, and what comes next. The specification defines what each version of Itinera means; the conformance report of `itinera` says which parts of it the crate passes.
 
 ## The specification
 
-This edition follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1: a single workflow, with everything the book teaches in parts 2 to 6 except services:
+This book follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1: a single workflow, with everything the book teaches in parts 2 to 6:
 
 1. steps, their inputs, their outcomes and their abnormal terminations;
-2. the data bag, contributions and values;
-3. retry budgets, and whether an abnormal termination may be retried;
-4. rescue steps;
-5. step policies and workflow policies, their hooks and the lifecycles they return;
-6. workflow roles and input adapters;
-7. workflow instances, journey IDs and the result;
-8. events, reporters, dispatchers and dispatcher factories;
-9. admission, violations and refusals;
-10. the local executor, and the two execution modes, synchronous and asynchronous.
+2. services, and the service providers that supply them to steps;
+3. the data bag, contributions and values;
+4. retry budgets, and whether an abnormal termination may be retried;
+5. rescue steps;
+6. step policies and workflow policies, their hooks and the lifecycles they return;
+7. workflow roles and input adapters;
+8. workflow instances, journey IDs and the result;
+9. events, reporters, dispatchers and dispatcher factories;
+10. admission, violations and refusals;
+11. the local executor, and the two execution modes, synchronous and asynchronous.
 
 Each part of the specification is written from accepted proposals, listed at the top of each of its chapters, and is checked by the [conformance cases](https://github.com/itinera-dev/conformance), a set of scenarios every implementation runs. Until a first implementation passes every case of tier 1, the cases are released as candidates.
 
+## The version of `itinera` this book covers
+
+`itinera` isn't on crates.io yet. This book follows its [repository](https://github.com/itinera-dev/itinera-rs) at the commit that the book's own `Cargo.toml` pins, on the way to its first release candidate, `0.1.0-rc.1`. When that release comes out, the book moves to it and is tagged with it, and every example you read here compiles and runs against it.
+
 ## Services and rescue steps
 
-[Rescue steps](https://github.com/itinera-dev/spec/blob/main/spec/07-rescue-steps.md), which [chapter 14](14-repairing-then-trying-once-more.md) teaches, are in the specification now. [Services](https://github.com/itinera-dev/spec/issues/95), which [chapter 12](12-giving-a-step-the-tools-it-needs.md) teaches, are being added to tier 1 before its first release: their design is agreed, and becomes part of the specification once accepted. Both arrive in each language before its first release candidate. Until a language has them, the examples that use them are written against the planned form and are not run, and the book says so wherever it shows one.
+[Services](12-giving-a-step-the-tools-it-needs.md) and [rescue steps](14-repairing-then-trying-once-more.md) are in the specification now, rescue steps in its [chapter 7](https://github.com/itinera-dev/spec/blob/main/spec/07-rescue-steps.md), but not in `itinera` yet. Both arrive in the crate before `0.1.0-rc.1`, which can't be released until every proposal of tier 1 is in its report. Until then, the examples that use them wait in `pending/`: they are written against the syntax planned for them, which may still change, and are neither compiled nor run. The book says so wherever it shows one.
 
 ## Capabilities
 
-A tier says what Itinera means; capabilities say what an executor accepts. In tier 1 the capabilities are the two execution modes, synchronous and asynchronous. A language claims the modes its executors accept, and its conformance runner runs the cases of those modes.
+A tier says what Itinera means; capabilities say what an executor accepts. In tier 1 the capabilities are the two execution modes, synchronous and asynchronous. `itinera` claims both: `LocalExecutor` runs synchronous workflows and, with the `async` feature, `AsyncLocalExecutor` runs asynchronous ones. Neither runs a workflow of the other mode: that's a compile error, not a refusal.
 
 ## The conformance report
 
-Each language keeps a report of what its release passes: the version of the conformance cases it runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. A rule the specification lets a language make impossible, such as a policy attached to a workflow that does not provide its role, is not run as a case in that language. Instead, its own tests prove that the mistake does not compile, or cannot be expressed at all, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.8`, and lists every proposal of specification 0.1 as passing except rescue steps (proposal 3) and services (proposal 95), which the crate doesn't implement yet.
 
-The Rust edition follows the crate `itinera` at the commit this book's `Cargo.toml` pins, on its way to the release `0.1.0-rc.1`. Rescue steps are in the specification now, and arrive in the crate together with services, before `0.1.0-rc.1`: the crate cannot be released until every tier 1 proposal is in its report, those two included.
+A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
-Its report is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json), in the crate's repository. At this commit it runs the conformance cases `v0.1.0-rc.8`, lists every proposal of specification 0.1 as passing except rescue steps (proposal 3), which it does not implement yet, and claims both capabilities: `LocalExecutor` runs synchronous workflows and, with the `async` feature, `AsyncLocalExecutor` runs asynchronous ones. Neither runs a workflow of the other mode: that is a compile error, not a refusal.
-
-It lists these rules as impossible to write in Rust, each with the test that proves it: a lifecycle a hook may not return (`invalid-lifecycle`), a policy needing a role the workflow does not provide (`role-not-provided`), something that is not a value in the data bag, initial data, an input adapter's answer, a reason's details or an event (`non-value`), an asynchronous step on the synchronous executor (`mode-not-accepted`), a handle used after its attempt or call (`late-handle`), and a write through an input adapter's access to the data bag (`bag-write`).
+1. a lifecycle a hook may not return (`invalid-lifecycle`);
+2. a policy needing a role the workflow doesn't provide (`role-not-provided`);
+3. something that is not a value in the data bag, initial data, an input adapter's answer, a reason's details or an event (`non-value`);
+4. an asynchronous step on the synchronous executor (`mode-not-accepted`);
+5. a handle used after its attempt or call (`late-handle`);
+6. a write through an input adapter's access to the data bag (`bag-write`).
 
 ## What later tiers add
 
@@ -45,4 +53,4 @@ Each tier includes everything before it. Later tiers will add, once their propos
 2. **Tier 3:** running a workflow from inside another.
 3. **Durable runs:** journeys that survive a crash and resume, with their state kept in a store.
 
-Each will add a part to this book, in the same style, once your language implements it.
+Each will add a part to this book, in the same style, once `itinera` implements it.

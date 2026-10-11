@@ -2,11 +2,11 @@
 
 ## What you want to do
 
-So far you have declared the shop in the short form, which writes most of the declaration for you. You want to see what that short form stands for, write the same workflow in the long form, and know when the long form is the one you need.
+So far you've declared the shop in the short form: the attributes and derives that write most of the declaration for you. You want to see what that short form stands for, write the same workflow in the long form, and know when the long form is the one you need.
 
 ## The code
 
-Here is the shop in the short form you have used so far: a charge and a ship step, the `audit` and `notify` policies, the `Messages` role, and the workflow that puts them together.
+Here is the shop in the short form you've used so far: a charge and a ship step, the `audit` and `notify` policies, the `Messages` role, and the workflow that puts them together.
 
 ```example
 name: ch28_short_form
@@ -41,7 +41,7 @@ It prints:
 name: ch28_short_form
 ```
 
-Now the same shop, by hand. A step is two things: the step itself, which runs once, and what builds it for each attempt. The builder says what the step needs, and builds the step from what the workflow resolved. A step that needs nothing can be a plain function.
+Now the same shop, by hand. A step is two things: the step itself, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`. The factory says what the step needs, as a `StepNeeds`, and builds the step from what the workflow resolved. A step that needs nothing can be a plain function.
 
 ```example
 name: ch28_by_hand
@@ -49,7 +49,7 @@ region: step
 asynchronous: ch28_by_hand_async
 ```
 
-A policy defines each of its hooks, says what each hook requests, and reads what it requested when it is called. The role is an interface the workflow implements, and a hook asks for it by its type.
+A policy implements the trait of each of its hooks, such as `OnStepSuccess<Orders>`: it says what the hook requests, and reads what it requested when it is called. The role is a trait the workflow implements, and the workflow says it provides it by implementing `Provides<dyn Messages>`; a hook then asks for it by its type.
 
 ```example
 name: ch28_by_hand
@@ -65,14 +65,14 @@ region: workflow
 asynchronous: ch28_by_hand_async
 ```
 
-Reading the output by hand means reading each key from the data bag.
+Reading the output by hand means implementing `Output` yourself, reading each key from the data bag.
 
 ```example
 name: ch28_by_hand
 region: data
 ```
 
-Running it is the same, except that the initial data is given key by key.
+Running it is the same, except that the instance comes from the descriptor, and its initial data is given key by key.
 
 ```example
 name: ch28_by_hand
@@ -86,35 +86,33 @@ It prints exactly what the short form printed:
 name: ch28_by_hand
 ```
 
-The asynchronous form changes the step, the hooks and the executor to their asynchronous kinds, and declares the workflow asynchronous; everything else is the same.
-
-The short form is the attributes and derives of the `macros` feature, which is on by default, and the long form is the public traits and builders they expand to:
-
-- `#[derive(Step)]` implements `FromInputs`: what the step needs, as a `StepNeeds`, and how it is built from a `Resolved`. `#[step]` implements `DescribedStep`, whose `descriptor(name)` makes the `StepDescriptor`, and turns each handle marked in `run` into a need, such as `.contributor()`. By hand, a `StepFactory` does both, and the step implements `Step`. A closure or function returning `Result<Outcome, Error>` is already a factory of a step that needs nothing.
-- `#[step_policy]` and `#[workflow_policy]` implement the trait of each hook, such as `OnStepSuccess<W>`, whose `needs()` lists what the hook requests and whose method reads it from `Requested`. They also implement `StepPolicy<W>` or `WorkflowPolicy<W>`, whose `descriptor()` is a `StepPolicyDescriptor` or `WorkflowPolicyDescriptor` declaring each hook. A role requested by a hook is a bound on the workflow, `Provides<dyn Messages>`, which `#[role]` implements.
-- `#[workflow(...)]` builds a `WorkflowDescriptor` with `WorkflowDescriptor::builder` the first time it is asked for, keeps it in a static, and gives the workflow `builder()` for its instances. It checks the violations while the program compiles, where `build()` returns them as `Violations`.
-- `#[derive(InitialData)]` and `#[derive(Output)]` implement `InitialData` and `Output`; by hand, the instance's builder takes each key with `.data(key, value)`, and `Output::from_data` reads each key from the `DataBag`.
-
-The long form is also the one for three more cases: a step, policy or workflow that is generic, which the attributes refuse; one policy attached to several steps and reading a different key on each, such as an audit that reads `charged` on the charge and `refunded` on a refund, with `on_step_success_needing`; and code that would rather not depend on the macros at all, built with the `macros` feature turned off.
-
-The two forms mix: a step or policy declared in the short form goes into a builder through its `descriptor`, as `Charge::descriptor(step_name!("charge"))` and `Audit::descriptor()`. In the asynchronous form, the step implements `AsyncStep` and its factory `AsyncStepFactory`, the hooks implement `AsyncOnStepSuccess` and `AsyncOnWorkflowSuccess`, descriptors are made with `new_async` and `WorkflowDescriptor::async_builder`, and a role a hook holds across an await is `Sync`.
+The asynchronous form changes the step, the hooks and the executor to their asynchronous kinds, and declares the workflow asynchronous; everything else is the same. The step implements `AsyncStep` and its factory `AsyncStepFactory`, the hooks implement `AsyncOnStepSuccess` and `AsyncOnWorkflowSuccess`, the descriptors are made with `new_async` and `WorkflowDescriptor::async_builder`, and the instance runs on `AsyncLocalExecutor`. A role a hook holds across an `.await` must be `Sync`, which is why `Messages` is declared `trait Messages: Sync` there.
 
 ## How it works
 
-1. **The short form writes descriptors.** Whatever form you write in, a workflow is a workflow descriptor: its name, a step descriptor for each step in order, its workflow policies, its input adapters and the roles it provides. The short form writes the descriptors from your types and their markings; the long form writes them yourself. The executor does not know or care which form made them, and the two programs above behave the same and print the same.
-2. **A step descriptor** holds the step's name, how to build the step, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. How to build the step means saying what it needs, its inputs and its handles, which are its contributor and step reporter, and building it, for each attempt, from what was resolved. Nothing carries over from one attempt to the next, because each attempt gets a new step.
-3. **A policy descriptor** holds the policy's name, the hooks it defines, what each hook requests, and how to build an instance of it. Workflow policies are built once per journey, step policies for every attempt.
-4. **Building the workflow is the first half of admission.** In the long form you see it happen: building the declaration checks it, and returns every violation found, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The short form runs the same checks, and in some languages runs them when the program is compiled.
-5. **The listing reads the descriptor.** Both programs list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
-6. **When you need the long form:**
-   - a declaration put together when the program starts, from the shop's configuration, for example adding a gift-wrapping step only in the shops that offer it. It is still fixed before any journey starts;
-   - seeing every violation as data when the workflow is built.
+1. **The short form writes descriptors.** Whatever form you write in, a workflow is a workflow descriptor: its name, a step descriptor for each step in order, its workflow policies, its input adapters and the roles it provides. The short form writes the descriptors from your types and their attributes; in the long form you write them yourself. The executor doesn't know or care which form made them, and the two programs above behave the same and print the same.
+2. **Each attribute stands for public traits and builders.** The short form is the attributes and derives of the `macros` feature, which is on by default, and the long form is what they expand to:
+   - `#[derive(Step)]` implements `FromInputs`: what the step needs, as a `StepNeeds`, and how it is built from a `Resolved`. `#[step]` implements `DescribedStep`, whose `descriptor(name)` makes the `StepDescriptor`, and turns each handle marked in `run` into a need, such as `.contributor()`. By hand, a `StepFactory` does both, and the step implements `Step`. A closure or function returning `Result<Outcome, Error>` is already a factory of a step that needs nothing.
+   - `#[step_policy]` and `#[workflow_policy]` implement the trait of each hook, such as `OnStepSuccess<W>`, whose `needs()` lists what the hook requests and whose method reads it from `Requested`. They also implement `StepPolicy<W>` or `WorkflowPolicy<W>`, whose `descriptor()` is a `StepPolicyDescriptor` or `WorkflowPolicyDescriptor` declaring each hook. A role requested by a hook is a bound on the workflow, `Provides<dyn Messages>`, which `#[role]` implements.
+   - `#[workflow(...)]` builds a `WorkflowDescriptor` with `WorkflowDescriptor::builder` the first time it is asked for, keeps it in a static, and gives the workflow `builder()` for its instances.
+   - `#[derive(InitialData)]` and `#[derive(Output)]` implement `InitialData` and `Output`. By hand, the instance's builder takes each key with `.data(key, value)`, and `Output::from_data` reads each key from the `DataBag`.
+3. **A step descriptor** holds the step's name, how to build the step, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. How to build the step means saying what it needs, its inputs and its handles, which are its contributor and step reporter, and building it, for each attempt, from what was resolved. Nothing carries over from one attempt to the next, because each attempt gets a new step. That's also why the step in the long form borrows its contributor with a lifetime, `Charge<'a>`: it lives for one attempt only.
+4. **A policy descriptor** holds the policy's name, the hooks it defines, what each hook requests, and how to build an instance of it, here the closure `|| Audit`. Workflow policies are built once per journey, step policies for every attempt.
+5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
+6. **The listing reads the descriptor.** Both programs list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
+7. **The two forms mix.** A step or policy declared in the short form goes into a builder through its `descriptor`, as `Charge::descriptor(step_name!("charge"))` and `Audit::descriptor()`. You can write most of a workflow in the short form and only the part that needs it in the long form.
+8. **When you need the long form:**
+   - a declaration put together when the program starts, from the shop's configuration, for example adding a gift-wrapping step only in the shops that offer it. It's still fixed before any journey starts;
+   - seeing every violation as data when the workflow is built, rather than as a compile error;
+   - a step, policy or workflow that is generic, which the attributes refuse;
+   - one policy attached to several steps and reading a different key on each, such as an audit that reads `charged` on the charge and `refunded` on a refund, with `on_step_success_needing`;
+   - code that would rather not depend on the macros at all, built with the `macros` feature turned off.
 
-   Some languages have more cases, listed above. Otherwise, the short form says the same thing in fewer lines, and is easier to read as the plan of the business.
+   Otherwise, the short form says the same thing in fewer lines, and is easier to read as the plan of the business.
 
 ## Remember
 
 1. Both forms make the same workflow descriptor, and the executor runs either the same way.
 2. A step is built afresh for every attempt, from what it declares it needs; keep nothing in what builds it that changes between attempts or journeys.
 3. Build the workflow once, before any journey, and handle its violations there; never change it while journeys run.
-4. Use the long form only where the short form cannot say what you need.
+4. Use the long form only where the short form can't say what you need.

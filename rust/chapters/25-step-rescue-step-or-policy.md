@@ -18,28 +18,28 @@ Here is the shop with each of its decisions where it belongs. The table says whe
 | Auditing every successful charge | the `audit` step policy | it reacts to an outcome, and changes nothing in the charge |
 | Telling the customer how the order went | the `notify` workflow policy, through a role | it reacts to how the journey ended, and acts on the outside world |
 
-The charge holds the business rule and nothing else. It asks the bank, and reports what happened: success, or a failure with a reason that says why. When the bank cannot be reached at all, the error escapes the step, which is an abnormal termination.
+The charge holds the business rule and nothing else. It asks the bank, and reports what happened: success, or a failure with a reason that says why. When the bank can't be reached at all, the `?` after `bank(&self.card)` returns the error from `run`, and an error that escapes a step is an abnormal termination.
 
 ```example
 name: ch25_where_it_belongs
 region: charge
 ```
 
-The ship step knows that a digital order has nothing to ship, so it skips, with a reason.
+The ship step knows that a digital order has nothing to ship, so it skips, with a reason, through `Self::skip_because("digital")`.
 
 ```example
 name: ch25_where_it_belongs
 region: ship
 ```
 
-The policies hold the flow decisions. `audit` reacts to every successful charge. `outage` gives up on the order at once when the charge ends in an abnormal termination, with a reason the shop can act on. `notify` tells the customer how the order went, through the shop's `Messages` role.
+The policies hold the flow decisions. `audit` reacts to every successful charge. `outage` gives up on the order at once when the charge ends in an abnormal termination, returning `FailWorkflow` with a reason the shop can act on. `notify` tells the customer how the order went, through the shop's `Messages` role.
 
 ```example
 name: ch25_where_it_belongs
 region: policies
 ```
 
-The workflow puts them together: the steps in order, the retry budget of `ship`, and which policy is attached where.
+The workflow puts them together: the steps in order, the retry budget of `ship`, and which policy is attached where, each on its `#[with_step(...)]` line or on `#[workflow(...)]`.
 
 ```example
 name: ch25_where_it_belongs
@@ -66,18 +66,18 @@ name: ch25_rescue
 region: rescue
 ```
 
-The workflow attaches it to the charge, which then has no retry budget.
+The workflow attaches it to the charge with `rescue = RenewCard` on the charge's `#[with_step(...)]` line, and the charge then has no retry budget.
 
 ```example
 name: ch25_rescue
 region: workflow
 ```
 
-Rescue steps are not in the Rust crate yet, so this example is not compiled, and its syntax may still change before they arrive. A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields are its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`; there is no skip, so a rescue step that skips cannot be written in Rust. The workflow names it on the step it rescues, with `rescue = RenewCard` in that step's `#[with_step(...)]` line, and the executor names it `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` does not compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
+Rescue steps are not in `itinera` yet, so this program waits in `pending/`: it is neither compiled nor run, and its syntax may still change before they arrive. A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields are its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`. The executor names it after the step it rescues, `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` won't compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
 
-With the rescue step, the order paid with an expired card succeeds: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge runs once more and succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
+When it runs, the order paid with an expired card succeeds: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge runs once more and succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
 
-Now a counter-example. This charge works, and its journey succeeds, but it repairs the card itself and tells the customer itself.
+Now a counter-example. This charge works, and its journey succeeds, but it repairs the card itself and tells the customer itself, with a `println!` in the middle of the business rule.
 
 ```example
 name: ch25_counter_example
@@ -118,10 +118,10 @@ The diagram asks three questions in turn, with four answers:
 What each answer gives you:
 
 1. **A step holds one business rule, and says what happened.** A step reports its outcome: success, failure or skipped. A failure carries a reason, which says why, and may say that trying again might help. The step never decides what follows, and it does not need to: the workflow and its policies do. A step may still skip, because it is the only one that knows its domain well enough to say there is nothing to do, as the ship step does for a digital order.
-2. **A rescue step repairs, then the step runs once more.** It is a step of its own, run when the step it rescues fails: it reads why the step failed, does the business work that fixes the cause, and contributes what it found. A repair belongs in a rescue step, not in a hook, because it is business work, and hooks only decide what happens next. It belongs there rather than in the step, so that the step stays one business rule and the events show the repair. A rescue step either repairs or fails: one that skips aborts the journey with `rescue skipped`, and some languages do not let you write one at all.
+2. **A rescue step repairs, then the step runs once more.** It is a step of its own, run when the step it rescues fails: it reads why the step failed, does the business work that fixes the cause, and contributes what it found. A repair belongs in a rescue step, not in a hook, because it is business work, and hooks only decide what happens next. It belongs there rather than in the step, so that the step stays one business rule and the events show the repair. A rescue step either repairs or fails, and never skips. The specification aborts a journey whose rescue step skips, with `rescue skipped`, but in Rust you can't write one at all: `RescueOutcome` has no skip.
 3. **A retry does the same thing again; a rescue fixes something first.** A failure that may go away by itself, such as a busy carrier, wants a retry budget. A failure with a cause that can be fixed, such as an expired card, wants a rescue step. A step has one or the other, never both: a step with a rescue step is never retried.
 4. **A policy decides what happens next.** Its hooks are called after a step's outcome or when the journey ends. They may give up, fail the journey or finish it early, and they may act on the outside world through the roles the workflow provides. A hook branches on what the steps reported and contributed; it never makes the business decision itself.
-5. **A step reaches no one else.** A step cannot request a role, so the way the workflow offers policies to reach the customer is out of its reach. That is a good sign: telling the customer is not part of charging.
+5. **A step reaches no one else.** A step can't request a role: a `#[role]` parameter belongs to hooks, not to a step's `run`. So the way the workflow offers policies to reach the customer is out of its reach. That is a good sign: telling the customer is not part of charging.
 
 A few counter-examples, each with its place:
 
@@ -135,7 +135,7 @@ A few counter-examples, each with its place:
 ## Remember
 
 1. A step holds one business rule and reports what happened, never what to do next.
-2. Only a step decides to skip; a hook cannot skip a step, and a rescue step that skips aborts the journey with `rescue skipped`.
+2. Only a step decides to skip; a hook can't skip a step, and a rescue step can't skip at all.
 3. A repair is business work: it goes in a rescue step, never in a hook, and not inside the step it repairs.
 4. A step with a rescue step has no retry budget.
 5. How many times a step is tried is in the workflow's declaration; any other decision about what happens next is in a policy's hook.

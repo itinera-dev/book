@@ -1,12 +1,12 @@
 # Without Itinera
 
-Part 5 ran the shop for real: many journeys, their results, their events and their tests. This section shows two things that are usually hard without Itinera, written the usual way, then with Itinera beside them.
+Part 5 ran the shop for real: many journeys, their results, their events and their tests. This section shows two things that are usually hard without Itinera, written the usual way in plain Rust, then with Itinera beside them. Both usual programs are real Rust, compiled and run like every other example, so what they print is what they really do.
 
 ## Logging that depends on who wrote the code
 
 ### The usual code
 
-The checkout has three parts, each written by a different person, and each logs in its own way. The warehouse code logs before every call.
+The checkout has three parts, each a module written by a different person, and each logs in its own way. The warehouse code logs before every call.
 
 ```example
 name: part5_scattered_logging
@@ -20,7 +20,7 @@ name: part5_scattered_logging
 region: payments
 ```
 
-The shipping code decided that a carrier that cannot take a parcel is not worth failing the order for, so it drops the error and logs nothing.
+The shipping code decided that a carrier that can't take a parcel isn't worth failing the order for, so it turns the carrier's `Result` into an `Option` with `.ok()`, dropping the error, and logs nothing.
 
 ```example
 name: part5_scattered_logging
@@ -44,14 +44,14 @@ Ask what happened to order A-2. The log says it is done, with no tracking number
 
 ### With Itinera
 
-The same three parts are steps. None of them logs: each reports its outcome, and the ship step fails with the reason `carrier-down` when the carrier cannot take the parcel.
+The same three parts are steps. None of them logs: each reports its outcome, and the ship step fails with the reason `carrier-down`, carrying the carrier's message, when the carrier can't take the parcel.
 
 ```example
 name: part5_one_event_stream
 region: steps
 ```
 
-One reporter, listed on the workflow, writes every event of every journey to the log.
+One reporter, listed on the workflow with `reporters = [Log]`, writes every event of every journey to the log.
 
 ```example
 name: part5_one_event_stream
@@ -79,7 +79,7 @@ name: part5_mocked_carriers
 region: ship
 ```
 
-To test the fallback, the test mocks both carriers, and each mock counts how often it is called.
+To test the fallback, the test mocks both carriers behind the `Carrier` trait, and each mock counts how often it's called in a `Cell`.
 
 ```example
 name: part5_mocked_carriers
@@ -103,7 +103,9 @@ These tests check two rules at once, how to ship and when to fall back, and to d
 
 ### With Itinera
 
-The ship step ships through the carrier it is lent, and knows nothing of a second one. Its retry budget lets it be tried twice, and the workflow's provider gives each attempt a fresh carrier: the main carrier on the first attempt, the backup carrier after. The test's carriers are fakes that are up or down as the test says, and count nothing.
+The ship step ships through the carrier it is lent as a service, a `#[service] carrier: &dyn Carrier` parameter of its `run`, and knows nothing of a second one. Its retry budget lets it be tried twice, and the workflow's `#[provider(per_attempt)]` method gives each attempt a fresh carrier: the main carrier on the first attempt, the backup carrier after. The test's carriers are fakes that are up or down as the test says, and count nothing.
+
+Services are not in `itinera` yet, so this program waits in `pending/`: it is written against the syntax planned for them, which may still change, and it is neither compiled nor run yet.
 
 ```example
 name: part5_testing_the_fallback
@@ -123,6 +125,8 @@ The fallback belongs to the workflow, so it is tested on a whole journey, by its
 name: part5_testing_the_fallback
 region: journey
 ```
+
+When it runs, the program prints an `ok` line for each of its four checks, as chapter 24's program does.
 
 Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapter 24](24-testing-your-workflows.md) tests the shop the same way: a step alone, a policy alone on a stand-in step, and a whole journey by its events.
 

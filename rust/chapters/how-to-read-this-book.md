@@ -2,11 +2,11 @@
 
 A few things work the same way on every page of the book. Here they are, once, so you never have to wonder about them later.
 
-## Pick your language
+## A book for Rust
 
-This book is written once and published in an edition for each programming language that has an Itinera. You are reading one of them: every program, every output and every detail of the language here is in the language you chose.
+This is the Rust book of Itinera. Every program in it is Rust, every output is what that program printed, and every detail is about `itinera`, the Rust crate. Each language that has an Itinera gets a book of its own, following the same plan: the same shop, the same chapters and the same words, each written for its language.
 
-If you work in more than one language, the **programming language** selector at the top of every page lets you read the same page in another edition, so you can compare two languages chapter by chapter.
+On the web pages, the **programming language** selector at the top of every page takes you to the same page in another language's book, so you can compare two languages chapter by chapter. Rust's is the first book, so for now there is nothing else to pick.
 
 ## Meet the shop
 
@@ -30,13 +30,13 @@ Every chapter has the same four sections, so you can jump straight to the one yo
 
 ## Code you can trust
 
-Every piece of code in the book is part of a complete program in the book's repository, checked every time the book changes unless its caption says otherwise, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does.
+Every piece of code in the book is part of a complete program in the book's repository, built and run every time the book changes unless its caption says otherwise, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does. To run a program yourself, run `cargo run --example NAME` in the book's `rust` directory, with the name its caption gives.
 
 Each block of code has a caption naming the program it comes from, with a link to the whole program. A few captions carry a mark:
 
-1. **The asynchronous form.** A step, a hook or a reporter can be synchronous or asynchronous, and the two forms differ very little. Each chapter shows the synchronous form first. Where the asynchronous form of the same code differs, it follows right after, and its caption says so. A language that offers only one of the two shows only that one.
-2. **Not compiled yet.** A program that uses a feature not released yet is shown, but it isn't compiled until that feature arrives, and its caption says so.
-3. **Does not compile.** Some mistakes can't even be written: the language refuses them before your program ever runs. When the book shows one, the caption says the program does not compile, and what the compiler says follows it, word for word.
+1. **The asynchronous form.** A step, a hook or a reporter can be synchronous or asynchronous, and Rust offers both: an `async fn` where the synchronous form has a `fn`, run by `AsyncLocalExecutor` instead of `LocalExecutor`. The two forms differ very little, so each chapter shows the synchronous form first, and where the asynchronous form of the same code differs, it follows right after, with a caption that says so.
+2. **Not compiled yet.** A program that uses a feature `itinera` does not have yet, such as services or rescue steps, is shown, but it waits in the book's `pending` directory and isn't compiled until that feature arrives. Its caption says so.
+3. **Does not compile.** Some mistakes can't even be written: Rust's types and Itinera's macros refuse them before your program ever runs. When the book shows one, the caption says the program does not compile, and what the compiler says follows it, word for word.
 
 ## Words with one meaning
 
@@ -52,6 +52,6 @@ Every part but the last closes with a section called "Without Itinera". It shows
 
 ## Going further
 
-The book teaches; it doesn't list every detail. When you want the exact rule, the [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and your language's API reference documents every item it offers. The book links to both wherever they help.
+The book teaches; it doesn't list every detail. When you want the exact rule, the [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and the API documentation of `itinera` documents every item the crate offers, with an example for each. The crate isn't on crates.io yet, so its documentation lives with its source, in [itinera-rs](https://github.com/itinera-dev/itinera-rs); once `itinera` is a dependency of your project, `cargo doc --open` builds it for the version you use. The book links to both wherever they help.
 
 Now, let's see a whole workflow in one go.

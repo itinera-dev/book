@@ -1,6 +1,6 @@
 # Cheat sheet
 
-Everything you declare with Itinera, in the order the book teaches it, with the chapter to read for more. After the table comes how each line is written.
+Everything you declare with Itinera, in the order the book teaches it, with the chapter to read for more. After the table comes how each line is written in Rust.
 
 ## What you declare
 
@@ -30,9 +30,9 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [27](27-mistakes-caught-before-a-journey.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
 
-## In your language
+## In Rust
 
-With the `macros` feature, each line of the table is written as follows. Paths are those applications write, through `itinera`.
+With the `macros` feature, which is on by default, each line of the table is written as follows. Types and attributes are imported through `itinera`, as in `use itinera::step::{Outcome, Step, step};`; the API documentation of `itinera` has every item. Lines marked planned are for services and rescue steps, which are not in `itinera` yet, and may still change before they arrive.
 
 | What you declare | How you write it | Chapter |
 |---|---|---|
@@ -60,4 +60,4 @@ With the `macros` feature, each line of the table is written as follows. Paths a
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 27 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 
-For the asynchronous form, turn on the `async` feature, write `async fn run` and `async fn` hooks, add `asynchronous` to `#[workflow(...)]`, list asynchronous reporters with `async_reporters = [...]`, and run on `AsyncLocalExecutor`.
+For the asynchronous form, turn on the `async` feature, write `async fn run` and `async fn` hooks, add `asynchronous` to `#[workflow(...)]`, implement `AsyncReporter` and list it with `async_reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.

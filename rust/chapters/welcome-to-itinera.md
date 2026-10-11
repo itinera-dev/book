@@ -2,7 +2,7 @@
 
 Hi, and welcome. We're glad you're here.
 
-This book is about Itinera, a workflow framework that keeps the rules of your business apart from the decisions about what happens around them. We wrote it for people who build software for others, and for the AI agents who build it with them. You don't need to know anything about workflows to read it. You only need to know the programming language you build with.
+This book is about Itinera, a workflow framework that keeps the rules of your business apart from the decisions about what happens around them, and about `itinera`, the crate that brings it to Rust. We wrote it for people who build software for others, and for the AI agents who build it with them. You don't need to know anything about workflows to read it. You only need to know Rust: structs, traits, `Result` and the `?` operator, and a little about attributes and derives.
 
 Before any code, let us tell you what Itinera is, where its name comes from, and what we are trying to change.
 
@@ -10,7 +10,7 @@ Before any code, let us tell you what Itinera is, where its name comes from, and
 
 Think about the last piece of business code you read that charged a card, called a carrier or sent a message. Somewhere in it, there was a decision that had nothing to do with the business: try again if the bank times out, fall back to the other carrier, give up after three attempts, log this, tell the customer that. Those are flow decisions. They decide what happens around the work, not what the work is.
 
-Flow decisions usually live inside the business code, because that is where the failure shows up. Each one is reasonable on its own. Together, they mean that the only way to know what your system does with an order is to read every function the order passes through, and hope you don't miss one. Good habits such as clean modules and dependency injection don't fix this. They separate a piece of code from the things it uses, but not from what happens to it when it fails.
+Flow decisions usually live inside the business code, because that is where the failure shows up. Each one is reasonable on its own. Together, they mean that the only way to know what your system does with an order is to read every function the order passes through, and hope you don't miss one. Good habits such as clean modules, small traits and dependency injection don't fix this. They separate a piece of code from the things it uses, but not from what happens to it when it fails. Even Rust's `Result`, which makes every failure visible in a signature, only tells you that a function can fail; what the caller does about it is still written inside the caller.
 
 We think there is a better place for those decisions: one place, which you can read from top to bottom, and which tells you what will run, in what order, how many times, and what happens when something goes wrong.
 
@@ -22,6 +22,8 @@ Itinera gives every kind of decision a place of its own:
 2. **A workflow** lists the steps in the order they run, how many times each may be tried again, and the policies attached to them. Read it, and you know what will run.
 3. **A policy** holds the flow decisions. After each outcome, the executor calls the policy's hooks, and they decide what happens next: carry on, perhaps changing the data the next attempt will use, finish the journey early, or fail it.
 4. **The executor** runs a workflow instance, one for each order, and reports everything it does as events, the same way for every workflow you write.
+
+In Rust, each of these is ordinary code of yours, declared with a few attributes. A step is a struct that derives `Step`, with its `run` in an `impl` block marked `#[step]`. A policy is an `impl` block marked `#[step_policy]` or `#[workflow_policy]`, whose hooks are methods marked with the hook they are, such as `#[on_step_success]`. A workflow is a struct marked `#[workflow]`, with one `#[with_step(...)]` line per step. The executor comes with the crate: `LocalExecutor`, or `AsyncLocalExecutor` for asynchronous code.
 
 That's all. There is no branching inside a workflow, no hidden retries, and nothing a step can call to change what comes next. Itinera makes the separation part of the structure, so it no longer depends on everyone's discipline.
 
@@ -81,7 +83,7 @@ With Itinera:
 4. After each outcome, and when the journey ends, it calls the policies, which hold flow decisions, such as auditing the charge, picking the backup carrier and telling the customer.
 5. It sends every event of every journey to the reporters, in one standard form.
 
-Itinera is also more than one library. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each language's implementation is checked against the same conformance suite. A workflow means the same thing in every language, and so does this book.
+Itinera is also more than one crate. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each language's implementation, `itinera` among them, is checked against the same conformance suite. A workflow means the same thing in every language, and every language's book tells the same story: this one tells it in Rust.
 
 ## Where the name comes from
 
@@ -95,7 +97,7 @@ The book follows one small online shop from start to finish. It charges orders, 
 
 1. Before Part 1 come three short pages: this welcome, [how to read this book](how-to-read-this-book.md), and a [quick start](quick-start.md) that shows a whole workflow on one page.
 2. **Part 1, Introduction,** asks why you would want Itinera at all, then gives you the few ideas it is built on.
-3. **Part 2, Getting started,** installs Itinera and builds the shop's first workflow.
+3. **Part 2, Getting started,** adds `itinera` to your project and builds the shop's first workflow.
 4. **Part 3, Writing steps,** is about the business code: what a step needs, what it passes on and how it says what happened.
 5. **Part 4, Controlling the flow,** is about everything around it: trying again, repairing, reacting, ending early and telling the outside world.
 6. **Part 5, Running it for real,** runs many journeys, reads their results, watches their events and tests the workflows.
@@ -104,6 +106,6 @@ The book follows one small online shop from start to finish. It charges orders, 
 
 Every part but the last ends with a section called "Without Itinera", which puts the same shop, written the usual way, beside the Itinera version, so you can judge the difference for yourself.
 
-You can read the book from the start, or jump to the chapter you need: every example is a complete program that runs on its own.
+You can read the book from the start, or jump to the chapter you need: every example is a complete Rust program that runs on its own.
 
 Let's begin.
