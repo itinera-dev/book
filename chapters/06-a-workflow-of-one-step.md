@@ -53,10 +53,10 @@ name: ch06_one_step
 2. **The step reports what happened.** It succeeds, or it fails with a reason, `nothing-to-charge`. It says nothing about what should happen next; that is never a step's decision.
 3. **The step contributes what it learned.** It adds the amount it charged, under the key `charged`. Because the attempt succeeded, the contribution is committed to the journey's data, the data bag.
 4. **The workflow is the plan.** It names the step `charge` and lists it. A step never knows its own name, nor which workflow runs it.
-5. **The instance is one journey.** You create a workflow instance for each order, with that order's data, and hand it to an executor, which runs the journey to its end and returns the result.
-6. **The result says how the journey ended, and carries its output.** The journey succeeded, so its data bag is its output, and you read the receipt from it.
+5. **One instance, one journey.** You create a workflow instance for each order, with that order's data, and hand it to an executor, which runs the journey to its end and returns the result.
+6. **The result says how the journey ended, and carries its output.** The journey succeeded, so its data bag is its output, and you read what was charged from it.
 
-Try changing the price to 0: the step fails, and so does the journey, and there is no receipt to read.
+Try changing the price to 0: the step fails, and so does the journey, so its data bag never receives `charged`. The program prints that the journey failed, then stops with an error when it tries to read what was charged.
 
 ## Remember
 
