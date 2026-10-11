@@ -4,31 +4,27 @@ Part 1 has already set the two versions of the shop against each other: the chec
 
 ## The usual checkout
 
-Here is the whole program of chapter 1, as you would find it in a code base: payments, shipping, the checkout, the log and the audit trail, each in its own module. It is written honestly, the way a competent developer writes it, and it works.
+The checkout of chapter 1 is spread over modules: payments, shipping, the checkout itself, the log and the audit trail. It is written honestly, the way a competent developer writes it, and it works. Its top level reserves, charges and ships, and tells the customer how it went:
 
 ```example
 name: ch01_checkout
+region: checkout
 ```
 
 What it mixes, in almost every function:
 
 1. **Business rules:** the amount is the price less any discount; the goods are reserved, the card charged and the parcel handed to a carrier.
 2. **Flow decisions:** reserve, then charge, then ship; renew an expired card and charge once more; fall back to the backup carrier; give up on a refused card; tell the customer at the end.
-3. **Ways of trying again:** two of them, written differently in two modules: the card renewal in the payments module, and the carrier fallback in the shipping module.
+3. **Ways of recovering:** two of them, written differently in two modules: the card renewal in the payments module, and the carrier fallback in the shipping module.
 4. **Auditing and logging:** an audit line at the end of the payment function, and log lines wherever each author thought one useful.
 
 ## The same shop with Itinera
 
-Here is the workflow of chapter 3 again, with the providers that give its steps the bank, the warehouse and the carriers.
+Here is the workflow of chapter 3 again.
 
 ```example
 name: ch03_shop
 region: workflow
-```
-
-```example
-name: ch03_shop
-region: providers
 ```
 
 ## Side by side
@@ -45,7 +41,7 @@ region: providers
 
 ## What you gain
 
-1. **One place to read the flow.** Every question of chapter 1 is answered by the declaration, or by a default that applies because the declaration says nothing. In the usual checkout, each answer meant following calls through several modules.
-2. **Business code you can test alone.** The charge step takes a card, a price and a discount, and reports what happened. Testing it needs no carrier, no customer messages and no audit trail, and it cannot accidentally ship anything.
+1. **One place to read the flow.** The declaration tells you the order of the steps, how many times each may be tried, which step is rescued, which policies are attached, and, by what it leaves out, which defaults apply. What remains in the steps is their own business, such as which failures the rescue step can repair. In the usual checkout, each answer meant following calls through several modules.
+2. **Business code you can test alone.** The charge step takes a card, a price and a discount, and reports what happened. Testing it needs only a fake payment client: no carrier, no customer messages and no audit trail, and it cannot accidentally ship anything.
 3. **Observation that is the same everywhere.** The usual checkout drops the backup carrier's error and never says that it was the new card the bank refused. With Itinera, the outcome of every attempt of every step is an event, with the reason of a failure, whoever wrote the step.
 4. **Decisions you can change in one place.** Giving shipping a third try, or changing the backup carrier, is one change to the workflow, and the steps do not change at all.

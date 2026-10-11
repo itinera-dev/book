@@ -2,43 +2,52 @@
 
 ## What you want to do
 
-You want to answer the questions of [chapter 1](01-the-hardest-part-is-knowing-what-is-going-on.md) about the shop: in what order the work happens, how many times the card is charged, what happens when a carrier cannot take a parcel, what is audited and who is told. This time you answer them by reading one thing: the shop's workflow.
+You want to answer the questions of [chapter 1](01-the-hardest-part-is-knowing-what-is-going-on.md) about the shop: in what order the work happens, how many times the card is charged, what happens when a carrier cannot take a parcel, what is audited and who is told. This time you start from one thing: the shop's workflow.
 
 ## The code
 
-This is the whole shop's workflow. Its steps are written much as you would expect from [chapter 2](02-steps-policies-and-workflows.md); what matters here is the declaration.
+This is the whole shop's workflow. Its steps are written much as you would expect from [chapter 2](02-steps-policies-and-workflows.md); what matters here is the declaration. `Log` is a **reporter**: it receives everything that happens in a journey and writes the failures and decisions to the shop's log, as [chapter 23](23-seeing-what-happened.md) shows.
 
 ```example
 name: ch03_shop
 region: workflow
 ```
 
-The steps talk to the bank, the warehouse and the carriers through **services**: objects a step asks for by a key, such as `payments`, and uses without knowing which implementation it got. The workflow supplies each one through a **provider**, which also decides how long an instance lasts: one for the whole journey, or a fresh one for every attempt.
+The steps talk to the bank, the warehouse and the carriers through **services**: objects a step asks for by a key, such as `payments`, and uses without knowing which implementation it got. The workflow supplies each one through a **provider**, which also decides how long an instance lasts: one for the whole journey, or a fresh one for every attempt. [Chapter 12](12-giving-a-step-the-tools-it-needs.md) teaches both.
 
 ```example
 name: ch03_shop
 region: providers
 ```
 
+The charge has a **rescue step**, `RenewCard`, which [chapter 14](14-repairing-then-trying-once-more.md) teaches. Which failures it can repair is its own business rule, so it is written in the rescue step, not in the declaration: it renews the card only when the charge failed because the card has expired.
+
+```example
+name: ch03_shop
+region: rescue
+```
+
 ```note
 name: ch03_shop
 ```
 
+The program runs the four orders of chapter 1. It waits for services and rescue steps, so it is not run yet. When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
+
 ## How it works
 
-Read the declaration from top to bottom, and the questions of chapter 1 answer themselves.
+Read the declaration from top to bottom. It tells you the order of the steps, how many times each may be tried, which step has a rescue step, which policies are attached and where, and, by what it leaves out, which defaults apply. What it leaves to the steps is their own business: whether a failure is worth another attempt, and which failures a rescue step can repair.
 
 1. **In what order does a checkout do its work?** `reserve`, then `charge`, then `ship`: the order of the step lines. A step can skip itself and a policy can end the journey early, but nothing can reorder the steps or jump between them.
-2. **How many times is the card charged?** At most twice. The `charge` step has no retry budget, so it is never simply tried again. It has a **rescue step** instead, `RenewCard`. When the charge fails, Itinera runs the rescue step under the name `charge_rescue`. It reads why the charge failed, and only when the reason is `expired-card` does it ask the bank for the new card and contribute it as `card`. Then the charge runs once more, with the new card. For any other reason the rescue fails, and so does the journey.
+2. **How many times is the card charged?** At most twice. The `charge` step has no retry budget, so it is never simply tried again. It has a rescue step instead. When the charge fails, Itinera runs `RenewCard` under the name `charge_rescue`; if the rescue succeeds, the charge runs once more, with what the rescue contributed. The declaration says that much. Which failures the rescue repairs is in `RenewCard`, shown above: only `expired-card`, for which it asks the bank for the new card and contributes it as `card`. For any other reason it fails with `nothing-to-renew`, and so does the journey.
 3. **What happens when the card is declined twice?** That is Dan's order: the card has expired, the rescue gets the new card, and the bank refuses the new card too. A rescued step runs at most twice, so its second failure fails the journey. The charge never runs a third time.
-4. **What happens when the main carrier cannot take the parcel?** The `ship` step has a retry budget of 1, so it may be tried twice in all. When the carrier cannot take the parcel, the step fails in a way that might work next time, with the reason `carrier-unavailable`. The budget allows another attempt, and the `carrier` provider makes a fresh carrier for every attempt: the main carrier on the first, the backup carrier after. The ship step never knows there are two carriers. If the second attempt fails too, the journey fails, because the retries are exhausted.
+4. **What happens when the main carrier cannot take the parcel?** The `ship` step has a retry budget of 1, so it may be tried twice in all, and the `carrier` provider makes a fresh carrier for every attempt: the main carrier on the first, the backup carrier after. Whether a failure is worth another attempt is the ship step's to say: it reports a carrier that cannot take the parcel as a failure that might work next time, with the reason `carrier-down`, and [chapter 13](13-trying-again.md) shows how the budget then allows the second attempt. The ship step never knows there are two carriers. If the second attempt fails too, the journey fails, because the retries are exhausted.
 5. **Is every successful charge audited?** The `audit` policy is attached to `charge`, so its `on step success` hook runs after every successful attempt of the charge, including the one after a rescue.
 6. **Which policy decides what happens after a failure?** None of the shop's policies defines `on step failure`, so no policy changes the default: a step that fails, after its retries or its rescue, fails the journey. The absence is part of what you read.
-7. **When is the customer told?** The `notify` policy is attached to the workflow itself. When the journey ends, its `on workflow success` hook or its `on workflow failure` hook runs, once, and tells the customer through `Messages`, a **role**: an interface of operations that the workflow provides to policies, here `tell`.
+7. **When is the customer told?** The `notify` policy is attached to the workflow itself. When the journey ends, its `on workflow success` hook or its `on workflow failure` hook runs, once, unless the journey is aborted, and tells the customer through `Messages`, a **role**: an interface of operations that the workflow provides to policies, here `tell`. [Chapter 18](18-letting-policies-act-on-the-outside-world.md) teaches roles.
 
 The providers answer the questions about the outside world. One payment client serves the whole journey, shared by the charge and its rescue step. One stock store serves the whole journey, shared by `reserve` and `ship`. Every attempt of `ship` gets a carrier of its own, chosen from the attempt number.
 
-Compare that with chapter 1, where each answer meant following calls through modules. Here every decision about the flow is in the declaration, or is a default that applies because the declaration says nothing.
+Compare that with chapter 1, where each answer meant following calls through modules. Here every decision about the flow is in the declaration, or is a default that applies because the declaration says nothing. What the steps decide is only their own business, and each of them says it in one place: the ship step that a carrier's refusal is worth another try, the rescue step which failures it can repair.
 
 The diagram follows one journey through the shop, from the order's data to the end.
 

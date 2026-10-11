@@ -17,7 +17,7 @@ A-2 attempt_started charge
 A-2 step_succeeded charge
 A-2 contribution_committed charged
 A-2 attempt_started ship
-A-2 step_failed ship: no-delivery (no delivery to this address)
+A-2 step_failed ship: carrier-down (the carrier is down)
 A-2 step_given_up ship: failure
 A-2 journey_failed ship
 A-3 journey_started

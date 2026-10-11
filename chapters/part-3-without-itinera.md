@@ -28,7 +28,7 @@ To answer "how many times is a card charged before the shop gives up?", you read
 
 ## Deciding the flow with Itinera
 
-With Itinera, a step only reports what happened. In chapter 10 the shipping meets the same situation, a carrier that is busy, and reports a failure that might work next time:
+With Itinera, a step only reports what happened. In chapter 10 the shipping meets a similar situation, a carrier that is down, and reports a failure that might work next time:
 
 ```example
 name: ch10_outcomes
@@ -53,7 +53,7 @@ name: part3_half_written
 region: record
 ```
 
-The checkout charges Bo's order, then tries to ship it, and prints what the record says afterwards:
+The checkout charges Ben's order, then tries to ship it, and prints what the record says afterwards:
 
 ```example
 name: part3_half_written
@@ -66,7 +66,7 @@ It prints:
 name: part3_half_written
 ```
 
-The record has a tracking number for a parcel that never left. Whatever reads it next, such as an email telling Bo the parcel is on its way, believes it. Keeping the record true means remembering, on every path that fails, to undo what was written before the failure.
+The record has a tracking number for a parcel that never left. Whatever reads it next, such as an email telling Ben the parcel is on its way, believes it. Keeping the record true means remembering, on every path that fails, to undo what was written before the failure.
 
 ## Keeping the data true with Itinera
 
@@ -77,7 +77,7 @@ name: ch09_contributions
 region: ship
 ```
 
-Because the attempt failed, its contribution is never committed. Bo's journey ends with the amount charged and the receipt, which the charge's successful attempt committed, and no tracking number:
+Because the attempt failed, its contribution is never committed. Ben's journey ends with the amount charged and the receipt, which the charge's successful attempt committed, and no tracking number:
 
 ```output
 name: ch09_contributions

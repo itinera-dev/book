@@ -83,31 +83,27 @@ name: ch27_not_a_value
 
 ### Refused by run
 
-A workflow can be put together correctly and still fail to start a journey, when something it supplies fails before the journey starts. Here the `notify` policy is built from the shop's message templates, and the template for a completed order is missing.
+A workflow can be put together correctly and still fail to start a journey, when something it supplies fails before the journey starts. [Chapter 21](21-running-many-journeys.md) showed one: the `notify` policy needs the texts the shop sends, and the file that holds them is missing.
 
 ```example
-name: ch27_refusal
+name: ch21_refused
 region: policy
 ```
 
 The executor builds the workflow's policies before the journey starts, so `run` refuses the instance instead of returning a result.
 
 ```example
-name: ch27_refusal
+name: ch21_refused
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch27_refusal
+name: ch21_refused
 ```
 
-```note
-name: ch27_refusal
-```
-
-The workflow lists a reporter that prints every event, and it printed nothing: a refused journey has no events.
+The refusal is all there is to see. A refused journey has no events: had the workflow listed a reporter, it would have received none.
 
 ## How it works
 
@@ -116,19 +112,20 @@ The workflow lists a reporter that prints every event, and it printed nothing: a
 
    | Violation | What is wrong | How to fix it |
    |---|---|---|
-   | `duplicate step name` | two steps of the workflow have the same name | give each step its own name; the same kind of step may be listed twice under two names |
+   | `duplicate step name` | two steps of the workflow have the same name, or a step has the name of another step's rescue step, such as `charge_rescue` | give each step its own name; the same kind of step may be listed twice under two names |
    | `hook defined twice` | two policies attached to one step, or to the workflow, define the same hook | merge them into one policy, or attach one of them elsewhere |
    | `role not provided` | a policy requests a role the workflow does not provide | provide the role from the workflow, or attach the policy to a workflow that does |
    | `mode not accepted` | a step, hook or reporter is asynchronous and the executor runs only synchronous ones, or the reverse | run the instance on an executor that accepts that mode, or write the part in the executor's mode |
    | `step adapted twice` | two input adapters are attached to one step | merge them into one adapter for that step |
-   | `input adapter for unknown step` | an input adapter is attached to a step the workflow does not have | attach it to a step the workflow lists, spelled as the workflow names it |
+   | `input adapter for unknown step` | an input adapter is attached to a step the workflow does not have, a rescue step included | attach it to a step the workflow lists, spelled as the workflow names it |
+   | `rescued step retried` | a step has both a rescue step and a retry budget above 0 | keep one of them: a step with a rescue step is never retried |
 
 3. **Initial data has to be values.** Initial data holding something that is not a value is refused too, when the instance is handed to the executor, naming each key concerned.
 4. **Some languages catch these even earlier.** The specification asks implementations to report violations at compile time where the language allows it. Some rules can be made impossible to write at all: a hook returning a lifecycle it may not return, a policy attached to a workflow that does not provide its role, a part in a mode the executor does not accept, something that is not a value in the data bag or an event, a step's contributor kept after its attempt, and an input adapter writing through its read access to the data bag. In such a language those mistakes never reach a journey.
-5. **A refusal is not a result.** When a journey cannot start, `run` reports a refusal instead of a journey result. That happens when the workflow is refused at admission, and when the workflow's own code called before the journey starts fails: a workflow policy while it is built, or the dispatcher factory and dispatcher that deliver the events. A refusal has no journey and no events. It means the workflow was put together or supplied wrongly, never that the order failed.
+5. **A refusal is not a result.** When a journey cannot start, `run` reports a refusal instead of a journey result. That happens when the workflow is refused at admission, and when the workflow's own code called before the journey starts fails: a workflow policy while it is built, or the dispatcher factory and dispatcher that deliver the events. A refusal has no journey and no events. It is never a business outcome: nothing ran, so fix the cause and run a new instance.
 6. **One instance, one journey.** Handing the executor an instance that has already run is refused as well, as [chapter 21](21-running-many-journeys.md) shows.
-7. **The rest shows up during a journey.** Some mistakes cannot be seen before a journey runs: a step that cannot be built, required data missing from the data bag, a value of the wrong type, a hook returning a lifecycle it may not return in a language that allows writing it. Each aborts the journey with its own abort reason, as [chapter 22](22-reading-the-result.md) shows. A step policy, built afresh for every attempt, is one of them: when it fails while being built, the journey is aborted, not refused.
-8. **More violations arrive with services and rescue steps.** A step that requests a service no provider supplies, or a step with both a rescue step and a retry budget, will be refused at admission in the same way, as `service not provided` and `rescued step retried`. [Chapter 12](12-giving-a-step-the-tools-it-needs.md) and [chapter 14](14-repairing-then-trying-once-more.md) show them.
+7. **The rest shows up during a journey.** Some mistakes cannot be seen before a journey runs: a step that cannot be built, required data missing from the data bag, a value of the wrong type, a hook returning a lifecycle it may not return, or a rescue step that skips, in a language that allows writing them. Each aborts the journey with its own abort reason, as [chapter 22](22-reading-the-result.md) shows. A step policy, built afresh for every attempt, is one of them: when it fails while being built, the journey is aborted, not refused.
+8. **One more violation arrives with services.** A step that requests a service no provider supplies will be refused at admission in the same way, as `service not provided`, which [chapter 12](12-giving-a-step-the-tools-it-needs.md) shows. The rule behind `rescued step retried`, that a step with a rescue step is never retried, is in [chapter 14](14-repairing-then-trying-once-more.md).
 
 ## Remember
 
@@ -136,5 +133,5 @@ The workflow lists a reporter that prints every event, and it printed nothing: a
 2. Admission reports every violation at once, so read them all before building again.
 3. Step names are unique within a workflow, and each hook is defined at most once for a step and once for a workflow.
 4. A policy is attached only to a workflow that provides every role the policy requests.
-5. A refusal means the workflow was put together or supplied wrongly; it is never a business outcome.
+5. A refusal is never a business outcome: nothing ran, so fix its cause and run a new instance.
 6. Mistakes that can only show up during a journey abort it; they are never refusals.

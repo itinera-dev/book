@@ -1,4 +1,4 @@
-the carrier is busy
+the carrier is down
 the carrier collects order A-1
 A-1: succeeded, tracking T-A-1
 A-2: succeeded, nothing shipped

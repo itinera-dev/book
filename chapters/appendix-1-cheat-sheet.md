@@ -26,7 +26,8 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | An executor, and running an instance | runs one journey and returns its result, or refuses it | [21](21-running-many-journeys.md) |
 | Reading the result and its output | how the journey ended, and the data bag it left | [22](22-reading-the-result.md) |
 | A reporter | receives every event of a journey | [23](23-seeing-what-happened.md) |
-| A policy that may fail while it is built | a policy built from something the workflow supplies | [27](27-mistakes-caught-before-a-journey.md) |
+| A step's own events | what only the step knows, emitted as `step_info`, `step_warning` or `step_error`; a hook emits `journey_info`, `journey_warning` or `journey_error` | [23](23-seeing-what-happened.md) |
+| A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [27](27-mistakes-caught-before-a-journey.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
 
 ## In your language

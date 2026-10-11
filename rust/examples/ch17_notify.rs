@@ -51,10 +51,13 @@ impl Notify {
     fn shipped(
         &self,
         #[from_workflow] order: String,
-        #[from_workflow] tracking: String,
+        #[from_workflow] tracking: Option<String>,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<(), Error> {
-        let message = format!("Order {order} is on its way, tracking {tracking}.");
+        let message = match tracking {
+            Some(tracking) => format!("Order {order} is on its way, tracking {tracking}."),
+            None => format!("Order {order} is complete."),
+        };
         contributor.contribute("message", message);
         Ok(())
     }

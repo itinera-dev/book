@@ -66,13 +66,13 @@ impl Bank {
     }
 
     fn renewed_card(&self, customer: &str) -> Option<&'static str> {
-        (customer == "Ada").then_some("card-2031")
+        (customer == "Ann").then_some("card-2031")
     }
 }
 
-/// A carrier the shop ships through.
+/// A carrier the shop ships through, and the prefix of its tracking numbers.
 struct Carrier {
-    name: &'static str,
+    prefix: &'static str,
     up: bool,
 }
 
@@ -81,7 +81,7 @@ impl Carrier {
         if !self.up {
             return Err(Trouble::CarrierDown);
         }
-        Ok(format!("{}-{order}", self.name))
+        Ok(format!("{}-{order}", self.prefix))
     }
 }
 
@@ -215,11 +215,11 @@ fn main() {
             called: Cell::new(false),
         },
         main: Carrier {
-            name: "main",
+            prefix: "T",
             up: false,
         },
         backup: Carrier {
-            name: "backup",
+            prefix: "B",
             up: true,
         },
         breaker: Breaker {
@@ -228,9 +228,9 @@ fn main() {
         },
     };
     let orders = [
-        ("A-1", "Ada", 40, "card-2019", false),
+        ("A-1", "Ann", 40, "card-2019", false),
         ("A-2", "Ben", 15, "card-2030", true),
-        ("A-3", "Cleo", 25, "card-2028", false),
+        ("A-3", "Cat", 25, "card-2028", false),
         ("A-4", "Dan", 30, "card-2029", false),
     ];
     for (id, customer, price, card, digital) in orders {

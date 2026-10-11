@@ -90,7 +90,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 // ANCHOR_END: run
 
-// ANCHOR: report
 /// Prints how one order's journey ended.
 fn report(order: &str, result: &JourneyResult) {
     if let JourneyStatus::Aborted(Abort::RequiredDataMissing(MissingData::Key { key, .. })) =
@@ -107,4 +106,3 @@ fn report(order: &str, result: &JourneyResult) {
         println!("{order}: {}", result.status.kind());
     }
 }
-// ANCHOR_END: report

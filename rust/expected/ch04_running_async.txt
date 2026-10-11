@@ -10,7 +10,7 @@ A-1:
   9 attempt_started: ship, attempt 1
   10 step_succeeded: ship
   11 contribution_committed: tracking
-  to Ann: order A-1 is on its way: RAPID-A-1
+  to Ann: order A-1 is on its way: T-A-1
   12 hook_called: notify, on workflow success
   13 journey_succeeded
 the journey succeeded
@@ -23,7 +23,7 @@ A-2:
   5 optional_input_absent: discount
   6 step_failed: charge, declined
   7 step_given_up: charge, failure
-  to Dan: order A-2 could not be completed
+  to Ben: order A-2 could not be completed
   8 hook_called: notify, on workflow failure
   9 journey_failed: charge, failure
 the journey failed

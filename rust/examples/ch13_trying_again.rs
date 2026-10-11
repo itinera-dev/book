@@ -9,19 +9,20 @@ use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
-/// A carrier the shop ships through. Today the main carrier is down.
+/// A carrier the shop ships through, and the prefix of its tracking numbers. Today the main
+/// carrier is down.
 struct Carrier {
-    name: &'static str,
+    prefix: &'static str,
     up: bool,
 }
 
 const MAIN: Carrier = Carrier {
-    name: "main",
+    prefix: "T",
     up: false,
 };
 
 const BACKUP: Carrier = Carrier {
-    name: "backup",
+    prefix: "B",
     up: true,
 };
 
@@ -29,7 +30,7 @@ impl Carrier {
     /// Hands the parcel over, and returns its tracking number, or nothing when the carrier is
     /// down.
     fn send(&self, order: &str) -> Option<String> {
-        self.up.then(|| format!("{}-{order}", self.name))
+        self.up.then(|| format!("{}-{order}", self.prefix))
     }
 }
 

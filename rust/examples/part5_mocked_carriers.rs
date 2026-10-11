@@ -22,17 +22,18 @@ fn ship(order: &str, main: &dyn Carrier, backup: &dyn Carrier) -> Result<String,
 // ANCHOR_END: ship
 
 // ANCHOR: mock
-/// A carrier that works or fails as the test says, and counts how often it is called.
+/// A carrier that works or fails as the test says, and counts how often it is called. Its
+/// tracking numbers start with its prefix.
 struct MockCarrier {
-    name: &'static str,
+    prefix: &'static str,
     works: bool,
     calls: Cell<u32>,
 }
 
 impl MockCarrier {
-    fn new(name: &'static str, works: bool) -> Self {
+    fn new(prefix: &'static str, works: bool) -> Self {
         Self {
-            name,
+            prefix,
             works,
             calls: Cell::new(0),
         }
@@ -43,7 +44,7 @@ impl Carrier for MockCarrier {
     fn ship(&self, order: &str) -> Result<String, String> {
         self.calls.set(self.calls.get() + 1);
         if self.works {
-            return Ok(format!("{}-{order}", self.name));
+            return Ok(format!("{}-{order}", self.prefix));
         }
         Err("unavailable".to_owned())
     }
@@ -61,22 +62,19 @@ fn check(what: &str, holds: bool) -> Result<(), String> {
 
 // ANCHOR: tests
 fn main() -> Result<(), String> {
-    let main = MockCarrier::new("main", true);
-    let backup = MockCarrier::new("backup", true);
+    let main = MockCarrier::new("T", true);
+    let backup = MockCarrier::new("B", true);
     let tracking = ship("A-1", &main, &backup)?;
     check(
         "a working main carrier ships the order",
-        tracking == "main-A-1",
+        tracking == "T-A-1",
     )?;
     check("the backup is never called", backup.calls.get() == 0)?;
 
-    let main = MockCarrier::new("main", false);
-    let backup = MockCarrier::new("backup", true);
+    let main = MockCarrier::new("T", false);
+    let backup = MockCarrier::new("B", true);
     let tracking = ship("A-2", &main, &backup)?;
-    check(
-        "a failing main carrier falls back",
-        tracking == "backup-A-2",
-    )?;
+    check("a failing main carrier falls back", tracking == "B-A-2")?;
     check("the main carrier is called once", main.calls.get() == 1)?;
     check("the backup is called once", backup.calls.get() == 1)?;
     Ok(())

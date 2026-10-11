@@ -50,8 +50,8 @@ mod payments {
 // ANCHOR_END: payments
 
 // ANCHOR: shipping
-/// Written by whoever needed shipping first: a carrier that refuses is not worth failing the
-/// order for, so its error is dropped, and nothing is logged.
+/// Written by whoever needed shipping first: a carrier that cannot take the parcel is not worth
+/// failing the order for, so its error is dropped, and nothing is logged.
 mod shipping {
     use super::Order;
 
@@ -59,10 +59,10 @@ mod shipping {
         carrier(order).ok()
     }
 
-    /// The carrier, faked: it does not deliver to Bo's address.
+    /// The carrier, faked: it is down when Ben's parcel comes in.
     fn carrier(order: &Order) -> Result<String, String> {
-        if order.customer == "Bo" {
-            return Err("no delivery to this address".to_owned());
+        if order.customer == "Ben" {
+            return Err("the carrier is down".to_owned());
         }
         Ok(format!("T-{}", order.order))
     }
@@ -88,17 +88,17 @@ fn main() {
         Order {
             order: "A-1".to_owned(),
             price: 40,
-            customer: "Ana".to_owned(),
+            customer: "Ann".to_owned(),
         },
         Order {
             order: "A-2".to_owned(),
             price: 25,
-            customer: "Bo".to_owned(),
+            customer: "Ben".to_owned(),
         },
         Order {
             order: "A-3".to_owned(),
             price: 0,
-            customer: "Cy".to_owned(),
+            customer: "Cat".to_owned(),
         },
     ];
     for order in &orders {

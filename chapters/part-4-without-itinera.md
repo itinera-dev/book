@@ -4,13 +4,13 @@
 
 This part gave the shop its flow: shipping tried twice, a backup carrier, a charge that repairs an expired card, digital orders that are not shipped, and a payment network that may be down. Here is the same shop written the way such code is usually written, by a careful developer, without Itinera. Each piece of flow control sits where the code first needed it.
 
-The program takes four orders. Ada's card has expired, and her bank has a new one. Ben's order is digital. The main carrier is down all day, and after two failures in a row a circuit breaker stops calling it. The warehouse is busy the first time it is asked, and the bank times out on the first charge of the day.
+The program takes four orders. Ann's card has expired, and her bank has a new one. Ben's order is digital. The main carrier is down all day, and after two failures in a row a circuit breaker stops calling it. The warehouse is busy the first time it is asked, and the bank times out on the first charge of the day.
 
 ```output
 name: part4_usual_checkout
 ```
 
-The output is honest about what the code logs, and silent about the rest: the bank's timeout on Ada's order was retried, and nothing says so.
+The output is honest about what the code logs, and silent about the rest: the bank's timeout on Ann's order was retried, and nothing says so.
 
 ## Retry strategies that multiply
 
@@ -44,7 +44,7 @@ name: ch13_trying_again
 region: workflow
 ```
 
-Which failures are retried follows from the step's outcome: a retriable failure is retried while the budget lasts, anything else is given up. Any earlier stop is a policy's `FailWorkflow`. Every attempt, retry and decision to give up is an event, the same for every step.
+Which failures are retried follows from the step's outcome: a retriable failure is retried while the budget lasts, and so is an abnormal termination when the step's declaration says it may be retried; anything else is given up. A step with a rescue step is never retried: its failure goes to the rescue step instead. Any earlier stop is a policy's `FailWorkflow`. Every attempt, retry and decision to give up is an event, the same for every step.
 
 ## Flow decisions in business code
 
@@ -139,7 +139,7 @@ region: policy
 
 ## Repair code inside the business rule
 
-Look again at the usual charge above. It catches an expired card, asks the bank for the new one and charges again, all in one function, between the retry helper and the digital rule. The repair is invisible from outside: Ada's order printed one line about it, because the developer chose to log it.
+Look again at the usual charge above. It catches an expired card, asks the bank for the new one and charges again, all in one function, between the retry helper and the digital rule. The repair is invisible from outside: Ann's order printed one line about it, because the developer chose to log it.
 
 With Itinera, the charge stays a charge: an expired card is a failure with a reason.
 
@@ -167,7 +167,7 @@ region: workflow
 | Decision | Without Itinera | With Itinera |
 |---|---|---|
 | How many times to try | a loop, a helper and a retry object, each with its own limit | the retry budget of each step, in the workflow |
-| Which failures are retried | each strategy's own test of the error | the step's retriable flag, the same for every step |
+| Which failures are retried | each strategy's own test of the error | the same rule for every step: a retriable failure, or an abnormal termination the step's declaration lets be retried; a step with a rescue step is rescued instead |
 | Whether a digital order ships | an early return inside the charge | a policy finishing the journey, or the ship step skipping |
 | When to stop calling a carrier | a breaker wrapped around the call | a policy recording failures through a role, and the provider choosing the carrier |
 | Which carrier to use next | a fallback inside the shipping code | the carrier's provider, part of the workflow |

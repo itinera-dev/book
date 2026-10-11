@@ -60,7 +60,7 @@ name: ch13_trying_again
 
 ## How it works
 
-1. **An attempt is one run of a step.** The first is attempt 1, and every attempt after it is a retry. Each attempt builds a fresh step from the data of the moment, so nothing carries over from a failed attempt but what was committed to the data bag.
+1. **An attempt is one run of a step.** The first is attempt 1, and every attempt after it is a retry, except the run that follows a rescue step, which chapter 14 shows. Each attempt builds a fresh step from the data of the moment, so nothing carries over from a failed attempt but what was committed to the data bag.
 2. **The retry budget is how many retries a step allows.** It is declared for each step in the workflow, and is 0 unless you say otherwise. With a budget of 1, the ship step runs at most twice.
 3. **Only a retriable failure is retried.** The step says whether trying again might help, and the workflow decides whether it will. The order without an address fails without the retriable flag: the step is given up at once, with the cause `failure`, even though its budget is untouched.
 4. **An abnormal termination is not retried, unless the step's declaration allows it.** An error the step did not expect may already have done something, so by default it ends the step at once. When the workflow declares that a step's abnormal termination may be retried, it uses the same budget as a retriable failure.

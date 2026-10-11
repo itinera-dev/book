@@ -77,7 +77,7 @@ region: workflow
 name: ch25_rescue
 ```
 
-With the rescue step, the order paid with an expired card succeeds: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge runs once more and succeeds. The order whose bank is offline still fails with `payments-down`, since `outage` gives up before any rescue. An order whose card is refused fails too, with `not-repairable`: the rescue step is not there to repair a refusal, so it fails, and the journey with it.
+With the rescue step, the order paid with an expired card succeeds: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge runs once more and succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
 
 Now a counter-example. This charge works, and its journey succeeds, but it repairs the card itself and tells the customer itself.
 
@@ -101,29 +101,29 @@ Ask these questions about each decision, in this order. The first answer that fi
 ```mermaid
 flowchart TD
   accTitle: Where a decision belongs
-  accDescr: A decision about what the business does goes in a step. A repair of the cause of a step's failure, before the step runs once more, goes in a rescue step. How many times a step is tried goes in the workflow, as a retry budget. Anything else about what happens next, or about acting on the outside world after an outcome, goes in a policy's hook.
-  Q1{Is it what the business does?} -->|yes| S[A step]
-  Q1 -->|no| Q2{Does it repair why a step failed?}
-  Q2 -->|yes| R[A rescue step]
+  accDescr: A repair of the cause of a step's failure, before the step runs once more, goes in a rescue step. Any other decision about what the business does goes in a step. How many times a step is tried goes in the workflow, as a retry budget. Anything else about what happens next, or about acting on the outside world after an outcome, goes in a policy's hook.
+  Q1{Does it repair why a step failed?} -->|yes| R[A rescue step]
+  Q1 -->|no| Q2{Is it what the business does?}
+  Q2 -->|yes| S[A step]
   Q2 -->|no| Q3{Is it how many times to try?}
   Q3 -->|yes| B[The workflow: a retry budget]
   Q3 -->|no| P[A policy's hook]
 ```
 
-The diagram shows four questions in turn:
+The diagram asks three questions in turn, with four answers:
 
-1. If the decision is about what the business does, such as charging, reserving or shipping, it belongs in a step.
-2. Otherwise, if it repairs the cause of a step's failure so that the step can run once more, it belongs in a rescue step.
+1. If the decision repairs the cause of a step's failure so that the step can run once more, it belongs in a rescue step.
+2. Otherwise, if it is about what the business does, such as charging, reserving or shipping, it belongs in a step.
 3. Otherwise, if it says how many times a step is tried, it belongs in the workflow, as the step's retry budget.
 4. Otherwise it decides what happens next, or acts on the outside world after an outcome, and it belongs in a hook of a policy.
 
 What each answer gives you:
 
 1. **A step holds one business rule, and says what happened.** A step reports its outcome: success, failure or skipped. A failure carries a reason, which says why, and may say that trying again might help. The step never decides what follows, and it does not need to: the workflow and its policies do. A step may still skip, because it is the only one that knows its domain well enough to say there is nothing to do, as the ship step does for a digital order.
-2. **A rescue step repairs, then the step runs once more.** It is a step of its own, run when the step it rescues fails: it reads why the step failed, does the business work that fixes the cause, and contributes what it found. A repair belongs in a rescue step, not in a hook, because it is business work, and hooks only decide what happens next. It belongs there rather than in the step, so that the step stays one business rule and the events show the repair. A rescue step either repairs or fails; it never skips.
+2. **A rescue step repairs, then the step runs once more.** It is a step of its own, run when the step it rescues fails: it reads why the step failed, does the business work that fixes the cause, and contributes what it found. A repair belongs in a rescue step, not in a hook, because it is business work, and hooks only decide what happens next. It belongs there rather than in the step, so that the step stays one business rule and the events show the repair. A rescue step either repairs or fails: one that skips aborts the journey with `rescue skipped`, and some languages do not let you write one at all.
 3. **A retry does the same thing again; a rescue fixes something first.** A failure that may go away by itself, such as a busy carrier, wants a retry budget. A failure with a cause that can be fixed, such as an expired card, wants a rescue step. A step has one or the other, never both: a step with a rescue step is never retried.
 4. **A policy decides what happens next.** Its hooks are called after a step's outcome or when the journey ends. They may give up, fail the journey or finish it early, and they may act on the outside world through the roles the workflow provides. A hook branches on what the steps reported and contributed; it never makes the business decision itself.
-5. **A step reaches no one else.** A step cannot request a role, so it cannot tell the customer anything. That is a good sign: telling the customer is not part of charging.
+5. **A step reaches no one else.** A step cannot request a role, so the way the workflow offers policies to reach the customer is out of its reach. That is a good sign: telling the customer is not part of charging.
 
 A few counter-examples, each with its place:
 
@@ -137,7 +137,7 @@ A few counter-examples, each with its place:
 ## Remember
 
 1. A step holds one business rule and reports what happened, never what to do next.
-2. Only a step decides to skip; a hook cannot skip a step, and a rescue step never skips.
+2. Only a step decides to skip; a hook cannot skip a step, and a rescue step that skips aborts the journey with `rescue skipped`.
 3. A repair is business work: it goes in a rescue step, never in a hook, and not inside the step it repairs.
 4. A step with a rescue step has no retry budget.
 5. How many times a step is tried is in the workflow's declaration; any other decision about what happens next is in a policy's hook.

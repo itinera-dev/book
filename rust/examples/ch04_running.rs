@@ -25,7 +25,7 @@ struct Bank {
 }
 
 const BANK: Bank = Bank {
-    refused: &["dan-card"],
+    refused: &["ben-card"],
 };
 
 impl Bank {
@@ -84,7 +84,7 @@ struct Ship {
 #[step]
 impl Ship {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        contributor.contribute("tracking", format!("RAPID-{}", self.order));
+        contributor.contribute("tracking", format!("T-{}", self.order));
         Self::succeed()
     }
 }
@@ -219,7 +219,7 @@ struct NewOrder {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         ("A-1", "Ann", "ann-card", 40, Some(5)),
-        ("A-2", "Dan", "dan-card", 15, None),
+        ("A-2", "Ben", "ben-card", 15, None),
     ];
     let mut executor = LocalExecutor::new();
     for (order, customer, card, price, discount) in orders {

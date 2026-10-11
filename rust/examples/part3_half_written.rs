@@ -21,7 +21,7 @@ impl std::error::Error for ShipError {}
 
 /// The carrier, faked: it delivers only to customers whose address it knows.
 fn carrier_delivers_to(customer: &str) -> bool {
-    customer == "Ada"
+    customer == "Ann"
 }
 
 // ANCHOR: record
@@ -54,7 +54,7 @@ fn ship(order: &mut Order) -> Result<(), ShipError> {
 fn main() {
     let mut order = Order {
         order: "A-2".to_owned(),
-        customer: "Bo".to_owned(),
+        customer: "Ben".to_owned(),
         price: 40,
         charged: None,
         tracking: None,

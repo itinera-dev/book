@@ -31,7 +31,7 @@ name: ch01_checkout
 region: shipping
 ```
 
-The program checks out four orders. Ann's goes through without trouble. Bea's card has expired. The main carrier cannot take Cal's parcel. Dan's card has expired, and the bank refuses the new one too.
+The program checks out four orders. Ann's goes through without trouble. Ben's card has expired. The main carrier cannot take Cat's parcel. Dan's card has expired, and the bank refuses the new one too.
 
 ```example
 name: ch01_checkout

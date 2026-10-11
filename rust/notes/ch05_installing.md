@@ -1,4 +1,4 @@
-In Rust, Itinera is the crate `itinera`. Add it under `[dependencies]` in your `Cargo.toml` as `itinera = "0.1.0-rc.1"`, or run `cargo add itinera@0.1.0-rc.1`. It needs Rust 1.85 or later.
+In Rust, Itinera is the crate `itinera`. Add it under `[dependencies]` in your `Cargo.toml` as `itinera = "0.1.0-rc.1"`, or run `cargo add itinera@0.1.0-rc.1`. It needs Rust 1.85 or later. Until `0.1.0-rc.1` is published, add it from its repository instead, as `itinera = { git = "https://github.com/itinera-dev/itinera-rs" }`; the book's own `Cargo.toml` does the same, pinned to one commit with `rev`.
 
 Its features are:
 

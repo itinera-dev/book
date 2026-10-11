@@ -6,7 +6,7 @@ Every customer should hear how their order went: that it is on its way, or that 
 
 ## The code
 
-The message comes from a workflow policy: a policy attached to the whole workflow, whose hooks run when the journey ends. This one, `notify`, defines both workflow hooks. `on workflow success` reads the order and its tracking number from the journey's data; `on workflow failure` reads only the order, since a failed order has nothing to track. Each writes the message under `message`.
+The message comes from a workflow policy: a policy attached to the whole workflow, whose hooks run when the journey ends. This one, `notify`, defines both workflow hooks. `on workflow success` reads the order from the journey's data, and its tracking number when there is one: a digital order finished early, as in chapter 16, has none. `on workflow failure` reads only the order, since a failed order has nothing to track. Each writes the message under `message`.
 
 ```example
 name: ch17_notify
@@ -39,12 +39,13 @@ name: ch17_notify
 
 ## How it works
 
-1. **Workflow hooks run once, at the end.** `on workflow success` runs when the journey succeeds, including when a hook finished it early, and `on workflow failure` when it fails, including when a hook failed it. They run after the last step, before the result is produced.
+1. **Workflow hooks run once, at the end.** `on workflow success` runs when the journey succeeds, including when a hook finished it early, and `on workflow failure` when it fails, including when a hook failed it. They run once the journey's fate is decided, before the result is produced and before the event that says how the journey ended.
 2. **They decide nothing.** The journey's fate is settled when they run, so a workflow hook returns no lifecycle. It does something about the end: it writes a message, records it, or tells someone.
-3. **A workflow hook reads data from the workflow.** It asks for keys of the data bag, here `order` and `tracking`. It cannot ask for a step's reason or error: those belong to step hooks, which act on one step. What it needs to know about a failure, a step or a step hook contributes first.
+3. **A workflow hook reads data from the workflow.** It asks for keys of the data bag, here `order` and `tracking`. It cannot ask for a step's reason or error: those belong to step hooks, which act on one step. What it needs to know about a failure, a step hook contributes first, since a failed attempt's own contributions never reach the data bag.
 4. **Its contributions are part of the output.** They are committed when the hook returns, before the result is produced, so the message is in the data bag of the result, whether the journey succeeded or failed.
 5. **A workflow policy is built once per journey.** One instance serves the whole journey and is discarded at its end. If it cannot be built, `run` refuses the journey before it starts.
-6. **Nothing runs after an abort.** An aborted journey has no business outcome: neither workflow hook runs, and no message is written. Each hook can be defined only once per workflow, across all its policies.
+6. **Nothing runs after an abort.** An aborted journey has no business outcome: neither workflow hook runs, and no message is written.
+7. **Each workflow hook is defined once per workflow.** Several workflow policies can be attached to one workflow, but if two of them define the same hook, the workflow is refused before any journey with `hook defined twice`.
 
 ## Remember
 

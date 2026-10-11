@@ -33,7 +33,7 @@ name: ch01_checkout
 region: payment
 ```
 
-As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it does not renew the card, log or give up: it reports a failure with a reason, `expired-card` or `declined`. The ship step does the same with the carrier: when the carrier cannot take the parcel, it reports a failure that might work next time, `carrier-unavailable`, and does not call another carrier.
+As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it does not renew the card, log or give up: it reports a failure with a reason, `expired-card` or `declined`. The ship step does the same with the carrier: when the carrier cannot take the parcel, it reports a failure that might work next time, `carrier-down`, and does not call another carrier.
 
 ```example
 name: ch26_workflow
@@ -86,28 +86,28 @@ name: ch26_workflow
 name: ch26_workflow
 ```
 
-Ann's order goes through. The others fail, and the log says exactly why, without a line of logging in the steps. Bea's and Dan's charges fail with `expired-card`, because nothing renews a card yet. Cal's parcel is tried twice with the main carrier, because nothing picks the backup carrier yet. The program runs at every move of the rewrite, and its events show you what has not moved yet.
+Ann's order goes through. The others fail, and the log says exactly why, without a line of logging in the steps. Ben's and Dan's charges fail with `expired-card`, because nothing renews a card yet. Cat's parcel is tried twice with the main carrier, because nothing picks the backup carrier yet. The program runs at every move of the rewrite, and its events show you what has not moved yet.
 
 ### 7. Give the steps their tools
 
-The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`.
+The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md), which waits for services and rescue steps, so it is not run yet.
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: services
 ```
 
 The ship step now uses the carrier it is given, and the stock store, which it shares with `reserve`:
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: ship
 ```
 
 The workflow supplies each service through a provider. The payment client and the stock store last for the whole journey. The carrier is made afresh for every attempt: the main carrier on the first, the backup carrier after. The fallback of chapter 1 is now these few lines, together with the retry budget of `ship`.
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: providers
 ```
 
@@ -116,40 +116,41 @@ region: providers
 The charge takes its payment client as a service, and its business rule does not change:
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: charge
 ```
 
 The card renewal becomes a step of its own, the charge's rescue step. It reads why the charge failed, asks the bank for the new card only when the card has expired, and contributes it as `card`, which the charge reads when it runs once more.
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: rescue
 ```
 
 The workflow declares the rescue step on `charge`, and the rewrite is complete:
 
 ```example
-name: ch26_checkout
+name: ch03_shop
 region: workflow
 ```
 
 ```note
-name: ch26_checkout
+name: ch03_shop
 ```
 
-The orders now go as they did in chapter 1. Bea's charge fails with `expired-card`, `charge_rescue` gets her new card, and the charge runs once more and succeeds. Cal's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the second run of the charge fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
+When it runs, the orders go as they did in chapter 1. Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge runs once more and succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the second run of the charge fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
 
 ## How it works
 
 The rewrite follows one rule: every decision goes where its kind belongs.
 
 1. **Business rules become steps that report.** A step does its work and reports an outcome with a reason. It never calls the next step, never tries itself again, never tells the customer and never logs what the flow did. That is what the "Without Itinera" section of [part 3](part-3-without-itinera.md) showed: a function that calls the next component itself, catches its error and decides to retry is making flow decisions in business code.
-2. **Flow goes into the declaration.** The order of the steps, every retry budget and every rescue step are in the workflow, where you read them all at once. The section of [part 4](part-4-without-itinera.md) showed retry strategies multiplying across a code base, each with its own limits; here there is one budget per step, declared next to it.
-3. **Choices about the outside world go into providers.** Which carrier ships the second attempt is a decision of the workflow, not of the ship step, so the ship step never knows there are two carriers. Part 4 showed the same fallback written inside the shipping code.
-4. **Repairs become rescue steps.** The renewal is no longer hidden in a branch of the charge; it is a step of its own, and the events say when a rescue happened and how it went.
-5. **Reactions become policies.** Auditing and telling the customer react to outcomes, so they are hooks, attached where they apply, and they reach the outside world through roles.
-6. **Observation becomes a reporter.** As the section of [part 5](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports the same events, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
+2. **The caller knows only the journey.** As the section of [part 2](part-2-without-itinera.md) showed, a checkout that calls the charge and then the shipping has to know both functions: their order, what each takes and how each fails. Now the code that takes an order creates a workflow instance, runs the journey and reads its result, however many steps the workflow has.
+3. **Flow goes into the declaration.** The order of the steps, every retry budget and every rescue step are in the workflow, where you read them all at once. The section of [part 4](part-4-without-itinera.md) showed retry strategies multiplying across a code base, each with its own limits; here there is one budget per step, declared next to it.
+4. **Choices about the outside world go into providers.** Which carrier ships the second attempt is a decision of the workflow, not of the ship step, so the ship step never knows there are two carriers. Part 4 showed the same fallback written inside the shipping code.
+5. **Repairs become rescue steps.** The renewal is no longer hidden in a branch of the charge; it is a step of its own, and the events say when a rescue happened and how it went.
+6. **Reactions become policies.** Auditing and telling the customer react to outcomes, so they are hooks, attached where they apply, and they reach the outside world through roles.
+7. **Observation becomes a reporter.** As the section of [part 5](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports the same events, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
 
 Do the rewrite in moves, as this chapter did. After each move the program runs, and the events of a journey show plainly what is still missing.
 

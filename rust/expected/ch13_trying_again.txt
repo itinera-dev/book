@@ -14,7 +14,7 @@ order A-1
   contribution_committed tracking
   journey_succeeded
 the journey succeeded
-tracking backup-A-1
+tracking B-A-1
 order A-2
   journey_started
   attempt_started charge 1

@@ -15,7 +15,7 @@ fn carrier_books(order: &str) -> String {
 
 /// The carrier, faked: it delivers only to customers whose address it knows.
 fn carrier_delivers_to(customer: &str) -> bool {
-    customer == "Ada"
+    customer == "Ann"
 }
 
 // ANCHOR: charge
@@ -94,7 +94,7 @@ struct Order {
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut executor = LocalExecutor::new();
-    for (order, customer) in [("A-1", "Ada"), ("A-2", "Bo")] {
+    for (order, customer) in [("A-1", "Ann"), ("A-2", "Ben")] {
         let instance = Orders::builder()
             .initial_data(NewOrder {
                 order: order.to_owned(),

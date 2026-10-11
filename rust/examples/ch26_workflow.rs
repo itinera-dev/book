@@ -17,7 +17,7 @@ struct Bank {
 }
 
 const BANK: Bank = Bank {
-    expired: &["bea-card", "dan-card"],
+    expired: &["ben-card", "dan-card"],
     refused: &["dan-card-renewed"],
 };
 
@@ -54,12 +54,12 @@ impl Warehouse {
 
 /// A carrier, faked: it cannot take the parcels of the orders it lists.
 struct Carrier {
-    name: &'static str,
+    tracking_prefix: &'static str,
     cannot_take: &'static [&'static str],
 }
 
 const MAIN_CARRIER: Carrier = Carrier {
-    name: "RAPID",
+    tracking_prefix: "T",
     cannot_take: &["A-3"],
 };
 
@@ -68,7 +68,7 @@ impl Carrier {
         if self.cannot_take.contains(&order) {
             return None;
         }
-        Some(format!("{}-{order}", self.name))
+        Some(format!("{}-{order}", self.tracking_prefix))
     }
 }
 
@@ -133,7 +133,7 @@ impl Ship {
                 contributor.contribute("tracking", tracking);
                 Self::succeed()
             }
-            None => Self::fail_retriably("carrier-unavailable"),
+            None => Self::fail_retriably("carrier-down"),
         }
     }
 }
@@ -250,8 +250,8 @@ struct NewOrder {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         ("A-1", "Ann", "ann-card", 40, Some(5)),
-        ("A-2", "Bea", "bea-card", 25, None),
-        ("A-3", "Cal", "cal-card", 30, None),
+        ("A-2", "Ben", "ben-card", 25, None),
+        ("A-3", "Cat", "cat-card", 30, None),
         ("A-4", "Dan", "dan-card", 15, None),
     ];
     let mut executor = LocalExecutor::new();

@@ -20,7 +20,7 @@ name: part5_scattered_logging
 region: payments
 ```
 
-The shipping code decided that a carrier refusing a parcel is not worth failing the order for, so it drops the error and logs nothing.
+The shipping code decided that a carrier that cannot take a parcel is not worth failing the order for, so it drops the error and logs nothing.
 
 ```example
 name: part5_scattered_logging
@@ -40,11 +40,11 @@ Three orders go through it. It prints:
 name: part5_scattered_logging
 ```
 
-Ask what happened to order A-2. The log says it is done, with no tracking number, and nothing else. To learn that the carrier refused it, you read the shipping code, find the dropped error, and work out from the customer's address why the carrier said no. Each part of this code mixes its business rule with a logging habit of its own, and the shipping part also hides a flow decision: a refused delivery does not stop the order. Reconstructing what happened to one order means reading all three parts and knowing which of them stays silent.
+Ask what happened to order A-2. The log says it is done, with no tracking number, and nothing else. To learn that the carrier could not take the parcel, you read the shipping code and find the error it dropped. Each part of this code mixes its business rule with a logging habit of its own, and the shipping part also hides a flow decision: an order the carrier could not take is still called done. Reconstructing what happened to one order means reading all three parts and knowing which of them stays silent.
 
 ### With Itinera
 
-The same three parts are steps. None of them logs: each reports its outcome, and the ship step fails with the reason `no-delivery` when the carrier refuses.
+The same three parts are steps. None of them logs: each reports its outcome, and the ship step fails with the reason `carrier-down` when the carrier cannot take the parcel.
 
 ```example
 name: part5_one_event_stream
@@ -64,7 +64,9 @@ It prints:
 name: part5_one_event_stream
 ```
 
-Every journey reports the same stream of events, in the same order, whoever wrote the steps. Order A-2's stream says the stock was reserved, the price was charged, and the ship step failed with `no-delivery`, then the journey failed at the ship step. Nothing could stay silent: a step reports an outcome, or the executor reports why it did not. A refused delivery is a failure the ship step reports, and what follows from it is the workflow's business, in plain sight, rather than an error dropped inside the shipping code. Where the events go is the reporter's decision alone: change the reporter, and every journey of the shop is logged the new way.
+Every journey reports the same stream of events, in the same order, whoever wrote the steps. Order A-2's stream says the stock was reserved, the price was charged, and the ship step failed with `carrier-down`, then the journey failed at the ship step. Nothing could stay silent: a step reports an outcome, or the executor reports why it did not. Where the events go is the reporter's decision alone: change the reporter, and every journey of the shop is logged the new way.
+
+This version behaves differently, and says so: the usual code called order A-2 done, and the Itinera version fails it. Keeping the old behaviour, an order completed without a parcel sent, is still a choice the shop can make, but it is now a decision someone writes down on purpose, and the events show it every time, rather than an error dropped inside the shipping code.
 
 ## Testing a flow by mocking it
 
@@ -122,10 +124,10 @@ name: part5_testing_the_fallback
 region: journey
 ```
 
-Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are.
+Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapter 24](24-testing-your-workflows.md) tests the shop the same way: a step alone, a policy alone on a stand-in step, and a whole journey by its events.
 
 ## What you gain
 
-1. **One place to read the flow.** What follows a refused delivery, and which carrier each attempt of shipping uses, are read from the workflow and the outcomes it reacts to, not searched for through the business code.
+1. **One place to read the flow.** What follows a parcel the carrier could not take, and which carrier each attempt of shipping uses, are read from the workflow and the outcomes it reacts to, not searched for through the business code.
 2. **Business code you can test alone.** Each step is checked through its data and its outcome, with one fake for what it uses, without mocking the rest of the shop.
 3. **Observation that is the same everywhere.** Every journey reports the same events in the same order, so one reporter logs the whole shop, and tests read the same stream to check what happened.

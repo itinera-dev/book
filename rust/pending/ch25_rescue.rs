@@ -4,7 +4,7 @@ use itinera::error::Error;
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus};
 use itinera::policy::{FailWorkflow, step_policy};
-use itinera::step::{Outcome, Reason, Step, step};
+use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::workflow;
 
 /// What the customer's bank answers to a charge.
@@ -56,7 +56,7 @@ impl Charge {
 /// Asks the customer's bank for the renewed card, after the charge failed because the card had
 /// expired. Any other failure, or an abnormal termination, which has no reason, is not its to
 /// repair.
-#[derive(Step)]
+#[derive(RescueStep)]
 struct RenewCard {
     #[input]
     card: String,
@@ -64,11 +64,11 @@ struct RenewCard {
     reason: Option<Reason>,
 }
 
-#[step]
+#[rescue_step]
 impl RenewCard {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<RescueOutcome, Error> {
         if self.reason.as_ref().map(Reason::code) != Some("expired-card") {
-            return Self::fail("not-repairable");
+            return Self::fail("nothing-to-renew");
         }
         contributor.contribute("card", renewed_card(&self.card));
         Self::succeed()
@@ -84,7 +84,7 @@ struct Outage;
 impl Outage {
     #[on_step_abnormal_termination]
     fn gave_up(&self) -> Result<Option<FailWorkflow>, Error> {
-        Self::fail_workflow("payments-down")
+        Self::fail_workflow("payment-network-down")
     }
 }
 
@@ -115,9 +115,9 @@ fn described(status: &JourneyStatus) -> String {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
-        ("A-3", "card-expired"),
-        ("A-4", "card-offline"),
-        ("A-5", "card-stolen"),
+        ("A-1", "card-expired"),
+        ("A-2", "card-offline"),
+        ("A-3", "card-stolen"),
     ];
     let mut executor = LocalExecutor::new();
     for (order, card) in orders {

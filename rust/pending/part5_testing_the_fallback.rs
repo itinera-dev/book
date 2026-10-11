@@ -21,16 +21,17 @@ trait Carrier: Send + Sync {
 }
 
 // ANCHOR: fake
-/// A fake carrier, up or down as the test says. It counts nothing.
+/// A fake carrier, up or down as the test says, whose tracking numbers start with its prefix. It
+/// counts nothing.
 #[derive(Clone)]
 struct Parcels {
-    name: &'static str,
+    prefix: &'static str,
     up: bool,
 }
 
 impl Carrier for Parcels {
     fn send(&self, order: &str) -> Option<String> {
-        self.up.then(|| format!("{}-{order}", self.name))
+        self.up.then(|| format!("{}-{order}", self.prefix))
     }
 }
 // ANCHOR_END: fake
@@ -148,7 +149,7 @@ impl ShipAlone {
 
 fn ship_alone(up: bool) -> Result<JourneyResult, Box<dyn std::error::Error>> {
     let instance = ShipAlone::builder()
-        .carrier(Parcels { name: "any", up })
+        .carrier(Parcels { prefix: "T", up })
         .initial_data(NewOrder {
             order: "A-1".to_owned(),
         })
@@ -160,7 +161,7 @@ fn the_ship_step_alone() -> Result<(), Box<dyn std::error::Error>> {
     let shipped: Shipped = ship_alone(true)?.output()?;
     check(
         "a carrier that is up gives a tracking number",
-        shipped.tracking.as_deref() == Some("any-A-1"),
+        shipped.tracking.as_deref() == Some("T-A-1"),
     )?;
     check(
         "a carrier that is down is a failure worth trying again",
@@ -175,11 +176,11 @@ fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
     let (lines, recorded) = channel();
     let instance = Orders::builder()
         .main(Parcels {
-            name: "main",
+            prefix: "T",
             up: false,
         })
         .backup(Parcels {
-            name: "backup",
+            prefix: "B",
             up: true,
         })
         .initial_data(NewOrder {
@@ -191,7 +192,7 @@ fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
 
     check(
         "the order ships through the backup carrier",
-        shipped.tracking.as_deref() == Some("backup-A-1"),
+        shipped.tracking.as_deref() == Some("B-A-1"),
     )?;
     let expected = [
         "attempt_started ship",

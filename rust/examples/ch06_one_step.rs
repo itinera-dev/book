@@ -1,4 +1,4 @@
-//! A workflow of one step: the shop charges an order and reads the receipt from the result.
+//! A workflow of one step: the shop charges an order and reads what it charged from the result.
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
@@ -42,7 +42,7 @@ struct NewOrder {
 
 /// What the shop reads back once the journey has succeeded.
 #[derive(Output)]
-struct Receipt {
+struct Charged {
     charged: i64,
 }
 // ANCHOR_END: data
@@ -54,8 +54,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .create()?;
     let result = LocalExecutor::new().run(instance)?;
     println!("the journey {}", result.status.kind());
-    let receipt: Receipt = result.output()?;
-    println!("charged {}", receipt.charged);
+    let charged: Charged = result.output()?;
+    println!("charged {}", charged.charged);
     Ok(())
 }
 // ANCHOR_END: run

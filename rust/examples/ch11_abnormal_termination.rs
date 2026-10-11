@@ -28,13 +28,13 @@ impl fmt::Display for NetworkDown {
 
 impl std::error::Error for NetworkDown {}
 
-/// The customers' banks, faked: Ada's approves, Bo's declines, and Cy's cannot be reached.
+/// The customers' banks, faked: Ann's approves, Ben's declines, and Cat's cannot be reached.
 fn bank_charges(customer: &str, order: &str) -> Result<Answer, NetworkDown> {
     match customer {
-        "Ada" => Ok(Answer::Approved {
+        "Ann" => Ok(Answer::Approved {
             receipt: format!("R-{order}"),
         }),
-        "Bo" => Ok(Answer::Declined),
+        "Ben" => Ok(Answer::Declined),
         _ => Err(NetworkDown),
     }
 }
@@ -58,7 +58,7 @@ impl Charge {
                 contributor.contribute("receipt", receipt);
                 Self::succeed()
             }
-            Answer::Declined => Self::fail("card-declined"),
+            Answer::Declined => Self::fail("declined"),
         }
     }
 }
@@ -84,7 +84,7 @@ struct Receipt {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut executor = LocalExecutor::new();
-    for (order, customer) in [("A-1", "Ada"), ("A-2", "Bo"), ("A-3", "Cy")] {
+    for (order, customer) in [("A-1", "Ann"), ("A-2", "Ben"), ("A-3", "Cat")] {
         let instance = Orders::builder()
             .initial_data(NewOrder {
                 order: order.to_owned(),

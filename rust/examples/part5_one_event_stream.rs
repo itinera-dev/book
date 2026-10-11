@@ -57,16 +57,16 @@ impl Ship {
                 contributor.contribute("tracking", tracking);
                 Self::succeed()
             }
-            Err(refusal) => Self::fail(Reason::new("no-delivery").with_message(refusal)),
+            Err(refusal) => Self::fail(Reason::new("carrier-down").with_message(refusal)),
         }
     }
 }
 // ANCHOR_END: steps
 
-/// The carrier, faked: it does not deliver to Bo's address.
+/// The carrier, faked: it is down when Ben's parcel comes in.
 fn carrier(order: &str, customer: &str) -> Result<String, String> {
-    if customer == "Bo" {
-        return Err("no delivery to this address".to_owned());
+    if customer == "Ben" {
+        return Err("the carrier is down".to_owned());
     }
     Ok(format!("T-{order}"))
 }
@@ -133,17 +133,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         NewOrder {
             order: "A-1".to_owned(),
             price: 40,
-            customer: "Ana".to_owned(),
+            customer: "Ann".to_owned(),
         },
         NewOrder {
             order: "A-2".to_owned(),
             price: 25,
-            customer: "Bo".to_owned(),
+            customer: "Ben".to_owned(),
         },
         NewOrder {
             order: "A-3".to_owned(),
             price: 0,
-            customer: "Cy".to_owned(),
+            customer: "Cat".to_owned(),
         },
     ];
     let mut executor = LocalExecutor::new();

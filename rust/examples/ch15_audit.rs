@@ -55,13 +55,14 @@ impl Audit {
     }
 
     #[on_step_failure]
-    fn declined(
+    fn failed(
         &self,
         #[step_name] step: StepName,
-        #[reason] reason: Reason,
+        #[reason] reason: Option<Reason>,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
-        contributor.contribute("audit", format!("{step} declined: {}", reason.code()));
+        let why = reason.as_ref().map_or("no reason", Reason::code);
+        contributor.contribute("audit", format!("{step} failed: {why}"));
         Self::carry_on()
     }
 }

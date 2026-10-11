@@ -41,7 +41,7 @@ struct NewOrder {
 
 /// What the shop reads back once the journey has succeeded.
 #[derive(Output)]
-struct Receipt {
+struct Charged {
     charged: i64,
 }
 
@@ -52,8 +52,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .create()?;
     let result = futures::executor::block_on(AsyncLocalExecutor::new().run(instance))?;
     println!("the journey {}", result.status.kind());
-    let receipt: Receipt = result.output()?;
-    println!("charged {}", receipt.charged);
+    let charged: Charged = result.output()?;
+    println!("charged {}", charged.charged);
     Ok(())
 }
 // ANCHOR_END: run

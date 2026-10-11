@@ -63,9 +63,9 @@ struct Ship {
 impl Ship {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
         if self.digital {
-            return Self::skip_because("nothing-to-ship");
+            return Self::skip_because("digital");
         }
-        contributor.contribute("tracking", format!("TRK-{}", self.order));
+        contributor.contribute("tracking", format!("T-{}", self.order));
         Self::succeed()
     }
 }
@@ -97,7 +97,7 @@ struct Outage;
 impl Outage {
     #[on_step_abnormal_termination]
     fn gave_up(&self) -> Result<Option<FailWorkflow>, Error> {
-        Self::fail_workflow("payments-down")
+        Self::fail_workflow("payment-network-down")
     }
 }
 

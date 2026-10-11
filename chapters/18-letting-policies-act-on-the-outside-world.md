@@ -6,7 +6,7 @@ In chapter 17 the message for the customer was only written into the journey's d
 
 ## The code
 
-What the shop can do for its policies is a role: an interface of operations, here `Messages`, with one operation, `tell`.
+What the shop can do for its policies is a workflow role, or role for short: an interface of operations that the workflow implements and offers to its policies, here `Messages`, with one operation, `tell`.
 
 ```example
 name: ch18_roles

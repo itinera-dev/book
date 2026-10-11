@@ -76,12 +76,12 @@ struct NewOrder {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instance = Orders::builder()
         .initial_data(NewOrder {
-            order: "A-3".to_owned(),
+            order: "A-1".to_owned(),
             price: 40,
             card: "card-expired".to_owned(),
         })
         .create()?;
     let result = LocalExecutor::new().run(instance)?;
-    println!("A-3: {}", result.status.kind());
+    println!("A-1: {}", result.status.kind());
     Ok(())
 }

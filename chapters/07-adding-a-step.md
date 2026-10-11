@@ -6,7 +6,7 @@ Once an order is charged, the shop ships it. You want shipping to be a second st
 
 ## The code
 
-The charge is the step of the previous chapter. The new step ships the order through the carrier, and contributes the tracking number the carrier gives back.
+The charge is the step of the previous chapter, with one change: it now calls the shop's bank, faked here so that it prints what it charges. The new step ships the order through the carrier, and contributes the tracking number the carrier gives back.
 
 ```example
 name: ch07_two_steps
@@ -49,10 +49,10 @@ name: ch07_two_steps
 1. **The workflow's list is the order.** Steps run in the order the workflow lists them, and nothing reorders them. To read what the shop does with an order, you read that list, top to bottom.
 2. **The steps do not know about each other.** The charge does not call the shipping, and the shipping does not check that the charge happened. Neither knows it is part of a list. The workflow alone puts one after the other.
 3. **Each step asks only for what it needs.** The charge asks for the price, and the shipping asks for the order's ID. Both come from the same journey data, which started with the order you gave, and each step receives only what it declared.
-4. **The next step runs only when the previous one is finished.** The executor considers the first step that is not finished, runs it, and moves on only once it has succeeded, or skipped itself, as chapter 10 shows. If the charge fails, the journey fails there: the shipping never runs, and keeps the status `NotExecuted`, the status of a step that has not run.
+4. **The next step runs only when the previous one is finished.** The executor considers the first step that is not finished, runs it, and moves on only once it has succeeded, or skipped itself, as [chapter 10](10-saying-how-it-went.md) shows. If the charge fails, the journey fails there: the shipping never runs, and keeps the status `NotExecuted`, the status of a step that has not run.
 5. **The output holds everything committed.** When the journey succeeds, its data bag holds the order you started with plus what each step contributed: `charged` from the charge and `tracking` from the shipping.
 
-Try changing the price to 0: the charge fails with `nothing-to-charge`, the carrier is never called, and the journey fails with no tracking number to read.
+Try changing the price to 0: the charge fails with `nothing-to-charge`, the carrier is never called, and the journey fails, so its data bag never receives `charged` or `tracking`. The program prints that the journey failed, then stops with an error when it tries to read them.
 
 ## Remember
 

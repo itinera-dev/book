@@ -41,7 +41,7 @@ struct Ship {
 #[step]
 impl Ship {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        contributor.contribute("tracking", format!("RAPID-{}", self.order));
+        contributor.contribute("tracking", format!("T-{}", self.order));
         Self::succeed()
     }
 }

@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-You have a workflow; now you want to run it for real orders, and to know what each part of a run is called: the workflow instance, the journey, the executor, the data bag, the result and the events. You also want to know where Itinera fits in your system, and where it does not.
+You have a workflow; now you want to run it for real orders, and to know the name of each thing involved: the workflow instance, the journey, the executor, the data bag, the result and the events. You also want to know where Itinera fits in your system, and where it does not.
 
 ## The code
 
@@ -29,7 +29,7 @@ region: reporter
 asynchronous: ch04_running_async
 ```
 
-The program runs two orders. Ann's card is accepted; the bank refuses Dan's.
+The program runs two orders. Ann's card is accepted; the bank refuses Ben's.
 
 ```example
 name: ch04_running
@@ -49,12 +49,12 @@ name: ch04_running
 
 ## How it works
 
-1. **Workflow instance.** For every order, your code creates a new **workflow instance** from the workflow, with that order's initial data. The instance holds everything about that order's run: its data, its journey ID and its reporters. An instance runs once; the next order gets a new one.
-2. **Journey.** A **journey** is one run of an instance, from its first step to its result. The output shows two journeys, one per order.
+1. **Workflow instance.** For every order, your code creates a new **workflow instance** from the workflow, with that order's initial data. The instance holds everything about that order's journey: its data, its journey ID and its reporters. An instance runs once; the next order gets a new one.
+2. **Journey.** A **journey** is one execution of an instance, from its first step to its result. The output shows two journeys, one per order.
 3. **Executor.** The **executor** runs the instance. It builds each step afresh for every attempt, runs it, calls the hooks of the attached policies after each outcome, and carries out what they decide. The executor here runs the journey in your process and keeps nothing once it returns: no data, no state, nothing saved to disk. It runs one journey at a time; to run journeys side by side, you create several executors.
-4. **Data bag.** The **data bag** holds the journey's data, as values under string keys. It starts with the initial data: five keys for Ann's order, four for Dan's, which has no discount. It changes only when a contribution is committed: a step's contributions when its attempt succeeds, a hook's when the hook returns. That is why Ann's data bag ends with `charged`, `audit` and `tracking`, and Dan's holds only what it started with. When the journey ends, the data bag is its output.
-5. **Result.** What `run` returns is the **result**: the journey ID, how the journey ended, with what explains it, and, unless it was aborted, the data bag. A journey **succeeded** when every step succeeded or skipped itself, or a hook finished it early. It **failed** when a step failed or a hook failed it, and the result says why: Dan's failed because the charge reported a failure, `declined`. It was **aborted** when something illegal happened, such as a hook that failed or required data that was missing; an aborted journey has no output and is never resumed. When a journey cannot even start, for example because the workflow is put together wrongly, `run` returns a **refusal** instead of a result: no journey, and no events.
-6. **Events.** Everything that happens in a journey is an **event**, numbered in order, and the workflow's reporters receive every one. Some events are facts: `step_failed` says the charge failed, with its reason. Others are decisions: `step_given_up` says the executor will not try the charge again, and why, and `journey_failed` says the journey failed. Read Dan's journey line by line and you see the order of things: the step's outcome, the decision about the step, the workflow hook that told Dan, then the decision about the journey. Every journey reports the same kinds of event in the same order, whoever wrote the steps, so one reporter can log every workflow you have.
+4. **Data bag.** The **data bag** holds the journey's data, as values under string keys. It starts with the initial data: five keys for Ann's order, four for Ben's, which has no discount. It changes only when a contribution is committed: a step's contributions when its attempt succeeds, a hook's when the hook returns. That is why Ann's data bag ends with `charged`, `audit` and `tracking`, and Ben's holds only what it started with. When the journey ends, the data bag is its output.
+5. **Result.** What `run` returns is the **result**: the journey ID, how the journey ended, with what explains it, and, unless it was aborted, the data bag. A journey **succeeded** when every step succeeded or skipped itself, or a hook finished it early. It **failed** when a step failed or a hook failed it, and the result carries why. This program prints only how each journey ended, but the events show why Ben's failed: the charge reported a failure, `declined`. It was **aborted** when something illegal happened, such as a hook that failed or required data that was missing; an aborted journey has no output and is never resumed. When a journey cannot even start, for example because the workflow is put together wrongly, `run` returns a **refusal** instead of a result: no journey, and no events.
+6. **Events.** Everything that happens in a journey is an **event**, numbered in order, and the workflow's reporters receive every one. Some events are facts: `step_failed` says the charge failed, with its reason. Others are decisions: `step_given_up` says the executor will not try the charge again, and why, and `journey_failed` says the journey failed. Read Ben's journey line by line and you see the order of things: the step's outcome, the decision about the step, the workflow hook that told Ben, then the decision about the journey. Every journey reports the same kinds of event in the same order, whoever wrote the steps, so one reporter can log every workflow you have.
 7. **Execution modes.** A step, a hook or a reporter is either **synchronous** or **asynchronous**, and an executor accepts one or both modes. In the asynchronous form of this program, every step, hook and reporter is asynchronous and runs on the asynchronous executor; it prints exactly the same. Something in a mode the executor does not accept is refused before the journey starts.
 
 ### Where Itinera fits

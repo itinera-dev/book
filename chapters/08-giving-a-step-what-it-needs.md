@@ -20,7 +20,7 @@ name: ch08_inputs
 region: data
 ```
 
-The shop runs three journeys: one with a discount, one without, and one without a price.
+The shop runs three journeys: one with a discount, one without, and one without a price. Its `report` function prints how each journey ended; chapter 22 shows how to read a result.
 
 ```example
 name: ch08_inputs
@@ -41,7 +41,7 @@ name: ch08_inputs
 
 1. **An input is data the step asks the workflow for.** The charge asks for a value by a key, `price`, and a type, a whole number. It never says where the value comes from: the workflow decides. Here it comes from the data bag, the journey's data, which starts as the initial data you gave the instance.
 2. **A step receives only what it asks for.** The order's ID is in the data bag too, but the charge does not ask for it, so it never sees it. A step cannot look through the data bag, the workflow or the executor; it has its inputs and nothing more.
-3. **Every input is resolved before the step is built.** The workflow finds each value first, then builds the step with all of them, so the step's code never checks whether its data arrived. A fresh step is built in this way for every attempt.
+3. **Every input is resolved before the step is built.** The workflow finds each value first, then builds the step with all of them, so the step's code never checks whether its data arrived. A fresh step is built in this way for every attempt: each run of the step is an attempt, and chapter 13 shows a step run more than once.
 4. **An optional input may be absent.** The discount is optional: for the order without one, the step is built with the discount absent, and it charges the full price.
 5. **A required input with no value aborts the journey.** For the order without a price, the step is never built. The journey is aborted with `required data missing`, naming the key that has no value. Unlike a declined card, an aborted journey is not a business outcome: it means the workflow was given data that does not fit it, a mistake to fix, here in the code that starts journeys. An aborted journey has no output.
 6. **A value of the wrong type aborts it too.** A price given as text aborts the journey with `wrong type`, whether the input is required or optional.

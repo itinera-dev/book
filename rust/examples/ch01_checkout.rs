@@ -58,6 +58,7 @@ mod outside {
     /// A carrier, which cannot take the parcels of some orders.
     pub struct Carrier {
         pub name: &'static str,
+        pub tracking_prefix: &'static str,
         pub cannot_take: Vec<&'static str>,
     }
 
@@ -67,7 +68,7 @@ mod outside {
             if self.cannot_take.contains(&order) {
                 return Err("no van available".to_owned());
             }
-            Ok(format!("{}-{order}", self.name.to_uppercase()))
+            Ok(format!("{}-{order}", self.tracking_prefix))
         }
     }
 
@@ -234,7 +235,7 @@ mod checkout {
 fn main() {
     let shop = Shop {
         bank: Bank {
-            expired: vec!["bea-card", "dan-card"],
+            expired: vec!["ben-card", "dan-card"],
             refused: vec!["dan-card-renewed"],
         },
         warehouse: Warehouse {
@@ -242,10 +243,12 @@ fn main() {
         },
         main: Carrier {
             name: "Rapid",
+            tracking_prefix: "T",
             cannot_take: vec!["A-3"],
         },
         backup: Carrier {
             name: "Steady",
+            tracking_prefix: "B",
             cannot_take: vec![],
         },
         messages: Messages,
@@ -260,15 +263,15 @@ fn main() {
         },
         Order {
             order: "A-2",
-            customer: "Bea",
-            card: "bea-card",
+            customer: "Ben",
+            card: "ben-card",
             price: 25,
             discount: None,
         },
         Order {
             order: "A-3",
-            customer: "Cal",
-            card: "cal-card",
+            customer: "Cat",
+            card: "cat-card",
             price: 30,
             discount: None,
         },

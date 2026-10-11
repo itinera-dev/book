@@ -24,9 +24,9 @@ impl fmt::Display for NetworkDown {
 
 impl std::error::Error for NetworkDown {}
 
-/// The payment network. Today it cannot reach Cleo's bank.
+/// The payment network. Today it cannot reach Cat's bank.
 fn take_payment(customer: &str, amount: i64) -> Result<i64, NetworkDown> {
-    if customer == "Cleo" {
+    if customer == "Cat" {
         return Err(NetworkDown);
     }
     Ok(amount)
@@ -92,7 +92,8 @@ impl Downloads {
 // ANCHOR_END: downloads
 
 // ANCHOR: outage
-/// Gives up at once when the step ends in an abnormal termination.
+/// Gives up at once when the charge ends in an abnormal termination, which in this shop only the
+/// payment network causes.
 #[derive(Default)]
 struct Outage;
 
@@ -210,7 +211,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         NewOrder {
             order: "A-1".to_owned(),
-            customer: "Ada".to_owned(),
+            customer: "Ann".to_owned(),
             price: 40,
             digital: false,
         },
@@ -222,7 +223,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         NewOrder {
             order: "A-3".to_owned(),
-            customer: "Cleo".to_owned(),
+            customer: "Cat".to_owned(),
             price: 25,
             digital: false,
         },

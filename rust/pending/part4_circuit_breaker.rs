@@ -19,16 +19,17 @@ trait Carrier: Send + Sync {
     fn send(&self, order: &str) -> Option<String>;
 }
 
-/// A carrier the shop has a contract with. Today the main one is down.
+/// A carrier the shop has a contract with, and the prefix of its tracking numbers. Today the
+/// main one is down.
 #[derive(Clone)]
 struct Parcels {
-    name: &'static str,
+    prefix: &'static str,
     up: bool,
 }
 
 impl Carrier for Parcels {
     fn send(&self, order: &str) -> Option<String> {
-        self.up.then(|| format!("{}-{order}", self.name))
+        self.up.then(|| format!("{}-{order}", self.prefix))
     }
 }
 
@@ -179,11 +180,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for order in ["A-1", "A-3", "A-4"] {
         let instance = Orders::builder()
             .main(Parcels {
-                name: "main",
+                prefix: "T",
                 up: false,
             })
             .backup(Parcels {
-                name: "backup",
+                prefix: "B",
                 up: true,
             })
             .breaker(Arc::clone(&breaker))

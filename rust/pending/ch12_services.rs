@@ -1,7 +1,7 @@
 //! Giving a step the tools it needs: the workflow provides a stock store, a payment client and a
 //! carrier, and the steps use them without knowing which ones they got.
 
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
@@ -10,22 +10,17 @@ use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
 // ANCHOR: services
-/// Why the bank refused a charge.
-enum Declined {
-    ExpiredCard,
-    Refused,
-}
-
-/// A payment client: it charges a card, and knows the card that replaced an expired one.
+/// A payment client: it charges a card, and gives back a receipt, or nothing when the bank
+/// declines the card.
 trait Payments: Send + Sync {
-    fn charge(&self, card: &str, amount: i64) -> Result<String, Declined>;
-    fn renewed_card(&self, card: &str) -> Option<String>;
+    fn charge(&self, card: &str, amount: i64) -> Option<String>;
 }
 
-/// A stock store: it reserves an order's goods, then hands them over for shipping.
+/// A stock store: it reserves an order's goods, then hands them over for shipping. An error is a
+/// stock store that is not working.
 trait StockStore: Send + Sync {
-    fn reserve(&self, order: &str) -> bool;
-    fn hand_over(&self, order: &str);
+    fn reserve(&self, order: &str) -> Result<(), Error>;
+    fn hand_over(&self, order: &str) -> Result<(), Error>;
 }
 
 /// A carrier: it takes a parcel and gives back its tracking number, when it can take it.
@@ -40,40 +35,38 @@ struct Shelves {
     reserved: Mutex<Vec<String>>,
 }
 
-impl StockStore for Shelves {
-    fn reserve(&self, order: &str) -> bool {
-        let Ok(mut reserved) = self.reserved.lock() else {
-            return false;
-        };
-        reserved.push(order.to_owned());
-        println!("the stock store reserves order {order}");
-        true
-    }
-
-    fn hand_over(&self, order: &str) {
-        let found = self
-            .reserved
+impl Shelves {
+    /// The orders reserved so far, or an error when an earlier call broke the store.
+    fn reserved(&self) -> Result<MutexGuard<'_, Vec<String>>, Error> {
+        self.reserved
             .lock()
-            .is_ok_and(|reserved| reserved.contains(&order.to_owned()));
-        if found {
-            println!("the stock store hands over order {order}");
-        } else {
-            println!("the stock store has nothing reserved for order {order}");
-        }
+            .map_err(|_| Error::msg("the stock store is broken"))
     }
 }
 
-/// The customers' bank, faked: it charges every card, and renews none.
+impl StockStore for Shelves {
+    fn reserve(&self, order: &str) -> Result<(), Error> {
+        self.reserved()?.push(order.to_owned());
+        println!("the stock store reserves order {order}");
+        Ok(())
+    }
+
+    fn hand_over(&self, order: &str) -> Result<(), Error> {
+        if !self.reserved()?.iter().any(|reserved| reserved == order) {
+            return Err(Error::msg(format!("nothing is reserved for order {order}")));
+        }
+        println!("the stock store hands over order {order}");
+        Ok(())
+    }
+}
+
+/// The customers' bank, faked: it charges every card.
 struct Bank;
 
 impl Payments for Bank {
-    fn charge(&self, card: &str, amount: i64) -> Result<String, Declined> {
+    fn charge(&self, card: &str, amount: i64) -> Option<String> {
         println!("the bank charges {amount}");
-        Ok(format!("R-{card}-{amount}"))
-    }
-
-    fn renewed_card(&self, _card: &str) -> Option<String> {
-        None
+        Some(format!("R-{card}-{amount}"))
     }
 }
 
@@ -98,9 +91,7 @@ struct Reserve {
 #[step]
 impl Reserve {
     fn run(self, #[service] stock: &dyn StockStore) -> Result<Outcome, Error> {
-        if !stock.reserve(&self.order) {
-            return Self::fail("out-of-stock");
-        }
+        stock.reserve(&self.order)?;
         Self::succeed()
     }
 }
@@ -124,15 +115,12 @@ impl Charge {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        match payments.charge(&self.card, self.price) {
-            Ok(receipt) => {
-                contributor.contribute("charged", self.price);
-                contributor.contribute("receipt", receipt);
-                Self::succeed()
-            }
-            Err(Declined::ExpiredCard) => Self::fail("expired-card"),
-            Err(Declined::Refused) => Self::fail("declined"),
-        }
+        let Some(receipt) = payments.charge(&self.card, self.price) else {
+            return Self::fail("declined");
+        };
+        contributor.contribute("charged", self.price);
+        contributor.contribute("receipt", receipt);
+        Self::succeed()
     }
 }
 
@@ -152,9 +140,9 @@ impl Ship {
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
         let Some(tracking) = carrier.send(&self.order) else {
-            return Self::fail_retriably("carrier-unavailable");
+            return Self::fail_retriably("carrier-down");
         };
-        stock.hand_over(&self.order);
+        stock.hand_over(&self.order)?;
         contributor.contribute("tracking", tracking);
         Self::succeed()
     }

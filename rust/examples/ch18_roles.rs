@@ -60,10 +60,13 @@ impl Notify {
         &self,
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
-        #[from_workflow] tracking: String,
+        #[from_workflow] tracking: Option<String>,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        let message = format!("Order {order} is on its way, tracking {tracking}.");
+        let message = match tracking {
+            Some(tracking) => format!("Order {order} is on its way, tracking {tracking}."),
+            None => format!("Order {order} is complete."),
+        };
         messages.tell(&customer, &message);
         Ok(())
     }
@@ -111,7 +114,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         NewOrder {
             order: "A-1".to_owned(),
-            customer: "Ada".to_owned(),
+            customer: "Ann".to_owned(),
             price: 40,
         },
         NewOrder {

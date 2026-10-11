@@ -8,13 +8,13 @@ use itinera::journey::{Contributor, Failure, InitialData, JourneyResult, Journey
 use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
-/// Whether the carrier is busy: it is the first time it is called, and free afterwards.
-static CARRIER_BUSY: AtomicBool = AtomicBool::new(true);
+/// Whether the carrier is down: it is the first time it is called, and up afterwards.
+static CARRIER_DOWN: AtomicBool = AtomicBool::new(true);
 
-/// The shop's carrier, faked: it collects a parcel and gives a tracking number, unless it is busy.
+/// The shop's carrier, faked: it collects a parcel and gives a tracking number, unless it is down.
 fn carrier_collects(order: &str) -> Option<String> {
-    if CARRIER_BUSY.swap(false, Ordering::Relaxed) {
-        println!("the carrier is busy");
+    if CARRIER_DOWN.swap(false, Ordering::Relaxed) {
+        println!("the carrier is down");
         return None;
     }
     println!("the carrier collects order {order}");
@@ -60,7 +60,7 @@ impl Ship {
             return Self::skip_because("digital");
         }
         let Some(tracking) = carrier_collects(&self.order) else {
-            return Self::fail_retriably("carrier-busy");
+            return Self::fail_retriably("carrier-down");
         };
         contributor.contribute("tracking", tracking);
         Self::succeed()
@@ -109,7 +109,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 // ANCHOR_END: run
 
-// ANCHOR: report
 /// Prints how one order's journey ended.
 fn report(order: &str, result: &JourneyResult) {
     match &result.status {
@@ -127,4 +126,3 @@ fn report(order: &str, result: &JourneyResult) {
         },
     }
 }
-// ANCHOR_END: report

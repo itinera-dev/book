@@ -20,7 +20,7 @@ name: ch16_ending_early
 region: downloads
 ```
 
-The second policy defines `on step abnormal termination`. Whatever went wrong, it returns `FailWorkflow` with a reason of the shop's own, `payment-network-down`, and the error's message.
+The second policy defines `on step abnormal termination`. In this shop, the only error the charge lets escape is the payment network's, so the policy does not look at what went wrong: it returns `FailWorkflow` with a reason of the shop's own, `payment-network-down`, and the error's message. A policy attached to a step that can fail in other ways would read the error first.
 
 ```example
 name: ch16_ending_early
@@ -34,7 +34,7 @@ name: ch16_ending_early
 region: workflow
 ```
 
-Three orders go through: a parcel for Ada, a digital order for Ben, and a parcel for Cleo, whose bank the payment network cannot reach today. A small reporter prints the attempts, the hooks and how each journey ended.
+Three orders go through: a parcel for Ann, a digital order for Ben, and a parcel for Cat, whose bank the payment network cannot reach today. A small reporter prints the attempts, the hooks and how each journey ended.
 
 ```example
 name: ch16_ending_early

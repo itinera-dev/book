@@ -10,7 +10,7 @@ use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFailure};
 use itinera::policy::{OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
-use itinera::step::{Outcome, Reason, Step, step};
+use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{role, workflow};
 
 // ANCHOR: services
@@ -45,7 +45,7 @@ struct Bank {
 }
 
 const BANK: Bank = Bank {
-    expired: &["bea-card", "dan-card"],
+    expired: &["ben-card", "dan-card"],
     refused: &["dan-card-renewed"],
 };
 
@@ -82,17 +82,17 @@ impl StockStore for Warehouse {
 
 /// A carrier, faked: it cannot take the parcels of the orders it lists.
 struct Van {
-    name: &'static str,
+    tracking_prefix: &'static str,
     cannot_take: &'static [&'static str],
 }
 
 const MAIN_CARRIER: Van = Van {
-    name: "RAPID",
+    tracking_prefix: "T",
     cannot_take: &["A-3"],
 };
 
 const BACKUP_CARRIER: Van = Van {
-    name: "STEADY",
+    tracking_prefix: "B",
     cannot_take: &[],
 };
 
@@ -101,7 +101,7 @@ impl Carrier for Van {
         if self.cannot_take.contains(&order) {
             return None;
         }
-        Some(format!("{}-{order}", self.name))
+        Some(format!("{}-{order}", self.tracking_prefix))
     }
 }
 
@@ -156,9 +156,10 @@ impl Charge {
 // ANCHOR_END: charge
 
 // ANCHOR: rescue
-/// Asks the customer's bank for the card that replaced an expired one. A charge that failed for
-/// any other reason, or ended without one, cannot be repaired this way.
-#[derive(Step)]
+/// The charge's rescue step: asks the customer's bank for the card that replaced an expired one.
+/// A charge that failed for any other reason, or ended in an abnormal termination, which has no
+/// reason, cannot be repaired this way.
+#[derive(RescueStep)]
 struct RenewCard {
     #[input]
     card: String,
@@ -166,23 +167,21 @@ struct RenewCard {
     reason: Option<Reason>,
 }
 
-#[step]
+#[rescue_step]
 impl RenewCard {
     fn run(
         self,
         #[service] payments: &dyn Payments,
         #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+    ) -> Result<RescueOutcome, Error> {
         if self.reason.as_ref().map(Reason::code) != Some("expired-card") {
             return Self::fail("nothing-to-renew");
         }
-        match payments.renewed_card(&self.card) {
-            Some(card) => {
-                contributor.contribute("card", card);
-                Self::succeed()
-            }
-            None => Self::fail("no-renewed-card"),
-        }
+        let Some(card) = payments.renewed_card(&self.card) else {
+            return Self::fail("nothing-to-renew");
+        };
+        contributor.contribute("card", card);
+        Self::succeed()
     }
 }
 // ANCHOR_END: rescue
@@ -205,7 +204,7 @@ impl Ship {
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
         let Some(tracking) = carrier.send(&self.order) else {
-            return Self::fail_retriably("carrier-unavailable");
+            return Self::fail_retriably("carrier-down");
         };
         stock.hand_over(&self.order);
         contributor.contribute("tracking", tracking);
@@ -282,6 +281,9 @@ impl Reporter for Log {
                 println!("  WARN {}, attempt {}: {code}", step.step, step.attempt);
             }
             EventBody::StepRetrying { step, .. } => println!("  INFO {} tried again", step.step),
+            EventBody::StepRescuing { step, rescue, .. } => {
+                println!("  INFO {} rescued by {rescue}", step.step);
+            }
             EventBody::StepGivenUp { step, cause, .. } => {
                 println!("  WARN {} given up: {cause}", step.step);
             }
@@ -348,8 +350,8 @@ struct NewOrder {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         ("A-1", "Ann", "ann-card", 40, Some(5)),
-        ("A-2", "Bea", "bea-card", 25, None),
-        ("A-3", "Cal", "cal-card", 30, None),
+        ("A-2", "Ben", "ben-card", 25, None),
+        ("A-3", "Cat", "cat-card", 30, None),
         ("A-4", "Dan", "dan-card", 15, None),
     ];
     let mut executor = LocalExecutor::new();

@@ -47,7 +47,7 @@ name: ch19_input_adapter
 6. **Its mistakes stop the journey.** An adapter that fails stops the step from being built, and the journey is aborted with `step could not be built`. A value of the wrong type aborts it with `wrong type`. Attaching two adapters to one step, or an adapter to a step the workflow does not have, is refused before any journey.
 7. **Only steps are adapted.** Hooks read data from the workflow straight from the data bag, since a policy acts on behalf of the workflow and needs no adapting.
 
-Try giving the first order a discount of 40: the adapter supplies 0, the charge fails with `nothing-to-charge` without knowing there ever was a discount, and the journey fails, with no receipt to read.
+Try giving the first order a discount of 40: the adapter supplies 0, the charge fails with `nothing-to-charge` without knowing there ever was a discount, and the journey fails. The failed journey's data has no amount charged and no receipt, so the program stops with an error when it reads them back.
 
 ## Remember
 
