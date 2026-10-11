@@ -1,0 +1,15 @@
+created order-A-1
+  order-A-1 journey_started
+  order-A-1 attempt_started
+  order-A-1 step_succeeded
+  order-A-1 contribution_committed
+  order-A-1 journey_succeeded
+order-A-1 succeeded
+created order-A-2
+  order-A-2 journey_started
+  order-A-2 attempt_started
+  order-A-2 step_failed
+  order-A-2 step_given_up
+  order-A-2 journey_failed
+order-A-2 failed
+not created: the journey ID could not be produced: the data bag holds no value under `order`
