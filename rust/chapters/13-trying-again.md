@@ -56,7 +56,7 @@ region: workflow
 
 ## How it works
 
-1. **An attempt is one run of a step.** The first is attempt 1, which is why the attempt number is a `NonZeroU32`, and every attempt after it is a retry, except the run that follows a rescue step, which [chapter 14](14-repairing-then-trying-once-more.md) shows. Each attempt builds a fresh step from the data of the moment, so nothing carries over from a failed attempt but what was committed to the data bag.
+1. **An attempt is one execution of a step.** The first is attempt 1, which is why the attempt number is a `NonZeroU32`, and every attempt after it is a retry, except the attempt that follows a rescue step, which [chapter 14](14-repairing-then-trying-once-more.md) shows. Each attempt builds a fresh step from the data of the moment, so nothing carries over from a failed attempt but what was committed to the data bag.
 2. **The retry budget is how many retries a step allows.** It is declared for each step in the workflow, with `retry_budget = N` on the step's line, and is 0 unless you say otherwise. With a budget of 1, the ship step runs at most twice.
 3. **Only a retriable failure is retried.** The step says whether trying again might help, and the workflow decides whether it will. The order without an address fails through `Self::fail`, without the retriable flag: the step is given up at once, with the cause `failure`, even though its budget is untouched.
 4. **An abnormal termination isn't retried, unless the step's line allows it.** An error the step didn't expect may already have done something, so by default an `Err` from `run` ends the step at once. Adding `abnormal_termination_retriable` to the step's `#[with_step(...)]` line declares that it may be retried, and it then uses the same budget as a retriable failure.
@@ -70,7 +70,7 @@ Try giving the ship step a retry budget of 0: the first order is given up after 
 ## Remember
 
 1. A step says whether a failure is retriable; the workflow's retry budget decides whether it is retried.
-2. A step with a retry budget of N runs at most N + 1 times, or twice when it has a rescue step, since the run after a rescue isn't a retry; the budget is 0 unless the workflow declares it.
+2. A step with a retry budget of N runs at most N + 1 times, or twice when it has a rescue step, since the attempt after a rescue isn't a retry; the budget is 0 unless the workflow declares it.
 3. A failure that isn't retriable, from `Self::fail`, is never retried, whatever the budget.
 4. An abnormal termination is retried only when the step's line says `abnormal_termination_retriable`, and it then uses the same budget.
 5. Every attempt builds a fresh step: a failed attempt's contributions never reach the next one, and a retry hook's contributions do.

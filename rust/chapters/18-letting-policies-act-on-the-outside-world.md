@@ -14,7 +14,7 @@ region: role
 asynchronous: ch18_roles_async
 ```
 
-In the asynchronous form, the trait is declared `trait Messages: Sync`, because an asynchronous hook holds the role across `.await`.
+In the asynchronous form, the trait is declared `trait Messages: Sync`, because an asynchronous hook's future must be `Send`, and the role it borrows goes into that future.
 
 The `notify` policy asks for the role with a parameter marked `#[role]`, of type `&dyn Messages`, just as it asks for data with `#[from_workflow]`, and tells the customer how the order went. It doesn't know whether the message goes by email.
 

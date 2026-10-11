@@ -13,7 +13,7 @@ name: ch03_shop
 region: workflow
 ```
 
-This program uses two things that are in the specification but not in `itinera` yet: services and rescue steps. So it waits in the book's `pending` directory, and is neither compiled nor run. Both arrive in `itinera` before `0.1.0-rc.1`, and the program is written against the syntax planned for them, which may still change.
+This program uses services, which are in the specification but not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). So it waits in the book's `pending` directory, and is neither compiled nor run. Services arrive in `itinera` before `0.1.0-rc.1`, and the program is written against the syntax planned for them, which may still change.
 
 The steps talk to the bank, the warehouse and the carriers through **services**: objects a step asks for by a key, such as `payments`, and uses without knowing which implementation it got. The workflow supplies each one through a **provider**, which also decides how long an instance lasts: one for the whole journey, or a fresh one for every attempt. [Chapter 12](12-giving-a-step-the-tools-it-needs.md) teaches both.
 
@@ -31,7 +31,7 @@ name: ch03_shop
 region: rescue
 ```
 
-A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields are its inputs, marked `#[input]`; data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`; the reason of that failure, marked `#[reason]`; and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`. There is no way to skip, so a rescue step that skips cannot be written in Rust. The workflow attaches it with `rescue = RenewCard` on the step's `#[with_step(...)]` line; a `rescue` together with a `retry_budget` on the same line will not compile.
+A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`; data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`; the reason of that failure, marked `#[reason]`; and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`. There is no way to skip, so a rescue step that skips cannot be written in Rust. The workflow attaches it with `rescue = RenewCard` on the step's `#[with_step(...)]` line; a `rescue` together with a `retry_budget` on the same line will not compile.
 
 The program runs the four orders of chapter 1. When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
 

@@ -26,7 +26,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## Services and rescue steps
 
-[Services](12-giving-a-step-the-tools-it-needs.md) and [rescue steps](14-repairing-then-trying-once-more.md) are in the specification now, rescue steps in its [chapter 7](https://github.com/itinera-dev/spec/blob/main/spec/07-rescue-steps.md), but not in `itinera` yet. Both arrive in the crate before `0.1.0-rc.1`, which can't be released until every proposal of tier 1 is in its report. Until then, the examples that use them wait in `pending/`: they are written against the syntax planned for them, which may still change, and are neither compiled nor run. The book says so wherever it shows one.
+[Rescue steps](14-repairing-then-trying-once-more.md), the specification's [chapter 7](https://github.com/itinera-dev/spec/blob/main/spec/07-rescue-steps.md), are in `itinera` now, and so are the book's examples of them. [Services](12-giving-a-step-the-tools-it-needs.md) are in the specification too, but not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). They arrive in the crate before `0.1.0-rc.1`, which can't be released until every proposal of tier 1 is in its report. Until then, the examples that use them wait in `pending/`: they are written against the syntax planned for them, which may still change, and are neither compiled nor run. The book says so wherever it shows one.
 
 ## Capabilities
 
@@ -34,7 +34,7 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.8`, and lists every proposal of specification 0.1 as passing except rescue steps (proposal 3) and services (proposal 95), which the crate doesn't implement yet.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/b2296011cc9a41d6a76f58cc582d959d74163978/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.9`, and lists every proposal of specification 0.1 as passing except services (proposal 95), which the crate doesn't implement yet.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 

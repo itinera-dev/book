@@ -22,7 +22,7 @@ name: quick_start
 region: policy
 ```
 
-A reporter receives every event of the journey. It is any type that implements the `Reporter` trait, and this one prints each event on a line of its own.
+A reporter receives every event of the journey. It is any type that implements the `Reporter` trait, and this one prints each event on a line of its own. A reporter listed in `reporters = [...]` also derives `Default`, since a new one is made for every journey.
 
 ```example
 name: quick_start

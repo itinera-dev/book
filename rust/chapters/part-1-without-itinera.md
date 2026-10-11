@@ -20,7 +20,7 @@ What it mixes, in almost every function:
 
 ## The same shop with Itinera
 
-Here is the workflow of chapter 3 again. Its program uses services and rescue steps, which are not in `itinera` yet, so it is not compiled yet.
+Here is the workflow of chapter 3 again. Its program uses services, which are not in `itinera` yet, so it is not compiled yet.
 
 ```example
 name: ch03_shop

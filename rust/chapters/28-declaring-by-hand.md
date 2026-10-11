@@ -80,13 +80,13 @@ region: run
 asynchronous: ch28_by_hand_async
 ```
 
+The asynchronous form changes the step, the hooks and the executor to their asynchronous kinds, and declares the workflow asynchronous; everything else is the same. The step implements `AsyncStep` and its factory `AsyncStepFactory`, the hooks implement `AsyncOnStepSuccess` and `AsyncOnWorkflowSuccess`, the descriptors are made with `new_async` and `WorkflowDescriptor::async_builder`, and the instance runs on `AsyncLocalExecutor`. An asynchronous hook's future must be `Send`, and the role it borrows goes into that future, which is why `Messages` is declared `trait Messages: Sync` there.
+
 It prints exactly what the short form printed:
 
 ```output
 name: ch28_by_hand
 ```
-
-The asynchronous form changes the step, the hooks and the executor to their asynchronous kinds, and declares the workflow asynchronous; everything else is the same. The step implements `AsyncStep` and its factory `AsyncStepFactory`, the hooks implement `AsyncOnStepSuccess` and `AsyncOnWorkflowSuccess`, the descriptors are made with `new_async` and `WorkflowDescriptor::async_builder`, and the instance runs on `AsyncLocalExecutor`. A role a hook holds across an `.await` must be `Sync`, which is why `Messages` is declared `trait Messages: Sync` there.
 
 ## How it works
 

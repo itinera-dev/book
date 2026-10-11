@@ -46,13 +46,13 @@ region: run
 asynchronous: ch23_events_async
 ```
 
+In the asynchronous form, the reporters implement `AsyncReporter`, with an `async fn report`; the workflow is declared `asynchronous` and lists them under `async_reporters`; the instance adds one with `.async_reporter(...)`; and the step's `run` is an `async fn` whose `AsyncStepReporter` is awaited.
+
 It prints:
 
 ```output
 name: ch23_events
 ```
-
-In the asynchronous form, the reporters implement `AsyncReporter`, with an `async fn report`; the workflow is declared `asynchronous` and lists them under `async_reporters`; the instance adds one with `.async_reporter(...)`; and the step's `run` is an `async fn` whose `AsyncStepReporter` is awaited.
 
 ## How it works
 

@@ -6,7 +6,7 @@ The shop's steps talk to the outside world: the charge to a payment client, the 
 
 ## The code
 
-Services aren't in `itinera` yet, so this chapter's program waits in `pending/` and isn't compiled. It's written against the planned API, which may still change.
+Services aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so this chapter's program waits in `pending/` and isn't compiled. It's written against the planned API, which may still change.
 
 Each tool is a trait that says what it can do, and nothing more. These traits are all a step knows of them. Each is `Send + Sync`, as the planned API asks of a service's trait.
 
@@ -40,10 +40,10 @@ When it runs, the warehouse opens one stock store, which reserves the order; the
 
 ## How it works
 
-1. **A service is a tool, not data.** A payment client, a stock store or a carrier is an object a step uses to do its business. It isn't a value: it never enters the data bag, an event or the result. In Rust it is a trait object, such as `dyn StockStore`.
+1. **A service is a tool, not data.** A payment client, a stock store or a carrier is an object a step uses to do its business. It isn't a value: it never enters the data bag, an event or the result. In Rust it is usually a trait object, such as `dyn StockStore`.
 2. **A step asks for a service by a key.** As it asks for an input, a step asks for a service by a key and by what it must be able to do: the parameter `#[service] stock: &dyn StockStore` asks for the key `stock`, the parameter's name, and the trait `StockStore`. `#[service("key")]` names another key. A service is always required. The step uses what it gets without knowing which implementation it is, or where it came from.
 3. **The workflow provides each service.** For each key, the workflow has a provider: part of the workflow, which makes the service when a step needs it. A provider is a method marked `#[provider]` in the workflow's `#[workflow]` block, and its key is the method's name, unless `key = "..."` names it. It returns `Result<Box<dyn StockStore>, Error>`. Since it takes `&self`, it can use the workflow's own fields, such as a connection pool.
-4. **A missing provider is caught before any journey.** A workflow that lists a step asking for a key it doesn't provide is refused before any journey, with the violation `service not provided`: a violation is a mistake in the workflow's declaration, found before any journey can start. With the macros, Rust catches it earlier still: the program doesn't compile. Neither do two providers of one key serving the same step, and a provider whose type differs from what a step asks for.
+4. **A missing provider is caught before any journey.** A workflow that lists a step asking for a key it doesn't provide is refused before any journey, with the violation `service not provided`: a violation is a mistake in the workflow's declaration, found before any journey can start. With the macros, Rust catches it earlier still: the program doesn't compile. Nor do two providers of one key serving the same step, or a provider whose type differs from what a step asks for.
 5. **The provider decides how long a service lasts.** A provider makes either one instance for the whole journey, or a fresh one for every attempt:
    1. **For the whole journey,** with `#[provider]`: the provider is called the first time a step asks for the key, and every later attempt of every step that asks for it receives that same instance. The journey's stock store is opened once, used by the reservation and then by the shipping, which finds the order the reservation made. A journey that never asks for a key never makes its service.
    2. **For every attempt,** with `#[provider(per_attempt)]`: the provider is called for each attempt of each step that asks for the key, retries included, and that instance serves that attempt only. Each attempt of the shipping gets a fresh booking with the carrier, so a failed attempt's booking is never reused. [Chapter 13](13-trying-again.md) uses this to give the second attempt the backup carrier.

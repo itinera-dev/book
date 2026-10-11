@@ -73,9 +73,15 @@ name: ch25_rescue
 region: workflow
 ```
 
-Rescue steps are not in `itinera` yet, so this program waits in `pending/`: it is neither compiled nor run, and its syntax may still change before they arrive. A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields are its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`. The executor names it after the step it rescues, `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` won't compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
+A rescue step has a derive and a block of its own: its struct derives `RescueStep`, and its `run` is in a `#[rescue_step]` block. Its fields can be its `#[input]` inputs, read from the data bag, any `#[from_rescued_step]` data the failed attempt contributed, the failure's `#[reason]`, an `Option<Reason>` that is `None` after an abnormal termination, and its `#[error]`, an `Option<Error>`. Its `run` returns a `RescueOutcome`, made with `Self::succeed()`, `Self::fail(..)` or `Self::fail_retriably(..)`. The executor names it after the step it rescues, `charge_rescue`. A `#[with_step]` line that gives both `rescue` and a `retry_budget` won't compile; declared by hand, `build()` reports it as the violation `rescued step retried`.
 
-When it runs, the order paid with an expired card succeeds: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge runs once more and succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
+It prints:
+
+```output
+name: ch25_rescue
+```
+
+The order paid with an expired card succeeds now: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge's attempt 2 succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
 
 Now a counter-example. This charge works, and its journey succeeds, but it repairs the card itself and tells the customer itself, with a `println!` in the middle of the business rule.
 

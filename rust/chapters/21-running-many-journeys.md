@@ -6,7 +6,7 @@ Orders come in all day. You want to run the shop's workflow once for every order
 
 ## The code
 
-The workflow charges, then ships. Each journey is named after its order, as chapter 20 showed, so the output below is the same on every run.
+The workflow charges, then ships. Each journey is named after its order, as [chapter 20](20-naming-your-journeys.md) showed, so the output below is the same on every run.
 
 ```example
 name: ch21_many_journeys
@@ -64,7 +64,7 @@ name: ch21_instance_run_twice
 1. **The workflow is declared once; its instances are many.** The workflow is the plan, the same for every order. A workflow instance is one order's copy of that plan: it's made for one journey, with that journey's initial data, its journey ID and its reporters, and it holds everything the journey changes. Its initial data is what the data bag starts with.
 2. **Creating an instance is three calls.** `Orders::builder()` starts a new instance, `initial_data` gives it the order, and `create` makes it. Creating it can fail before any journey, with an `InstanceError`, when the workflow's ID generator or a reporter fails while the instance is made. That isn't a refusal, since the executor isn't involved yet; the `?` in the loop simply hands the error to `main`.
 3. **The executor runs one journey at a time and remembers nothing.** The executor here is `LocalExecutor`, the local executor, which runs a journey inside your program, without saving anything: the journey lives only as long as the call to `run`. When `run` returns, nothing of that journey remains in the executor, so the failure of order A-2 has no effect on order A-3, and the same executor runs every order of the day. On the asynchronous executor, `AsyncLocalExecutor`, the loop is the same, with the call to `run` awaited.
-4. **A journey that fails still has a result.** Order A-2 has nothing to charge, so its journey failed, but `run` returned its result like any other. Whatever happens inside a journey, a failure or even an abort, is in its result, which chapter 22 reads in detail.
+4. **A journey that fails still has a result.** Order A-2 has nothing to charge, so its journey failed, but `run` returned its result like any other. Whatever happens inside a journey, a failure or even an abort, is in its result, which [chapter 22](22-reading-the-result.md) reads in detail.
 5. **An instance runs at most one journey, and the compiler checks it.** The executor's `run` takes the instance by value, so once an instance has run it's gone: using it again is the "use of moved value" error above, not something that waits to be found while the shop is open. To run an order again, for example after the customer has corrected it, create a new instance with the corrected data.
 6. **Side by side means several executors.** An executor never runs two journeys at once. Its `run` borrows it mutably, so starting a second journey on the same executor while one is running doesn't compile either. To run journeys in parallel, give each thread its own `LocalExecutor`.
 7. **A refusal means no journey started.** The executor's `run` returns `Result<JourneyResult, Refusal>`, and a refusal is the `Err`: the journey couldn't start, so there's no journey, no event and no result. Nothing ran, so order A-1 was not charged and there is nothing to undo. Fix the cause, then run the order again with a new instance.

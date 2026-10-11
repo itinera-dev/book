@@ -83,7 +83,7 @@ With Itinera:
 4. After each outcome, and when the journey ends, it calls the policies, which hold flow decisions, such as auditing the charge, picking the backup carrier and telling the customer.
 5. It sends every event of every journey to the reporters, in one standard form.
 
-Itinera is also more than one crate. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each language's implementation, `itinera` among them, is checked against the same conformance suite. A workflow means the same thing in every language, and every language's book tells the same story: this one tells it in Rust.
+Itinera is also more than this crate. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each language's implementation, `itinera` among them, is checked against the same conformance suite. A workflow means the same thing in every language, and every language's book tells the same story: this one tells it in Rust.
 
 ## Where the name comes from
 
@@ -106,6 +106,6 @@ The book follows one small online shop from start to finish. It charges orders, 
 
 Every part but the last ends with a section called "Without Itinera", which puts the same shop, written the usual way, beside the Itinera version, so you can judge the difference for yourself.
 
-You can read the book from the start, or jump to the chapter you need: every example is a complete Rust program that runs on its own.
+You can read the book from the start, or jump to the chapter you need: every example is a complete Rust program that runs on its own, or will once `itinera` has the few features some of them wait for.
 
 Let's begin.

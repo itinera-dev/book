@@ -126,7 +126,7 @@ name: part5_testing_the_fallback
 region: journey
 ```
 
-When it runs, the program prints an `ok` line for each of its four checks, as chapter 24's program does.
+When it runs, the program prints an `ok` line for each of its four checks, as [chapter 24](24-testing-your-workflows.md)'s program does.
 
 Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapter 24](24-testing-your-workflows.md) tests the shop the same way: a step alone, a policy alone on a stand-in step, and a whole journey by its events.
 

@@ -41,7 +41,7 @@ name: ch24_testing
 region: journey
 ```
 
-The program runs every check, and stops at the first that doesn't hold.
+The program runs every check, and stops at the first that doesn't hold. So that the book can show you what it prints, this is a program with a small `check` helper. In your own crate, the same checks sit in a test module, `#[cfg(test)] mod tests`, one `#[test]` function per check, named after the rule it checks, such as `a_free_order_is_never_shipped`, with `assert_eq!` in place of `check`. Then `cargo test` runs them all and reports each one.
 
 ```example
 name: ch24_testing
@@ -53,8 +53,6 @@ It prints:
 ```output
 name: ch24_testing
 ```
-
-So that the book can show you what it prints, this is a program with a small `check` helper. In your own crate, the same checks sit in a test module, `#[cfg(test)] mod tests`, one `#[test]` function per check, named after the rule it checks, such as `a_free_order_is_never_shipped`, with `assert_eq!` in place of `check`. Then `cargo test` runs them all and reports each one.
 
 ## How it works
 

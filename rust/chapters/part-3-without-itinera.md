@@ -4,7 +4,7 @@ Part 3 wrote the shop's steps: what they need, what they contribute, how they sa
 
 ## A function that decides what happens next
 
-Without Itinera, the charge calls the bank, and when the bank times out, it decides on its own to try again, up to three times, in a `loop` around a `match` on the bank's `Result`. Once the money is taken, it ships the order itself.
+Without Itinera, the charge calls the bank, and when the bank times out, it decides on its own to try again, up to three attempts in all, in a `loop` around a `match` on the bank's `Result`. Once the money is taken, it ships the order itself.
 
 ```example
 name: part3_retry_in_business_code

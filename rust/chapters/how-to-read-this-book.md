@@ -35,7 +35,7 @@ Every piece of code in the book is part of a complete program in the book's repo
 Each block of code has a caption naming the program it comes from, with a link to the whole program. A few captions carry a mark:
 
 1. **The asynchronous form.** A step, a hook or a reporter can be synchronous or asynchronous, and Rust offers both: an `async fn` where the synchronous form has a `fn`, run by `AsyncLocalExecutor` instead of `LocalExecutor`. The two forms differ very little, so each chapter shows the synchronous form first, and where the asynchronous form of the same code differs, it follows right after, with a caption that says so.
-2. **Not compiled yet.** A program that uses a feature `itinera` does not have yet, such as services or rescue steps, is shown, but it waits in the book's `pending` directory and isn't compiled until that feature arrives. Its caption says so.
+2. **Not compiled yet.** A program that uses a feature `itinera` does not have yet, such as services, is shown, but it waits in the book's `pending` directory and isn't compiled until that feature arrives. Its caption says so.
 3. **Does not compile.** Some mistakes can't even be written: Rust's types and Itinera's macros refuse them before your program ever runs. When the book shows one, the caption says the program does not compile, and what the compiler says follows it, word for word.
 
 ## Words with one meaning

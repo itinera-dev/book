@@ -10,7 +10,7 @@ The shop's workflow is put together from many parts: steps with their names, pol
 
 This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the pricing adapter is attached to `charging`, a step the workflow doesn't have.
 
-A workflow declared with `#[workflow(...)]` and holding these mistakes wouldn't compile at all, as the next section shows. So that you can see the mistakes as data, this example declares the shop by hand, with `WorkflowDescriptor::builder`, as chapter 28 explains; the program then compiles, and the violations appear when it runs.
+A workflow declared with `#[workflow(...)]` and holding these mistakes wouldn't compile at all, as the next section shows. So that you can see the mistakes as data, this example declares the shop by hand, with `WorkflowDescriptor::builder`, as [chapter 28](28-declaring-by-hand.md) explains; the program then compiles, and the violations appear when it runs.
 
 ```example
 name: ch27_violations
@@ -24,6 +24,10 @@ name: ch27_violations
 region: report
 ```
 
+`Violations` holds the violations in a fixed order, and each `Violation` displays as the specification names it, followed by what it concerns. When your code needs to tell them apart, `kind()` gives its `ViolationKind`.
+
+Two mistakes never become a violation in the long form. Two input adapters of one name make the builder panic while the workflow is declared, with a message saying what was wrong. An empty step name doesn't compile, since `step_name!` checks it.
+
 Fixed, the declaration lists each step once, keeps one policy for the charge's success, and attaches the adapter to `charge`.
 
 ```example
@@ -36,10 +40,6 @@ It prints:
 ```output
 name: ch27_violations
 ```
-
-`Violations` holds the violations in a fixed order, and each `Violation` displays as the specification names it, followed by what it concerns. When your code needs to tell them apart, `kind()` gives its `ViolationKind`.
-
-Two mistakes never become a violation in the long form. Two input adapters of one name make the builder panic while the workflow is declared, with a message saying what was wrong. An empty step name doesn't compile, since `step_name!` checks it.
 
 ### Caught when the program is compiled
 
@@ -122,7 +122,7 @@ The refusal is all there is to see. A refused journey has no events: had the wor
    | `input adapter for unknown step` | an input adapter is attached to a step the workflow doesn't have, a rescue step included | attach it to a step the workflow lists, spelled as the workflow names it |
    | `rescued step retried` | a step has both a rescue step and a retry budget above 0 | keep one of them: a step with a rescue step is never retried |
 
-3. **Rust catches these as early as it can.** The specification asks implementations to report violations when the program is compiled wherever the language allows it, and Rust allows a lot. With the attributes, every violation in the table is a compile error. By hand, `build()` returns them as `Violations` when the program runs, before any journey, except `role not provided` and `mode not accepted`, which Rust's types rule out in either form.
+3. **Rust catches these as early as it can.** The specification asks implementations to report violations when the program is compiled wherever the language allows it, and Rust allows a lot. With the attributes, every violation in the table is a compile error, those about services included once services arrive. By hand, `build()` returns them as `Violations` when the program runs, before any journey, except `role not provided` and `mode not accepted`, which Rust's types rule out in either form.
 4. **Some rules can't be broken at all.** The specification lets a language make some mistakes impossible to write, and `itinera` lists the ones it does in its `conformance.json`, each proven by a test of its own:
    - a hook returning a lifecycle it may not return: each hook's return type lists only the lifecycles that hook may return. `on step failure` returns a `Result<Option<FailWorkflow>, Error>`, and `Self::finish_workflow()` gives a `Result<Option<OnSuccess>, Error>`, the return type of `on step success`, the only hook that may return `FinishWorkflow`. The types don't match, which is what the message says;
    - a policy attached to a workflow that doesn't provide its role: the workflow must implement `Provides<dyn Messages>`, which `#[role]` does on its implementation of the role's trait;
@@ -130,7 +130,7 @@ The refusal is all there is to see. A refused journey has no events: had the wor
    - something that is not a value in the data bag, in initial data, in an input adapter's answer, in a reason's details or in an event: all of them must implement `Value`, which needs the type to be `Clone` and to serialise and deserialise with serde;
    - a step's contributor or step reporter used after its attempt, or an input adapter's access to the data bag used after its call: their lifetimes end there;
    - an input adapter writing through its access to the data bag, which is read-only;
-   - a rescue step that skips, once rescue steps arrive: a `RescueOutcome` has no skip.
+   - a rescue step that skips: a `RescueOutcome` has no skip.
 5. **A refusal is not a result.** When a journey can't start, `run` returns a `Refusal` as its `Err` instead of a journey result. The specification refuses a journey when the workflow is refused at admission, and when the workflow's own code called before the journey starts fails. In Rust, admission has already happened by the time you call `run`, so what's left is that code: a workflow policy while it is built, or the dispatcher factory and dispatcher that deliver the events. A refusal has no journey and no events. It's never a business outcome: nothing ran, so fix the cause and run a new instance.
 6. **One instance, one journey.** The specification refuses an instance that has already run. In Rust you can't even try: `run` takes the instance by value, as [chapter 21](21-running-many-journeys.md) shows.
 7. **The rest shows up during a journey.** Some mistakes can't be seen before a journey runs: a step that can't be built, required data missing from the data bag, or a value of the wrong type. Each aborts the journey with its own abort reason, as [chapter 22](22-reading-the-result.md) shows. A step policy, built afresh for every attempt, is one of them: when its `#[factory]` fails, the journey is aborted, not refused.

@@ -14,7 +14,7 @@ name: part4_usual_checkout
 
 The output is honest about what the code logs, and silent about the rest: the bank's timeout on Ann's order was retried, and nothing says so.
 
-The Itinera side of this comparison uses services and rescue steps, which aren't in `itinera` yet. So the Itinera versions of the circuit breaker, the carrier's provider and the card's repair wait in `pending/` and aren't compiled; they follow the agreed designs, and their syntax may still change.
+The Itinera side of this comparison uses services, which aren't in `itinera` yet. So the Itinera versions of the circuit breaker and the carrier's provider wait in `pending/` and aren't compiled; they follow the agreed design, and their syntax may still change. The card's repair, a rescue step, is compiled and run like any other example.
 
 ## Retry strategies that multiply
 

@@ -6,8 +6,6 @@ Cards expire. When the charge fails because the customer's card has expired, try
 
 ## The code
 
-Rescue steps aren't in `itinera` yet. The specification defines them, and they'll come in a later release; until then, this chapter's program waits in `pending/` and isn't compiled. It follows the planned syntax, which may still change.
-
 The charge step charges the card it is given. An expired card is a failure, with the reason `expired-card`, and nothing more: the step doesn't try to fix it.
 
 ```example
@@ -36,7 +34,13 @@ name: ch14_rescue
 region: run
 ```
 
-When it runs, Ann's journey reports, in order:
+It prints:
+
+```output
+name: ch14_rescue
+```
+
+Ann's journey reports, in order:
 
 1. the charge's attempt 1 starts, and fails with `expired-card`;
 2. `step_rescuing`: the charge will be rescued by `charge_rescue`, after a failure;
