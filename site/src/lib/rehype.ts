@@ -38,6 +38,12 @@ export function rehypeListingNames() {
 }
 
 /**
+ * How much wider than tall a diagram is before it scrolls at phone width
+ * instead of shrinking until its words are too small to read.
+ */
+const WIDE = 2;
+
+/**
  * Puts each diagram in a figure captioned with its title.
  *
  * The diagrams are drawn at build time as images, one for each colour scheme,
@@ -45,6 +51,10 @@ export function rehypeListingNames() {
  * arrives as a `title` attribute, which most screen readers either ignore or
  * read twice; it becomes the figure's visible caption instead. The text after
  * each diagram in the chapter still says everything it shows.
+ *
+ * A wide diagram, such as two pictures side by side, keeps a size its words
+ * can be read at and scrolls inside its own box at phone width. Like a table's,
+ * that box is a focusable group named after the diagram.
  */
 export function rehypeDiagrams() {
 	return (tree: Root) => {
@@ -56,12 +66,20 @@ export function rehypeDiagrams() {
 			delete image.properties.title;
 			image.properties.loading = 'lazy';
 			image.properties.decoding = 'async';
+			const wide = Number(image.properties.width) > WIDE * Number(image.properties.height);
 			const figure: Element = {
 				type: 'element',
 				tagName: 'figure',
-				properties: { className: ['diagram'] },
+				properties: { className: wide ? ['diagram', 'diagram--wide'] : ['diagram'] },
 				children: [
-					node,
+					wide
+						? {
+								type: 'element',
+								tagName: 'div',
+								properties: { className: ['diagram__scroll'], role: 'group', tabIndex: 0, ariaLabel: `Diagram: ${title}` },
+								children: [node],
+							}
+						: node,
 					...(title === ''
 						? []
 						: [

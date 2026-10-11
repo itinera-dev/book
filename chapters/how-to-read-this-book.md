@@ -30,7 +30,7 @@ Every chapter has the same four sections, so you can jump straight to the one yo
 
 ## Code you can trust
 
-Every piece of code in the book is part of a complete program in the book's repository, checked every time the book changes, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does.
+Every piece of code in the book is part of a complete program in the book's repository, checked every time the book changes unless its caption says otherwise, and every output you see is what that program really printed. Nothing is pasted in by hand, so nothing in the book can drift away from what Itinera does.
 
 Each block of code has a caption naming the program it comes from, with a link to the whole program. A few captions carry a mark:
 

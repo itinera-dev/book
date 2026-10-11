@@ -483,6 +483,23 @@ pre.shiki code {
 	margin: 0 auto;
 }
 
+.diagram__scroll {
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+/* A wide diagram leaves the text column for as much of the screen as it can
+   use, and at phone width keeps a readable size and scrolls instead. */
+.diagram--wide {
+	width: min(100vw - 2rem, 90rem);
+	margin-left: 50%;
+	transform: translateX(-50%);
+}
+
+.diagram--wide img {
+	min-width: 64rem;
+}
+
 .diagram__caption {
 	margin-top: 0.5rem;
 	color: var(--ink-muted);
