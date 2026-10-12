@@ -43,7 +43,8 @@ export function resolveLink(url: string, from: string, pages: ReadonlySet<string
 		}
 		return pageHref(chapter[1]) + fragment;
 	}
-	return sourceHref(path.endsWith('/') && !target.endsWith('/') ? `${target}/` : target) + fragment;
+	// The repository's root normalises to `./`, which GitHub names by no path at all.
+	return sourceHref(target === './' ? '' : target) + fragment;
 }
 
 /** Rewrites every link and link definition of a tree written in `from`. */

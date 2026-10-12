@@ -120,7 +120,7 @@ interface Listing {
 	code: string;
 }
 
-/** A link whose text is a file's name, written as code, as Markdown writes file names. */
+/** A link whose text is a file's or a program's name, written as code, as Markdown writes such names. */
 function codeLink(node: PhrasingContent): PhrasingContent {
 	if (node.type !== 'link') return node;
 	return { ...node, children: node.children.map((child) => (child.type === 'text' ? { type: 'inlineCode', value: child.value } : child)) };
@@ -173,6 +173,9 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 				]),
 			];
 		};
+
+		/** A program's name in a caption's text: code in the Markdown copy, plain on the web page. */
+		const programName = (value: string): PhrasingContent => (markdown ? { type: 'inlineCode', value } : text(value));
 
 		const programCaption = (lead: string, name: string, path: string, after: PhrasingContent[] = []) => [
 			element('span', { className: ['listing__language'] }, [text(edition.name)]) as PhrasingContent,
@@ -251,7 +254,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			const shown = [
 				...figure({
 					classes: ['listing--output'],
-					caption: [text(`What ${directive.name} prints, recorded in `), link(sourceHref(repoPath(sync.path)), `${directive.name}.txt`)],
+					caption: [text('What '), programName(directive.name), text(' prints, recorded in '), link(sourceHref(repoPath(sync.path)), `${directive.name}.txt`)],
 					lang: 'text',
 					code: sync.text,
 				}),
@@ -264,7 +267,9 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 						...figure({
 							classes: ['listing--output', 'listing--asynchronous'],
 							caption: [
-								text(`What the asynchronous form ${asynchronous} prints, recorded in `),
+								text('What the asynchronous form '),
+								programName(asynchronous),
+								text(' prints, recorded in '),
 								link(sourceHref(repoPath(other.path)), `${asynchronous}.txt`),
 							],
 							lang: 'text',
@@ -290,7 +295,9 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 				...figure({
 					classes: ['listing--output', 'listing--compiler'],
 					caption: [
-						text(`What the compiler says about ${directive.name}, recorded in `),
+						text('What the compiler says about '),
+						programName(directive.name),
+						text(', recorded in '),
 						link(sourceHref(repoPath(`compile-errors/${directive.name}.txt`)), `${directive.name}.txt`),
 					],
 					lang: 'text',
