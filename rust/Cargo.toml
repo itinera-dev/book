@@ -12,5 +12,6 @@ itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "c99accf4c8
 futures = { version = "0.3", default-features = false, features = ["executor"] }
 
 [dev-dependencies]
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "c99accf4c8c42bf781b519636925f862a54cc3ca", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"

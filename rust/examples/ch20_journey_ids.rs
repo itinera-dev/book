@@ -1,11 +1,9 @@
 //! Naming your journeys: the workflow makes each journey's ID from its order.
 
 use itinera::error::Error;
-use itinera::event::Event;
 use itinera::executor::LocalExecutor;
 use itinera::instance::WorkflowInstance;
 use itinera::journey::{Contributor, DataBag, InitialData};
-use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -27,20 +25,9 @@ impl Charge {
     }
 }
 
-/// Prints the journey ID and kind of every event.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        println!("  {} {}", event.journey_id, event.kind());
-        Ok(())
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: each journey is named after its order.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
 struct Orders;
 

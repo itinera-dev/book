@@ -2,10 +2,10 @@
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, DataBag, InitialData, JourneyId};
+use itinera::journey::{Contributor, InitialData};
 use itinera::policy::workflow_policy;
 use itinera::step::{Outcome, Step, step};
-use itinera::workflow::{role, workflow};
+use itinera::workflow::workflow;
 
 /// Charges an order's price.
 #[derive(Step)]
@@ -23,11 +23,6 @@ impl Charge {
         contributor.contribute("charged", self.price);
         Self::succeed()
     }
-}
-
-/// The role the shop provides to policies: telling a customer something.
-trait Messages {
-    fn tell(&self, customer: &str, message: &str);
 }
 
 // ANCHOR: policy
@@ -59,11 +54,10 @@ impl Notify {
     #[on_workflow_success]
     fn paid(
         &self,
-        #[journey_id] order: &JourneyId,
         #[from_workflow] customer: String,
-        #[role] messages: &dyn Messages,
+        #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<(), Error> {
-        messages.tell(&customer, &format!("{order}: {}", self.templates.paid));
+        contributor.contribute("message", format!("{customer}, {}", self.templates.paid));
         Ok(())
     }
 }
@@ -73,21 +67,6 @@ impl Notify {
 #[workflow(name = "orders", policies = [Notify])]
 #[with_step(Charge, name = "charge")]
 struct Orders;
-
-#[role]
-impl Messages for Orders {
-    fn tell(&self, customer: &str, message: &str) {
-        println!("to {customer}: {message}");
-    }
-}
-
-#[workflow]
-impl Orders {
-    #[id_generator]
-    fn order_id(&self, data: &DataBag) -> Result<String, Error> {
-        Ok(data.required("order")?)
-    }
-}
 
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
@@ -107,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .create()?;
     match LocalExecutor::new().run(instance) {
-        Ok(result) => println!("{}: {}", result.journey_id, result.status.kind()),
+        Ok(result) => println!("the journey {}", result.status.kind()),
         Err(refusal) => println!("refused, nothing ran: {refusal}"),
     }
     Ok(())

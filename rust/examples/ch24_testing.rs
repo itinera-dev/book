@@ -1,18 +1,14 @@
 //! Testing the shop: the charge step alone, the notify policy alone, and a whole journey by its
-//! result and its events, against a fake outbox instead of the real email service.
-
-use std::sync::mpsc::{Receiver, Sender, channel};
+//! result and its events.
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::LocalExecutor;
-use itinera::journey::{
-    Contributor, DataBag, Failure, InitialData, JourneyId, JourneyResult, JourneyStatus, Output,
-};
+use itinera::journey::{Contributor, Failure, InitialData, JourneyResult, JourneyStatus, Output};
 use itinera::policy::workflow_policy;
-use itinera::report::Reporter;
+use itinera::report::RecordingReporter;
 use itinera::step::{Outcome, Step, step};
-use itinera::workflow::{role, workflow};
+use itinera::workflow::workflow;
 
 // ANCHOR: shop
 /// Charges an order's price.
@@ -48,131 +44,52 @@ impl Ship {
     }
 }
 
-/// The role the shop provides to policies: telling a customer something.
-trait Messages {
-    fn tell(&self, customer: &str, message: &str);
-}
-
-/// Tells the customer how the order went.
+/// Writes how the order went, for the customer, under `message`.
 #[derive(Default)]
 struct Notify;
 
 #[workflow_policy(name = "notify")]
 impl Notify {
     #[on_workflow_success]
-    fn paid(
+    fn shipped(
         &self,
-        #[journey_id] order: &JourneyId,
-        #[from_workflow] customer: String,
-        #[from_workflow] charged: i64,
-        #[role] messages: &dyn Messages,
+        #[from_workflow] order: String,
+        #[from_workflow] tracking: Option<String>,
+        #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<(), Error> {
-        messages.tell(&customer, &format!("{order}: paid {charged}"));
+        let message = match tracking {
+            Some(tracking) => format!("Order {order} is on its way, tracking {tracking}."),
+            None => format!("Order {order} is complete."),
+        };
+        contributor.contribute("message", message);
         Ok(())
     }
 
     #[on_workflow_failure]
-    fn sorry(
+    fn failed(
         &self,
-        #[journey_id] order: &JourneyId,
-        #[from_workflow] customer: String,
-        #[role] messages: &dyn Messages,
+        #[from_workflow] order: String,
+        #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<(), Error> {
-        messages.tell(
-            &customer,
-            &format!("{order}: we could not complete your order"),
-        );
+        let message = format!("We could not take order {order}.");
+        contributor.contribute("message", message);
         Ok(())
     }
 }
 
-/// Where the shop's messages go: an email service in production.
-trait Outbox: Send + Sync {
-    fn send(&self, to: &str, text: &str);
-}
-
-/// The shop's workflow: charge, then ship, then tell the customer, through its outbox.
+/// The shop's workflow: charge, then ship, then write the customer's message.
 #[workflow(name = "orders", policies = [Notify])]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]
-struct Orders {
-    outbox: Box<dyn Outbox>,
-}
-
-#[role]
-impl Messages for Orders {
-    fn tell(&self, customer: &str, message: &str) {
-        self.outbox.send(customer, message);
-    }
-}
-
-#[workflow]
-impl Orders {
-    #[id_generator]
-    fn order_id(&self, data: &DataBag) -> Result<String, Error> {
-        Ok(data.required("order")?)
-    }
-}
+struct Orders;
 
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
-    customer: String,
     price: i64,
 }
 // ANCHOR_END: shop
-
-// ANCHOR: fakes
-/// An outbox that sends nothing, and keeps every text for the test to read. It fails the test,
-/// by panicking, if the test has stopped reading.
-struct FakeOutbox {
-    sent: Sender<String>,
-}
-
-impl Outbox for FakeOutbox {
-    fn send(&self, to: &str, text: &str) {
-        let kept = self.sent.send(format!("to {to}: {text}"));
-        assert!(kept.is_ok(), "the test stopped reading the outbox");
-    }
-}
-
-/// A reporter that keeps a line for each event: its kind, and what it is about.
-struct Recorder {
-    lines: Sender<String>,
-}
-
-impl Reporter for Recorder {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let line = match about(&event.body) {
-            Some(about) => format!("{} {about}", event.kind()),
-            None => event.kind().to_owned(),
-        };
-        Ok(self.lines.send(line)?)
-    }
-}
-
-/// The step, or the policy and hook, an event is about, for the kinds these tests look at.
-fn about(body: &EventBody) -> Option<String> {
-    match body {
-        EventBody::AttemptStarted { step, .. }
-        | EventBody::StepSucceeded { step, .. }
-        | EventBody::StepFailed { step, .. }
-        | EventBody::StepGivenUp { step, .. } => Some(step.step.to_string()),
-        EventBody::HookCalled {
-            hook: HookSource::Workflow { policy, hook, .. },
-            ..
-        } => Some(format!("{policy} {hook}")),
-        EventBody::JourneyFailed { step, .. } => Some(step.to_string()),
-        _ => None,
-    }
-}
-
-/// Everything sent so far through the other end of a channel.
-fn received(receiver: &Receiver<String>) -> Vec<String> {
-    receiver.try_iter().collect()
-}
-// ANCHOR_END: fakes
 
 /// Prints what was checked, or fails the program when it does not hold.
 fn check(what: &str, holds: bool) -> Result<(), String> {
@@ -198,6 +115,12 @@ fn failed_with(result: &JourneyResult, code: &str) -> bool {
 #[derive(Output)]
 struct Charged {
     charged: Option<i64>,
+}
+
+/// What a test reads back about the customer's message.
+#[derive(Output)]
+struct Told {
+    message: String,
 }
 
 // ANCHOR: step_alone
@@ -242,7 +165,7 @@ fn the_charge_step_alone() -> Result<(), Box<dyn std::error::Error>> {
 // ANCHOR_END: step_alone
 
 // ANCHOR: policy_alone
-/// A stand-in for the charge, which succeeds or fails as the test says.
+/// A stand-in for the shop's steps, which succeeds or fails as the test says.
 #[derive(Step)]
 struct StandIn {
     #[input]
@@ -261,83 +184,73 @@ impl StandIn {
 
 /// The notify policy alone, attached to a workflow of one stand-in step.
 #[workflow(name = "notify alone", policies = [Notify])]
-#[with_step(StandIn, name = "charge")]
-struct NotifyAlone {
-    outbox: Box<dyn Outbox>,
-}
-
-#[role]
-impl Messages for NotifyAlone {
-    fn tell(&self, customer: &str, message: &str) {
-        self.outbox.send(customer, message);
-    }
-}
-
-#[workflow]
-impl NotifyAlone {
-    #[id_generator]
-    fn order_id(&self, data: &DataBag) -> Result<String, Error> {
-        Ok(data.required("order")?)
-    }
-}
+#[with_step(StandIn, name = "stand-in")]
+struct NotifyAlone;
 
 /// What the notify policy reads, and how the stand-in ends.
 #[derive(InitialData)]
 struct Ending {
     order: String,
-    customer: String,
-    charged: i64,
+    tracking: Option<String>,
     succeeds: bool,
 }
 
-fn told_after(ending: Ending) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let (sent, outbox) = channel();
-    let instance = NotifyAlone::builder()
-        .outbox(Box::new(FakeOutbox { sent }))
-        .initial_data(ending)
-        .create()?;
-    LocalExecutor::new().run(instance)?;
-    Ok(received(&outbox))
+fn told_after(ending: Ending) -> Result<String, Box<dyn std::error::Error>> {
+    let instance = NotifyAlone::builder().initial_data(ending).create()?;
+    let told: Told = LocalExecutor::new().run(instance)?.output()?;
+    Ok(told.message)
 }
 
 fn the_notify_policy_alone() -> Result<(), Box<dyn std::error::Error>> {
     let told = told_after(Ending {
         order: "A-1".to_owned(),
-        customer: "Ann".to_owned(),
-        charged: 40,
+        tracking: Some("T-A-1".to_owned()),
         succeeds: true,
     })?;
     check(
-        "notify tells the customer an order is paid",
-        told == ["to Ann: A-1: paid 40"],
+        "notify tells the customer a shipped order is on its way",
+        told == "Order A-1 is on its way, tracking T-A-1.",
     )?;
 
     let told = told_after(Ending {
         order: "A-2".to_owned(),
-        customer: "Ben".to_owned(),
-        charged: 0,
+        tracking: None,
         succeeds: false,
     })?;
     check(
-        "notify tells the customer an order could not be completed",
-        told == ["to Ben: A-2: we could not complete your order"],
+        "notify tells the customer a failed order could not be taken",
+        told == "We could not take order A-2.",
     )?;
     Ok(())
 }
 // ANCHOR_END: policy_alone
 
 // ANCHOR: journey
+/// An event's kind, and the step or the policy and hook it is about, for the kinds this test
+/// looks at.
+fn line(event: &Event) -> String {
+    let about = match &event.body {
+        EventBody::AttemptStarted { step, .. }
+        | EventBody::StepFailed { step, .. }
+        | EventBody::StepGivenUp { step, .. } => step.step.to_string(),
+        EventBody::HookCalled {
+            hook: HookSource::Workflow { policy, hook, .. },
+            ..
+        } => format!("{policy} {hook}"),
+        EventBody::JourneyFailed { step, .. } => step.to_string(),
+        _ => return event.kind().to_owned(),
+    };
+    format!("{} {about}", event.kind())
+}
+
 fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
-    let (sent, outbox) = channel();
-    let (lines, recorded) = channel();
+    let recorder = RecordingReporter::default();
     let instance = Orders::builder()
-        .outbox(Box::new(FakeOutbox { sent }))
         .initial_data(NewOrder {
             order: "A-2".to_owned(),
-            customer: "Ben".to_owned(),
             price: 0,
         })
-        .reporter(Recorder { lines })
+        .reporter(recorder.clone())
         .create()?;
     let result = LocalExecutor::new().run(instance)?;
 
@@ -345,21 +258,24 @@ fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
         "a free order's journey fails with nothing-to-charge",
         failed_with(&result, "nothing-to-charge"),
     )?;
+    let lines: Vec<String> = recorder.events().iter().map(line).collect();
     let expected = [
         "journey_started",
         "attempt_started charge",
         "step_failed charge",
         "step_given_up charge",
         "hook_called notify on workflow failure",
+        "contribution_committed",
         "journey_failed charge",
     ];
     check(
         "a free order is never shipped, as its events show",
-        received(&recorded) == expected,
+        lines == expected,
     )?;
+    let told: Told = result.output()?;
     check(
         "a free order's customer is told",
-        received(&outbox) == ["to Ben: A-2: we could not complete your order"],
+        told.message == "We could not take order A-2.",
     )?;
     Ok(())
 }

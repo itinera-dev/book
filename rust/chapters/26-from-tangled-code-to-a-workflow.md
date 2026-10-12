@@ -136,12 +136,7 @@ name: ch03_shop
 region: workflow
 ```
 
-Moves 7 and 8 use this syntax:
-
-- A step asks for a service with a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only.
-- A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. Its key is the method's name, unless `key = "..."` names it. It returns a `Result<Box<dyn Trait>, Error>`, such as `Box<dyn Carrier>` for the carrier, and may request the attempt number with `#[attempt]`.
-- A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
-- The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` above 0 on the same line won't compile.
+Move 7 uses the services and providers of [chapter 12](12-giving-a-step-the-tools-it-needs.md), with the per-attempt provider of [chapter 13](13-trying-again.md), and move 8 the rescue step of [chapter 14](14-repairing-then-trying-once-more.md).
 
 When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, because his order of 1,200 is above its limit, so the charge's attempt 2 fails and so does the journey. Every successful charge, Ben's after the rescue included, shows up as an audit line. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
 

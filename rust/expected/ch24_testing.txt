@@ -1,8 +1,8 @@
 ok: the charge step charges a price of 40
 ok: the charge step fails a price of 0 with nothing-to-charge
 ok: the charge step charges nothing for it
-ok: notify tells the customer an order is paid
-ok: notify tells the customer an order could not be completed
+ok: notify tells the customer a shipped order is on its way
+ok: notify tells the customer a failed order could not be taken
 ok: a free order's journey fails with nothing-to-charge
 ok: a free order is never shipped, as its events show
 ok: a free order's customer is told

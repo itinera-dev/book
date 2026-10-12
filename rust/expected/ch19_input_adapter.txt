@@ -1,6 +1,3 @@
-order A-1
-  pricing supplied amount to charge
-R-A-1: charged 35
-order A-2
-  pricing supplied amount to charge
-R-A-2: charged 40
+A-1: the journey succeeded, R-A-1: charged 35
+A-2: the journey succeeded, R-A-2: charged 40
+A-3: the journey failed

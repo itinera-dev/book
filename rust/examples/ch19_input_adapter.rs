@@ -2,10 +2,8 @@
 //! less any discount, and the charge never knows.
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
-use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::value::AnyValue;
 use itinera::workflow::workflow;
@@ -33,25 +31,9 @@ impl Charge {
 }
 // ANCHOR_END: step
 
-/// Prints each input an input adapter supplied.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        if let EventBody::InputAdapterSupplied {
-            step, key, adapter, ..
-        } = &event.body
-        {
-            println!("  {} supplied {key} to {}", adapter, step.step);
-        }
-        Ok(())
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: it charges what its pricing works out.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
 struct Orders;
 
@@ -82,33 +64,38 @@ struct NewOrder {
     discount: Option<i64>,
 }
 
-/// What the shop reads back once the journey has succeeded.
+/// What the shop reads back once the journey has ended: nothing was charged when it failed.
 #[derive(Output)]
 struct Receipt {
-    charged: i64,
-    receipt: String,
+    charged: Option<i64>,
+    receipt: Option<String>,
 }
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
-        NewOrder {
-            order: "A-1".to_owned(),
-            price: 40,
-            discount: Some(5),
-        },
-        NewOrder {
-            order: "A-2".to_owned(),
-            price: 40,
-            discount: None,
-        },
+        ("A-1", 40, Some(5)),
+        ("A-2", 40, None),
+        ("A-3", 40, Some(40)),
     ];
     let mut executor = LocalExecutor::new();
-    for order in orders {
-        println!("order {}", order.order);
-        let instance = Orders::builder().initial_data(order).create()?;
-        let receipt: Receipt = executor.run(instance)?.output()?;
-        println!("{}: charged {}", receipt.receipt, receipt.charged);
+    for (order, price, discount) in orders {
+        let instance = Orders::builder()
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                price,
+                discount,
+            })
+            .create()?;
+        let result = executor.run(instance)?;
+        let kind = result.status.kind();
+        let receipt: Receipt = result.output()?;
+        match (receipt.receipt, receipt.charged) {
+            (Some(receipt), Some(charged)) => {
+                println!("{order}: the journey {kind}, {receipt}: charged {charged}");
+            }
+            _ => println!("{order}: the journey {kind}"),
+        }
     }
     Ok(())
 }
