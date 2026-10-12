@@ -8,6 +8,16 @@
 			"sha256": "e27e136e74788d41c02668e8066e7d030e2f6ec4b363a5325a4114f174f77eb3"
 		},
 		{
+			"copy": "src/lib/logo.mjs",
+			"from": "src/lib/logo.mjs",
+			"sha256": "fdad041804f707d41f4f8d424d5be49ee0e7d439a31852cafa2bfd8d4143d3ea"
+		},
+		{
+			"copy": "src/components/Mark.astro",
+			"from": "src/components/Mark.astro",
+			"sha256": "5cd01f1a72eb06158b06e255b24c8735ce79b1c7eeb0de0ee435da3ecb12faa5"
+		},
+		{
 			"copy": "public/favicon.svg",
 			"from": "/favicon.svg, as src/pages/favicon.svg.ts builds it",
 			"sha256": "095ba32892ce6099644fa25b2d37b48e4c207020b144b806e28a7da15c50a176"

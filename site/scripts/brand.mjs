@@ -3,7 +3,7 @@
 // each, taken from the site at the commit brand.json names, and this check
 // fails when a copy has been edited here instead of taken again from the site.
 //
-// To follow a newer site: copy the colours from that commit of
+// To follow a newer site: copy the colours and the logo from that commit of
 // itinera-dev/itinera-dev.github.io, take the icon from the /favicon.svg that
 // commit builds, which src/pages/favicon.svg.ts draws, then put the commit and
 // each copy's sha256 in brand.json.

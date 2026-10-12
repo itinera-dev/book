@@ -126,23 +126,39 @@ a:hover {
 
 .masthead__book {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	flex-wrap: wrap;
 	gap: 0.25rem 0.75rem;
 }
 
 .masthead__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
 	color: var(--ink);
-	font-family: var(--font-text);
-	font-size: var(--step-1);
-	font-weight: 700;
 	text-decoration: none;
-	letter-spacing: 0.005em;
 }
 
 .masthead__title:hover {
 	color: var(--ink);
+}
+
+.masthead__title:hover .masthead__name {
 	text-decoration: underline;
+}
+
+/* The site's mark, the same size and colour as on the site's own masthead. */
+.masthead__mark {
+	width: 0.875rem;
+	height: 1.75rem;
+	color: var(--accent);
+}
+
+.masthead__name {
+	font-family: var(--font-text);
+	font-size: var(--step-1);
+	font-weight: 700;
+	letter-spacing: 0.005em;
 }
 
 .masthead__edition {
@@ -168,6 +184,10 @@ a:hover {
 .masthead__nav a {
 	display: inline-block;
 	padding: 0.25rem 0;
+}
+
+.masthead__nav li + li {
+	margin-top: 0;
 }
 
 .editions {
