@@ -1,16 +1,16 @@
-  journey_started
-  attempt_started charge 1
-  step_succeeded charge 1
-  contribution_committed charged
-  attempt_started ship 1
-  optional_input_absent carrier
-  step_failed ship 1: carrier-down, retriable
-  hook_called fallback on step retry
-  contribution_committed carrier
-  step_retrying
-  attempt_started ship 2
-  step_succeeded ship 2
-  contribution_committed tracking
-  journey_succeeded
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146099969 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146181588 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146216889 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146224839 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "charged", source: Step(StepAttempt { step: StepName { name: "charge" }, attempt: 1 }) } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146237552 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146242999 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: OptionalInputAbsent { key: "carrier", requester: Step(StepAttempt { step: StepName { name: "ship" }, attempt: 1 }) } }
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146250403 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: StepFailed { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 }, retriable: true, reason: Reason { code: "carrier-down", message: None, details: None } } }
+Event { sequence: 8, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146282454 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: HookCalled { hook: Step { policy: PolicyName("fallback"), hook: OnStepRetry, step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } }, lifecycle: None } }
+Event { sequence: 9, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146303049 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "carrier", source: Hook(Step { policy: PolicyName("fallback"), hook: OnStepRetry, step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } }) } }
+Event { sequence: 10, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146318572 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: StepRetrying { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 }, cause: RetriableFailure } }
+Event { sequence: 11, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146325258 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "ship" }, attempt: 2 } } }
+Event { sequence: 12, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146344405 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "ship" }, attempt: 2 } } }
+Event { sequence: 13, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146358662 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "tracking", source: Step(StepAttempt { step: StepName { name: "ship" }, attempt: 2 }) } }
+Event { sequence: 14, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791832067, tv_nsec: 146381423 } }, journey_id: JourneyId("8ed15bab-d9dd-4827-8279-be514a3104f7"), workflow: WorkflowName("orders"), body: JourneySucceeded { decided_by: None } }
 the journey succeeded
 charged 40, tracking B-A-1
