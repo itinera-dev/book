@@ -58,7 +58,7 @@ const llms = `${base}/${build.segment}/llms.txt`;
 								edition && (
 									<li>
 										{edition.page === '' ? (
-											<span aria-current="page">Contents</span>
+											<span class="masthead__current" aria-current="page">Contents</span>
 										) : (
 											<a href={pageHref()}>Contents</a>
 										)}
