@@ -11,7 +11,7 @@ use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFai
 use itinera::policy::{OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
-use itinera::workflow::{role, workflow};
+use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 
 // ANCHOR: services
 /// Why the bank refused a charge.
@@ -307,14 +307,14 @@ struct Orders;
 #[workflow]
 impl Orders {
     /// One payment client for the journey, used by the charge and its rescue step.
-    #[provider]
-    fn payments(&self) -> Result<Box<dyn Payments>, Error> {
+    #[provider(key = "payments")]
+    fn bank(&self) -> Result<Box<dyn Payments>, Error> {
         Ok(Box::new(BANK))
     }
 
     /// One stock store for the journey, shared by reserve and ship.
-    #[provider]
-    fn stock(&self) -> Result<Box<dyn StockStore>, Error> {
+    #[provider(key = "stock")]
+    fn warehouse(&self) -> Result<Box<dyn StockStore>, Error> {
         Ok(Box::new(WAREHOUSE))
     }
 
@@ -347,7 +347,43 @@ struct NewOrder {
     discount: Option<i64>,
 }
 
+// ANCHOR: listing
+/// A service in the listing: its key, and the provider that serves it.
+fn service(listed: &ListedService) -> String {
+    format!("{} from {}", listed.key, listed.provider)
+}
+
+/// The services of a listing's entry, separated by commas.
+fn services(listed: &[ListedService]) -> String {
+    listed.iter().map(service).collect::<Vec<_>>().join(", ")
+}
+
+/// One entry of the listing: a step's position and name, its policies, its services with the
+/// provider that serves each, and its rescue step with its services.
+fn entry(listed: &ListedStep) -> String {
+    let mut entry = format!("{}. {}", listed.position, listed.step);
+    if !listed.policies.is_empty() {
+        let policies: Vec<String> = listed.policies.iter().map(ToString::to_string).collect();
+        entry.push_str(&format!(", with {}", policies.join(", ")));
+    }
+    entry.push_str(&format!("; services: {}", services(&listed.services)));
+    if let Some(rescue) = &listed.rescue {
+        entry.push_str(&format!(
+            "; rescued by {}, services: {}",
+            rescue.step,
+            services(&rescue.services)
+        ));
+    }
+    entry
+}
+// ANCHOR_END: listing
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // ANCHOR: list
+    for listed in Orders::descriptor().listing() {
+        println!("{}", entry(&listed));
+    }
+    // ANCHOR_END: list
     let orders = [
         ("A-1", "Ann", "ann-card", 40, Some(5)),
         ("A-2", "Ben", "ben-card", 25, None),

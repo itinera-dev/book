@@ -1,6 +1,6 @@
-//! Working with agents: the shop's routes, the order of steps and decisions a journey follows,
-//! are approved by a person and checked by tests, so a change to a step that keeps them green
-//! has changed no flow.
+//! Working with agents: the shop's paths, the outcomes and decisions a journey goes through, are
+//! approved by a person and checked by tests, so a flow change that alters them cannot pass
+//! unnoticed.
 
 use std::num::NonZeroU32;
 use std::sync::mpsc::{Receiver, Sender, channel};
@@ -54,8 +54,8 @@ impl Carrier for Van {
     }
 }
 
-/// Charges the card the price. An agent may rewrite this business rule freely, as long as the
-/// routes stay what was approved.
+/// Charges the card the price. An agent may rewrite this business rule, as long as the paths stay
+/// what was approved.
 #[derive(Step)]
 struct Charge {
     #[input]
@@ -164,8 +164,8 @@ struct NewOrder {
     price: i64,
 }
 
-// ANCHOR: routes
-/// The route of an order paid with an expired card: the charge is rescued, then the order ships.
+// ANCHOR: paths
+/// The path of an order paid with an expired card: the charge is rescued, then the order ships.
 const EXPIRED_CARD: &[&str] = &[
     "step_failed charge",
     "step_rescuing charge",
@@ -176,7 +176,7 @@ const EXPIRED_CARD: &[&str] = &[
     "journey_succeeded",
 ];
 
-/// The route of an order whose main carrier is down: shipping is tried once more.
+/// The path of an order whose main carrier is down: shipping is tried once more.
 const CARRIER_DOWN: &[&str] = &[
     "step_succeeded charge",
     "step_failed ship",
@@ -184,58 +184,60 @@ const CARRIER_DOWN: &[&str] = &[
     "step_succeeded ship",
     "journey_succeeded",
 ];
-// ANCHOR_END: routes
+// ANCHOR_END: paths
 
 // ANCHOR: recorder
-/// A reporter that keeps the route of a journey: each outcome of a step, each decision about a
+/// A reporter that keeps the path of a journey: each outcome of a step, each decision about a
 /// step, and how the journey ended.
-struct Route {
+struct Path {
     lines: Sender<String>,
 }
 
-impl Reporter for Route {
+impl Reporter for Path {
     fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let Some(step) = on_the_route(&event.body) else {
+        let Some(line) = on_the_path(event) else {
             return Ok(());
-        };
-        let line = match step {
-            Some(step) => format!("{} {step}", event.kind()),
-            None => event.kind().to_owned(),
         };
         Ok(self.lines.send(line)?)
     }
 }
 
-/// Whether an event is on the route, and the step it is about, if any.
-fn on_the_route(body: &EventBody) -> Option<Option<String>> {
-    match body {
+/// The line an event adds to the path, with the step it is about, or nothing when it is not on
+/// the path.
+fn on_the_path(event: &Event) -> Option<String> {
+    let kind = event.kind();
+    match &event.body {
         EventBody::StepSucceeded { step, .. }
         | EventBody::StepFailed { step, .. }
+        | EventBody::StepSkipped { step, .. }
+        | EventBody::StepAbnormalTermination { step, .. }
         | EventBody::StepRetrying { step, .. }
         | EventBody::StepRescuing { step, .. }
         | EventBody::StepRescued { step, .. }
-        | EventBody::StepGivenUp { step, .. } => Some(Some(step.step.to_string())),
-        EventBody::JourneySucceeded { .. } => Some(None),
-        EventBody::JourneyFailed { step, .. } => Some(Some(step.to_string())),
+        | EventBody::StepGivenUp { step, .. } => Some(format!("{kind} {}", step.step)),
+        EventBody::JourneyFailed { step, .. } => Some(format!("{kind} {step}")),
+        EventBody::JourneySucceeded { .. } | EventBody::JourneyAborted { .. } => {
+            Some(kind.to_owned())
+        }
         _ => None,
     }
 }
 // ANCHOR_END: recorder
 
 // ANCHOR: checks
-/// Runs one order and gives back the route its journey followed.
-fn route_of(
+/// Runs one order and gives back the path its journey went through.
+fn path_of(
     order: NewOrder,
     main_carrier_up: bool,
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let (lines, route) = channel();
+    let (lines, path) = channel();
     let instance = Orders::builder()
         .main_carrier_up(main_carrier_up)
-        .reporter(Route { lines })
+        .reporter(Path { lines })
         .initial_data(order)
         .create()?;
     LocalExecutor::new().run(instance)?;
-    Ok(received(&route))
+    Ok(received(&path))
 }
 
 /// Everything sent so far through the other end of a channel.
@@ -243,10 +245,10 @@ fn received(receiver: &Receiver<String>) -> Vec<String> {
     receiver.try_iter().collect()
 }
 
-/// Prints the route that was checked, or fails the program when the journey took another one.
-fn approved(what: &str, route: &[String], expected: &[&str]) -> Result<(), String> {
-    if route != expected {
-        return Err(format!("not approved: {what}: {route:?}"));
+/// Prints the path that was checked, or fails the program when the journey went another way.
+fn approved(what: &str, path: &[String], expected: &[&str]) -> Result<(), String> {
+    if path != expected {
+        return Err(format!("not approved: {what}: {path:?}"));
     }
     println!("ok: {what}");
     Ok(())
@@ -260,7 +262,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     approved(
         "an expired card is renewed, then charged",
-        &route_of(ben, true)?,
+        &path_of(ben, true)?,
         EXPIRED_CARD,
     )?;
     let cat = NewOrder {
@@ -270,7 +272,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     approved(
         "a carrier that is down is tried once more",
-        &route_of(cat, false)?,
+        &path_of(cat, false)?,
         CARRIER_DOWN,
     )?;
     Ok(())

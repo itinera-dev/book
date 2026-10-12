@@ -20,7 +20,7 @@ name: ch03_shop
 region: providers
 ```
 
-Here each service is a trait, such as `Carrier`, and a step receives a trait object. It asks for one as a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only. A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. It returns `Result<Box<dyn Carrier>, Error>`, and may request the attempt number with `#[attempt]`.
+Here each service is a trait, such as `Carrier`, and a step receives a trait object. It asks for one as a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only. A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. Its key is the method's name, unless `key = "..."` names it, so the provider can be named after where the service comes from, such as `bank`. It returns `Result<Box<dyn Carrier>, Error>`, and may request the attempt number with `#[attempt]`.
 
 The charge has a **rescue step**, `RenewCard`, which [chapter 14](14-repairing-then-trying-once-more.md) teaches. Which failures it can repair is its own business rule, so it is written in the rescue step, not in the declaration: it renews the card only when the charge failed because the card has expired.
 
@@ -31,9 +31,16 @@ region: rescue
 
 A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`; data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`; the reason of that failure, marked `#[reason]`; and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`. There is no way to skip, so a rescue step that skips cannot be written in Rust. The workflow attaches it with `rescue = RenewCard` on the step's `#[with_step(...)]` line; a `rescue` together with a `retry_budget` above 0 on the same line will not compile.
 
-The program runs the four orders of [chapter 1](01-but-why-itinera.md). When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
+Before it runs anything, the program asks the workflow for its **listing**: what the declaration says, as data. `Orders::descriptor()` gives the workflow's declaration, and its `listing()` gives one entry per step, in order, with the step's policies, the services it asks for and the provider that serves each, and the rescue step with its own services. A small function, `entry`, turns each entry into a line.
 
-Under each order's number, which `main` prints, the shop's log, the `Log` reporter, prints every failed attempt and the decision that follows it, and the `notify` policy's message to the customer is printed too; the last line under each order, also printed by `main`, is how the journey ended:
+```example
+name: ch03_shop
+region: list
+```
+
+The program then runs the four orders of [chapter 1](01-but-why-itinera.md). When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
+
+The program prints the listing first. Then, under each order's number, which `main` prints, the shop's log, the `Log` reporter, prints every failed attempt and the decision that follows it, and the `notify` policy's message to the customer is printed too; the last line under each order, also printed by `main`, is how the journey ended:
 
 ```output
 name: ch03_shop
@@ -50,6 +57,8 @@ Read the declaration from top to bottom. It tells you the order of the steps, ho
 5. **Is every successful charge audited?** The `audit` policy is attached to `charge`, so its `on step success` hook runs after every successful attempt of the charge, including the one after a rescue.
 6. **Which policy decides what happens after a failure?** None of the shop's policies defines `on step failure`, so no policy changes the default: a step that fails, after its retries or its rescue, fails the journey. The absence is part of what you read.
 7. **When is the customer told?** The `notify` policy is attached to the workflow itself. When the journey ends, its `on workflow success` hook or its `on workflow failure` hook runs, once, unless the journey is aborted, and tells the customer through `Messages`, a **role**: an interface of operations that the workflow provides to policies, here `tell`. In Rust, a role is a trait that the workflow's struct implements in an `impl` block marked `#[role]`, and a hook asks for it as a parameter marked `#[role]`, such as `#[role] messages: &dyn Messages`. [Chapter 18](18-letting-policies-act-on-the-outside-world.md) teaches roles.
+
+The listing, the first three lines the program prints, answers several of these questions without any code to read: every step in order, the `audit` policy on the charge, which provider serves each service, and the charge's rescue step. The retry budgets and the workflow's own policies, such as `notify`, are read in the declaration. It is made from the declaration alone, so it can never disagree with it. A person, a review tool or an agent can read it to know what the workflow does before any journey runs.
 
 The providers answer the questions about the outside world. One payment client serves the whole journey, shared by the charge and its rescue step. One stock store serves the whole journey, shared by `reserve` and `ship`. Every attempt of `ship` gets a carrier of its own, chosen from the attempt number.
 
@@ -96,3 +105,4 @@ The diagram shows:
 2. A step is tried again only within its retry budget. A step with a rescue step has no retry budget, and runs at most twice.
 3. A hook that no attached policy defines keeps its default: a step that fails, once its retries or its rescue are spent, fails the journey.
 4. What a step does is in the step; what happens around it is in the workflow and its policies, and nowhere else.
+5. The listing is made from the declaration alone, so it shows what a workflow does before any journey runs.

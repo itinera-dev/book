@@ -2,13 +2,15 @@
 
 ## What you want to do
 
-You have code like the checkout of [chapter 1](01-but-why-itinera.md): business rules, retries, fallbacks, audits, messages and logging, all woven together. You want to turn it into a workflow, one move at a time, so that you can do the same with your own code. This chapter rewrites that checkout, and gathers what each "Without Itinera" section of the book showed.
+You have a system that works, and grew the way systems do: business rules, retries, fallbacks, audits, messages and logging, woven together across modules, and nobody can say for sure how a request travels through it. You don't want to rewrite it. You want to bring Itinera in one route at a time, starting with the route that hurts most, keeping the clients and services you already have, with a program that runs after every move.
+
+This chapter does that with the shop's checkout of [chapter 1](01-but-why-itinera.md), the shop's one route, and gathers what each "Without Itinera" section of the book showed. Your system has more routes; each one is adopted the same way, while the others keep running as they are.
 
 ## The code
 
 ### 1. Sort what the code does
 
-Read the checkout and put each thing it does in one of a few kinds. The kind says where it goes.
+Pick one route: here, the checkout. Read it and put each thing it does in one of a few kinds. The kind says where it goes.
 
 | What the checkout does | Kind | Where it goes |
 |---|---|---|
@@ -88,7 +90,7 @@ Ann's order goes through. The others fail, and the log says exactly why, without
 
 ### 7. Give the steps their tools
 
-The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. Each service is a trait, so the step never knows which implementation it was given.
+The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. Each service is a trait, so the step never knows which implementation it was given. In your system, those traits wrap the clients you already have, such as your payment gateway's client, rather than replacing them: the client stays, and only who decides which one a step gets moves into the workflow.
 
 From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md).
 
@@ -141,7 +143,7 @@ Moves 7 and 8 use this syntax:
 - A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
 - The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` above 0 on the same line won't compile.
 
-When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration:
+When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration, which the listing printed first shows:
 
 ```output
 name: ch03_shop
@@ -151,13 +153,14 @@ name: ch03_shop
 
 The rewrite follows one rule: every decision goes where its kind belongs.
 
-1. **Business rules become steps that report.** A step does its work and reports an outcome with a reason. It never calls the next step, never tries itself again, never tells the customer and never logs what the flow did. That is what the "Without Itinera" section of [part 3](part-3-without-itinera.md) showed: a function that calls the next component itself, catches its error and decides to retry is making flow decisions in business code.
-2. **The caller knows only the journey.** As the section of [part 2](part-2-without-itinera.md) showed, a checkout that calls the charge and then the shipping has to know both functions: their order, what each takes and how each fails. Now the code that takes an order creates a workflow instance, runs the journey and reads its result, however many steps the workflow has.
-3. **Flow goes into the declaration.** The order of the steps, every retry budget and every rescue step are in the workflow, where you read them all at once. The section of [part 4](part-4-without-itinera.md) showed retry strategies multiplying across a code base, each with its own limits; here there is one budget per step, declared next to it.
-4. **Choices about the outside world go into providers.** Which carrier ships the second attempt is a decision of the workflow, not of the ship step, so the ship step never knows there are two carriers. Part 4 showed the same fallback written inside the shipping code.
-5. **Repairs become rescue steps.** The renewal is no longer hidden in a branch of the charge; it is a step of its own, and the events say when a rescue happened and how it went.
-6. **Reactions become policies.** Auditing and telling the customer react to outcomes, so they are hooks, attached where they apply, and they reach the outside world through roles.
-7. **Observation becomes a reporter.** As the section of [part 5](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports the same events, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
+1. **One route at a time.** A route becomes a workflow while the rest of the system keeps calling what it called before: the code that took an order keeps its place, and now creates a workflow instance and runs a journey. Nothing else has to move with it, so you adopt the next route when you're ready, and each route you adopt can be read in one declaration.
+2. **Business rules become steps that report.** A step does its work and reports an outcome with a reason. It never calls the next step, never tries itself again, never tells the customer and never logs what the flow did. That is what the "Without Itinera" section of [part 3](part-3-without-itinera.md) showed: a function that calls the next component itself, catches its error and decides to retry is making flow decisions in business code.
+3. **The caller knows only the journey.** As the section of [part 2](part-2-without-itinera.md) showed, a checkout that calls the charge and then the shipping has to know both functions: their order, what each takes and how each fails. Now the code that takes an order creates a workflow instance, runs the journey and reads its result, however many steps the workflow has.
+4. **Flow goes into the declaration.** The order of the steps, every retry budget and every rescue step are in the workflow, where you read them all at once. The section of [part 4](part-4-without-itinera.md) showed retry strategies multiplying across a code base, each with its own limits; here there is one budget per step, declared next to it.
+5. **Choices about the outside world go into providers.** Which carrier ships the second attempt is a decision of the workflow, not of the ship step, so the ship step never knows there are two carriers. Part 4 showed the same fallback written inside the shipping code.
+6. **Repairs become rescue steps.** The renewal is no longer hidden in a branch of the charge; it is a step of its own, and the events say when a rescue happened and how it went.
+7. **Reactions become policies.** Auditing and telling the customer react to outcomes, so they are hooks, attached where they apply, and they reach the outside world through roles.
+8. **Observation becomes a reporter.** As the section of [part 5](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports the same events, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
 
 Do the rewrite in moves, as this chapter did. After each move the program runs, and the events of a journey show plainly what is still missing.
 
@@ -167,3 +170,4 @@ Do the rewrite in moves, as this chapter did. After each move the program runs, 
 2. Every retry budget and every rescue step is declared in the workflow, next to its step.
 3. A step reaches the outside world only through the services the workflow provides, and a policy only through the roles the workflow provides.
 4. Logging belongs to a reporter, not to the steps and policies it observes.
+5. Adopt one route at a time, keeping your clients behind services, and keep the program running after every move.

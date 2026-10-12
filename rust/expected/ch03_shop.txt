@@ -1,3 +1,6 @@
+1. reserve; services: stock from warehouse
+2. charge, with audit; services: payments from bank; rescued by charge_rescue, services: payments from bank
+3. ship; services: carrier from carrier, stock from warehouse
 A-1:
   to Ann: order A-1 is on its way: T-A-1
 succeeded

@@ -13,7 +13,7 @@ name: ch29_two_workflows
 region: shared
 ```
 
-The delivery workflow is the shop you know. Its stock comes from the warehouse, its charge goes through the card network and has a rescue step that renews an expired card, and its last step ships the order. Its providers each name the key they serve with `key = "..."`, so a provider's name can say where the service comes from, such as `warehouse`. The card's bank is lent only to the rescue step, through a provider attached to `charge_rescue`.
+The delivery workflow is the shop you know. Its stock comes from the warehouse, its charge goes through the card network and has a rescue step that renews an expired card, and its last step ships the order. Its stock, payments and issuer providers name the key they serve with `key = "..."`, so each provider's name can say where the service comes from, such as `warehouse`. The card's bank is lent only to the rescue step, through a provider attached to `charge_rescue`.
 
 ```example
 name: ch29_two_workflows
@@ -40,7 +40,7 @@ It prints:
 name: ch29_two_workflows
 ```
 
-The listings show the two plans side by side, before anything runs: the same steps, served by different providers, with a rescue step in one and not the other. Then the journeys follow those plans. Ben's delivery renews his card and goes on; his collection fails at the charge with `expired-card`, and the counter's message asks him to pay with another card.
+The listings show much of the two plans side by side, before anything runs: the same steps, served by different providers, with a rescue step in one and not the other. Then the journeys follow those plans. Ben's delivery renews his card and goes on; his collection fails at the charge with `expired-card`, and the counter's message asks him to pay with another card.
 
 ## How it works
 
@@ -49,12 +49,11 @@ The listings show the two plans side by side, before anything runs: the same ste
 3. **So are the services.** The charge asks for `payments` and gets the card network in one workflow and the counter's terminal in the other. The reservation asks for `stock` and gets the warehouse or the back room. Each workflow provides every service its steps ask for, or it is refused before any journey with `service not provided`, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows.
 4. **A rescue step's services are its own.** The bank's provider is attached to `charge_rescue`, so only the rescue step can use it. A workflow without that rescue step doesn't need the bank at all, and the collection workflow doesn't provide it.
 5. **Policies are shared the same way.** `Audit` is attached to the charge in both workflows. `Delivered` and `ReadyToCollect` are two workflow policies with the same name, `notify`, each attached to one workflow; they tell the customer different things through the same `Messages` role, which each workflow provides.
-6. **The listing shows what each workflow decided.** `descriptor()`, from the `Workflow` trait, gives the workflow's descriptor, and its `listing()` gives one entry per step, in order: its position and name, its policies, the services it asks for with the provider that serves each, and a rescue section with the rescue step's services. Two workflows that share steps differ only in what their listings show, so comparing them is comparing two lists.
-7. **The events say which workflow ran.** Both workflows list the same reporter, `Log`, and every event carries the name of its journey's workflow, so one log can hold every journey of the shop, whichever way the order was fulfilled.
+6. **The listings show much of what each workflow decided.** As [chapter 3](03-read-the-workflow-know-what-happens.md) showed, a workflow's listing gives one entry per step, in order: its name, its step policies, the services it asks for with the provider that serves each, and its rescue step with that step's services. Here the two listings differ in their providers, their last step and the charge's rescue step. The rest, such as the retry budget of `ship` and each workflow's `notify` policy, is read in the two declarations.
 
 ## Remember
 
 1. A step names what it needs and never which workflow it's in; any workflow that provides what it needs can list it.
 2. Retry budgets, rescue steps, policies and providers are decided by each workflow that lists a step, never by the step.
 3. Each workflow provides every service its steps and rescue steps ask for, or it is refused before any journey.
-4. To compare two workflows, compare their listings: everything they decide is there.
+4. To compare two workflows, compare their listings, then their declarations for retry budgets and workflow policies.
