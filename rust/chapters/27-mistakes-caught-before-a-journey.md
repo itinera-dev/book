@@ -6,44 +6,9 @@ The shop's workflow is put together from many parts: steps with their names, pol
 
 ## The code
 
-### A workflow put together wrongly
-
-This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the pricing adapter is attached to `charging`, a step the workflow doesn't have.
-
-A workflow declared with `#[workflow(...)]` and holding these mistakes wouldn't compile at all, as the next section shows. So that you can see the mistakes as data, this example declares the shop by hand, with `WorkflowDescriptor::builder`, as [chapter 28](28-declaring-by-hand.md) explains; the program then compiles, and the violations appear when it runs.
-
-```example
-name: ch27_violations
-region: wrong
-```
-
-Building it doesn't give you a workflow. The builder's `build()` returns `Result<WorkflowDescriptor<W>, Violations>`, and the `Err` holds every violation found, which you can read one by one.
-
-```example
-name: ch27_violations
-region: report
-```
-
-`Violations` holds the violations in a fixed order, and each `Violation` displays as the specification names it, followed by what it concerns. When your code needs to tell them apart, `kind()` gives its `ViolationKind`.
-
-Two mistakes never become a violation in the long form. Two input adapters of one name make the builder panic while the workflow is declared, with a message saying what was wrong. An empty step name doesn't compile, since `step_name!` checks it.
-
-Fixed, the declaration lists each step once, keeps one policy for the charge's success, and attaches the adapter to `charge`.
-
-```example
-name: ch27_violations
-region: fixed
-```
-
-It prints:
-
-```output
-name: ch27_violations
-```
-
 ### Caught when the program is compiled
 
-Declare the workflow with the attributes, and these mistakes never get as far as building it: the program doesn't compile. Here is the ship step listed twice:
+A workflow declared with `#[workflow(...)]` and put together wrongly never gets as far as being built: the program doesn't compile. Here is the ship step listed twice:
 
 ```compile-error
 name: ch27_duplicate_step_name
@@ -55,7 +20,7 @@ Two policies of the charge that both define `on step success`:
 name: ch27_hook_defined_twice
 ```
 
-Every violation the builder's `build()` would report is a compile error in a workflow declared with `#[workflow(...)]`, together with a few mistakes of the attributes themselves, such as a workflow without steps. Some of the messages say "evaluation panicked": the check runs in a constant the compiler evaluates, so it's still a compile error, and nothing panics when the program runs.
+Every violation the builder's `build()` would report is a compile error in a workflow declared with `#[workflow(...)]`, together with a few mistakes of the attributes themselves, such as a workflow without steps. Some of the messages say "evaluation panicked": the check runs in a constant the compiler evaluates, so it's still a compile error, and nothing panics when the program runs. A workflow declared by hand compiles with the same mistakes, and its builder hands you every violation as data when it is built, as [chapter 28](28-declaring-by-hand.md#a-workflow-put-together-wrongly) shows.
 
 ### Rules Rust makes impossible to break
 

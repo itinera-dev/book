@@ -1,4 +1,5 @@
-//! A workflow put together wrongly is refused with every violation, before any journey.
+//! Declaring by hand: a workflow put together wrongly is refused with every violation, before any
+//! journey.
 
 use itinera::error::Error;
 use itinera::journey::Contributor;

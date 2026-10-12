@@ -88,6 +88,41 @@ It prints exactly what the short form printed:
 name: ch28_by_hand
 ```
 
+### A workflow put together wrongly
+
+This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the pricing adapter is attached to `charging`, a step the workflow doesn't have.
+
+Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built.
+
+```example
+name: ch28_violations
+region: wrong
+```
+
+Building it doesn't give you a workflow. The builder's `build()` returns `Result<WorkflowDescriptor<W>, Violations>`, and the `Err` holds every violation found, which you can read one by one.
+
+```example
+name: ch28_violations
+region: report
+```
+
+`Violations` holds the violations in a fixed order, and each `Violation` displays as the specification names it, followed by what it concerns. When your code needs to tell them apart, `kind()` gives its `ViolationKind`.
+
+Two mistakes never become a violation in the long form. Two input adapters of one name make the builder panic while the workflow is declared, with a message saying what was wrong. An empty step name doesn't compile, since `step_name!` checks it.
+
+Fixed, the declaration lists each step once, keeps one policy for the charge's success, and attaches the adapter to `charge`.
+
+```example
+name: ch28_violations
+region: fixed
+```
+
+It prints:
+
+```output
+name: ch28_violations
+```
+
 ## How it works
 
 1. **The short form writes descriptors.** Whatever form you write in, a workflow is a workflow descriptor: its name, a step descriptor for each step in order, its workflow policies, its input adapters and the roles it provides. The short form writes the descriptors from your types and their attributes; in the long form you write them yourself. The executor doesn't know or care which form made them, and the two programs above behave the same and print the same.
@@ -98,7 +133,7 @@ name: ch28_by_hand
    - `#[derive(InitialData)]` and `#[derive(Output)]` implement `InitialData` and `Output`. By hand, the instance's builder takes each key with `.data(key, value)`, and `Output::from_data` reads each key from the `DataBag`.
 3. **A step descriptor** holds the step's name, how to build the step, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. How to build the step means saying what it needs, its inputs, its services and its handles, which are its contributor and step reporter, and building it, for each attempt, from what was resolved. Nothing carries over from one attempt to the next, because each attempt gets a new step. That's also why the step in the long form borrows its contributor with a lifetime, `Charge<'a>`: it lives for one attempt only.
 4. **A policy descriptor** holds the policy's name, the hooks it defines, what each hook requests, and how to build an instance of it, here the closure `|| Audit`. Workflow policies are built once per journey, step policies for every attempt.
-5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
+5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as the shop with three mistakes above shows; [chapter 27](27-mistakes-caught-before-a-journey.md) lists every violation and how to fix it. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
 6. **The listing reads the descriptor.** Both programs list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
 7. **The two forms mix.** A step or policy declared in the short form goes into a builder through its `descriptor`, as `Charge::descriptor(step_name!("charge"))` and `Audit::descriptor()`. You can write most of a workflow in the short form and only the part that needs it in the long form.
 8. **When you need the long form:**
