@@ -101,7 +101,7 @@ The book follows one small online shop from start to finish. It charges orders, 
 4. **Part 3, Writing steps,** is about the business code: what a step needs, what it passes on and how it says what happened.
 5. **Part 4, Controlling the flow,** is about everything around it: trying again, repairing, reacting, ending early and telling the outside world.
 6. **Part 5, Running it for real,** runs many journeys, reads their results, watches their events and tests the workflows.
-7. **Part 6, Designing with Itinera,** helps you decide where each piece of your own code belongs.
+7. **Part 6, Designing with Itinera,** helps you decide where each piece of your own code belongs, bring Itinera into a system you already have, use a step in more than one workflow, and work with agents.
 8. **The appendices** hold a cheat sheet, a glossary and what this version supports.
 
 Every part but the last ends with a section called "Without Itinera", which puts the same shop, written the usual way, beside the Itinera version, so you can judge the difference for yourself.

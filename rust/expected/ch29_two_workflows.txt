@@ -1,0 +1,31 @@
+deliveries:
+  1. reserve; services: stock from warehouse
+  2. charge, with audit; services: payments from card_network; rescued by charge_rescue, services: issuer from bank
+  3. ship; services: carrier from carrier, stock from warehouse
+collections:
+  1. reserve; services: stock from back_room
+  2. charge, with audit; services: payments from counter
+  3. put_aside; services: stock from back_room
+A-1 delivered:
+  the warehouse reserves order A-1
+  the warehouse hands over order A-1
+  to Ann: your parcel is on its way: T-A-1
+  succeeded
+A-1 collected:
+  the back room reserves order A-1
+  the back room hands over order A-1
+  to Ann: your order is waiting at the counter
+  succeeded
+A-2 delivered:
+  the warehouse reserves order A-2
+  WARN charge, attempt 1: expired-card
+  INFO charge rescued by charge_rescue
+  the warehouse hands over order A-2
+  to Ben: your parcel is on its way: T-A-2
+  succeeded
+A-2 collected:
+  the back room reserves order A-2
+  WARN charge, attempt 1: expired-card
+  WARN charge given up: failure
+  to Ben: please pay with another card at the counter
+  failed: expired-card

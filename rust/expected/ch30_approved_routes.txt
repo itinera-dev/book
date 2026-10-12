@@ -1,0 +1,2 @@
+ok: an expired card is renewed, then charged
+ok: a carrier that is down is tried once more

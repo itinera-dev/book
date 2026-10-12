@@ -58,6 +58,8 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 26. [From tangled code to a workflow](26-from-tangled-code-to-a-workflow.md)
 27. [Mistakes caught before a journey](27-mistakes-caught-before-a-journey.md)
 28. [Declaring by hand](28-declaring-by-hand.md)
+29. [Using a step in another workflow](29-using-a-step-in-another-workflow.md)
+30. [Working with agents](30-working-with-agents.md)
 
 ## Appendices
 
