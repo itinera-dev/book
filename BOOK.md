@@ -36,6 +36,8 @@ Every example belongs to one small online shop taking orders, which grows a litt
 4. it sends an order to review instead of shipping it when its charge is above the review limit the order carries;
 5. it tells the customer how the order went.
 
+Its customers keep their names and order numbers from chapter to chapter, and a chapter adds a customer whenever it needs an order that no earlier one gives, so the book never promises how many there are.
+
 Each chapter's example is a complete program that compiles, runs and shows what it prints. Every example runs on its own, so a reader can start at any chapter.
 
 ### The shape of a chapter
@@ -81,7 +83,7 @@ The usual code is real code in the book's language too, compiled and run like ev
 Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
 
 1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove, and systems that grow until nobody can say what one request does, which agents make worse; keeping the process apart from the logic was good practice before agents, and is a matter of safety with them. The page takes this from the site's "Why Itinera" and links to it. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part.
-2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
+2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
 3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
 
 ### Part 1: Introduction
