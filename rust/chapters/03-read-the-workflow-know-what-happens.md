@@ -30,16 +30,16 @@ name: ch03_shop
 region: list
 ```
 
-The program then runs the four orders of [chapter 1](01-but-why-itinera.md), with the same data. Each order is the journey's initial data, and the data alone decides which path the journey takes. As in chapter 1, each card ends with the year it expires, and the bank refuses a card that expired before 2026, and any charge above 1,000:
+The program then runs the four orders of [chapter 1](01-but-why-itinera.md), with the same data, and three more, from Eve, Fin and Gil, so that every path the declaration allows is taken by an order. Each order is the journey's initial data, and the data alone decides which path the journey takes. As in chapter 1, each card ends with the year it expires, and the bank refuses a card that expired before 2026, and any charge above 1,000. The warehouse has nothing left for order A-5:
 
 ```example
 name: ch03_shop
 region: orders
 ```
 
-Ann's order goes through. Ben's card expired in 2024, so the charge fails; `charge_rescue` gets his new card, and the charge runs once more and succeeds. Cat's parcel weighs 30 kg, more than the 20 kg the main carrier takes, so `ship` makes a second attempt, with the backup carrier, which takes up to 50 kg. Dan's card has expired too, and the rescue gets his new card, but his order of 1,200 is above the bank's limit of 1,000, so the bank declines it and his journey fails with the cause `failure` and the reason `declined`.
+Ann's order goes through. Ben's card expired in 2024, so the charge fails; `charge_rescue` gets his new card, and the charge runs once more and succeeds. Cat's parcel weighs 30 kg, more than the 20 kg the main carrier takes, so `ship` makes a second attempt, with the backup carrier, which takes up to 50 kg. Dan's card has expired too, and the rescue gets his new card, but his order of 1,200 is above the bank's limit of 1,000, so the bank declines it and his journey fails with the cause `failure` and the reason `declined`. Eve's order is out of stock, so `reserve` fails and her card is never charged. Fin's card is valid, but his order of 1,500 is above the bank's limit; `charge_rescue` can only renew an expired card, so it fails with `nothing-to-renew`, and so does his journey. Gil's parcel weighs 60 kg, too heavy for both carriers, so the second attempt fails too, and his journey fails with the cause `retries exhausted`.
 
-The program prints the listing first. Then, under each order's number, the shop's log prints every failed attempt, the decision that follows it and every audited charge, and `notify` prints its message to the customer; the last line under each order is how the journey ended:
+The program prints the listing first. Then, under each order's number, the shop's log prints every failed attempt, the decision that follows it, a rescue about to run and every audited charge, and `notify` prints its message to the customer; the last line under each order is how the journey ended:
 
 ```output
 name: ch03_shop
@@ -50,9 +50,9 @@ name: ch03_shop
 Read the declaration from top to bottom. It tells you the order of the steps, how many times each may be tried, which step has a rescue step, which policies are attached and where, and, by what it leaves out, which defaults apply. What it leaves to the steps is their own business: whether a failure is worth another attempt, and which failures a rescue step can repair.
 
 1. **In what order does a checkout do its work?** `reserve`, then `charge`, then `ship`: the order of the `#[with_step(...)]` lines. A step can skip itself and a policy can end the journey early, but nothing can reorder the steps or jump between them.
-2. **How many times is the card charged?** At most twice. The `charge` step has no retry budget, so it is never simply tried again. It has a rescue step instead. When the charge fails, Itinera runs `RenewCard` under the name `charge_rescue`; if the rescue succeeds, the charge runs once more, with what the rescue contributed. The declaration says that much. Which failures the rescue repairs is the rescue step's own business rule, written in `RenewCard`: only `expired-card`, for which it asks the bank for the new card and contributes it as `card`. For any other reason it fails with `nothing-to-renew`, and so does the journey.
+2. **How many times is the card charged?** At most twice. The `charge` step has no retry budget, so it is never simply tried again. It has a rescue step instead. When the charge fails, Itinera runs `RenewCard` under the name `charge_rescue`; if the rescue succeeds, the charge runs once more, with what the rescue contributed. The declaration says that much. Which failures the rescue repairs is the rescue step's own business rule, written in `RenewCard`: only `expired-card`, for which it asks the bank for the new card and contributes it as `card`. For any other reason it fails with `nothing-to-renew`, and so does the journey, as Fin's order shows.
 3. **What happens when the card is declined twice?** That is Dan's order: the card has expired, the rescue gets the new card, and the bank declines the new card too, because the order is above its limit. A rescued step runs at most twice, so its second failure fails the journey. The charge never runs a third time.
-4. **What happens when the main carrier cannot take the parcel?** The `ship` step has a retry budget of 1, so it may be tried twice in all, and the workflow gives every attempt a carrier of its own: the main carrier on the first, the backup carrier after. Whether a failure is worth another attempt is the ship step's to say: it reports a carrier that cannot take the parcel as a failure that might work next time, `parcel-refused`, and the budget then allows the second attempt. The ship step never knows there are two carriers. If the second attempt fails too, the journey fails, because the retries are exhausted.
+4. **What happens when the main carrier cannot take the parcel?** The `ship` step has a retry budget of 1, so it may be tried twice in all, and the workflow gives every attempt a carrier of its own: the main carrier on the first, the backup carrier after. Whether a failure is worth another attempt is the ship step's to say: it reports a carrier that cannot take the parcel as a failure that might work next time, `parcel-refused`, and the budget then allows the second attempt. The ship step never knows there are two carriers. If the second attempt fails too, as Gil's does, the journey fails, because the retries are exhausted.
 5. **Is every successful charge audited?** The `audit` policy is attached to `charge`, so its `on step success` hook runs after every successful attempt of the charge, including the one after a rescue. Ben's order shows it: his charge is audited after `charge_rescue`, and Dan's, which never succeeds, is not audited at all.
 6. **Which policy decides what happens after a failure?** None of the shop's policies defines `on step failure`, so no policy changes the default: a step that fails, after its retries or its rescue, fails the journey. The absence is part of what you read.
 7. **When is the customer told?** The `notify` policy is attached to the workflow itself. When the journey ends, its `on workflow success` hook or its `on workflow failure` hook runs, once, unless the journey is aborted, and tells the customer, through an operation the workflow provides to it, which [chapter 18](18-letting-policies-act-on-the-outside-world.md) teaches.
@@ -87,12 +87,12 @@ flowchart TD
 
 The diagram shows:
 
-1. The journey starts with the order's data and runs `reserve`. If reserving fails, the journey goes to its end as failed.
+1. The journey starts with the order's data and runs `reserve`. If reserving fails, as Eve's does, the journey goes to its end as failed.
 2. Then `charge` runs. When it succeeds, the `audit` policy logs the charge.
-3. When the charge fails, the rescue step `charge_rescue` runs and asks the bank for the new card. If the rescue fails, the journey goes to its end as failed.
-4. When the rescue succeeds, the charge runs once more. If it succeeds, `audit` logs it; if it fails, the journey goes to its end as failed.
+3. When the charge fails, the rescue step `charge_rescue` runs and asks the bank for the new card. If the rescue fails, as Fin's does, the journey goes to its end as failed.
+4. When the rescue succeeds, the charge runs once more. If it succeeds, as Ben's does, `audit` logs it; if it fails, as Dan's does, the journey goes to its end as failed.
 5. After the audit, `ship` makes its first attempt, with the main carrier. If it succeeds, the journey goes to its end as succeeded.
-6. If the first attempt fails in a way that might work next time, `ship` makes a second attempt, with the backup carrier. If that succeeds, the journey goes to its end as succeeded; if it fails, the journey goes to its end as failed.
+6. If the first attempt fails in a way that might work next time, `ship` makes a second attempt, with the backup carrier. If that succeeds, as Cat's does, the journey goes to its end as succeeded; if it fails, as Gil's does, the journey goes to its end as failed.
 7. At a successful end, `notify` tells the customer the order is on its way, and the journey succeeded.
 8. At a failed end, `notify` tells the customer the order could not be completed, and the journey failed.
 

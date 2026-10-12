@@ -7,7 +7,7 @@ A-1:
 succeeded
 A-2:
   WARN charge, attempt 1: expired-card
-  INFO charge rescued by charge_rescue
+  INFO charge to be rescued by charge_rescue
   INFO audit: charged 25, receipt R-ben-card-2029-25
   to Ben: order A-2 is on its way: T-A-2
 succeeded
@@ -19,8 +19,28 @@ A-3:
 succeeded
 A-4:
   WARN charge, attempt 1: expired-card
-  INFO charge rescued by charge_rescue
+  INFO charge to be rescued by charge_rescue
   WARN charge, attempt 2: declined
   WARN charge given up: failure
   to Dan: order A-4 could not be completed
 failed: failure, declined
+A-5:
+  WARN reserve, attempt 1: out-of-stock
+  WARN reserve given up: failure
+  to Eve: order A-5 could not be completed
+failed: failure, out-of-stock
+A-6:
+  WARN charge, attempt 1: declined
+  INFO charge to be rescued by charge_rescue
+  WARN charge_rescue, attempt 1: nothing-to-renew
+  WARN charge_rescue given up: failure
+  to Fin: order A-6 could not be completed
+failed: failure, nothing-to-renew
+A-7:
+  INFO audit: charged 45, receipt R-gil-card-2029-45
+  WARN ship, attempt 1: parcel-refused
+  INFO ship tried again
+  WARN ship, attempt 2: parcel-refused
+  WARN ship given up: retries exhausted
+  to Gil: order A-7 could not be completed
+failed: retries exhausted, parcel-refused

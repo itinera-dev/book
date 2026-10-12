@@ -10,14 +10,14 @@ On the web pages, the **programming language** selector at the top of every page
 
 ## Meet the shop
 
-Every example belongs to the same small online shop, and to the same four customers. In [chapter 1](01-but-why-itinera.md) you meet them like this:
+Every example belongs to the same small online shop and its customers. In [chapter 1](01-but-why-itinera.md) you meet the first four:
 
 1. **Ann**, whose order goes through without trouble.
 2. **Ben**, whose card has expired, so the shop has to get his new one.
 3. **Cat**, whose parcel is too heavy for the main carrier, so it goes to the backup carrier.
 4. **Dan**, whose card has expired too, and whose bank refuses the new one, because his order is above its limit.
 
-Their orders are numbered A-1, A-2, A-3 and A-4, in that order. Other chapters use only some of them, or give them other problems, such as a declined card or an address the carrier does not know, whatever the chapter is about. The names and the order numbers stay the same, so you never have to learn a new example.
+Their orders are numbered A-1, A-2, A-3 and A-4, in that order. Other chapters use only some of them, give them other problems, such as a declined card or an address the carrier does not know, or bring in a new customer when the chapter needs an order none of them gives, as [chapter 3](03-read-the-workflow-know-what-happens.md) does. A customer keeps the same name and order number wherever they appear, so you never have to learn a new example.
 
 ## The shape of a chapter
 

@@ -77,7 +77,9 @@ struct Warehouse {
     out_of_stock: &'static [&'static str],
 }
 
-const WAREHOUSE: Warehouse = Warehouse { out_of_stock: &[] };
+const WAREHOUSE: Warehouse = Warehouse {
+    out_of_stock: &["A-5"],
+};
 
 impl StockStore for Warehouse {
     fn reserve(&self, order: &str) -> bool {
@@ -292,7 +294,7 @@ impl Reporter for Log {
             }
             EventBody::StepRetrying { step, .. } => println!("  INFO {} tried again", step.step),
             EventBody::StepRescuing { step, rescue, .. } => {
-                println!("  INFO {} rescued by {rescue}", step.step);
+                println!("  INFO {} to be rescued by {rescue}", step.step);
             }
             EventBody::StepGivenUp { step, cause, .. } => {
                 println!("  WARN {} given up: {cause}", step.step);
@@ -405,6 +407,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("A-2", "Ben", "ben-card-2024", 25, None, 1),
         ("A-3", "Cat", "cat-card-2027", 30, None, 30),
         ("A-4", "Dan", "dan-card-2025", 1200, None, 3),
+        ("A-5", "Eve", "eve-card-2027", 20, None, 2),
+        ("A-6", "Fin", "fin-card-2028", 1500, None, 4),
+        ("A-7", "Gil", "gil-card-2029", 45, None, 60),
     ];
     // ANCHOR_END: orders
     let mut executor = LocalExecutor::new();
