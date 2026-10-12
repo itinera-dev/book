@@ -24,7 +24,7 @@ region: workflow
 asynchronous: ch06_one_step_async
 ```
 
-The asynchronous workflow is declared `asynchronous`. A workflow and its steps share one mode: a synchronous step in an asynchronous workflow, or the reverse, does not compile.
+The asynchronous workflow needs nothing more: its step's `run` is an `async fn`, so the workflow is asynchronous. A workflow's steps are all synchronous or all asynchronous: mixing them does not compile.
 
 The journey starts with what the shop knows about the order: here, only its price, in a plain struct.
 

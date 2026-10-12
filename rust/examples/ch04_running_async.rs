@@ -47,8 +47,8 @@ impl Ship {
 }
 
 // ANCHOR: workflow
-/// The shop's workflow, declared asynchronous.
-#[workflow(name = "orders", asynchronous, reporters = [DebugReporter])]
+/// The shop's workflow, asynchronous because its steps are.
+#[workflow(name = "orders", reporters = [DebugReporter])]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]
 struct Orders;

@@ -60,4 +60,4 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 
-For the asynchronous form, turn on the `async` feature, write `async fn run` and `async fn` hooks, add `asynchronous` to `#[workflow(...)]`, implement `AsyncReporter` for an asynchronous reporter and list it with `async_reporters = [...]`, or keep a synchronous one under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.
+For the asynchronous form, turn on the `async` feature, write `async fn run` and `async fn` hooks, which make the workflow asynchronous, implement `AsyncReporter` for an asynchronous reporter and list it with `async_reporters = [...]`, or keep a synchronous one under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.

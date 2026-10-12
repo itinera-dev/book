@@ -95,4 +95,4 @@ Defined in [1.8, Tiers and capabilities](https://github.com/itinera-dev/spec/blo
 
 - **Tier:** a level of what Itinera means, each including everything before it. Tier 1 is a single workflow. What a tier contains is fixed for each version of the specification.
 - **Capability:** a property of an executor or a language that varies independently of the tier. In tier 1, the capabilities are the execution modes an executor accepts, `sync` and `async`; `itinera` claims both, the second with its `async` feature.
-- **Execution mode:** whether a step, hook or reporter is synchronous or asynchronous. In Rust, a workflow is synchronous unless `#[workflow(...)]` says `asynchronous`, and then its steps and hooks are written with `async fn`, and its reporters may be of either kind.
+- **Execution mode:** whether a step, hook or reporter is synchronous or asynchronous. In Rust, a workflow takes its mode from its steps: it is asynchronous when its steps' `run` is an `async fn`, and then its hooks are written with `async fn` too, and its reporters may be of either kind.

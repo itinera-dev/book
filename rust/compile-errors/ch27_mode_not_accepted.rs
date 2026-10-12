@@ -16,8 +16,8 @@ impl Charge {
     }
 }
 
-/// The shop's workflow, declared asynchronous.
-#[workflow(name = "orders", asynchronous)]
+/// The shop's workflow, asynchronous because its steps are.
+#[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
 struct Orders;
 

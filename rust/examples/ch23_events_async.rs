@@ -95,8 +95,8 @@ fn detail(body: &EventBody) -> Option<String> {
 // ANCHOR_END: log
 
 // ANCHOR: workflow
-/// The shop's workflow, declared asynchronous, with every journey logged.
-#[workflow(name = "orders", asynchronous, async_reporters = [Log])]
+/// The shop's workflow, asynchronous because its steps are, with every journey logged.
+#[workflow(name = "orders", async_reporters = [Log])]
 #[with_step(Reserve, name = "reserve")]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]

@@ -69,8 +69,8 @@ impl Audit {
 // ANCHOR_END: policy
 
 // ANCHOR: workflow
-/// The shop's workflow, declared asynchronous: every charge is audited.
-#[workflow(name = "orders", asynchronous)]
+/// The shop's workflow, asynchronous because its steps are: every charge is audited.
+#[workflow(name = "orders")]
 #[with_step(Charge, name = "charge", policies = [Audit])]
 #[with_step(Ship, name = "ship")]
 struct Orders;

@@ -34,7 +34,7 @@ region: workflow
 asynchronous: ch18_roles_async
 ```
 
-The asynchronous form declares the workflow `asynchronous`, as every workflow with asynchronous policies is.
+In the asynchronous form, the steps are asynchronous, and so the workflow is too, as every workflow with asynchronous policies must be.
 
 Each instance is created with the shop's channel, then run.
 

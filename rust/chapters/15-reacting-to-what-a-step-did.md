@@ -24,7 +24,7 @@ region: workflow
 asynchronous: ch15_audit_async
 ```
 
-An asynchronous policy can be attached only to the steps of a workflow declared `asynchronous`, so the asynchronous form adds that word to `#[workflow(...)]`.
+An asynchronous policy can be attached only to the steps of an asynchronous workflow, one whose steps are asynchronous, as they are in the asynchronous form.
 
 Two orders go through: one that can be charged, and one with nothing to charge.
 

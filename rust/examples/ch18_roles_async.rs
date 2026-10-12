@@ -84,8 +84,8 @@ impl Notify {
 // ANCHOR_END: policy
 
 // ANCHOR: workflow
-/// The shop's workflow, declared asynchronous, which tells customers through the shop's channel.
-#[workflow(name = "orders", policies = [Notify], asynchronous)]
+/// The shop's workflow, asynchronous because its steps are, which tells customers through the shop's channel.
+#[workflow(name = "orders", policies = [Notify])]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]
 struct Orders {
