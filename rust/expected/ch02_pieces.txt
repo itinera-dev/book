@@ -1,8 +1,9 @@
 A-1: the journey succeeded
   charged: 35
-  audit: charged 35
   tracking: T-A-1
-A-2: the journey failed, nothing-to-charge
+A-2: the journey failed, the step said nothing-to-charge
   charged: -
-  audit: -
+  tracking: -
+A-3: the journey failed, a hook said needs-review
+  charged: 900
   tracking: -
