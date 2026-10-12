@@ -54,6 +54,6 @@ region: step
 
 1. **The flow has one place.** The order of the steps, and the rule that a failed step stops the journey, are read from the workflow's declaration, not from a function body.
 2. **Each step stands alone.** The charge and the shipping never call each other, never know each other's data or failures, and can be tested on their own.
-3. **The caller knows one thing.** It runs a journey and reads the result: `result.status` says whether the journey succeeded, failed or was aborted, and `result.output()` reads the data it ended with, when it has any. It never needs to know how many steps there are, or how each one fails, and its types don't change when a step gains a new kind of failure.
+3. **The caller knows one thing.** It runs a journey and reads the result: `result.status` says whether the journey succeeded, failed or was aborted, and, as [chapter 9](09-passing-data-on.md) shows, the result also carries the data it ended with. It never needs to know how many steps there are, or how each one fails, and its types don't change when a step gains a new kind of failure.
 4. **What happened is told the same way for every journey.** The executor reports every step's attempt and outcome as events, whoever wrote the step, as [chapter 23](23-seeing-what-happened.md) shows.
 5. **Adding a step changes the list, not the callers.** Reserving the stock before charging, as the shop will later do, is one more `#[with_step(...)]` line in the workflow.

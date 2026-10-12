@@ -138,11 +138,18 @@ name: ch13_backup_carrier
 region: workflow
 ```
 
-It could instead read a choice that the `on step retry` hook of a step policy contributed, as data from the workflow. Or the step can read its carrier's name from the data bag, as an optional input, and the hook names the backup carrier before the next attempt:
+It could instead read a choice that the `on step retry` hook of a step policy contributed, as data from the workflow. The hook names the backup carrier before the next attempt:
 
 ```example
 name: part4_retry_hook
 region: policy
+```
+
+The workflow attaches the policy to the ship step, and its provider reads the carrier's name with `#[from_workflow]`, as an `Option<String>` that is `None` until the hook has named one. The ship step is unchanged:
+
+```example
+name: part4_retry_hook
+region: workflow
 ```
 
 ## Repair code inside the business rule

@@ -28,7 +28,7 @@ To answer "how many times is a card charged before the shop gives up?", you read
 
 ## Deciding the flow with Itinera
 
-With Itinera, a step only reports what happened. In [chapter 10](10-saying-how-it-went.md) the shipping meets a failure worth trying again, a parcel the carrier cannot take, and returns `Self::fail_retriably("parcel-refused")`:
+With Itinera, a step only reports what happened. In [chapter 10](10-saying-how-it-went.md) the shipping meets a failure that might work next time, a parcel too heavy for its carrier, and returns `Self::fail_retriably("parcel-refused")`:
 
 ```example
 name: ch10_outcomes

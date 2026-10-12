@@ -20,7 +20,7 @@ name: ch13_backup_carrier
 region: workflow
 ```
 
-Four orders go through, and each one's data takes it down a different path: a parcel of 2 kg, an order with no address, a parcel of 30 kg and one of 60 kg. The faked carriers print what they do.
+Four orders go through, and each one's data takes it down a different path: a parcel of 2 kg, an order with no address, a parcel of 30 kg and one of 60 kg. The faked carriers print what they do, and the `report` function prints how each journey ended; [chapter 22](22-reading-the-result.md) shows how to read a result.
 
 ```example
 name: ch13_backup_carrier
@@ -42,7 +42,7 @@ name: ch13_backup_carrier
 5. **When the budget is spent, the step is given up.** The 60 kg parcel is too heavy for both carriers. Its second attempt fails too, no retry is left, and the journey fails with the cause `retries exhausted` and the last attempt's reason.
 6. **The events tell the whole story.** Every failed attempt is a fact, `StepFailed`, with its reason and its retriable flag. Then comes the decision: `StepRetrying` before another attempt, or `StepGivenUp` with its cause. [Chapter 23](23-seeing-what-happened.md) shows how to read them.
 7. **Retries happen at once.** The executor never waits between attempts. A step that needs to wait for a carrier waits before it reports its failure.
-8. **The choice of carrier belongs to the workflow.** The provider is part of the workflow, like the step's retry budget, and is called for each attempt. Here it reads the attempt number; [chapter 15](15-reacting-to-what-a-step-did.md) shows how a policy can also decide what changes before the next attempt. Either way, the ship step only ships.
+8. **The choice of carrier belongs to the workflow.** The provider is part of the workflow, like the step's retry budget, and is called for each attempt. Here it reads the attempt number; the closing section of [Part 4](part-4-without-itinera.md#another-carrier-on-the-next-attempt) shows a step policy's `on step retry` hook choosing the carrier instead. Either way, the ship step only ships.
 
 ## Remember
 

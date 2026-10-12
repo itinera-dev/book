@@ -16,7 +16,7 @@ asynchronous: ch15_audit_async
 
 In the asynchronous form, the hooks are `async fn`, which makes the whole policy asynchronous.
 
-The workflow attaches the policy to the charge step, with `policies = [Audit]` on the step's line. The charge itself is the same as in [chapter 6](06-a-workflow-of-one-step.md).
+The workflow attaches the policy to the charge step, with `policies = [Audit]` on the step's line. The charge is chapter 6's, but it contributes what it took under `charged`, as in [chapter 9](09-passing-data-on.md).
 
 ```example
 name: ch15_audit
