@@ -13,7 +13,7 @@ import { unified } from 'unified';
 import { VFile } from 'vfile';
 
 import { build, root } from '../../book.config.mjs';
-import { contents, type Page } from './contents.ts';
+import { type Page, pageSlugs } from './contents.ts';
 import remarkBookDirectives from './directives.ts';
 import { rewriteLinks } from './links.ts';
 import { rehypeDiagrams, rehypeListingNames, rehypeTables } from './rehype.ts';
@@ -27,16 +27,11 @@ function remarkBookLinks(options: { pages: () => ReadonlySet<string> }) {
 
 let processor: ReturnType<typeof create> | undefined;
 
-/** The slugs of the book's pages, which links to chapters are checked against. */
-function pages(): ReadonlySet<string> {
-	return new Set(contents().pages.map((page) => page.slug));
-}
-
 function create() {
 	return unified()
 		.use(remarkParse)
 		.use(remarkGfm)
-		.use(remarkBookLinks, { pages })
+		.use(remarkBookLinks, { pages: pageSlugs })
 		.use(remarkBookDirectives, { edition: build.edition })
 		.use(remarkRehype)
 		// Before the highlighter, which would otherwise colour a diagram's source.

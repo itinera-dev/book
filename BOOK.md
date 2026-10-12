@@ -13,6 +13,10 @@ A reader finishes the book able to:
 3. run it, observe it and test it;
 4. explain to someone else why the flow lives where it does.
 
+An agent working with the book gains what a person does, and one thing more: in an Itinera codebase, changing a business rule needs only its step, and changing the flow needs only one workflow, so the context an agent needs is given to it rather than left for it to rebuild.
+
+The book follows the message and the design of the Itinera site, [itinera-dev.github.io](https://itinera-dev.github.io/), which owns them: its slogan, "Separate process from logic. Make agentic code safer.", its argument on the "Why Itinera" page, its colours and its logo. The book teaches what the site claims, with code that compiles and runs, and links to the site rather than retelling it.
+
 ## How the book is written
 
 ### Voice
@@ -64,7 +68,7 @@ The usual code is real code in the book's language too, compiled and run like ev
 
 Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
 
-1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part.
+1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove, and systems that grow until nobody can say what one request does, which agents make worse; keeping the process apart from the logic was good practice before agents, and is a matter of safety with them. The page takes this from the site's "Why Itinera" and links to it. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part.
 2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its four customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
 3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
 
@@ -169,13 +173,16 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 2. Each language's own repository pins a commit of this repository and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
 3. A change that breaks the book on purpose comes as a pair of pull requests, one here and one in the language's repository. The book's pull request updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request, and both go green together. Until the next release, the book stays pinned to that commit rather than to a released version.
 4. After a language's release, its edition moves to the released version and is tagged, for example `rust-0.1.0-rc.1`. The site quotes only from such tags, so each published edition matches a published package.
-5. Each language's editions are published at three kinds of address:
+
+## Where editions are published
+
+1. Each language's editions are published at three kinds of address:
    1. the latest release at `/book/LANGUAGE/`, such as `/book/rust/`;
    2. every release, frozen, at `/book/LANGUAGE/VERSION/`, such as `/book/rust/0.1.0-rc.1/`, so a link to it never changes;
    3. the main branch, ahead of any release, at `/book/LANGUAGE/next/`.
 
    Until a language's first release, its main branch is published at `/book/LANGUAGE/`, so links to the book work from the start.
-6. A page, once published, keeps its address in every later edition. A new chapter takes the next free number, after the existing ones, and a page that has to move leaves a redirect at its old address.
+2. A published page keeps its address in every later edition. A new chapter goes where it renumbers no published page, and a page that is moved or renamed leaves a redirect at its old address.
 
 ## Open points
 

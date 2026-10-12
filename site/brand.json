@@ -9,7 +9,7 @@
 		},
 		{
 			"copy": "public/favicon.svg",
-			"from": "favicon.svg, as the site builds it",
+			"from": "src/pages/favicon.svg.ts",
 			"sha256": "095ba32892ce6099644fa25b2d37b48e4c207020b144b806e28a7da15c50a176"
 		}
 	]

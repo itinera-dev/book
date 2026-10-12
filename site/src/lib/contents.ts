@@ -133,6 +133,11 @@ export function contents(): Contents {
 	return cached;
 }
 
+/** The slugs of the book's pages, which links to chapters are checked against. */
+export function pageSlugs(): ReadonlySet<string> {
+	return new Set(contents().pages.map((page) => page.slug));
+}
+
 /** The name of a page wherever it is listed away from the contents, such as a previous or next link. */
 export function pageName(page: Page): string {
 	if (page.kind === 'chapter') return `${page.number}. ${page.label}`;

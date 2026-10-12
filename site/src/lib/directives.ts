@@ -120,12 +120,18 @@ interface Listing {
 	code: string;
 }
 
-/** A caption's phrasing without the elements only the web page styles: a marker stays bold. */
+/** A link whose text is a file's name, written as code, as Markdown writes file names. */
+function codeLink(node: PhrasingContent): PhrasingContent {
+	if (node.type !== 'link') return node;
+	return { ...node, children: node.children.map((child) => (child.type === 'text' ? { type: 'inlineCode', value: child.value } : child)) };
+}
+
+/** A caption's phrasing without the elements only the web page styles: a marker stays bold, the language's name is plain text, and file names are code. */
 function plainCaption(caption: PhrasingContent[]): PhrasingContent[] {
-	return caption.map((node) => {
-		if ((node.type as string) !== 'bookElement') return node;
+	return caption.flatMap((node): PhrasingContent[] => {
+		if ((node.type as string) !== 'bookElement') return [codeLink(node)];
 		const { data, children } = node as unknown as { data: { hName: string }; children: PhrasingContent[] };
-		return data.hName === 'strong' ? { type: 'strong', children } : { type: 'emphasis', children };
+		return data.hName === 'strong' ? [{ type: 'strong', children }] : children;
 	});
 }
 
@@ -160,10 +166,12 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			if (markdown) return plainListing(caption, lang, code);
 			listings += 1;
 			const id = `listing-${listings}`;
-			return [element('figure', { className: ['listing', ...classes] }, [
-				element('figcaption', { id, className: ['listing__caption'] }, caption),
-				{ type: 'code', lang, value: code } satisfies Code,
-			])];
+			return [
+				element('figure', { className: ['listing', ...classes] }, [
+					element('figcaption', { id, className: ['listing__caption'] }, caption),
+					{ type: 'code', lang, value: code } satisfies Code,
+				]),
+			];
 		};
 
 		const programCaption = (lead: string, name: string, path: string, after: PhrasingContent[] = []) => [

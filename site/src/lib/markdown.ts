@@ -14,32 +14,28 @@ import { visit } from 'unist-util-visit';
 import { VFile } from 'vfile';
 
 import { build, markdownHref, pageHref, root, site } from '../../book.config.mjs';
-import { contents, type Page } from './contents.ts';
+import { type Page, pageSlugs } from './contents.ts';
 import remarkBookDirectives from './directives.ts';
 import { rewriteLinks } from './links.ts';
 import { readText } from './text.ts';
 
-/** The slugs of the book's pages, which links to chapters are checked against. */
-function slugs(): ReadonlySet<string> {
-	return new Set(contents().pages.map((page) => page.slug));
-}
-
 /** Where a link the web page would follow goes in the Markdown copy. */
-function absolute(url: string): string {
+function absolute(url: string, slugs: ReadonlySet<string>): string {
 	if (!url.startsWith('/')) return url;
 	const hash = url.indexOf('#');
 	const path = hash === -1 ? url : url.slice(0, hash);
 	const fragment = hash === -1 ? '' : url.slice(hash);
 	if (path === pageHref()) return `${site}${markdownHref()}${fragment}`;
-	const page = [...slugs()].find((slug) => path === pageHref(slug));
+	const page = [...slugs].find((slug) => path === pageHref(slug));
 	return `${site}${page ? markdownHref(page) : path}${fragment}`;
 }
 
 function remarkMarkdownCopy(options: { from: string }) {
 	return (tree: Root) => {
-		rewriteLinks(tree, options.from, slugs());
+		const slugs = pageSlugs();
+		rewriteLinks(tree, options.from, slugs);
 		visit(tree, (node) => {
-			if (node.type === 'link' || node.type === 'definition') node.url = absolute(node.url);
+			if (node.type === 'link' || node.type === 'definition') node.url = absolute(node.url, slugs);
 		});
 	};
 }
