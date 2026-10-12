@@ -8,7 +8,7 @@ description = "The Rust examples of the Itinera book."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "30aa50da6777cad1482049bc074ba1b97abf5749", features = ["async"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "f94cb8fec4f39c243dd15a35085df12bf6cc5315", features = ["async"] }
 futures = { version = "0.3", default-features = false, features = ["executor"] }
 
 [dev-dependencies]

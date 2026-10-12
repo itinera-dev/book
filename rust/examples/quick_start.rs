@@ -5,7 +5,7 @@ use itinera::error::Error;
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, step_policy};
-use itinera::report::PrintingReporter;
+use itinera::report::DebugReporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -67,15 +67,9 @@ impl Fallback {
 }
 // ANCHOR_END: policy
 
-// ANCHOR: reporter
-/// Prints every event of a journey on a line of its own.
-#[derive(Default, PrintingReporter)]
-struct Printer;
-// ANCHOR_END: reporter
-
 // ANCHOR: workflow
 /// The shop's workflow: charge, then ship, trying shipping twice with the fallback policy.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders", reporters = [DebugReporter])]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship", retry_budget = 1, policies = [Fallback])]
 struct Orders;
