@@ -47,7 +47,7 @@ impl Ship {
 }
 
 // ANCHOR: policy
-/// Stops an order whose charge is above the shop's review limit, so a person looks at it before
+/// Stops an order whose charge is above the order's review limit, so a person looks at it before
 /// anything is shipped.
 #[derive(Default)]
 struct Review;
@@ -94,7 +94,11 @@ struct Summary {
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let orders = [("A-1", 40, Some(5)), ("A-2", 10, Some(10)), ("A-3", 900, None)];
+    let orders = [
+        ("A-1", 40, Some(5)),
+        ("A-2", 10, Some(10)),
+        ("A-3", 900, None),
+    ];
     let mut executor = LocalExecutor::new();
     for (order, price, discount) in orders {
         let instance = Orders::builder()
@@ -110,7 +114,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             JourneyStatus::Failed {
                 failure: Failure::Failure(reason),
                 ..
-            } => println!("{order}: the journey failed, the step said {}", reason.code()),
+            } => println!(
+                "{order}: the journey failed, the step said {}",
+                reason.code()
+            ),
             JourneyStatus::Failed {
                 failure: Failure::FailWorkflow(reason),
                 ..

@@ -6,7 +6,7 @@ You want to answer the questions of [chapter 1](01-but-why-itinera.md) about the
 
 ## The code
 
-This is the whole shop's workflow. Its steps are written much as you would expect from [chapter 2](02-steps-policies-and-workflows.md); what matters here is the declaration. `Log` is a **reporter**: a type implementing the `Reporter` trait, which receives everything that happens in a journey and writes the failures and decisions to the shop's log, as [chapter 23](23-seeing-what-happened.md) shows.
+This is the shop's workflow, doing what chapter 1's checkout does, so the two can be compared; it leaves out chapter 2's review. Its steps are written much as you would expect from [chapter 2](02-steps-policies-and-workflows.md), and its `audit` policy is a step policy like chapter 2's `review`, whose `on step success` hook records each charge in the data bag; what matters here is the declaration. `Log` is a **reporter**: a type implementing the `Reporter` trait, which receives everything that happens in a journey and writes the failures and decisions to the shop's log, as [chapter 23](23-seeing-what-happened.md) shows.
 
 ```example
 name: ch03_shop

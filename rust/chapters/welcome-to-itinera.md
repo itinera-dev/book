@@ -97,7 +97,7 @@ That is exactly what Itinera runs. One execution of a workflow for one order is 
 
 ## How this book is laid out
 
-The book follows one small online shop from start to finish. It charges orders, ships them through a carrier, falls back to another carrier when the first one fails, audits every successful charge, sends an order to review instead of shipping it when its charge is above its review limit, and tells customers how their order went. The shop grows a little in every chapter.
+The book follows one small online shop from start to finish. It charges orders, ships them through a carrier, falls back to another carrier when the first one fails, audits every successful charge, sends an order to review instead of shipping it when its charge is above the review limit the order carries, and tells customers how their order went. The shop grows a little in every chapter.
 
 1. Before Part 1 come three short pages: this welcome, [how to read this book](how-to-read-this-book.md), and a [quick start](quick-start.md) that shows a whole workflow on one page.
 2. **Part 1, Introduction,** asks why you would want Itinera at all, then gives you the few ideas it is built on.
