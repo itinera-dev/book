@@ -24,7 +24,10 @@ fn changing() -> Redactions {
     redactions
         .insert(
             "[JOURNEY_ID]",
-            Regex::new(r#"JourneyId\("(?<redacted>[0-9a-f-]{36})"\)"#).unwrap(),
+            Regex::new(
+                r#"JourneyId\("(?<redacted>[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})"\)"#,
+            )
+            .unwrap(),
         )
         .unwrap();
     redactions
