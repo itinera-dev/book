@@ -10,6 +10,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A workflow and its steps | the plan: the steps in order, each under its name | [6](06-a-workflow-of-one-step.md), [7](07-adding-a-step.md) |
 | A step's inputs, required or optional | the data a step needs, which the workflow supplies | [8](08-giving-a-step-what-it-needs.md) |
 | A contributor | how a step adds data to the data bag | [9](09-passing-data-on.md) |
+| Reading the result and its output | how the journey ended, and the data bag it left | [9](09-passing-data-on.md), [22](22-reading-the-result.md) |
 | An outcome | success, failure with a reason, a failure that might work next time, or skipped | [10](10-saying-how-it-went.md) |
 | An abnormal termination | an error that escapes a running step | [11](11-when-something-goes-wrong-inside-a-step.md) |
 | A service and its provider | a tool a step asks for by a key, and the part of the workflow that supplies it, per journey or per attempt | [12](12-giving-a-step-the-tools-it-needs.md) |
@@ -25,7 +26,6 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A workflow instance and its initial data | one journey's starting point | [21](21-running-many-journeys.md) |
 | An executor, and running an instance | runs one journey and returns its result, or refuses it | [21](21-running-many-journeys.md) |
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
-| Reading the result and its output | how the journey ended, and the data bag it left | [9](09-passing-data-on.md), [22](22-reading-the-result.md) |
 | A reporter | receives every event of a journey | [23](23-seeing-what-happened.md) |
 | A step's own events | what only the step knows, emitted as `step_info`, `step_warning` or `step_error`; a hook emits `journey_info`, `journey_warning` or `journey_error` | [23](23-seeing-what-happened.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
@@ -40,6 +40,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A workflow and its steps | `#[workflow(name = "orders")]` on its struct, then one `#[with_step(Charge, name = "charge")]` line per step, in order | 6, 7 |
 | A step's inputs | a field marked `#[input]`, or `#[input("key")]`; an `Option<T>` field is optional | 8 |
 | A contributor | a parameter of `run` marked `#[contributor]`, of type `Contributor<'_>`, then `contributor.contribute("key", value)` | 9 |
+| Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 9, 22 |
 | An outcome | `Self::succeed()`, `Self::fail("code")`, `Self::fail_retriably("code")`, `Self::skip()` or `Self::skip_because("code")` | 10 |
 | An abnormal termination | `run` returns `Err(error)`, often through `?` | 11 |
 | A service and its provider | a parameter of `run` marked `#[service]`, or `#[service("key")]`, of type `&dyn Trait`; a method of the workflow's `#[workflow] impl` block marked `#[provider]` or `#[provider(per_attempt)]`, optionally with any of `steps = ["..."]`, `key = "..."` and `name = "..."`, returning `Result<Box<dyn Trait>, Error>`; a per-attempt provider may request `#[step_name]` and `#[attempt]` | 12, 13 |
@@ -55,7 +56,6 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 21 |
 | An executor, and running an instance | `LocalExecutor::new().run(instance)`, which returns `Result<JourneyResult, Refusal>` | 21 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
-| Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 9, 22 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
