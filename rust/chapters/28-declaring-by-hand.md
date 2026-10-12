@@ -6,6 +6,8 @@ So far you've declared the shop in the short form: the attributes and derives th
 
 ## The code
 
+### The shop in the short form
+
 Here is the shop in the short form you've used so far: a charge and a ship step, the `audit` and `notify` policies, the `Messages` role, and the workflow that puts them together.
 
 ```example
@@ -40,6 +42,8 @@ It prints:
 ```output
 name: ch28_short_form
 ```
+
+### The same shop by hand
 
 Now the same shop, by hand. A step is two things: the step itself, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`. The factory says what the step needs, as a `StepNeeds`, and builds the step from what the workflow resolved. A step that needs nothing can be a plain function.
 
@@ -92,7 +96,7 @@ name: ch28_by_hand
 
 This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the pricing adapter is attached to `charging`, a step the workflow doesn't have.
 
-Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built.
+Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built. Its steps and policies are declared with the attributes and go into the builder through their `descriptor`, as item 7 below explains, and `pricing_for` makes the `InputAdapterDescriptor` of chapter 19's pricing adapter, attached to the step it is given.
 
 ```example
 name: ch28_violations
@@ -125,7 +129,7 @@ name: ch28_violations
 
 ## How it works
 
-1. **The short form writes descriptors.** Whatever form you write in, a workflow is a workflow descriptor: its name, a step descriptor for each step in order, its workflow policies, its input adapters and the roles it provides. The short form writes the descriptors from your types and their attributes; in the long form you write them yourself. The executor doesn't know or care which form made them, and the two programs above behave the same and print the same.
+1. **The short form writes descriptors.** Whatever form you write in, a workflow is a workflow descriptor: its name, a step descriptor for each step in order, its workflow policies, its input adapters and the roles it provides. The short form writes the descriptors from your types and their attributes; in the long form you write them yourself. The executor doesn't know or care which form made them, and the short-form and long-form shops above behave the same and print the same.
 2. **Each attribute stands for public traits and builders.** The short form is the attributes and derives of the `macros` feature, which is on by default, and the long form is what they expand to:
    - `#[derive(Step)]` implements `FromInputs`: what the step needs, as a `StepNeeds`, and how it is built from a `Resolved`. `#[step]` implements `DescribedStep`, whose `descriptor(name)` makes the `StepDescriptor`, and turns each handle marked in `run` into a need, such as `.contributor()`. By hand, a `StepFactory` does both, and the step implements `Step`. A closure or function returning `Result<Outcome, Error>` is already a factory of a step that needs nothing.
    - `#[step_policy]` and `#[workflow_policy]` implement the trait of each hook, such as `OnStepSuccess<W>`, whose `needs()` lists what the hook requests and whose method reads it from `Requested`. They also implement `StepPolicy<W>` or `WorkflowPolicy<W>`, whose `descriptor()` is a `StepPolicyDescriptor` or `WorkflowPolicyDescriptor` declaring each hook. A role requested by a hook is a bound on the workflow, `Provides<dyn Messages>`, which `#[role]` implements.
@@ -134,7 +138,7 @@ name: ch28_violations
 3. **A step descriptor** holds the step's name, how to build the step, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. How to build the step means saying what it needs, its inputs, its services and its handles, which are its contributor and step reporter, and building it, for each attempt, from what was resolved. Nothing carries over from one attempt to the next, because each attempt gets a new step. That's also why the step in the long form borrows its contributor with a lifetime, `Charge<'a>`: it lives for one attempt only.
 4. **A policy descriptor** holds the policy's name, the hooks it defines, what each hook requests, and how to build an instance of it, here the closure `|| Audit`. Workflow policies are built once per journey, step policies for every attempt.
 5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as the shop with three mistakes above shows; [chapter 27](27-mistakes-caught-before-a-journey.md) lists every violation and how to fix it. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
-6. **The listing reads the descriptor.** Both programs list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
+6. **The listing reads the descriptor.** Both shops, short and long, list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
 7. **The two forms mix.** A step or policy declared in the short form goes into a builder through its `descriptor`, as `Charge::descriptor(step_name!("charge"))` and `Audit::descriptor()`. You can write most of a workflow in the short form and only the part that needs it in the long form.
 8. **When you need the long form:**
    - a declaration put together when the program starts, from the shop's configuration, for example adding a gift-wrapping step only in the shops that offer it. It's still fixed before any journey starts;
