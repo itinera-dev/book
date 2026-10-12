@@ -33,7 +33,7 @@ Use the words defined in chapter 1 of the specification, [01-concepts.md](https:
 
 - Work on a branch; never push to `main` directly.
 - Commit messages and pull request descriptions say what changed and why, in plain prose.
-- Every change an agent makes is reviewed by a separate reviewer agent before its pull request is opened.
+- Every change an agent makes is reviewed by a separate reviewer agent before its pull request is opened. The reviewer checks it against this manual and BOOK.md, starting with "Each idea in its own chapter".
 
 ## Working with the maintainer
 
