@@ -1,8 +1,11 @@
 order A-1:
-  ship, attempt 1: carrier-down
+  the main carrier is down
+  the backup carrier takes A-1
   the journey succeeded, tracking B-A-1
 order A-3:
-  ship, attempt 1: carrier-down
+  the main carrier is down
+  the backup carrier takes A-3
   the journey succeeded, tracking B-A-3
 order A-4:
+  the backup carrier takes A-4
   the journey succeeded, tracking B-A-4

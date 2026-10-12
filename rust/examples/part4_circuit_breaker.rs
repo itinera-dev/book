@@ -7,11 +7,9 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
-use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::{role, workflow};
 
@@ -21,17 +19,23 @@ trait Carrier: Send + Sync {
     fn send(&self, order: &str) -> Option<String>;
 }
 
-/// A carrier the shop has a contract with, and the prefix of its tracking numbers. Today the
-/// main one is down.
+/// A carrier the shop has a contract with, faked: it says what it does. Today the main one is
+/// down.
 #[derive(Clone)]
 struct Parcels {
+    name: &'static str,
     prefix: &'static str,
     up: bool,
 }
 
 impl Carrier for Parcels {
     fn send(&self, order: &str) -> Option<String> {
-        self.up.then(|| format!("{}-{order}", self.prefix))
+        if !self.up {
+            println!("  {} is down", self.name);
+            return None;
+        }
+        println!("  {} takes {order}", self.name);
+        Some(format!("{}-{order}", self.prefix))
     }
 }
 
@@ -120,23 +124,9 @@ impl Breaker {
     }
 }
 
-/// The shop's log: every failed attempt to ship, with the carrier's reason.
-#[derive(Default)]
-struct Log;
-
-impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        if let EventBody::StepFailed { step, reason, .. } = &event.body {
-            let code = reason.code();
-            println!("  {}, attempt {}: {code}", step.step, step.attempt);
-        }
-        Ok(())
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: shipping is tried twice, and the workflow decides the carrier.
-#[workflow(name = "orders", reporters = [Log])]
+#[workflow(name = "orders")]
 #[with_step(Ship, name = "ship", retry_budget = 1, policies = [Watch])]
 struct Orders {
     main: Parcels,
@@ -202,10 +192,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for order in ["A-1", "A-3", "A-4"] {
         let instance = Orders::builder()
             .main(Parcels {
+                name: "the main carrier",
                 prefix: "T",
                 up: false,
             })
             .backup(Parcels {
+                name: "the backup carrier",
                 prefix: "B",
                 up: true,
             })

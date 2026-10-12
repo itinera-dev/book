@@ -1,23 +1,31 @@
 order A-1
-  attempt_started charge 1
-  step_succeeded charge 1
-  hook_called downloads on step success: returned nothing
-  attempt_started ship 1
-  step_succeeded ship 1
-  journey_succeeded, decided by default
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 256929439 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["customer", "digital", "order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 256994457 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257049712 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257061754 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "charged", source: Step(StepAttempt { step: StepName { name: "charge" }, attempt: 1 }) } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257085821 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: OptionalInputAbsent { key: "download", requester: Hook(Step { policy: PolicyName("downloads"), hook: OnStepSuccess, step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } }) } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257114426 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: HookCalled { hook: Step { policy: PolicyName("downloads"), hook: OnStepSuccess, step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } }, lifecycle: None } }
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257138443 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } } }
+Event { sequence: 8, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257164958 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } } }
+Event { sequence: 9, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257184747 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "tracking", source: Step(StepAttempt { step: StepName { name: "ship" }, attempt: 1 }) } }
+Event { sequence: 10, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257196040 } }, journey_id: JourneyId("5c8f0d00-efba-46a5-90cf-80bfecb0e6d1"), workflow: WorkflowName("orders"), body: JourneySucceeded { decided_by: None } }
 the journey succeeded
 tracking T-A-1
 order A-2
-  attempt_started charge 1
-  step_succeeded charge 1
-  hook_called downloads on step success: returned FinishWorkflow
-  journey_succeeded, decided by downloads
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257266799 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["customer", "digital", "order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257285519 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257313687 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257346136 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "charged", source: Step(StepAttempt { step: StepName { name: "charge" }, attempt: 1 }) } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257363798 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "download", source: Step(StepAttempt { step: StepName { name: "charge" }, attempt: 1 }) } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257387628 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: HookCalled { hook: Step { policy: PolicyName("downloads"), hook: OnStepSuccess, step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } }, lifecycle: Some(FinishWorkflow) } }
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257408017 } }, journey_id: JourneyId("6ddd4791-b098-44c1-89f8-11a3c422c0ba"), workflow: WorkflowName("orders"), body: JourneySucceeded { decided_by: Some(PolicyName("downloads")) } }
 the journey succeeded
 download D-A-2
 order A-3
-  attempt_started charge 1
-  step_abnormal_termination charge 1: the payment network is down
-  hook_called outage on step abnormal termination: returned FailWorkflow
-  step_given_up charge 1: FailWorkflow, decided by outage on step abnormal termination
-  journey_failed at charge: FailWorkflow
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257468867 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["customer", "digital", "order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257486526 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257513934 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: StepAbnormalTermination { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, message: "the payment network is down" } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257546817 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: HookCalled { hook: Step { policy: PolicyName("outage"), hook: OnStepAbnormalTermination, step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } }, lifecycle: Some(FailWorkflow(Reason { code: "payment-network-down", message: Some("the payment network is down"), details: None })) } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257568060 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: StepGivenUp { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, cause: FailWorkflow { decided_by: DecidingHook { policy: PolicyName("outage"), hook: OnStepAbnormalTermination }, reason: Reason { code: "payment-network-down", message: Some("the payment network is down"), details: None } } } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837546, tv_nsec: 257591397 } }, journey_id: JourneyId("158285d8-866f-4598-b97a-153062afdb05"), workflow: WorkflowName("orders"), body: JourneyFailed { step: StepName { name: "charge" }, failure: FailWorkflow { decided_by: DecidingHook { policy: PolicyName("outage"), hook: OnStepAbnormalTermination }, reason: Reason { code: "payment-network-down", message: Some("the payment network is down"), details: None } } } }
 the journey failed: payment-network-down

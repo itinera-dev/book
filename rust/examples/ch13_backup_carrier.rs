@@ -1,60 +1,65 @@
-//! Trying again with services: the carrier's provider gives the second attempt of shipping the
-//! backup carrier, so the ship step never knows there are two.
+//! Trying again: shipping may be tried once more, and the carrier's provider gives the second
+//! attempt the backup carrier, so the ship step never knows there are two.
 
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, InitialData, Output};
+use itinera::journey::{
+    Contributor, Failure, InitialData, JourneyResult, JourneyStatus, LastFailure,
+};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
 // ANCHOR: carrier
 /// What the shop asks of a carrier: take a parcel and give back its tracking number.
 trait Carrier: Send + Sync {
-    /// Returns the tracking number, or nothing when the carrier is down.
-    fn send(&self, order: &str) -> Option<String>;
+    /// Returns the tracking number, or nothing when the carrier cannot take the parcel.
+    fn send(&self, order: &str, weight: i64) -> Option<String>;
 }
 // ANCHOR_END: carrier
 
-/// A carrier the shop has a contract with, and the prefix of its tracking numbers. Today the
-/// main one is down.
-#[derive(Clone)]
-struct Parcels {
+/// A carrier the shop has a contract with, faked: it takes parcels up to a weight, and says what
+/// it did.
+struct Van {
+    name: &'static str,
     prefix: &'static str,
-    up: bool,
+    max_weight: i64,
 }
 
-impl Carrier for Parcels {
-    fn send(&self, order: &str) -> Option<String> {
-        self.up.then(|| format!("{}-{order}", self.prefix))
-    }
-}
+const MAIN_CARRIER: Van = Van {
+    name: "the main carrier",
+    prefix: "T",
+    max_weight: 20,
+};
 
-/// Charges an order's price.
-#[derive(Step)]
-struct Charge {
-    #[input]
-    price: i64,
-}
+const BACKUP_CARRIER: Van = Van {
+    name: "the backup carrier",
+    prefix: "B",
+    max_weight: 50,
+};
 
-#[step]
-impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        if self.price <= 0 {
-            return Self::fail("nothing-to-charge");
+impl Carrier for Van {
+    fn send(&self, order: &str, weight: i64) -> Option<String> {
+        if weight > self.max_weight {
+            println!("  {} cannot take {weight} kg", self.name);
+            return None;
         }
-        contributor.contribute("charged", self.price);
-        Self::succeed()
+        println!("  {} takes {order}", self.name);
+        Some(format!("{}-{order}", self.prefix))
     }
 }
 
 // ANCHOR: step
-/// Ships an order through the carrier it is lent.
+/// Ships an order to its address, through the carrier it is lent.
 #[derive(Step)]
 struct Ship {
     #[input]
     order: String,
+    #[input]
+    address: Option<String>,
+    #[input]
+    weight: i64,
 }
 
 #[step]
@@ -64,26 +69,25 @@ impl Ship {
         #[service] carrier: &dyn Carrier,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
-        match carrier.send(&self.order) {
+        if self.address.is_none() {
+            return Self::fail("no-address");
+        }
+        match carrier.send(&self.order, self.weight) {
             Some(tracking) => {
                 contributor.contribute("tracking", tracking);
                 Self::succeed()
             }
-            None => Self::fail_retriably("carrier-down"),
+            None => Self::fail_retriably("parcel-refused"),
         }
     }
 }
 // ANCHOR_END: step
 
 // ANCHOR: workflow
-/// The shop's workflow: shipping is tried twice, and the workflow decides the carrier.
+/// The shop's workflow: shipping may be tried twice, and the workflow decides the carrier.
 #[workflow(name = "orders")]
-#[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship", retry_budget = 1)]
-struct Orders {
-    main: Parcels,
-    backup: Parcels,
-}
+struct Orders;
 
 #[workflow]
 impl Orders {
@@ -91,9 +95,9 @@ impl Orders {
     #[provider(per_attempt)]
     fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
         if attempt.get() == 1 {
-            return Ok(Box::new(self.main.clone()));
+            return Ok(Box::new(MAIN_CARRIER));
         }
-        Ok(Box::new(self.backup.clone()))
+        Ok(Box::new(BACKUP_CARRIER))
     }
 }
 // ANCHOR_END: workflow
@@ -102,36 +106,44 @@ impl Orders {
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
-    price: i64,
+    address: Option<String>,
+    weight: i64,
 }
 
-/// What the shop reads back once the journey has ended.
-#[derive(Output)]
-struct Shipped {
-    tracking: Option<String>,
-}
-
+// ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let instance = Orders::builder()
-        .main(Parcels {
-            prefix: "T",
-            up: false,
-        })
-        .backup(Parcels {
-            prefix: "B",
-            up: true,
-        })
-        .initial_data(NewOrder {
-            order: "A-1".to_owned(),
-            price: 40,
-        })
-        .create()?;
-    let result = LocalExecutor::new().run(instance)?;
-    let shipped: Shipped = result.output()?;
-    println!("the journey {}", result.status.kind());
-    match shipped.tracking {
-        Some(tracking) => println!("tracking {tracking}"),
-        None => println!("nothing shipped"),
+    // The order, its address, and its parcel's weight in kg.
+    let orders = [
+        ("A-1", Some("1 High Street"), 2),
+        ("A-2", None, 1),
+        ("A-3", Some("3 Mill Lane"), 30),
+        ("A-4", Some("4 Quay Road"), 60),
+    ];
+    let mut executor = LocalExecutor::new();
+    for (order, address, weight) in orders {
+        println!("{order}:");
+        let instance = Orders::builder()
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                address: address.map(str::to_owned),
+                weight,
+            })
+            .create()?;
+        report(&executor.run(instance)?);
     }
     Ok(())
+}
+// ANCHOR_END: run
+
+/// Prints how a journey ended, and why when it failed.
+fn report(result: &JourneyResult) {
+    match &result.status {
+        JourneyStatus::Failed {
+            failure:
+                failure @ (Failure::Failure(reason)
+                | Failure::RetriesExhausted(LastFailure::Reason(reason))),
+            ..
+        } => println!("failed: {}, {}", failure.cause(), reason.code()),
+        status => println!("{}", status.kind()),
+    }
 }

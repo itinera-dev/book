@@ -1,11 +1,10 @@
-//! Trying again: shipping has a retry budget of 1, and the retry hook names the backup carrier.
+//! The fallback of Part 4 as a retry hook: shipping has a retry budget of 1, and the `on step
+//! retry` hook of a step policy names the backup carrier for the next attempt.
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, step_policy};
-use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -103,54 +102,9 @@ impl Fallback {
 }
 // ANCHOR_END: policy
 
-/// Prints each event of a journey on a line of its own.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let kind = event.kind();
-        match &event.body {
-            EventBody::AttemptStarted { step, .. } | EventBody::StepSucceeded { step, .. } => {
-                println!("  {kind} {} {}", step.step, step.attempt);
-            }
-            EventBody::StepFailed {
-                step,
-                retriable,
-                reason,
-                ..
-            } => {
-                let retriable = if *retriable { ", retriable" } else { "" };
-                let code = reason.code();
-                println!("  {kind} {} {}: {code}{retriable}", step.step, step.attempt);
-            }
-            EventBody::StepRetrying { step, cause, .. } => {
-                println!("  {kind} {} {}: {cause}", step.step, step.attempt);
-            }
-            EventBody::StepGivenUp { step, cause, .. } => {
-                println!("  {kind} {} {}: {cause}", step.step, step.attempt);
-            }
-            EventBody::HookCalled { hook, .. } => println!("  {kind} {}", hook_name(hook)),
-            EventBody::ContributionCommitted { key, .. }
-            | EventBody::OptionalInputAbsent { key, .. } => println!("  {kind} {key}"),
-            _ => println!("  {kind}"),
-        }
-        Ok(())
-    }
-}
-
-/// The policy and hook an event names.
-fn hook_name(hook: &HookSource) -> String {
-    match hook {
-        HookSource::Step { policy, hook, .. } => format!("{policy} {hook}"),
-        HookSource::Workflow { policy, hook, .. } => format!("{policy} {hook}"),
-        _ => String::new(),
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: shipping is tried twice, and the fallback policy picks the carrier.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship", retry_budget = 1, policies = [Fallback])]
 struct Orders;

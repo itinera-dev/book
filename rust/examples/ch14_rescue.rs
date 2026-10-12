@@ -2,35 +2,46 @@
 //! rescue step asks the customer's bank for the new card, and the charge runs once more.
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
-use itinera::report::Reporter;
+use itinera::report::DebugReporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::workflow;
 
-/// The customers' bank, faked: it knows which cards have expired, which card replaced each, and
-/// which of those it refuses.
-struct Bank;
+/// The customers' bank, faked. A card ends with the year it expires, such as `ben-card-2024`; the
+/// bank refuses a card that expired before this year, and any charge above its limit.
+struct Bank {
+    this_year: u32,
+    limit: i64,
+}
+
+const BANK: Bank = Bank {
+    this_year: 2026,
+    limit: 1000,
+};
 
 impl Bank {
-    /// Whether a card can be charged.
-    fn accepts(card: &str) -> Result<(), &'static str> {
-        match card {
-            "card-2019" => Err("expired-card"),
-            "card-2030" => Err("declined"),
-            _ => Ok(()),
+    /// Charges an amount to a card, or says why it cannot.
+    fn charge(&self, card: &str, amount: i64) -> Result<(), &'static str> {
+        if expiry(card).is_some_and(|year| year < self.this_year) {
+            return Err("expired-card");
         }
+        if amount > self.limit {
+            return Err("declined");
+        }
+        Ok(())
     }
 
-    /// The card the bank issued to a customer after their old one expired, if any.
-    fn renewed_card(customer: &str) -> Option<String> {
-        match customer {
-            "Ben" => Some("card-2031".to_owned()),
-            "Dan" => Some("card-2030".to_owned()),
-            _ => None,
-        }
+    /// The card that replaced an expired one: the same card, expiring three years from now.
+    fn renewed_card(&self, card: &str) -> Option<String> {
+        let (holder, _) = card.rsplit_once('-')?;
+        Some(format!("{holder}-{}", self.this_year + 3))
     }
+}
+
+/// The year a card expires, from the end of its number.
+fn expiry(card: &str) -> Option<u32> {
+    card.rsplit_once('-')?.1.parse().ok()
 }
 
 // ANCHOR: charge
@@ -46,7 +57,7 @@ struct Charge {
 #[step]
 impl Charge {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
-        if let Err(code) = Bank::accepts(&self.card) {
+        if let Err(code) = BANK.charge(&self.card, self.price) {
             return Self::fail(code);
         }
         contributor.contribute("charged", self.price);
@@ -62,7 +73,7 @@ impl Charge {
 #[derive(RescueStep)]
 struct RenewCard {
     #[input]
-    customer: String,
+    card: String,
     #[reason]
     reason: Option<Reason>,
 }
@@ -71,7 +82,7 @@ struct RenewCard {
 impl RenewCard {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<RescueOutcome, Error> {
         let renewed = match &self.reason {
-            Some(reason) if reason.code() == "expired-card" => Bank::renewed_card(&self.customer),
+            Some(reason) if reason.code() == "expired-card" => BANK.renewed_card(&self.card),
             _ => None,
         };
         let Some(card) = renewed else {
@@ -94,51 +105,9 @@ impl Ship {
     }
 }
 
-/// Prints the attempts, the rescue and how the journey ended, one line each.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let kind = event.kind();
-        match &event.body {
-            EventBody::AttemptStarted { step, .. } | EventBody::StepSucceeded { step, .. } => {
-                println!("  {kind} {} {}", step.step, step.attempt);
-            }
-            EventBody::StepFailed { step, reason, .. } => {
-                println!("  {kind} {} {}: {}", step.step, step.attempt, reason.code());
-            }
-            EventBody::StepRescuing {
-                step,
-                cause,
-                rescue,
-                ..
-            } => {
-                println!(
-                    "  {kind} {} {}: {cause}, by {rescue}",
-                    step.step, step.attempt
-                );
-            }
-            EventBody::StepRescued { step, rescue, .. } => {
-                println!("  {kind} {} {}, by {rescue}", step.step, step.attempt);
-            }
-            EventBody::StepGivenUp { step, cause, .. } => {
-                println!("  {kind} {} {}: {cause}", step.step, step.attempt);
-            }
-            EventBody::ContributionCommitted { key, .. } => println!("  {kind} {key}"),
-            EventBody::JourneySucceeded { .. } => println!("  {kind}"),
-            EventBody::JourneyFailed { step, failure, .. } => {
-                println!("  {kind} at {step}: {}", failure.cause());
-            }
-            _ => {}
-        }
-        Ok(())
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: a charge that fails is rescued once, then the order is shipped.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders", reporters = [DebugReporter])]
 #[with_step(Charge, name = "charge", rescue = RenewCard)]
 #[with_step(Ship, name = "ship")]
 struct Orders;
@@ -148,7 +117,6 @@ struct Orders;
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
-    customer: String,
     price: i64,
     card: String,
 }
@@ -165,15 +133,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         NewOrder {
             order: "A-2".to_owned(),
-            customer: "Ben".to_owned(),
             price: 40,
-            card: "card-2019".to_owned(),
+            card: "ben-card-2024".to_owned(),
         },
         NewOrder {
             order: "A-4".to_owned(),
-            customer: "Dan".to_owned(),
-            price: 25,
-            card: "card-2019".to_owned(),
+            price: 1200,
+            card: "dan-card-2025".to_owned(),
         },
     ];
     let mut executor = LocalExecutor::new();

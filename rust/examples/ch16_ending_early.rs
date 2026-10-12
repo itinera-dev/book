@@ -4,11 +4,10 @@
 use std::fmt;
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
-use itinera::report::Reporter;
+use itinera::report::DebugReporter;
 use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
@@ -106,74 +105,9 @@ impl Outage {
 }
 // ANCHOR_END: outage
 
-/// Prints the attempts, the hooks and how the journey ended, one line each.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let kind = event.kind();
-        match &event.body {
-            EventBody::AttemptStarted { step, .. } | EventBody::StepSucceeded { step, .. } => {
-                println!("  {kind} {} {}", step.step, step.attempt);
-            }
-            EventBody::StepAbnormalTermination { step, message, .. } => {
-                println!("  {kind} {} {}: {message}", step.step, step.attempt);
-            }
-            EventBody::HookCalled {
-                hook, lifecycle, ..
-            } => {
-                let returned = lifecycle
-                    .as_ref()
-                    .map_or("nothing".to_owned(), ToString::to_string);
-                println!("  {kind} {}: returned {returned}", hook_name(hook));
-            }
-            EventBody::StepGivenUp { step, cause, .. } => {
-                println!(
-                    "  {kind} {} {}: {}",
-                    step.step,
-                    step.attempt,
-                    given_up(cause)
-                );
-            }
-            EventBody::JourneySucceeded { decided_by, .. } => match decided_by {
-                Some(policy) => println!("  {kind}, decided by {policy}"),
-                None => println!("  {kind}, decided by default"),
-            },
-            EventBody::JourneyFailed { step, failure, .. } => {
-                println!("  {kind} at {step}: {}", failure.cause());
-            }
-            _ => {}
-        }
-        Ok(())
-    }
-}
-
-/// The policy and hook an event names.
-fn hook_name(hook: &HookSource) -> String {
-    match hook {
-        HookSource::Step { policy, hook, .. } => format!("{policy} {hook}"),
-        HookSource::Workflow { policy, hook, .. } => format!("{policy} {hook}"),
-        _ => String::new(),
-    }
-}
-
-/// Why a step was given up, and who decided it.
-fn given_up(cause: &GiveUpCause) -> String {
-    match cause {
-        GiveUpCause::FailWorkflow { decided_by, .. } => {
-            format!(
-                "{cause}, decided by {} {}",
-                decided_by.policy, decided_by.hook
-            )
-        }
-        _ => format!("{cause}, decided by default"),
-    }
-}
-
 // ANCHOR: workflow
 /// The shop's workflow: the charge's policies may end the journey before shipping.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders", reporters = [DebugReporter])]
 #[with_step(Charge, name = "charge", policies = [Downloads, Outage])]
 #[with_step(Ship, name = "ship")]
 struct Orders;

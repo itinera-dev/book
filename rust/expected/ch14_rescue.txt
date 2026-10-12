@@ -1,32 +1,36 @@
 order A-2
-  attempt_started charge 1
-  step_failed charge 1: expired-card
-  step_rescuing charge 1: failure, by charge_rescue
-  attempt_started charge_rescue 1
-  step_succeeded charge_rescue 1
-  contribution_committed card
-  step_rescued charge 1, by charge_rescue
-  attempt_started charge 2
-  step_succeeded charge 2
-  contribution_committed charged
-  attempt_started ship 1
-  step_succeeded ship 1
-  journey_succeeded
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 943941218 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["card", "order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 943972242 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944015924 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepFailed { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, retriable: false, reason: Reason { code: "expired-card", message: None, details: None } } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944043432 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepRescuing { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, cause: Failure, rescue: StepName { name: "charge_rescue" } } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944053050 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 } } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944074091 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 } } }
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944089826 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "card", source: Step(StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 }) } }
+Event { sequence: 8, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944095263 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: DataOverwritten { key: "card", source: Step(StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 }) } }
+Event { sequence: 9, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944114628 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepRescued { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, rescue: StepName { name: "charge_rescue" } } }
+Event { sequence: 10, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944129651 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 2 } } }
+Event { sequence: 11, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944140720 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge" }, attempt: 2 } } }
+Event { sequence: 12, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944154181 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "charged", source: Step(StepAttempt { step: StepName { name: "charge" }, attempt: 2 }) } }
+Event { sequence: 13, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944162566 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } } }
+Event { sequence: 14, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944185003 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "ship" }, attempt: 1 } } }
+Event { sequence: 15, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944202273 } }, journey_id: JourneyId("447fac30-6fdc-4fcf-a8f0-43d16bc13dcb"), workflow: WorkflowName("orders"), body: JourneySucceeded { decided_by: None } }
 the journey succeeded
-card card-2031
+card ben-card-2029
 charged 40
 order A-4
-  attempt_started charge 1
-  step_failed charge 1: expired-card
-  step_rescuing charge 1: failure, by charge_rescue
-  attempt_started charge_rescue 1
-  step_succeeded charge_rescue 1
-  contribution_committed card
-  step_rescued charge 1, by charge_rescue
-  attempt_started charge 2
-  step_failed charge 2: declined
-  step_given_up charge 2: failure
-  journey_failed at charge: failure
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944248488 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["card", "order", "price"] } }
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944263661 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944275140 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepFailed { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, retriable: false, reason: Reason { code: "expired-card", message: None, details: None } } }
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944289055 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepRescuing { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, cause: Failure, rescue: StepName { name: "charge_rescue" } } }
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944295917 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 } } }
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944309637 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 } } }
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944312927 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "card", source: Step(StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 }) } }
+Event { sequence: 8, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944327208 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: DataOverwritten { key: "card", source: Step(StepAttempt { step: StepName { name: "charge_rescue" }, attempt: 1 }) } }
+Event { sequence: 9, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944334598 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepRescued { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, rescue: StepName { name: "charge_rescue" } } }
+Event { sequence: 10, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944348104 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 2 } } }
+Event { sequence: 11, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944358951 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepFailed { step: StepAttempt { step: StepName { name: "charge" }, attempt: 2 }, retriable: false, reason: Reason { code: "declined", message: None, details: None } } }
+Event { sequence: 12, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944375208 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: StepGivenUp { step: StepAttempt { step: StepName { name: "charge" }, attempt: 2 }, cause: Failure } }
+Event { sequence: 13, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791837314, tv_nsec: 944387486 } }, journey_id: JourneyId("77d6cf17-8ef4-46cc-8c78-ead3f9846db1"), workflow: WorkflowName("orders"), body: JourneyFailed { step: StepName { name: "charge" }, failure: Failure(Reason { code: "declined", message: None, details: None }) } }
 the journey failed
-card card-2030
+card dan-card-2029
 nothing charged

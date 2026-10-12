@@ -52,9 +52,9 @@ name: ch15_audit
 6. **A hook's contributions are committed when it returns.** Unlike a step's, they don't depend on the step's outcome. That's why the second order's audit line is in the data bag, though its charge failed.
 7. **Returning nothing means the default.** `Self::carry_on()` is `Ok(None)`: after a success, the next step runs; after a failure, the journey fails. A hook may instead return a lifecycle: a decision that replaces the default, such as failing the journey at once, as [chapter 16](16-ending-a-journey-early.md) shows. That's why the hooks return different types: `on step success` returns `Result<Option<OnSuccess>, Error>`, and the other three step hooks return `Result<Option<FailWorkflow>, Error>`.
 8. **A hook that returns `Err` aborts the journey.** The journey is aborted with `hook failed`: a hook can't fail and carry on.
-9. **A step policy is built afresh for every attempt.** The executor builds it with `Default`, unless its block has a function marked `#[factory]`, as [chapter 17](17-doing-something-when-the-journey-ends.md) mentions. Nothing is kept from one attempt to the next, and a hook never changes its policy, which is why it takes `&self`: everything it needs comes through what it asks for.
+9. **A step policy is built afresh for every attempt.** The executor builds it with `Default`, unless its block has a function marked `#[factory]`, as [chapter 21](21-running-many-journeys.md) shows. Nothing is kept from one attempt to the next, and a hook never changes its policy, which is why it takes `&self`: everything it needs comes through what it asks for.
 10. **Each hook is defined once per step.** Several policies can be attached to one step, but if two of them define the same hook, the workflow is refused before any journey with `hook defined twice`.
-11. **The events record every hook.** Each call is a `hook_called` event, naming the policy and the hook, and each contribution it committed names them as its source.
+11. **The events record every hook.** Each call is a `HookCalled` event, naming the policy and the hook, and each contribution it committed names them as its source.
 
 ## Remember
 

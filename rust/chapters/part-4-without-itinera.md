@@ -42,7 +42,7 @@ Each is reasonable on its own. Together, they mix a business rule (reserve, char
 With Itinera, every retry budget is in the workflow's declaration, on the line of the step it belongs to:
 
 ```example
-name: ch13_trying_again
+name: ch13_backup_carrier
 region: workflow
 ```
 
@@ -112,7 +112,7 @@ name: part4_circuit_breaker
 region: workflow
 ```
 
-The program ships three orders with the main carrier down, and a small reporter prints every failed attempt to ship. The first two orders each fail once with the main carrier and ship with the backup one; those two failures in a row open the breaker, so the third order goes to the backup carrier on its first attempt, and nothing fails:
+The program ships three orders with the main carrier down, and the faked carriers print what they do. The first two orders each fail once with the main carrier and ship with the backup one; those two failures in a row open the breaker, so the third order goes to the backup carrier on its first attempt, and nothing fails:
 
 ```output
 name: part4_circuit_breaker
@@ -138,10 +138,10 @@ name: ch13_backup_carrier
 region: workflow
 ```
 
-It could instead read a choice that the `on step retry` hook of a step policy contributed, as data from the workflow. That's how [chapter 13](13-trying-again.md) does it while the step reads its carrier's name from the data bag:
+It could instead read a choice that the `on step retry` hook of a step policy contributed, as data from the workflow. Or the step can read its carrier's name from the data bag, as an optional input, and the hook names the backup carrier before the next attempt:
 
 ```example
-name: ch13_trying_again
+name: part4_retry_hook
 region: policy
 ```
 
