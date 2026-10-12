@@ -212,7 +212,7 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 [[package]]
 name = "itinera"
 version = "0.0.0"
-source = "git+https://github.com/itinera-dev/itinera-rs?rev=b73c99d41a0687c73fc74472f950d842c88fa616#b73c99d41a0687c73fc74472f950d842c88fa616"
+source = "git+https://github.com/itinera-dev/itinera-rs?rev=c99accf4c8c42bf781b519636925f862a54cc3ca#c99accf4c8c42bf781b519636925f862a54cc3ca"
 dependencies = [
  "itinera-core",
 ]
@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "itinera-core"
 version = "0.0.0"
-source = "git+https://github.com/itinera-dev/itinera-rs?rev=b73c99d41a0687c73fc74472f950d842c88fa616#b73c99d41a0687c73fc74472f950d842c88fa616"
+source = "git+https://github.com/itinera-dev/itinera-rs?rev=c99accf4c8c42bf781b519636925f862a54cc3ca#c99accf4c8c42bf781b519636925f862a54cc3ca"
 dependencies = [
  "derive_more",
  "erased-serde",
@@ -244,7 +244,7 @@ dependencies = [
 [[package]]
 name = "itinera-macros"
 version = "0.0.0"
-source = "git+https://github.com/itinera-dev/itinera-rs?rev=b73c99d41a0687c73fc74472f950d842c88fa616#b73c99d41a0687c73fc74472f950d842c88fa616"
+source = "git+https://github.com/itinera-dev/itinera-rs?rev=c99accf4c8c42bf781b519636925f862a54cc3ca#c99accf4c8c42bf781b519636925f862a54cc3ca"
 dependencies = [
  "derive_more",
  "proc-macro2",
