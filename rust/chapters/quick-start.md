@@ -22,7 +22,7 @@ name: quick_start
 region: policy
 ```
 
-A reporter receives every event of the journey. It is any type that implements the `Reporter` trait. Deriving `PrintingReporter` makes one that prints each event on a line of its own, as it is: its number in the journey, its timestamp, the journey's ID, the workflow and what happened. A reporter listed in `reporters = [...]` also derives `Default`, since a new one is made for every journey.
+A reporter receives every event of the journey. It is any type that implements the `Reporter` trait. Deriving `PrintingReporter` makes one that prints each event on a line of its own, as Rust's `Debug` format writes it: its number in the journey, its timestamp, the journey's ID, the workflow and what happened. A reporter listed in `reporters = [...]` also derives `Default`, since a new one is made for every journey.
 
 ```example
 name: quick_start
@@ -51,7 +51,7 @@ name: quick_start
 
 ## How it works
 
-Each line is one event. The timestamp and the journey's ID change every time you run it; read the `body` of each line from the top, and you are watching the journey:
+Each line but the last two is one event. The timestamp and the journey's ID change every time you run it; read the `body` of each line from the top, and you are watching the journey:
 
 1. The journey starts, and the charge succeeds on its first attempt. What it contributed, `charged`, is committed to the data bag, the journey's store of data.
 2. Shipping's first attempt has no carrier to use: `OptionalInputAbsent` says so. It tries the main carrier, which is down, so it fails with the reason `carrier-down`, and says that trying again might work.

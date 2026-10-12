@@ -1,15 +1,16 @@
 //! Every example prints what the book shows: the output recorded for it in `expected/`.
 //!
-//! The test builds the examples first, so it checks them as they are now. What changes from one run to the
-//! next, an event's timestamp and a generated journey ID, is replaced by a placeholder on both
-//! sides before they are compared, so the book shows the output of a real run.
+//! The test builds the examples first, so it checks them as they are now. What changes from one
+//! run to the next, an event's timestamp and a generated journey ID, is replaced by a placeholder
+//! on both sides before they are compared, so the book shows the output of a real run. Nothing
+//! else is a placeholder: the recorded output is compared exactly, without snapbox's wildcards.
 
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use regex::Regex;
-use snapbox::Redactions;
+use snapbox::{Assert, Data, Redactions};
 
 /// What differs between two runs of the same example.
 fn changing() -> Redactions {
@@ -17,14 +18,14 @@ fn changing() -> Redactions {
     redactions
         .insert(
             "[TIMESTAMP]",
-            Regex::new(r"(?<redacted>SystemTime \{ tv_sec: \d+, tv_nsec: \d+ \})").unwrap(),
+            Regex::new(r"Timestamp \{ instant: (?<redacted>SystemTime \{[^}]*\}) \}").unwrap(),
         )
         .unwrap();
     redactions
         .insert(
             "[JOURNEY_ID]",
             Regex::new(
-                r"(?<redacted>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})",
+                r#"JourneyId\("(?<redacted>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"\)"#,
             )
             .unwrap(),
         )
@@ -56,6 +57,7 @@ fn run(example: &Path) -> String {
 fn every_example_prints_its_recorded_output() {
     let changing = changing();
     let built = examples();
+    let exactly = Assert::new().normalize_paths(false);
     let mut recorded: Vec<PathBuf> =
         fs::read_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("expected"))
             .unwrap()
@@ -63,12 +65,20 @@ fn every_example_prints_its_recorded_output() {
             .collect();
     recorded.sort();
     assert!(!recorded.is_empty());
+    let mut differences = Vec::new();
     for expected in recorded {
-        let name = expected.file_stem().unwrap().to_str().unwrap();
+        let name = expected.file_stem().unwrap().to_str().unwrap().to_owned();
         let printed = run(&built
-            .join(name)
+            .join(&name)
             .with_extension(std::env::consts::EXE_EXTENSION));
         let shown = fs::read_to_string(&expected).unwrap();
-        snapbox::assert_data_eq!(changing.redact(&printed), changing.redact(&shown));
+        if let Err(difference) = exactly.try_eq(
+            Some(&name),
+            Data::text(changing.redact(&printed)),
+            Data::text(changing.redact(&shown)).raw(),
+        ) {
+            differences.push(difference.to_string());
+        }
     }
+    assert!(differences.is_empty(), "{}", differences.join("\n"));
 }
