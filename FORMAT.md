@@ -10,7 +10,7 @@ Each language has a book of its own, in its own directory, such as [rust/](rust/
 2. Each "Without Itinera" section is a file of its own, named after the part it closes, for example `part-2-without-itinera.md`.
 3. Each appendix is a file named `appendix-N-short-name.md`.
 4. Each welcome page before Part 1 is a file named after its title, without a number, for example `quick-start.md`. The contents list them unnumbered, under the heading "Welcome".
-5. A chapter, and the quick start, opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them.
+5. A chapter, and the quick start, opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Remember". It may use level 3 headings inside them, and a level 3 heading never stands alone: it has at least one other under the same level 2 heading.
 6. A "Without Itinera" section opens with the level 1 heading "Without Itinera", and an appendix or any other welcome page with its own title; they choose their own level 2 and level 3 headings.
 7. Every name a chapter gives to an example or a compile error starts with the chapter's number, such as `ch06_one_step`, with the part's for a "Without Itinera" section, such as `part2_calls_in_a_row`, with the appendix's, such as `appendix1_cheat_sheet`, or, for the quick start, is `quick_start`, so names never clash between chapters.
 8. Any chapter, "Without Itinera" section or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
@@ -61,7 +61,7 @@ Each language has a directory of its own, named after it, for example [rust/](ru
 
 1. `chapters/`: the language's book, as above;
 
-2. `examples/NAME.EXT`: each example, a complete program, compiled and run in CI;
+2. `examples/NAME.EXT`: each example, a complete program, compiled and run in CI. Its comments describe the code as it is, and it holds no line, import, helper or region marker that nothing uses;
 3. `expected/NAME.txt`: what each example prints, compared with what it prints in CI;
 4. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message. The message keeps the lines that say what is wrong and point at the code, and leaves out the build tool's progress lines. Paths in it are written as a reader of this repository sees them: the program as `compile-errors/NAME.EXT`, and a file of the implementation as a path inside its repository, such as `itinera-rs/crates/...`, never as a path on the machine that recorded it;
 5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled and have no recorded output. When the feature arrives, each moves to `examples/` and gains its recorded output, and the chapters showing it gain their `output` directives. Pending examples exist only while a language prepares a release: a released edition has none, and a feature its release lacks is shown as BOOK.md says.
