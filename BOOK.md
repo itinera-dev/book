@@ -47,6 +47,16 @@ Every chapter, and the quick start, has the same four sections, in this order, s
 3. **How it works,** in prose.
 4. **Remember:** a short list of rules a reader or an agent must not break, such as "a step's contributions are committed to the data bag only when its attempt succeeds".
 
+### Each idea in its own chapter
+
+A reader meets each idea in the chapter that teaches it, and Itinera is flexible enough for every chapter to show only what the reader has learnt so far.
+
+1. The code a chapter shows, and its prose, use only what that chapter or an earlier one teaches. A later idea may be named in one sentence with a link to the chapter that teaches it, never with its syntax or an explanation. Chapter 3 names each new part of the shop's declaration this way, and the quick start shows a whole workflow and points to the chapters that explain it.
+2. Code a chapter does not show may use anything, as long as the prose never relies on it. Faked services print what they do, so the output tells what happened.
+3. The paths a chapter talks about come from the data its orders start with: each path is run by an order whose data takes it there, and what it prints is shown. No hidden counter or flag decides a path, and the prose never asks the reader to change a value to see another path.
+4. Once taught, a tool may be used again: a ready-made reporter that prints every event, taught in chapter 4, serves any later chapter whose point is the events.
+5. When a chapter changes, every later page that refers to it, quotes its code or relies on what it shows is read again, and still holds.
+
 ### Synchronous and asynchronous together
 
 Itinera's synchronous and asynchronous APIs differ little, so the book has no separate chapter on asynchronous code. Each chapter shows the synchronous form first; where the asynchronous form differs, the same example follows in its asynchronous form, with one sentence saying what changed. A language whose executors accept only one execution mode shows only that one.
