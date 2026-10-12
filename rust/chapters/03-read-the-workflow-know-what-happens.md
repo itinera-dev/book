@@ -30,7 +30,7 @@ name: ch03_shop
 region: list
 ```
 
-The program then runs the four orders of [chapter 1](01-but-why-itinera.md), with the same data, and three more, from Eve, Fin and Gil, so that every path the declaration allows is taken by an order. Each order is the journey's initial data, and the data alone decides which path the journey takes. As in chapter 1, each card ends with the year it expires, and the bank refuses a card that expired before 2026, and any charge above 1,000. The warehouse has nothing left for order A-5:
+The program then runs the four orders of [chapter 1](01-but-why-itinera.md), with the same data, and three more, from Eve, Fin and Gil, so that every path the diagram shows is taken by an order. Each order is the journey's initial data, and the data alone decides which path the journey takes. As in chapter 1, each card ends with the year it expires, and the bank refuses a card that expired before 2026, and any charge above 1,000. The warehouse has nothing left for order A-5:
 
 ```example
 name: ch03_shop

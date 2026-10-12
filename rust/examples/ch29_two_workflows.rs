@@ -285,7 +285,7 @@ impl Reporter for Log {
                 println!("  WARN {}, attempt {}: {code}", step.step, step.attempt);
             }
             EventBody::StepRescuing { step, rescue, .. } => {
-                println!("  INFO {} rescued by {rescue}", step.step);
+                println!("  INFO {} to be rescued by {rescue}", step.step);
             }
             EventBody::StepGivenUp { step, cause, .. } => {
                 println!("  WARN {} given up: {cause}", step.step);
