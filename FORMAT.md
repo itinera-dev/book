@@ -66,7 +66,7 @@ Each language has a directory of its own, named after it, for example [rust/](ru
 4. `compile-errors/NAME.EXT` and `compile-errors/NAME.txt`: each program that must not compile, and the compiler's message. The message keeps the lines that say what is wrong and point at the code, and leaves out the build tool's progress lines. Paths in it are written as a reader of this repository sees them: the program as `compile-errors/NAME.EXT`, and a file of the implementation as a path inside its repository, such as `itinera-rs/crates/...`, never as a path on the machine that recorded it;
 5. `pending/NAME.EXT`: examples that use a feature the language does not have yet. They are not compiled and have no recorded output. When the feature arrives, each moves to `examples/` and gains its recorded output, and the chapters showing it gain their `output` directives. Pending examples exist only while a language prepares a release: a released edition has none, and a feature its release lacks is shown as BOOK.md says.
 
-Every example prints the same thing on every run: a journey ID or a timestamp that changes from run to run is never printed.
+An example prints the same thing on every run, except for an event's timestamp and a generated journey ID. The recorded output keeps the values of the run that recorded it, so the book shows a real run, and the check compares those two as placeholders. Nothing else that changes from run to run is printed.
 
 ## Web pages
 
