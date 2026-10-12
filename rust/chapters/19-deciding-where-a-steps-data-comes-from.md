@@ -20,7 +20,7 @@ name: ch19_input_adapter
 region: workflow
 ```
 
-Three orders go through, each at a price of 40: one with a discount of 5, one without a discount, and one with a discount of 40. The shop reads back what was charged, if anything, and the receipt.
+Three orders go through, each at a price of 40: one with a discount of 5, one without a discount, and one with a discount of 40. For each, the shop prints how the journey ended and, when something was charged, the receipt and the amount.
 
 ```example
 name: ch19_input_adapter

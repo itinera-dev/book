@@ -2,7 +2,6 @@
 //! backup carrier, which belongs to the workflow's provider, is tested by the journey's events.
 
 use std::num::NonZeroU32;
-use std::sync::mpsc::{Receiver, Sender, channel};
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody};
@@ -10,7 +9,7 @@ use itinera::executor::LocalExecutor;
 use itinera::journey::{
     Contributor, Failure, InitialData, JourneyResult, JourneyStatus, LastFailure, Output,
 };
-use itinera::report::Reporter;
+use itinera::report::RecordingReporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -92,22 +91,14 @@ struct Shipped {
     tracking: Option<String>,
 }
 
-/// A reporter that keeps a line for each event about a step's attempt, and ignores the rest.
-struct Recorder {
-    lines: Sender<String>,
-}
-
-impl Reporter for Recorder {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        match &event.body {
-            EventBody::AttemptStarted { step, .. }
-            | EventBody::StepSucceeded { step, .. }
-            | EventBody::StepFailed { step, .. }
-            | EventBody::StepRetrying { step, .. } => {
-                Ok(self.lines.send(format!("{} {}", event.kind(), step.step))?)
-            }
-            _ => Ok(()),
-        }
+/// A line for an event about a step's attempt: its kind and the step. Other events have none.
+fn attempt_line(event: &Event) -> Option<String> {
+    match &event.body {
+        EventBody::AttemptStarted { step, .. }
+        | EventBody::StepSucceeded { step, .. }
+        | EventBody::StepFailed { step, .. }
+        | EventBody::StepRetrying { step, .. } => Some(format!("{} {}", event.kind(), step.step)),
+        _ => None,
     }
 }
 
@@ -173,7 +164,7 @@ fn the_ship_step_alone() -> Result<(), Box<dyn std::error::Error>> {
 
 // ANCHOR: journey
 fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
-    let (lines, recorded) = channel();
+    let recorder = RecordingReporter::default();
     let instance = Orders::builder()
         .main(Parcels {
             prefix: "T",
@@ -186,7 +177,7 @@ fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
         .initial_data(NewOrder {
             order: "A-1".to_owned(),
         })
-        .reporter(Recorder { lines })
+        .reporter(recorder.clone())
         .create()?;
     let shipped: Shipped = LocalExecutor::new().run(instance)?.output()?;
 
@@ -201,18 +192,14 @@ fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
         "attempt_started ship",
         "step_succeeded ship",
     ];
+    let lines: Vec<String> = recorder.events().iter().filter_map(attempt_line).collect();
     check(
         "shipping is tried twice, as its events show",
-        received(&recorded) == expected,
+        lines == expected,
     )?;
     Ok(())
 }
 // ANCHOR_END: journey
-
-/// Everything sent so far through the other end of a channel.
-fn received(receiver: &Receiver<String>) -> Vec<String> {
-    receiver.try_iter().collect()
-}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     the_ship_step_alone()?;

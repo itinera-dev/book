@@ -117,7 +117,7 @@ name: part5_testing_the_fallback
 region: step_alone
 ```
 
-The fallback belongs to the workflow, so it is tested on a whole journey, by its events: with the main carrier down and the backup up, the ship step's first attempt fails, the executor decides to try it again, and the second attempt succeeds.
+The fallback belongs to the workflow, so it is tested on a whole journey, by its events: with the main carrier down and the backup up, the ship step's first attempt fails, the executor decides to try it again, and the second attempt succeeds. The events are kept by `RecordingReporter`, as in [chapter 24](24-testing-your-workflows.md), and a small hidden function, `attempt_line`, keeps a line for each event about an attempt.
 
 ```example
 name: part5_testing_the_fallback

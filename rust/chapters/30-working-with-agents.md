@@ -18,7 +18,7 @@ name: ch30_approved_paths
 region: paths
 ```
 
-A small reporter keeps the path of a journey: each outcome of a step, each decision about one, and how the journey ended. Everything else, such as which data was committed, is left out, because it belongs to the steps.
+`RecordingReporter`, from [chapter 24](24-testing-your-workflows.md), keeps a journey's events, and `on_the_path` keeps the ones on its path: each outcome of a step, each decision about one, and how the journey ended. Everything else, such as which data was committed, is left out, because it belongs to the steps.
 
 ```example
 name: ch30_approved_paths
@@ -38,7 +38,7 @@ It prints:
 name: ch30_approved_paths
 ```
 
-Try changing a business rule, such as charging the price less a discount, and both checks still pass: the steps changed, the paths did not. Now try giving `ship` a retry budget of 0 in the workflow's declaration: the second check fails, printing the path the journey went through instead, in which `ship` is given up after its first failure and the journey fails. The flow changed, and the test says so.
+A change to a business rule, such as charging the price less a discount, leaves both paths as they are, so both checks still pass: the steps changed, the paths did not. A retry budget of 0 for `ship` in the workflow's declaration changes the second path: `ship` is given up after its first failure and the journey fails, so the second check fails and prints that path instead. The flow changed, and the test says so.
 
 ## How it works
 

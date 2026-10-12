@@ -25,11 +25,10 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A workflow instance and its initial data | one journey's starting point | [21](21-running-many-journeys.md) |
 | An executor, and running an instance | runs one journey and returns its result, or refuses it | [21](21-running-many-journeys.md) |
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
-| Reading the result and its output | how the journey ended, and the data bag it left | [22](22-reading-the-result.md) |
+| Reading the result and its output | how the journey ended, and the data bag it left | [9](09-passing-data-on.md), [22](22-reading-the-result.md) |
 | A reporter | receives every event of a journey | [23](23-seeing-what-happened.md) |
 | A step's own events | what only the step knows, emitted as `step_info`, `step_warning` or `step_error`; a hook emits `journey_info`, `journey_warning` or `journey_error` | [23](23-seeing-what-happened.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
-
 
 ## In Rust
 
@@ -56,8 +55,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 21 |
 | An executor, and running an instance | `LocalExecutor::new().run(instance)`, which returns `Result<JourneyResult, Refusal>` | 21 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
-| Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 22 |
-| A reporter | `impl Reporter for Printer`, listed with `reporters = [Printer]` on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
+| Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 9, 22 |
+| A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 

@@ -29,7 +29,7 @@ impl Charge {
     }
 }
 
-/// Ships an order through the carrier.
+/// Ships an order.
 #[derive(Step)]
 struct Ship {
     #[input]

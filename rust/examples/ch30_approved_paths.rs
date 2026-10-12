@@ -3,13 +3,12 @@
 //! unnoticed.
 
 use std::num::NonZeroU32;
-use std::sync::mpsc::{Receiver, Sender, channel};
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData};
-use itinera::report::Reporter;
+use itinera::report::RecordingReporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::workflow;
 
@@ -187,21 +186,6 @@ const CARRIER_DOWN: &[&str] = &[
 // ANCHOR_END: paths
 
 // ANCHOR: recorder
-/// A reporter that keeps the path of a journey: each outcome of a step, each decision about a
-/// step, and how the journey ended.
-struct Path {
-    lines: Sender<String>,
-}
-
-impl Reporter for Path {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let Some(line) = on_the_path(event) else {
-            return Ok(());
-        };
-        Ok(self.lines.send(line)?)
-    }
-}
-
 /// The line an event adds to the path, with the step it is about, or nothing when it is not on
 /// the path.
 fn on_the_path(event: &Event) -> Option<String> {
@@ -230,19 +214,14 @@ fn path_of(
     order: NewOrder,
     main_carrier_up: bool,
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let (lines, path) = channel();
+    let recorder = RecordingReporter::default();
     let instance = Orders::builder()
         .main_carrier_up(main_carrier_up)
-        .reporter(Path { lines })
+        .reporter(recorder.clone())
         .initial_data(order)
         .create()?;
     LocalExecutor::new().run(instance)?;
-    Ok(received(&path))
-}
-
-/// Everything sent so far through the other end of a channel.
-fn received(receiver: &Receiver<String>) -> Vec<String> {
-    receiver.try_iter().collect()
+    Ok(recorder.events().iter().filter_map(on_the_path).collect())
 }
 
 /// Prints the path that was checked, or fails the program when the journey went another way.
