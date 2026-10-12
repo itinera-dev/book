@@ -38,6 +38,12 @@ import { readText } from './text.ts';
 
 export interface DirectiveOptions {
 	edition: Edition;
+	/**
+	 * Renders each listing as Markdown, for the page's Markdown copy: its
+	 * caption as a paragraph, then the code as a fenced block. Without it, as
+	 * the figure the web page shows.
+	 */
+	markdown?: boolean;
 }
 
 type Kind = 'example' | 'output' | 'compile-error';
@@ -114,9 +120,26 @@ interface Listing {
 	code: string;
 }
 
+/** A caption's phrasing without the elements only the web page styles: a marker stays bold. */
+function plainCaption(caption: PhrasingContent[]): PhrasingContent[] {
+	return caption.map((node) => {
+		if ((node.type as string) !== 'bookElement') return node;
+		const { data, children } = node as unknown as { data: { hName: string }; children: PhrasingContent[] };
+		return data.hName === 'strong' ? { type: 'strong', children } : { type: 'emphasis', children };
+	});
+}
+
+/** A listing in Markdown: its caption as a paragraph, then its code. */
+function plainListing(caption: PhrasingContent[], lang: string, code: string): RootContent[] {
+	return [
+		{ type: 'paragraph', children: plainCaption(caption) },
+		{ type: 'code', lang, value: code },
+	];
+}
+
 /** Renders the directives of one chapter. */
 export default function remarkBookDirectives(options: DirectiveOptions) {
-	const { edition } = options;
+	const { edition, markdown = false } = options;
 	const directory = join(root, edition.directory);
 	const repoPath = (...parts: string[]) => [edition.directory, ...parts].join('/');
 
@@ -133,13 +156,14 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return readText(full);
 		};
 
-		const figure = ({ classes, caption, lang, code }: Listing): RootContent => {
+		const figure = ({ classes, caption, lang, code }: Listing): RootContent[] => {
+			if (markdown) return plainListing(caption, lang, code);
 			listings += 1;
 			const id = `listing-${listings}`;
-			return element('figure', { className: ['listing', ...classes] }, [
+			return [element('figure', { className: ['listing', ...classes] }, [
 				element('figcaption', { id, className: ['listing__caption'] }, caption),
 				{ type: 'code', lang, value: code } satisfies Code,
-			]);
+			])];
 		};
 
 		const programCaption = (lead: string, name: string, path: string, after: PhrasingContent[] = []) => [
@@ -180,7 +204,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			const found = locate(directive.name, 'an example directive');
 			const code = region(read(found.path, `the example ${directive.name} is shown`), directive.region, `${chapter}: ${repoPath(found.path)}`);
 			const shown = [
-				figure({
+				...figure({
 					classes: ['listing--example', ...(found.pending ? ['listing--pending'] : [])],
 					caption: programCaption(', from the program ', directive.name, found.path, found.pending ? pendingMarker() : []),
 					lang: edition.highlight,
@@ -197,7 +221,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 				);
 				if (otherCode !== code) {
 					shown.push(
-						figure({
+						...figure({
 							classes: ['listing--example', 'listing--asynchronous', ...(other.pending ? ['listing--pending'] : [])],
 							caption: programCaption(', the same in its asynchronous form, from the program ', asynchronous, other.path, other.pending ? pendingMarker() : []),
 							lang: edition.highlight,
@@ -217,7 +241,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 		const output = (directive: Directive): RootContent[] => {
 			const sync = recorded(directive.name, `an output directive names ${directive.name}`);
 			const shown = [
-				figure({
+				...figure({
 					classes: ['listing--output'],
 					caption: [text(`What ${directive.name} prints, recorded in `), link(sourceHref(repoPath(sync.path)), `${directive.name}.txt`)],
 					lang: 'text',
@@ -229,7 +253,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 				const other = recorded(asynchronous, `the output of the asynchronous form ${asynchronous} is shown`);
 				if (other.text !== sync.text) {
 					shown.push(
-						figure({
+						...figure({
 							classes: ['listing--output', 'listing--asynchronous'],
 							caption: [
 								text(`What the asynchronous form ${asynchronous} prints, recorded in `),
@@ -249,13 +273,13 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			const code = region(read(program, `the compile error ${directive.name} is shown`), undefined, `${chapter}: ${repoPath(program)}`);
 			const message = read(`compile-errors/${directive.name}.txt`, `the compile error ${directive.name} is shown`).replace(/\n+$/, '');
 			return [
-				figure({
+				...figure({
 					classes: ['listing--example', 'listing--refused'],
 					caption: programCaption(', the program ', directive.name, program, marker('Does not compile')),
 					lang: edition.highlight,
 					code,
 				}),
-				figure({
+				...figure({
 					classes: ['listing--output', 'listing--compiler'],
 					caption: [
 						text(`What the compiler says about ${directive.name}, recorded in `),

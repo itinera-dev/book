@@ -347,7 +347,6 @@ struct NewOrder {
     discount: Option<i64>,
 }
 
-// ANCHOR: listing
 /// A service in the listing: its key, and the provider that serves it.
 fn service(listed: &ListedService) -> String {
     format!("{} from {}", listed.key, listed.provider)
@@ -376,7 +375,6 @@ fn entry(listed: &ListedStep) -> String {
     }
     entry
 }
-// ANCHOR_END: listing
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ANCHOR: list

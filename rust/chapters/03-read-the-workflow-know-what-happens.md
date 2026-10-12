@@ -105,4 +105,4 @@ The diagram shows:
 2. A step is tried again only within its retry budget. A step with a rescue step has no retry budget, and runs at most twice.
 3. A hook that no attached policy defines keeps its default: a step that fails, once its retries or its rescue are spent, fails the journey.
 4. What a step does is in the step; what happens around it is in the workflow and its policies, and nowhere else.
-5. The listing is made from the declaration alone, so it shows what a workflow does before any journey runs.
+5. The listing is made from the declaration alone, so it shows the steps in order, their step policies, services and providers, and rescue steps, before any journey runs.

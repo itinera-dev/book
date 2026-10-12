@@ -5,7 +5,7 @@
 
 import '../styles/global.css';
 
-import { base, build, pageHref, repository, sourceHref } from '../../book.config.mjs';
+import { base, build, markdownHref, pageHref, repository, site, sourceHref } from '../../book.config.mjs';
 import EditionSwitcher from '../components/EditionSwitcher.astro';
 
 interface Props {
@@ -20,6 +20,8 @@ const { title, description, edition } = Astro.props;
 const book = edition ? `The Itinera book in ${build.edition.name}` : 'The Itinera book';
 const fullTitle = title ? `${title} · ${book}` : book;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const markdown = edition && markdownHref(edition.page || undefined);
+const llms = `${base}/${build.segment}/llms.txt`;
 ---
 
 <!doctype html>
@@ -35,6 +37,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+		{markdown && <link rel="alternate" type="text/markdown" title="This page in Markdown" href={markdown} />}
 	</head>
 	<body>
 		<a class="skip-link" href="#main">Skip to the text</a>
@@ -44,11 +47,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 					<a class="masthead__title" href={`${base}/`}>The Itinera book</a>
 					{edition && <span class="masthead__edition">{build.edition.name} edition{build.version && `, ${build.version}`}</span>}
 				</p>
-				{
-					edition && (
-						<div class="masthead__nav">
-							<nav aria-label="Book">
-								<ul>
+				<div class="masthead__nav">
+					<nav aria-label="Book">
+						<ul>
+							{
+								edition && (
 									<li>
 										{edition.page === '' ? (
 											<span aria-current="page">Contents</span>
@@ -56,12 +59,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 											<a href={pageHref()}>Contents</a>
 										)}
 									</li>
-								</ul>
-							</nav>
-							<EditionSwitcher page={edition.page} />
-						</div>
-					)
-				}
+								)
+							}
+							<li>
+								<a href={`${site}/`}>Itinera</a>
+							</li>
+						</ul>
+					</nav>
+					{edition && <EditionSwitcher page={edition.page} />}
+				</div>
 			</div>
 		</header>
 		<main id="main" tabindex="-1" class="page">
@@ -70,8 +76,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 		<footer class="site-footer">
 			<div class="site-footer__inner">
 				<p>
-					The Itinera book teaches <a href="https://github.com/itinera-dev/spec">the Itinera specification</a>, which
-					defines what Itinera does.
+					The Itinera book is part of <a href={`${site}/`}>Itinera</a>: separate process from logic, make agentic code
+					safer. It teaches <a href="https://github.com/itinera-dev/spec">the Itinera specification</a>, which defines
+					what Itinera does.
+				</p>
+				<p>
+					For agents: <a href={llms}>llms.txt</a>{markdown && <>, and <a href={markdown}>this page in Markdown</a></>}.
 				</p>
 				<p>
 					<a href={repository}>Source on GitHub</a>, licensed under{' '}

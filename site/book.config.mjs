@@ -96,6 +96,15 @@ export function pageHref(page) {
 }
 
 /**
+ * The URL of a page's Markdown copy, for agents and other readers of plain text.
+ *
+ * @param {string} [page] A chapter's file name without `.md`; omitted for the contents.
+ */
+export function markdownHref(page) {
+	return `${base}/${build.segment}/${page ?? 'index'}.md`;
+}
+
+/**
  * The URL of a page in another edition. Another language is linked at its own
  * latest path, since its versions are not this build's to know.
  *

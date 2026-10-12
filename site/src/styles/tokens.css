@@ -1,13 +1,14 @@
 /*
- * The book's colours, and nothing else. scripts/contrast.mjs reads this file and
- * checks every pair the pages use against WCAG AA, in both schemes, so a colour
- * changed here is checked by `npm run verify` before it is published. Keep each
- * value a six-digit hex on a line of its own.
+ * The site's colours, and nothing else; the book takes them from here.
+ * scripts/contrast.mjs reads this file and checks every pair the pages use
+ * against WCAG AA, in both schemes, and the Brand page states the same ratios,
+ * so a colour changed here is checked by `npm run verify` before it is
+ * published. Keep each value a six-digit hex on a line of its own.
  *
- * Warm paper and ink for reading, one green for links and focus, and an amber
- * kept for one meaning only: code the reader cannot run as shown, because it is
- * not compiled yet or because it does not compile, and the compiler's message
- * about it.
+ * Warm paper and ink for reading, one green for the logo, links and focus, and
+ * an amber kept for one meaning only: what the reader cannot take as it is
+ * shown, such as a capability that is planned, or pseudo-Rust that is an
+ * illustration rather than a program.
  */
 
 :root {
