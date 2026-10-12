@@ -2,11 +2,10 @@
 //! main one is down, and prints every event of the journey.
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, step_policy};
-use itinera::report::Reporter;
+use itinera::report::DebugReporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -68,50 +67,9 @@ impl Fallback {
 }
 // ANCHOR_END: policy
 
-// ANCHOR: reporter
-/// Prints each event of a journey on a line of its own.
-#[derive(Default)]
-struct Printer;
-
-impl Reporter for Printer {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let kind = event.kind();
-        match &event.body {
-            EventBody::AttemptStarted { step, .. } | EventBody::StepSucceeded { step, .. } => {
-                println!("  {kind} {} {}", step.step, step.attempt);
-            }
-            EventBody::StepFailed {
-                step,
-                retriable,
-                reason,
-                ..
-            } => {
-                let retriable = if *retriable { ", retriable" } else { "" };
-                let code = reason.code();
-                println!("  {kind} {} {}: {code}{retriable}", step.step, step.attempt);
-            }
-            EventBody::HookCalled { hook, .. } => println!("  {kind} {}", hook_name(hook)),
-            EventBody::ContributionCommitted { key, .. }
-            | EventBody::OptionalInputAbsent { key, .. } => println!("  {kind} {key}"),
-            _ => println!("  {kind}"),
-        }
-        Ok(())
-    }
-}
-
-/// The policy and hook an event names.
-fn hook_name(hook: &HookSource) -> String {
-    match hook {
-        HookSource::Step { policy, hook, .. } => format!("{policy} {hook}"),
-        HookSource::Workflow { policy, hook, .. } => format!("{policy} {hook}"),
-        _ => String::new(),
-    }
-}
-// ANCHOR_END: reporter
-
 // ANCHOR: workflow
 /// The shop's workflow: charge, then ship, trying shipping twice with the fallback policy.
-#[workflow(name = "orders", reporters = [Printer])]
+#[workflow(name = "orders", reporters = [DebugReporter])]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship", retry_budget = 1, policies = [Fallback])]
 struct Orders;

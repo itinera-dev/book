@@ -22,14 +22,7 @@ name: quick_start
 region: policy
 ```
 
-A reporter receives every event of the journey. It is any type that implements the `Reporter` trait, and this one prints each event on a line of its own. A reporter listed in `reporters = [...]` also derives `Default`, since a new one is made for every journey.
-
-```example
-name: quick_start
-region: reporter
-```
-
-The workflow puts it all together, in one place: charge, then ship; shipping may be tried once more, with the fallback policy deciding how; and every event goes to the printer.
+The workflow puts it all together, in one place: charge, then ship; shipping may be tried once more, with the fallback policy deciding how; and every event goes to `DebugReporter`. A reporter receives every event of a journey; this one comes with Itinera, and prints each event on a line of its own, as Rust's `Debug` format writes it: its number in the journey, its timestamp, the journey's ID, the workflow and what happened.
 
 ```example
 name: quick_start
@@ -51,10 +44,10 @@ name: quick_start
 
 ## How it works
 
-Read the output from the top, and you are watching the journey:
+Each line but the last two is one event. The timestamp and the journey's ID change every time you run it; read the `body` of each line from the top, and you are watching the journey:
 
 1. The journey starts, and the charge succeeds on its first attempt. What it contributed, `charged`, is committed to the data bag, the journey's store of data.
-2. Shipping's first attempt has no carrier to use: `optional_input_absent` says so. It tries the main carrier, which is down, so it fails with the reason `carrier-down`, and says that trying again might work.
+2. Shipping's first attempt has no carrier to use: `OptionalInputAbsent` says so. It tries the main carrier, which is down, so it fails with the reason `carrier-down`, and says that trying again might work.
 3. Shipping may be tried once more, so the executor calls the fallback policy's hook first. The hook contributes `carrier`, and the executor tries shipping again.
 4. The second attempt gets the backup carrier, and succeeds with a tracking number.
 5. The journey succeeds, and the program reads back what was charged and the tracking number.
@@ -63,9 +56,9 @@ Look at where each decision lives, and how little Rust it takes to say it. Every
 
 1. **The steps** know nothing about each other, or about retries. Deriving `Step` makes each field marked `#[input]` an input of the step, read from the journey's data under the field's name; a field of type `Option<String>`, such as `carrier`, is an optional input, `None` when the data is not there. The `#[step]` attribute declares `run`, which returns `Result<Outcome, Error>`: `Self::succeed()`, `Self::fail(...)` for a failure, or `Self::fail_retriably(...)` for a failure that trying again might mend. A parameter marked `#[contributor]` is how a step contributes data. Shipping only uses the carrier it is given, and says when it could not ship.
 2. **The policy** decides what changes before shipping is tried again. The attribute `#[step_policy]` declares it, and `#[on_step_retry]` marks the method that is its retry hook. The hook contributes the carrier, then returns `Self::carry_on()`, which keeps the default: shipping is tried again.
-3. **The workflow** says, in a few lines, what runs and how many times. The attribute `#[workflow]` declares it, with one `#[with_step(...)]` line per step, in the order they run; `retry_budget = 1` lets shipping be tried once more, `policies = [Fallback]` attaches the policy, and `reporters = [Printer]` sends every event to the printer.
+3. **The workflow** says, in a few lines, what runs and how many times. The attribute `#[workflow]` declares it, with one `#[with_step(...)]` line per step, in the order they run; `retry_budget = 1` lets shipping be tried once more, `policies = [Fallback]` attaches the policy, and `reporters = [DebugReporter]` sends every event to the reporter that prints them.
 4. **The journey's data** are plain structs. Deriving `InitialData` turns `NewOrder` into the journey's initial data, and deriving `Output` lets the program read the data bag back into `Shipped` once the journey is over.
-5. **The events** tell the whole story without a single log line in the business code. The printer's `report` method receives each one, in order.
+5. **The events** tell the whole story without a single log line in the business code. `DebugReporter` receives each one, in order. To print them your own way, or send them elsewhere, write a reporter of your own: any type that implements the `Reporter` trait, as [chapter 23](23-seeing-what-happened.md) shows.
 
 To run it yourself, run `cargo run --example quick_start` in the book's `rust` directory. To use Itinera in your own project, see [Installing Itinera](05-installing-itinera.md).
 
