@@ -183,13 +183,13 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 1. Each language's directory in this repository depends on a pinned version of that language's Itinera package, and this repository's CI compiles every example, runs it and compares its output with the recorded one, in one job per language.
 2. Each language's own repository pins a commit of this repository and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
 3. A change that breaks the book on purpose comes as a pair of pull requests, one here and one in the language's repository. The book's pull request updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request, and both go green together. Until the next release, the book stays pinned to that commit rather than to a released version.
-4. After a language's release, its edition moves to the released version and is tagged, for example `rust-0.1.0-rc.1`. The site quotes only from such tags, so each published edition matches a published package.
+4. After a language's release, its edition moves to the released version and is tagged, for example `rust-0.1.0-beta.1`. The site quotes only from such tags, so each published edition matches a published package.
 
 ## Where editions are published
 
 1. Each language's editions are published at three kinds of address:
    1. the latest release at `/book/LANGUAGE/`, such as `/book/rust/`;
-   2. every release, frozen, at `/book/LANGUAGE/VERSION/`, such as `/book/rust/0.1.0-rc.1/`, so a link to it never changes;
+   2. every release, frozen, at `/book/LANGUAGE/VERSION/`, such as `/book/rust/0.1.0-beta.1/`, so a link to it never changes;
    3. the main branch, ahead of any release, at `/book/LANGUAGE/next/`.
 
    Until a language's first release, its main branch is published at `/book/LANGUAGE/`, so links to the book work from the start.
