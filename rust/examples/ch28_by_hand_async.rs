@@ -166,7 +166,8 @@ fn line(listed: &ListedStep) -> String {
 }
 
 // ANCHOR: run
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = orders()?;
     for listed in orders.listing() {
         println!("{}", line(&listed));
@@ -177,7 +178,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .data("customer", "Ann".to_owned())
         .data("price", 40_i64)
         .create()?;
-    let result = futures::executor::block_on(AsyncLocalExecutor::new().run(instance))?;
+    let result = AsyncLocalExecutor::new().run(instance).await?;
     let summary: Summary = result.output()?;
     println!("the journey {}", result.status.kind());
     println!("charged {}; audit: {}", summary.charged, summary.audit);

@@ -137,7 +137,8 @@ impl AsyncReporter for Archive {
 // ANCHOR_END: archive
 
 // ANCHOR: run
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut executor = AsyncLocalExecutor::new();
 
     let logged = Orders::builder()
@@ -146,7 +147,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             price: 40,
         })
         .create()?;
-    let result = futures::executor::block_on(executor.run(logged))?;
+    let result = executor.run(logged).await?;
     println!("A-1 {}", result.status.kind());
 
     let archived = Orders::builder()
@@ -159,7 +160,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             kept: Vec::new(),
         })
         .create()?;
-    let result = futures::executor::block_on(executor.run(archived))?;
+    let result = executor.run(archived).await?;
     println!("A-2 {}", result.status.kind());
     Ok(())
 }

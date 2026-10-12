@@ -41,7 +41,7 @@ region: run
 asynchronous: ch06_one_step_async
 ```
 
-The asynchronous form runs it on `AsyncLocalExecutor` instead, and waits for the future its `run` returns with `futures::executor::block_on`.
+The asynchronous form runs it on `AsyncLocalExecutor` instead, and awaits the future its `run` returns, in a `main` marked `#[tokio::main]`, as in [chapter 4](04-what-happens-when-it-runs.md).
 
 It prints:
 

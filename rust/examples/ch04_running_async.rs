@@ -65,7 +65,8 @@ struct NewOrder {
 // ANCHOR_END: data
 
 // ANCHOR: run
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The order, the price and the discount.
     let orders = [("A-1", 40, Some(5)), ("A-2", 1200, None)];
     let mut executor = AsyncLocalExecutor::new();
@@ -78,7 +79,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 discount,
             })
             .create()?;
-        let result = futures::executor::block_on(executor.run(instance))?;
+        let result = executor.run(instance).await?;
         println!("the journey {}", result.status.kind());
         if let Some(data) = result.status.data() {
             println!("its data bag holds: {}", keys(data));

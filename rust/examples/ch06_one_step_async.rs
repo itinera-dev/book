@@ -45,12 +45,13 @@ struct NewOrder {
 }
 
 // ANCHOR: run
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for price in [40, 0] {
         let instance = Orders::builder()
             .initial_data(NewOrder { price })
             .create()?;
-        let result = futures::executor::block_on(AsyncLocalExecutor::new().run(instance))?;
+        let result = AsyncLocalExecutor::new().run(instance).await?;
         println!("price {price}: the journey {}", result.status.kind());
     }
     Ok(())

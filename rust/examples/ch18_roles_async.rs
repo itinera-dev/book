@@ -109,7 +109,8 @@ struct NewOrder {
 }
 
 // ANCHOR: run
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let orders = [
         NewOrder {
             order: "A-1".to_owned(),
@@ -128,7 +129,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .channel("email")
             .initial_data(order)
             .create()?;
-        let result = futures::executor::block_on(executor.run(instance))?;
+        let result = executor.run(instance).await?;
         println!("the journey {}", result.status.kind());
     }
     Ok(())

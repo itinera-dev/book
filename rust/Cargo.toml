@@ -9,7 +9,7 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "c99accf4c8c42bf781b519636925f862a54cc3ca", features = ["async"] }
-futures = { version = "0.3", default-features = false, features = ["executor"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 # The same commit as above, with the `testing` feature that chapter 24 uses: bump both together.

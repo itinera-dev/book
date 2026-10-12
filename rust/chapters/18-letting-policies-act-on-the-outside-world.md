@@ -44,7 +44,7 @@ region: run
 asynchronous: ch18_roles_async
 ```
 
-The asynchronous form runs the same journeys on `AsyncLocalExecutor`, waiting for each with `block_on`.
+The asynchronous form runs the same journeys on `AsyncLocalExecutor`, awaiting each.
 
 It prints:
 

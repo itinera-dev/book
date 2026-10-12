@@ -23,7 +23,7 @@ name: ch04_running
 region: data
 ```
 
-The program runs two orders, which differ only in their data. Ann's costs 40, less a discount of 5. Ben's costs 1,200, more than the bank accepts, so the bank declines it. The asynchronous form runs them on `AsyncLocalExecutor`, whose `run` returns a future; here `futures::executor::block_on` waits for it.
+The program runs two orders, which differ only in their data. Ann's costs 40, less a discount of 5. Ben's costs 1,200, more than the bank accepts, so the bank declines it. The asynchronous form runs them on `AsyncLocalExecutor`, whose `run` returns a future, and awaits it in a `main` that is an `async fn` marked `#[tokio::main]`, which starts the Tokio runtime. Itinera itself depends on no runtime: `AsyncLocalExecutor` never spawns tasks, sleeps or sets timers, so its future runs on Tokio or on any other runtime, and only the asynchronous code your steps call may need a particular one.
 
 ```example
 name: ch04_running
