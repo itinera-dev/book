@@ -8,5 +8,3 @@ From this directory:
 
 - `cargo build --examples` builds every example;
 - `cargo run --example ch06_one_step` runs one, and what it prints must match `expected/ch06_one_step.txt`.
-
-Examples under `pending/` use services, which `itinera` does not have yet. They are not built; each moves to `examples/` when its feature arrives.

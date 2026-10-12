@@ -40,7 +40,7 @@ It prints:
 name: ch13_trying_again
 ```
 
-The step can know even less. With services, the ship step asks for a carrier with `#[service] carrier: &dyn Carrier` and uses whatever it is lent, for its attempt only. Services aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so this second version waits in `pending/` and isn't compiled; it follows the agreed design, and its syntax may still change.
+The step can know even less. With services, the ship step asks for a carrier with `#[service] carrier: &dyn Carrier` and uses whatever it is lent, for its attempt only.
 
 ```example
 name: ch13_backup_carrier
@@ -52,6 +52,12 @@ The workflow lends the carrier through a provider marked `#[provider(per_attempt
 ```example
 name: ch13_backup_carrier
 region: workflow
+```
+
+The program's main carrier is down, so the first attempt fails and the second, with the backup carrier, ships the order:
+
+```output
+name: ch13_backup_carrier
 ```
 
 ## How it works

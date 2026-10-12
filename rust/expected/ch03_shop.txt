@@ -1,0 +1,20 @@
+A-1:
+  to Ann: order A-1 is on its way: T-A-1
+succeeded
+A-2:
+  WARN charge, attempt 1: expired-card
+  INFO charge rescued by charge_rescue
+  to Ben: order A-2 is on its way: T-A-2
+succeeded
+A-3:
+  WARN ship, attempt 1: carrier-down
+  INFO ship tried again
+  to Cat: order A-3 is on its way: B-A-3
+succeeded
+A-4:
+  WARN charge, attempt 1: expired-card
+  INFO charge rescued by charge_rescue
+  WARN charge, attempt 2: declined
+  WARN charge given up: failure
+  to Dan: order A-4 could not be completed
+failed: failure, declined

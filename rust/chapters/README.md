@@ -1,6 +1,6 @@
 # Contents
 
-The Itinera book for Rust, in reading order. It follows the plan that every language's book shares, [BOOK.md](../../BOOK.md), which also says what each chapter covers. Every program the chapters show is complete: those in [examples](../examples/) run with `cargo run --example NAME` from the book's `rust` directory, and the few in [pending](../pending/) wait for features that `itinera` does not have yet.
+The Itinera book for Rust, in reading order. It follows the plan that every language's book shares, [BOOK.md](../../BOOK.md), which also says what each chapter covers. Every program the chapters show is complete: those in [examples](../examples/) run with `cargo run --example NAME` from the book's `rust` directory.
 
 ## Welcome
 

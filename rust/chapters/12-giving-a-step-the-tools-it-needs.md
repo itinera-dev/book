@@ -6,9 +6,7 @@ The shop's steps talk to the outside world: the charge to a payment client, the 
 
 ## The code
 
-Services aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so this chapter's program waits in `pending/` and isn't compiled. It's written against the planned API, which may still change.
-
-Each tool is a trait that says what it can do, and nothing more. These traits are all a step knows of them. Each is `Send + Sync`, as the planned API asks of a service's trait.
+Each tool is a trait that says what it can do, and nothing more. These traits are all a step knows of them. Each is `Send + Sync`, as `itinera` asks of a service's trait.
 
 ```example
 name: ch12_services
@@ -36,7 +34,11 @@ name: ch12_services
 region: run
 ```
 
-When it runs, the warehouse opens one stock store, which reserves the order; the bank charges 40 to the customer's card; the shop books the carrier for the shipping's attempt, the carrier collects the order, and the same stock store hands it over. The journey succeeds, with the receipt `R-ann-card-40` and the tracking number `T-A-1`.
+It prints what each tool does, in order: the warehouse opens one stock store, which reserves the order; the bank charges 40 to the customer's card; the shop books the carrier for the shipping's attempt, the carrier collects the order, and the same stock store hands it over. The journey succeeds, with the receipt `R-ann-card-40` and the tracking number `T-A-1`.
+
+```output
+name: ch12_services
+```
 
 ## How it works
 

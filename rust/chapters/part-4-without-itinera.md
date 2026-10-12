@@ -14,8 +14,6 @@ name: part4_usual_checkout
 
 The output is honest about what the code logs, and silent about the rest: the bank's timeout on Ann's order was retried, and nothing says so.
 
-The Itinera side of this comparison uses services, which aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). So the Itinera versions of the circuit breaker and the carrier's provider wait in `pending/` and aren't compiled; they follow the agreed design, and their syntax may still change. The card's repair, a rescue step, is compiled and run like any other example.
-
 ## Retry strategies that multiply
 
 The usual code retries three calls in three different ways. Reserving the stock is retried in a `loop`, inside the checkout:
@@ -112,6 +110,12 @@ The carrier's provider, part of the workflow too, reads that state before it han
 ```example
 name: part4_circuit_breaker
 region: workflow
+```
+
+The program ships three orders with the main carrier down, and a small reporter prints every failed attempt to ship. The first two orders each fail once with the main carrier and ship with the backup one; those two failures in a row open the breaker, so the third order goes to the backup carrier on its first attempt, and nothing fails:
+
+```output
+name: part4_circuit_breaker
 ```
 
 Every attempt the breaker hears about is in the events, with the hook that told it. The breaker itself is the workflow's own code, written once, next to the carriers it chooses between.

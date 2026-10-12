@@ -20,7 +20,7 @@ What it mixes, in almost every function:
 
 ## The same shop with Itinera
 
-Here is the workflow of [chapter 3](03-read-the-workflow-know-what-happens.md) again. Its program uses services, which are not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so it is not compiled yet.
+Here is the workflow of [chapter 3](03-read-the-workflow-know-what-happens.md) again.
 
 ```example
 name: ch03_shop

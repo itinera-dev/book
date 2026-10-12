@@ -7,9 +7,11 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use itinera::error::Error;
+use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, InitialData};
+use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
+use itinera::report::Reporter;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::{role, workflow};
 
@@ -118,9 +120,23 @@ impl Breaker {
     }
 }
 
+/// The shop's log: every failed attempt to ship, with the carrier's reason.
+#[derive(Default)]
+struct Log;
+
+impl Reporter for Log {
+    fn report(&mut self, event: &Event) -> Result<(), Error> {
+        if let EventBody::StepFailed { step, reason, .. } = &event.body {
+            let code = reason.code();
+            println!("  {}, attempt {}: {code}", step.step, step.attempt);
+        }
+        Ok(())
+    }
+}
+
 // ANCHOR: workflow
 /// The shop's workflow: shipping is tried twice, and the workflow decides the carrier.
-#[workflow(name = "orders")]
+#[workflow(name = "orders", reporters = [Log])]
 #[with_step(Ship, name = "ship", retry_budget = 1, policies = [Watch])]
 struct Orders {
     main: Parcels,
@@ -171,6 +187,12 @@ struct NewOrder {
     order: String,
 }
 
+/// What the shop reads back once the journey has ended.
+#[derive(Output)]
+struct Shipped {
+    tracking: Option<String>,
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let breaker = Arc::new(Breaker {
         failures: AtomicU32::new(0),
@@ -192,8 +214,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 order: order.to_owned(),
             })
             .create()?;
+        println!("order {order}:");
         let result = executor.run(instance)?;
-        println!("order {order}: the journey {}", result.status.kind());
+        let shipped: Shipped = result.output()?;
+        let status = result.status.kind();
+        match shipped.tracking {
+            Some(tracking) => println!("  the journey {status}, tracking {tracking}"),
+            None => println!("  the journey {status}"),
+        }
     }
     Ok(())
 }

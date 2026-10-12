@@ -26,7 +26,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## Services and rescue steps
 
-[Rescue steps](14-repairing-then-trying-once-more.md), the specification's [chapter 7](https://github.com/itinera-dev/spec/blob/main/spec/07-rescue-steps.md), are in `itinera` now, and so are the book's examples of them. [Services](12-giving-a-step-the-tools-it-needs.md) are in the specification too, but not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). They arrive in the crate before `0.1.0-rc.1`, which can't be released until every proposal of tier 1 is in its report. Until then, the examples that use them wait in `pending/`: they are written against the syntax planned for them, which may still change, and are neither compiled nor run. The book says so wherever it shows one.
+[Services](12-giving-a-step-the-tools-it-needs.md) and [rescue steps](14-repairing-then-trying-once-more.md), the last two features of tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against the commit it pins.
 
 ## Capabilities
 
@@ -34,16 +34,19 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/b2296011cc9a41d6a76f58cc582d959d74163978/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.9`, and lists every proposal of specification 0.1 as passing except services (proposal 95), which the crate doesn't implement yet.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/021deb304edd28bbb418f998782177f1733b72b2/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.11`, and lists every proposal of specification 0.1 as passing.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
 1. a lifecycle a hook may not return (`invalid-lifecycle`);
 2. a policy needing a role the workflow doesn't provide (`role-not-provided`);
 3. something that is not a value in the data bag, initial data, an input adapter's answer, a reason's details or an event (`non-value`);
-4. an asynchronous step on the synchronous executor (`mode-not-accepted`);
+4. an asynchronous step or service provider on the synchronous executor (`mode-not-accepted`);
 5. a handle used after its attempt or call (`late-handle`);
-6. a write through an input adapter's access to the data bag (`bag-write`).
+6. a write through an input adapter's access to the data bag (`bag-write`);
+7. a rescue step that skips (`rescue-skip`);
+8. a service provider of journey scope requesting the attempt number (`journey-scope-request`);
+9. a service provider that returns no service (`no-instance`).
 
 ## What later tiers add
 

@@ -35,7 +35,7 @@ region: payment
 
 As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("carrier-down")`, and doesn't call another carrier.
 
-For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, because services aren't in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them). Move 7 takes those away.
+For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, as the tangled code did. Move 7 takes those away.
 
 ```example
 name: ch26_workflow
@@ -90,7 +90,7 @@ Ann's order goes through. The others fail, and the log says exactly why, without
 
 The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. Each service is a trait, so the step never knows which implementation it was given.
 
-From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md). Services are in the specification now, but not in `itinera` yet ([itinera-rs#103](https://github.com/itinera-dev/itinera-rs/issues/103) tracks them), so that program waits in `pending/` and is neither compiled nor run. Services arrive in `itinera` before `0.1.0-rc.1`; until then the program is written against the syntax planned for them, which may still change.
+From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md).
 
 ```example
 name: ch03_shop
@@ -134,14 +134,18 @@ name: ch03_shop
 region: workflow
 ```
 
-Move 7 uses the syntax planned for services, and move 8 the rescue steps `itinera` already has:
+Moves 7 and 8 use this syntax:
 
 - A step asks for a service with a parameter of `run` marked `#[service]`, such as `#[service] carrier: &dyn Carrier`, borrowed for the attempt only.
 - A provider is a method of the workflow's `#[workflow]` block marked `#[provider]`, for one instance per journey, or `#[provider(per_attempt)]`, for one per attempt. It returns a `Result<Box<dyn Trait>, Error>`, such as `Box<dyn Carrier>` for the carrier, and may request the attempt number with `#[attempt]`.
 - A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
 - The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` above 0 on the same line won't compile.
 
-When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration.
+When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration:
+
+```output
+name: ch03_shop
+```
 
 ## How it works
 
