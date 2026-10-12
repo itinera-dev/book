@@ -181,7 +181,8 @@ a:hover {
 	list-style: none;
 }
 
-.masthead__nav a {
+.masthead__nav a,
+.masthead__nav span[aria-current] {
 	display: inline-block;
 	padding: 0.25rem 0;
 }
