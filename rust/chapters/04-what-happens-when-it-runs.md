@@ -39,6 +39,8 @@ name: ch04_running
 
 ## How it works
 
+### The words
+
 1. **Workflow instance.** For every order, your code creates a new **workflow instance** from the workflow, with that order's initial data: `Orders::builder().initial_data(...).create()?`. The instance holds everything about that order's journey: its data, its journey ID and its reporters. An instance runs once; the next order gets a new one. Rust holds you to that: `run` takes the instance by value, so once it has run, it is gone, and running it again does not compile, as [chapter 21](21-running-many-journeys.md) shows.
 2. **Journey.** A **journey** is one execution of an instance, from its first step to its result. The output shows two journeys, one per order.
 3. **Executor.** The **executor** runs the instance. It builds each step afresh for every attempt, runs it, calls the hooks of the attached policies after each outcome, and carries out what they decide. The executor here, `LocalExecutor`, runs the journey in your process and keeps nothing once it returns: no data, no state, nothing saved to disk. It runs one journey at a time: its `run` takes it as `&mut self`, so the compiler itself prevents two journeys from running on one executor at the same time. To run journeys side by side, you create several executors.
