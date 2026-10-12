@@ -28,21 +28,14 @@ To answer "how many times is a card charged before the shop gives up?", you read
 
 ## Deciding the flow with Itinera
 
-With Itinera, a step only reports what happened. In [chapter 10](10-saying-how-it-went.md) the shipping meets a similar situation, a carrier that is down, and returns `Self::fail_retriably("carrier-down")`:
+With Itinera, a step only reports what happened. In [chapter 10](10-saying-how-it-went.md) the shipping meets a failure worth trying again, a parcel the carrier cannot take, and returns `Self::fail_retriably("parcel-refused")`:
 
 ```example
 name: ch10_outcomes
 region: ship
 ```
 
-How many times it is tried, and what comes after it, are in the workflow:
-
-```example
-name: ch10_outcomes
-region: workflow
-```
-
-The step never retries itself and never calls the next step. The retry budget is read from the workflow's declaration, `retry_budget = 1` on the step's line, and every attempt shows in the events, the same way for every step.
+The step never retries itself and never calls the next step. What comes after it is the order of the workflow's step lines, and how many times it is tried is the step's retry budget in the workflow's declaration, which [chapter 13](13-trying-again.md) teaches. Every attempt shows in the events, the same way for every step.
 
 ## Data written halfway
 

@@ -1,2 +1,3 @@
-the journey succeeded
-charged 40
+the bank charges 40
+price 40: the journey succeeded
+price 0: the journey failed

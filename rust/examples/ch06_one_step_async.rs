@@ -2,9 +2,14 @@
 
 use itinera::error::Error;
 use itinera::executor::AsyncLocalExecutor;
-use itinera::journey::{Contributor, InitialData, Output};
+use itinera::journey::InitialData;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
+
+/// The shop's bank, faked: it prints what it charges.
+fn bank_charges(amount: i64) {
+    println!("the bank charges {amount}");
+}
 
 // ANCHOR: step
 /// Charges an order's price.
@@ -16,11 +21,11 @@ struct Charge {
 
 #[step]
 impl Charge {
-    async fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    async fn run(self) -> Result<Outcome, Error> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        contributor.contribute("charged", self.price);
+        bank_charges(self.price);
         Self::succeed()
     }
 }
@@ -39,21 +44,15 @@ struct NewOrder {
     price: i64,
 }
 
-/// What the shop reads back once the journey has succeeded.
-#[derive(Output)]
-struct Charged {
-    charged: i64,
-}
-
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let instance = Orders::builder()
-        .initial_data(NewOrder { price: 40 })
-        .create()?;
-    let result = futures::executor::block_on(AsyncLocalExecutor::new().run(instance))?;
-    println!("the journey {}", result.status.kind());
-    let charged: Charged = result.output()?;
-    println!("charged {}", charged.charged);
+    for price in [40, 0] {
+        let instance = Orders::builder()
+            .initial_data(NewOrder { price })
+            .create()?;
+        let result = futures::executor::block_on(AsyncLocalExecutor::new().run(instance))?;
+        println!("price {price}: the journey {}", result.status.kind());
+    }
     Ok(())
 }
 // ANCHOR_END: run

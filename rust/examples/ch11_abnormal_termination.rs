@@ -82,6 +82,7 @@ struct Receipt {
     receipt: String,
 }
 
+// ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut executor = LocalExecutor::new();
     for (order, customer) in [("A-1", "Ann"), ("A-2", "Ben"), ("A-3", "Cat")] {
@@ -95,8 +96,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+// ANCHOR_END: run
 
-// ANCHOR: report
 /// Prints how one order's journey ended, and why when it failed.
 fn report(order: &str, result: &JourneyResult) {
     match &result.status {
@@ -115,4 +116,3 @@ fn report(order: &str, result: &JourneyResult) {
         },
     }
 }
-// ANCHOR_END: report

@@ -1,20 +1,21 @@
 //! Saying how it went: a step succeeds, fails, fails in a way that might work next time, or skips.
 
-use std::sync::atomic::{AtomicBool, Ordering};
-
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, Failure, InitialData, JourneyResult, JourneyStatus, Output};
+use itinera::journey::{
+    Contributor, Failure, InitialData, JourneyResult, JourneyStatus, LastFailure, Output,
+};
 use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
-/// Whether the carrier is down: it is the first time it is called, and up afterwards.
-static CARRIER_DOWN: AtomicBool = AtomicBool::new(true);
+/// The heaviest parcel the shop's carrier takes, in kg.
+const CARRIER_MAX_WEIGHT: i64 = 20;
 
-/// The shop's carrier, faked: it collects a parcel and gives a tracking number, unless it is down.
-fn carrier_collects(order: &str) -> Option<String> {
-    if CARRIER_DOWN.swap(false, Ordering::Relaxed) {
-        println!("the carrier is down");
+/// The shop's carrier, faked: it collects a parcel and gives a tracking number, unless the parcel
+/// is too heavy for it.
+fn carrier_collects(order: &str, weight: i64) -> Option<String> {
+    if weight > CARRIER_MAX_WEIGHT {
+        println!("the carrier cannot take a parcel of {weight} kg");
         return None;
     }
     println!("the carrier collects order {order}");
@@ -51,6 +52,8 @@ struct Ship {
     order: String,
     #[input]
     digital: bool,
+    #[input]
+    weight: i64,
 }
 
 #[step]
@@ -59,8 +62,8 @@ impl Ship {
         if self.digital {
             return Self::skip_because("digital");
         }
-        let Some(tracking) = carrier_collects(&self.order) else {
-            return Self::fail_retriably("carrier-down");
+        let Some(tracking) = carrier_collects(&self.order, self.weight) else {
+            return Self::fail_retriably("parcel-refused");
         };
         contributor.contribute("tracking", tracking);
         Self::succeed()
@@ -68,14 +71,11 @@ impl Ship {
 }
 // ANCHOR_END: ship
 
-// ANCHOR: workflow
-/// The shop's workflow: it charges, then ships, trying the shipping once more if it fails
-/// retriably.
+/// The shop's workflow: it charges, then ships.
 #[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
-#[with_step(Ship, name = "ship", retry_budget = 1)]
+#[with_step(Ship, name = "ship")]
 struct Orders;
-// ANCHOR_END: workflow
 
 /// What the shop knows about an order when the journey starts.
 #[derive(InitialData)]
@@ -83,6 +83,7 @@ struct NewOrder {
     order: String,
     price: i64,
     digital: bool,
+    weight: i64,
 }
 
 /// What the shop reads back once the journey has succeeded.
@@ -93,14 +94,21 @@ struct Shipped {
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let orders = [("A-1", 40, false), ("A-2", 25, true), ("A-3", 0, false)];
+    // The order, its price, whether it is digital, and its parcel's weight in kg.
+    let orders = [
+        ("A-1", 40, false, 2),
+        ("A-2", 25, true, 0),
+        ("A-3", 30, false, 30),
+        ("A-4", 0, false, 1),
+    ];
     let mut executor = LocalExecutor::new();
-    for (order, price, digital) in orders {
+    for (order, price, digital, weight) in orders {
         let instance = Orders::builder()
             .initial_data(NewOrder {
                 order: order.to_owned(),
                 price,
                 digital,
+                weight,
             })
             .create()?;
         report(order, &executor.run(instance)?);
@@ -112,17 +120,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// Prints how one order's journey ended.
 fn report(order: &str, result: &JourneyResult) {
     match &result.status {
-        JourneyStatus::Failed {
-            failure: Failure::Failure(reason),
-            ..
-        } => println!(
-            "{order}: failed, {}: {}",
-            reason.code(),
-            reason.message().unwrap_or_default()
-        ),
+        JourneyStatus::Failed { failure, .. } => println!("{order}: failed, {}", why(failure)),
         status => match result.output::<Shipped>().map(|shipped| shipped.tracking) {
             Ok(Some(tracking)) => println!("{order}: {}, tracking {tracking}", status.kind()),
             _ => println!("{order}: {}, nothing shipped", status.kind()),
         },
+    }
+}
+
+/// Why a journey failed: its cause, then the reason the step gave, with its message if it has one.
+fn why(failure: &Failure) -> String {
+    match failure {
+        Failure::Failure(reason) | Failure::RetriesExhausted(LastFailure::Reason(reason)) => {
+            match reason.message() {
+                Some(message) => format!("{}, {}: {message}", failure.cause(), reason.code()),
+                None => format!("{}, {}", failure.cause(), reason.code()),
+            }
+        }
+        _ => failure.cause().to_string(),
     }
 }

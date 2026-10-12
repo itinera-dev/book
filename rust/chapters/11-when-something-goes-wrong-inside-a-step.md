@@ -20,11 +20,11 @@ name: ch11_abnormal_termination
 region: step
 ```
 
-The shop runs three orders, one for each customer, and prints how each journey ended, and why when it failed.
+The shop runs three orders, one for each customer. The `report` function prints how each journey ended, and why when it failed; [chapter 22](22-reading-the-result.md) shows how to read a result.
 
 ```example
 name: ch11_abnormal_termination
-region: report
+region: run
 ```
 
 It prints:
@@ -38,7 +38,7 @@ name: ch11_abnormal_termination
 A step's `run` returns `Result<Outcome, Error>`. An `Ok` holds the outcome the step chose, as in the previous chapter. An `Err` is something else: an error that escaped the step.
 
 1. **A declined card is a failure on purpose.** The bank answered, and its answer is one the business expects. The step returns `Self::fail("declined")`, and Ben's journey fails with the cause `failure` and that reason.
-2. **An error that escapes is an abnormal termination.** For Cat's order the bank gave no answer, only an error, and the step let it escape instead of choosing an outcome. That ends the attempt as a failure, called an abnormal termination. Cat's journey fails with the cause `abnormal termination`. In the result, `Failure::AbnormalTermination(error)` holds the error itself, and its `Display`, which `report` prints, gives its message.
+2. **An error that escapes is an abnormal termination.** For Cat's order the bank gave no answer, only an error, and the step let it escape instead of choosing an outcome. That ends the attempt as a failure, called an abnormal termination. Cat's journey fails with the cause `abnormal termination`. The result holds the error itself, and `report` prints its message.
 3. **A question mark is all it takes.** `itinera::error::Error` converts from any error that implements `std::error::Error + Send + Sync + 'static`, so the `?` on the bank's `Result` turns `NetworkDown` into an abnormal termination with no more code. When you have only a message and no error type, `Error::msg("...")` makes one.
 4. **It is still a failure, never an abort.** An abnormal termination never aborts the journey. It's a failure of the step like any other, so the journey has an output, and the policies attached to the step can react to it, as [chapter 16](16-ending-a-journey-early.md) shows.
 5. **It is not retried unless the workflow says so.** An error the step didn't expect may already have had effects: the bank may have taken the money before the network went down. So an abnormal termination isn't retried by default, whatever the step's retry budget. The workflow can declare that a step's abnormal terminations may be retried, as [chapter 13](13-trying-again.md) shows.

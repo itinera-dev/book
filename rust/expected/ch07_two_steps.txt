@@ -1,4 +1,4 @@
 the bank charges 40
 the carrier collects order A-1
-the journey succeeded
-charged 40, tracking T-A-1
+A-1: the journey succeeded
+A-2: the journey failed

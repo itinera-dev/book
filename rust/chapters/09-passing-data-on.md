@@ -51,8 +51,6 @@ name: ch09_contributions
 7. **The last value wins.** A step that contributes the same key twice in one attempt keeps the last value. A committed contribution may also replace a key already in the data bag, even one from the initial data, and the events record that it did.
 8. **Only values go in.** Everything in the data bag is a value: data that could be serialized, such as numbers, `String`s, `Vec`s and structs that derive `Clone` and Serde's `Serialize` and `Deserialize`. A connection, a client or a closure never goes in. [Chapter 12](12-giving-a-step-the-tools-it-needs.md) shows how a step gets those.
 
-Policies, which later chapters introduce, can look at what a failed attempt contributed when they decide what happens next, and so can the rescue steps of [chapter 14](14-repairing-then-trying-once-more.md), which repair what made a step fail. Even then, those contributions never reach a later step or the result.
-
 ## Remember
 
 1. A step changes the data bag only by contributing, and its contributions are committed only when its attempt succeeds.

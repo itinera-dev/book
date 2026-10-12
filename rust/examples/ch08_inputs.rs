@@ -2,11 +2,14 @@
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
-use itinera::journey::{
-    Abort, Contributor, InitialData, JourneyResult, JourneyStatus, MissingData, Output,
-};
+use itinera::journey::{Abort, InitialData, JourneyResult, JourneyStatus, MissingData};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
+
+/// The shop's bank, faked: it prints what it charges.
+fn bank_charges(amount: i64) {
+    println!("the bank charges {amount}");
+}
 
 // ANCHOR: step
 /// Charges an order's price, less its discount when it has one.
@@ -20,12 +23,12 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome, Error> {
         let amount = self.price - self.discount.unwrap_or(0);
         if amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        contributor.contribute("charged", amount);
+        bank_charges(amount);
         Self::succeed()
     }
 }
@@ -51,12 +54,6 @@ struct OrderWithoutPrice {
     order: String,
 }
 // ANCHOR_END: data
-
-/// What the shop reads back once the journey has succeeded.
-#[derive(Output)]
-struct Charged {
-    charged: i64,
-}
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -96,12 +93,6 @@ fn report(order: &str, result: &JourneyResult) {
         &result.status
     {
         println!("{order}: aborted, required data missing: {key}");
-    } else if let Ok(output) = result.output::<Charged>() {
-        println!(
-            "{order}: {}, charged {}",
-            result.status.kind(),
-            output.charged
-        );
     } else {
         println!("{order}: {}", result.status.kind());
     }
