@@ -1,0 +1,23 @@
+INFO checkout A-1
+AUDIT charged 35, receipt R-ann-card-35
+to Ann: order A-1 is on its way: T-A-1
+A-1: shipped, T-A-1
+
+INFO checkout A-2
+INFO card ben-card expired, renewing it
+AUDIT charged 25, receipt R-ben-card-renewed-25
+to Ben: order A-2 is on its way: T-A-2
+A-2: shipped, T-A-2
+
+INFO checkout A-3
+AUDIT charged 30, receipt R-cat-card-30
+WARN Rapid cannot take A-3: no van available; trying Steady
+to Cat: order A-3 is on its way: B-A-3
+A-3: shipped, B-A-3
+
+INFO checkout A-4
+INFO card dan-card expired, renewing it
+WARN checkout A-4 failed: payment declined
+to Dan: order A-4 could not be completed
+A-4: failed, payment declined
+

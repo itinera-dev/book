@@ -1,0 +1,9 @@
+event: journey_started
+event: attempt_started
+to the customer of A-1: you paid 40
+event: step_succeeded
+event: contribution_committed
+event: data_overwritten
+event: contribution_committed
+event: journey_succeeded
+A-1: succeeded

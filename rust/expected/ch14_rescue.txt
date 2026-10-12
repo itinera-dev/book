@@ -1,0 +1,32 @@
+order A-2
+  attempt_started charge 1
+  step_failed charge 1: expired-card
+  step_rescuing charge 1: failure, by charge_rescue
+  attempt_started charge_rescue 1
+  step_succeeded charge_rescue 1
+  contribution_committed card
+  step_rescued charge 1, by charge_rescue
+  attempt_started charge 2
+  step_succeeded charge 2
+  contribution_committed charged
+  attempt_started ship 1
+  step_succeeded ship 1
+  journey_succeeded
+the journey succeeded
+card card-2031
+charged 40
+order A-4
+  attempt_started charge 1
+  step_failed charge 1: expired-card
+  step_rescuing charge 1: failure, by charge_rescue
+  attempt_started charge_rescue 1
+  step_succeeded charge_rescue 1
+  contribution_committed card
+  step_rescued charge 1, by charge_rescue
+  attempt_started charge 2
+  step_failed charge 2: declined
+  step_given_up charge 2: failure
+  journey_failed at charge: failure
+the journey failed
+card card-2030
+nothing charged

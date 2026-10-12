@@ -1,0 +1,7 @@
+[inventory] reserving stock for A-1
+order A-1 done: charged 40, tracking T-A-1
+[inventory] reserving stock for A-2
+order A-2 done: charged 25, tracking none
+[inventory] reserving stock for A-3
+WARN payments: nothing to charge on A-3
+order A-3 not completed: nothing to charge

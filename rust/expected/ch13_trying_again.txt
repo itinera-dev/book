@@ -1,0 +1,29 @@
+order A-1
+  journey_started
+  attempt_started charge 1
+  step_succeeded charge 1
+  contribution_committed charged
+  attempt_started ship 1
+  optional_input_absent carrier
+  step_failed ship 1: carrier-down, retriable
+  hook_called fallback on step retry
+  contribution_committed carrier
+  step_retrying ship 1: retriable failure
+  attempt_started ship 2
+  step_succeeded ship 2
+  contribution_committed tracking
+  journey_succeeded
+the journey succeeded
+tracking B-A-1
+order A-2
+  journey_started
+  attempt_started charge 1
+  step_succeeded charge 1
+  contribution_committed charged
+  attempt_started ship 1
+  optional_input_absent carrier
+  step_failed ship 1: no-address
+  step_given_up ship 1: failure
+  journey_failed
+the journey failed
+nothing shipped

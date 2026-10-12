@@ -1,0 +1,67 @@
+---
+// One page of the book, in the edition this build renders: a welcome page, a
+// chapter, the "Without Itinera" section that closes a part, or an
+// appendix.
+
+import { build, pageHref } from '../../../book.config.mjs';
+import Base from '../../layouts/Base.astro';
+import { contents, pageName, type Page } from '../../lib/contents.ts';
+import { renderPage } from '../../lib/render.ts';
+
+export function getStaticPaths() {
+	const { pages } = contents();
+	return pages.map((page, index) => ({
+		params: { edition: build.segment, chapter: page.slug },
+		props: { page, previous: pages[index - 1], next: pages[index + 1] },
+	}));
+}
+
+interface Props {
+	page: Page;
+	previous?: Page;
+	next?: Page;
+}
+
+const { page, previous, next } = Astro.props;
+const { title, html } = await renderPage(page);
+const labels = { welcome: undefined, chapter: `Chapter ${page.number}`, appendix: 'Appendix', 'without-itinera': 'Closing the part' };
+const label = labels[page.kind];
+const pageTitle = page.kind === 'without-itinera' ? `${title}, ${page.part.title}` : pageName(page);
+---
+
+<Base title={pageTitle} description={`${pageName(page)}, from the Itinera book in ${build.edition.name}.`} edition={{ page: page.slug }}>
+	<p class="eyebrow">
+		<a href={`${pageHref()}#${page.part.id}`}>{page.part.title}</a>{
+			label && (
+				<>
+					<span aria-hidden="true"> · </span><span class="visually-hidden">, </span>{label}
+				</>
+			)
+		}
+	</p>
+	<article class="prose" set:html={html} />
+	<nav class="pager" aria-label="Previous and next pages">
+		<ul>
+			{
+				previous && (
+					<li class="pager__previous">
+						<a href={pageHref(previous.slug)} rel="prev">
+							<span class="pager__direction">Previous</span>
+							<span class="pager__title">{pageName(previous)}</span>
+						</a>
+					</li>
+				)
+			}
+			{
+				next && (
+					<li class="pager__next">
+						<a href={pageHref(next.slug)} rel="next">
+							<span class="pager__direction">Next</span>
+							<span class="pager__title">{pageName(next)}</span>
+						</a>
+					</li>
+				)
+			}
+		</ul>
+	</nav>
+</Base>

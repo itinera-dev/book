@@ -1,0 +1,12 @@
+[package]
+name = "itinera-book"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+description = "The Rust examples of the Itinera book."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "021deb304edd28bbb418f998782177f1733b72b2", features = ["async"] }
+futures = { version = "0.3", default-features = false, features = ["executor"] }

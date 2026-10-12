@@ -1,0 +1,96 @@
+---
+// Every page: the skip link, the masthead, the main landmark and the footer.
+// A page of an edition passes `edition`, which adds the edition's name, a link
+// to its contents and the switcher between editions to the masthead.
+
+import '../styles/global.css';
+
+import { base, build, markdownHref, pageHref, repository, site, sourceHref } from '../../book.config.mjs';
+import EditionSwitcher from '../components/EditionSwitcher.astro';
+
+interface Props {
+	/** The page's title, before the book's name; the front page has none. */
+	title?: string;
+	description: string;
+	/** For a page of the edition: the chapter's slug, or an empty string for the contents. */
+	edition?: { page: string };
+}
+
+const { title, description, edition } = Astro.props;
+const book = edition ? `The Itinera book in ${build.edition.name}` : 'The Itinera book';
+const fullTitle = title ? `${title} · ${book}` : book;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const markdown = edition && markdownHref(edition.page || undefined);
+const llms = `${base}/${build.segment}/llms.txt`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		{/* The page colour of each scheme; scripts/contrast.mjs checks they match tokens.css. */}
+		<meta name="theme-color" content="#fbf9f4" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#171a19" media="(prefers-color-scheme: dark)" />
+		<title>{fullTitle}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+		{markdown && <link rel="alternate" type="text/markdown" title="This page in Markdown" href={markdown} />}
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to the text</a>
+		<header class="masthead">
+			<div class="masthead__inner">
+				<p class="masthead__book">
+					<a class="masthead__title" href={`${base}/`}>The Itinera book</a>
+					{edition && <span class="masthead__edition">{build.edition.name} edition{build.version && `, ${build.version}`}</span>}
+				</p>
+				<div class="masthead__nav">
+					<nav aria-label="Book">
+						<ul>
+							{
+								edition && (
+									<li>
+										{edition.page === '' ? (
+											<span aria-current="page">Contents</span>
+										) : (
+											<a href={pageHref()}>Contents</a>
+										)}
+									</li>
+								)
+							}
+							<li>
+								<a href={`${site}/`}>Itinera</a>
+							</li>
+						</ul>
+					</nav>
+					{edition && <EditionSwitcher page={edition.page} />}
+				</div>
+			</div>
+		</header>
+		<main id="main" tabindex="-1" class="page">
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<div class="site-footer__inner">
+				<p>
+					The Itinera book is part of <a href={`${site}/`}>Itinera</a>: separate process from logic, make agentic code
+					safer. It teaches <a href="https://github.com/itinera-dev/spec">the Itinera specification</a>, which defines
+					what Itinera does.
+				</p>
+				<p>
+					For agents: <a href={llms}>llms.txt</a>{markdown && <>, and <a href={markdown}>this page in Markdown</a></>}.
+				</p>
+				<p>
+					<a href={repository}>Source on GitHub</a>, licensed under{' '}
+					<a href={sourceHref('LICENSE-APACHE')}>Apache 2.0</a> or <a href={sourceHref('LICENSE-MIT')}>MIT</a>.
+				</p>
+			</div>
+		</footer>
+		<script>
+			import '../scripts/diagrams.ts';
+		</script>
+	</body>
+</html>

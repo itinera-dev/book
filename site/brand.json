@@ -1,0 +1,16 @@
+{
+	"repository": "itinera-dev/itinera-dev.github.io",
+	"commit": "4f6c36166552a80be45cd9f27c92da3a207a1399",
+	"files": [
+		{
+			"copy": "src/styles/tokens.css",
+			"from": "src/styles/tokens.css",
+			"sha256": "e27e136e74788d41c02668e8066e7d030e2f6ec4b363a5325a4114f174f77eb3"
+		},
+		{
+			"copy": "public/favicon.svg",
+			"from": "/favicon.svg, as src/pages/favicon.svg.ts builds it",
+			"sha256": "095ba32892ce6099644fa25b2d37b48e4c207020b144b806e28a7da15c50a176"
+		}
+	]
+}
