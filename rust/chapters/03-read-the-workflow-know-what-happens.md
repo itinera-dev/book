@@ -33,7 +33,7 @@ A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[r
 
 The program runs the four orders of [chapter 1](01-but-why-itinera.md). When it runs, three journeys succeed and one fails. Ann's order goes through. Ben's charge fails because his card has expired; `charge_rescue` gets his new card, and the charge runs once more and succeeds. The main carrier cannot take Cat's parcel, so `ship` makes a second attempt, with the backup carrier, which takes it. Dan's charge is rescued too, but the bank refuses his new card, so his journey fails with the cause `failure` and the reason `declined`.
 
-The shop's log, the `Log` reporter, prints each failure and each decision under its order, and the `notify` policy's message to the customer is printed too:
+Under each order, the shop's log, the `Log` reporter, prints every failed attempt and the decision that follows it, and the `notify` policy's message to the customer is printed too; the last line, printed by `main`, is how the journey ended:
 
 ```output
 name: ch03_shop

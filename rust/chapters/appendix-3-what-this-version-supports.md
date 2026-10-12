@@ -45,7 +45,7 @@ A rule the specification lets a language make impossible, such as a policy attac
 5. a handle used after its attempt or call (`late-handle`);
 6. a write through an input adapter's access to the data bag (`bag-write`);
 7. a rescue step that skips (`rescue-skip`);
-8. a service provider of journey scope requesting the attempt number (`journey-scope-request`);
+8. a service provider of journey scope requesting the name of the step being built or the attempt number (`journey-scope-request`);
 9. a service provider that returns no service (`no-instance`).
 
 ## What later tiers add
