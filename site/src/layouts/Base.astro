@@ -7,6 +7,7 @@ import '../styles/global.css';
 
 import { base, build, markdownHref, pageHref, repository, site, sourceHref } from '../../book.config.mjs';
 import EditionSwitcher from '../components/EditionSwitcher.astro';
+import Mark from '../components/Mark.astro';
 
 interface Props {
 	/** The page's title, before the book's name; the front page has none. */
@@ -44,7 +45,10 @@ const llms = `${base}/${build.segment}/llms.txt`;
 		<header class="masthead">
 			<div class="masthead__inner">
 				<p class="masthead__book">
-					<a class="masthead__title" href={`${base}/`}>The Itinera book</a>
+					<a class="masthead__title" href={`${base}/`}>
+						<Mark class="masthead__mark" />
+						<span class="masthead__name">The Itinera book</span>
+					</a>
 					{edition && <span class="masthead__edition">{build.edition.name} edition{build.version && `, ${build.version}`}</span>}
 				</p>
 				<div class="masthead__nav">
@@ -54,7 +58,7 @@ const llms = `${base}/${build.segment}/llms.txt`;
 								edition && (
 									<li>
 										{edition.page === '' ? (
-											<span aria-current="page">Contents</span>
+											<span class="masthead__current" aria-current="page">Contents</span>
 										) : (
 											<a href={pageHref()}>Contents</a>
 										)}
