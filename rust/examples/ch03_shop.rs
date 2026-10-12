@@ -5,10 +5,10 @@
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody};
+use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFailure};
-use itinera::policy::{OnSuccess, step_policy, workflow_policy};
+use itinera::policy::{HookReporter, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
@@ -34,35 +34,42 @@ trait StockStore: Send + Sync {
 
 /// A carrier: it takes a parcel and gives back its tracking number, when it can take it.
 trait Carrier: Send + Sync {
-    fn send(&self, order: &str) -> Option<String>;
+    fn send(&self, order: &str, weight: i64) -> Option<String>;
 }
 // ANCHOR_END: services
 
-/// The customers' bank, faked: it knows which cards have expired and which it refuses.
+/// The customers' bank, faked. A card ends with the year it expires, such as `ann-card-2028`; the
+/// bank refuses a card that expired before this year, and any charge above its limit.
 struct Bank {
-    expired: &'static [&'static str],
-    refused: &'static [&'static str],
+    this_year: u32,
+    limit: i64,
 }
 
 const BANK: Bank = Bank {
-    expired: &["ben-card", "dan-card"],
-    refused: &["dan-card-renewed"],
+    this_year: 2026,
+    limit: 1000,
 };
 
 impl Payments for Bank {
     fn charge(&self, card: &str, amount: i64) -> Result<String, Declined> {
-        if self.expired.contains(&card) {
+        if expiry(card).is_some_and(|year| year < self.this_year) {
             return Err(Declined::ExpiredCard);
         }
-        if self.refused.contains(&card) {
+        if amount > self.limit {
             return Err(Declined::Refused);
         }
         Ok(format!("R-{card}-{amount}"))
     }
 
     fn renewed_card(&self, card: &str) -> Option<String> {
-        Some(format!("{card}-renewed"))
+        let (holder, _) = card.rsplit_once('-')?;
+        Some(format!("{holder}-{}", self.this_year + 3))
     }
+}
+
+/// The year a card expires, from the end of its number.
+fn expiry(card: &str) -> Option<u32> {
+    card.rsplit_once('-')?.1.parse().ok()
 }
 
 /// The warehouse, faked: it lists the orders it has no stock for.
@@ -80,25 +87,25 @@ impl StockStore for Warehouse {
     fn hand_over(&self, _order: &str) {}
 }
 
-/// A carrier, faked: it cannot take the parcels of the orders it lists.
+/// A carrier, faked: it takes parcels up to a weight.
 struct Van {
     tracking_prefix: &'static str,
-    cannot_take: &'static [&'static str],
+    max_weight: i64,
 }
 
 const MAIN_CARRIER: Van = Van {
     tracking_prefix: "T",
-    cannot_take: &["A-3"],
+    max_weight: 20,
 };
 
 const BACKUP_CARRIER: Van = Van {
     tracking_prefix: "B",
-    cannot_take: &[],
+    max_weight: 50,
 };
 
 impl Carrier for Van {
-    fn send(&self, order: &str) -> Option<String> {
-        if self.cannot_take.contains(&order) {
+    fn send(&self, order: &str, weight: i64) -> Option<String> {
+        if weight > self.max_weight {
             return None;
         }
         Some(format!("{}-{order}", self.tracking_prefix))
@@ -193,6 +200,8 @@ impl RenewCard {
 struct Ship {
     #[input]
     order: String,
+    #[input]
+    weight: i64,
 }
 
 #[step]
@@ -203,8 +212,8 @@ impl Ship {
         #[service] stock: &dyn StockStore,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
-        let Some(tracking) = carrier.send(&self.order) else {
-            return Self::fail_retriably("carrier-down");
+        let Some(tracking) = carrier.send(&self.order, self.weight) else {
+            return Self::fail_retriably("parcel-refused");
         };
         stock.hand_over(&self.order);
         contributor.contribute("tracking", tracking);
@@ -213,7 +222,7 @@ impl Ship {
 }
 // ANCHOR_END: ship
 
-/// Audits every successful charge.
+/// Audits every successful charge, in the journey's events.
 #[derive(Default)]
 struct Audit;
 
@@ -224,9 +233,9 @@ impl Audit {
         &self,
         #[from_step] charged: i64,
         #[from_step] receipt: String,
-        #[contributor] mut contributor: Contributor<'_>,
+        #[reporter] mut reporter: HookReporter<'_>,
     ) -> Result<Option<OnSuccess>, Error> {
-        contributor.contribute("audit", format!("charged {charged}, receipt {receipt}"));
+        reporter.info(format!("charged {charged}, receipt {receipt}"))?;
         Self::carry_on()
     }
 }
@@ -269,7 +278,8 @@ impl Notify {
     }
 }
 
-/// The shop's log: every failure and every decision of every journey, in one format.
+/// The shop's log: every failure, every decision and what the hooks report, for every journey, in
+/// one format.
 #[derive(Default)]
 struct Log;
 
@@ -287,6 +297,11 @@ impl Reporter for Log {
             EventBody::StepGivenUp { step, cause, .. } => {
                 println!("  WARN {} given up: {cause}", step.step);
             }
+            EventBody::JourneyInfo {
+                hook: HookSource::Step { policy, .. },
+                message,
+                ..
+            } => println!("  INFO {policy}: {message}"),
             _ => {}
         }
         Ok(())
@@ -345,6 +360,7 @@ struct NewOrder {
     card: String,
     price: i64,
     discount: Option<i64>,
+    weight: i64,
 }
 
 /// A service in the listing: its key, and the provider that serves it.
@@ -382,14 +398,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", entry(&listed));
     }
     // ANCHOR_END: list
+    // ANCHOR: orders
+    // The order, the customer, the card, the price, the discount and the parcel's weight in kg.
     let orders = [
-        ("A-1", "Ann", "ann-card", 40, Some(5)),
-        ("A-2", "Ben", "ben-card", 25, None),
-        ("A-3", "Cat", "cat-card", 30, None),
-        ("A-4", "Dan", "dan-card", 15, None),
+        ("A-1", "Ann", "ann-card-2028", 40, Some(5), 2),
+        ("A-2", "Ben", "ben-card-2024", 25, None, 1),
+        ("A-3", "Cat", "cat-card-2027", 30, None, 30),
+        ("A-4", "Dan", "dan-card-2025", 1200, None, 3),
     ];
+    // ANCHOR_END: orders
     let mut executor = LocalExecutor::new();
-    for (order, customer, card, price, discount) in orders {
+    for (order, customer, card, price, discount, weight) in orders {
         println!("{order}:");
         let instance = Orders::builder()
             .initial_data(NewOrder {
@@ -398,6 +417,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 card: card.to_owned(),
                 price,
                 discount,
+                weight,
             })
             .create()?;
         let result = executor.run(instance)?;

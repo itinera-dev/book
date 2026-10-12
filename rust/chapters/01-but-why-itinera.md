@@ -33,7 +33,7 @@ name: ch01_checkout
 region: shipping
 ```
 
-The program checks out four orders. Ann's goes through without trouble. Ben's card has expired. The main carrier cannot take Cat's parcel. Dan's card has expired, and the bank refuses the new one too.
+The program sets up the fakes and checks out four orders. Each card ends with the year it expires, and the bank refuses a card that expired before this year, and any charge above 1,000. The main carrier, Rapid, takes parcels up to 20 kg; the backup carrier, Steady, up to 50 kg. So the orders' own data decides what happens to them: Ann's goes through without trouble. Ben's card expired in 2024, and the bank's new card for him expires in 2029. Cat's parcel weighs 30 kg, too heavy for the main carrier. Dan's card has expired too, and his order of 1,200 is above the bank's limit, so the bank refuses the new card as well.
 
 ```example
 name: ch01_checkout

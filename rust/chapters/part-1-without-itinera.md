@@ -34,14 +34,14 @@ region: workflow
 | Reserve, then charge, then ship | the checkout's function that reserves, charges and ships | the order of the step lines in the workflow |
 | Renew an expired card and charge once more | a `match` arm inside the payment function | the rescue step `RenewCard`, declared on `charge` |
 | Give up when the card is refused twice | an `Err` passed up by `?` through two functions | the rule for rescued steps: a second failure fails the journey |
-| Try the backup carrier | the `Err` arm of the shipping function, which drops the backup's error with `.ok()` | the retry budget of `ship` and the `carrier` provider |
+| Try the backup carrier | the `Err` arm of the shipping function, which drops the backup's error with `.ok()` | the retry budget of `ship`, and the workflow giving each attempt its carrier |
 | Audit every successful charge | a call at the end of the payment function | the `audit` policy, attached to `charge` |
-| Tell the customer how it went | both branches at the end of the checkout | the `notify` policy, attached to the workflow, through the `Messages` role |
+| Tell the customer how it went | both branches at the end of the checkout | the `notify` policy, attached to the workflow, through an operation the workflow provides |
 | Record what happened | log lines in each module, each in its own style | events, the same for every journey, sent to the workflow's reporters |
 
 ## What you gain
 
 1. **One place to read the flow.** The declaration tells you the order of the steps, how many times each may be tried, which step is rescued, which policies are attached, and, by what it leaves out, which defaults apply. What remains in the steps is their own business, such as which failures the rescue step can repair. In the usual checkout, each answer meant following calls through several modules.
-2. **Business code you can test alone.** The charge step takes a card, a price and a discount, and reports what happened. Testing it needs only a fake payment client, a small struct implementing the `Payments` trait: no carrier, no customer messages and no audit trail, and it cannot accidentally ship anything.
+2. **Business code you can test alone.** The charge step takes a card, a price and a discount, and reports what happened. Testing it needs only a fake payment client: no carrier, no customer messages and no audit trail, and it cannot accidentally ship anything.
 3. **Observation that is the same everywhere.** The usual checkout drops the backup carrier's error and never says that it was the new card the bank refused. With Itinera, the outcome of every attempt of every step is an event, with the reason of a failure, whoever wrote the step.
-4. **Decisions you can change in one place.** Giving shipping a third try is one change to its `#[with_step(...)]` line, changing the backup carrier is one change to the `carrier` provider, and the steps do not change at all.
+4. **Decisions you can change in one place.** Giving shipping a third try is one change to its `#[with_step(...)]` line, changing the backup carrier is one change to how the workflow gives each attempt its carrier, and the steps do not change at all.

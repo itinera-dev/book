@@ -35,7 +35,7 @@ name: ch01_checkout
 region: payment
 ```
 
-As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("carrier-down")`, and doesn't call another carrier.
+As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("parcel-refused")`, and doesn't call another carrier.
 
 For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, as the tangled code did. Move 7 takes those away.
 
@@ -55,7 +55,7 @@ region: workflow
 
 ### 4. Move the reactions into policies
 
-The audit reacts to a successful charge, so it becomes a step policy attached to `charge`. Telling the customer reacts to the end of the journey, so it becomes a workflow policy, which reaches the customer through the `Messages` role that the workflow provides.
+The audit reacts to a successful charge, so it becomes a step policy attached to `charge`, which reports each charge as an event of the journey. Telling the customer reacts to the end of the journey, so it becomes a workflow policy, which reaches the customer through the `Messages` role that the workflow provides.
 
 ```example
 name: ch26_workflow
@@ -64,7 +64,7 @@ region: policies
 
 ### 5. Replace the log lines with a reporter
 
-The steps and policies no longer log anything. One reporter receives every event of every journey and writes, in one format, the failures and the decisions that the modules of [chapter 1](01-but-why-itinera.md) each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
+The steps and policies no longer write log lines. One reporter receives every event of every journey and writes, in one format, the failures, the decisions and the audit that the modules of [chapter 1](01-but-why-itinera.md) each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
 
 ```example
 name: ch26_workflow
@@ -143,7 +143,7 @@ Moves 7 and 8 use this syntax:
 - A rescue step derives `RescueStep` instead of `Step`, and its `run` is in a `#[rescue_step]` block. Its fields can be its inputs, marked `#[input]`, data from the failed attempt of the step it rescues, marked `#[from_rescued_step]`, the reason of that failure, marked `#[reason]`, and its error, marked `#[error]`. The reason is an `Option<Reason>`, because a charge that ends in an abnormal termination has no reason, only an error. Its `run` returns `Result<RescueOutcome, Error>`, built with `Self::succeed()`, `Self::fail(...)` or `Self::fail_retriably(...)`: there's no way to skip, so a rescue step that skips can't be written in Rust.
 - The workflow attaches the rescue step with `rescue = RenewCard` on the step's `#[with_step(...)]` line. A `rescue` together with a `retry_budget` above 0 on the same line won't compile.
 
-When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, so the charge's attempt 2 fails and so does the journey. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
+When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, because his order of 1,200 is above its limit, so the charge's attempt 2 fails and so does the journey. Every successful charge, Ben's after the rescue included, shows up as an audit line. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
 
 ```output
 name: ch03_shop

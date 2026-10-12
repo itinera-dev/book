@@ -14,8 +14,8 @@ Every example belongs to the same small online shop, and to the same four custom
 
 1. **Ann**, whose order goes through without trouble.
 2. **Ben**, whose card has expired, so the shop has to get his new one.
-3. **Cat**, whose parcel the main carrier cannot take, so it goes to the backup carrier.
-4. **Dan**, whose card has expired too, and whose bank refuses the new one.
+3. **Cat**, whose parcel is too heavy for the main carrier, so it goes to the backup carrier.
+4. **Dan**, whose card has expired too, and whose bank refuses the new one, because his order is above its limit.
 
 Their orders are numbered A-1, A-2, A-3 and A-4, in that order. Other chapters use only some of them, or give them other problems, such as a declined card or an address the carrier does not know, whatever the chapter is about. The names and the order numbers stay the same, so you never have to learn a new example.
 

@@ -1,4 +1,5 @@
 A-1:
+  INFO audit: charged 35, receipt R-ann-card-2028-35
   to Ann: order A-1 is on its way: T-A-1
 succeeded
 A-2:
@@ -7,12 +8,13 @@ A-2:
   to Ben: order A-2 could not be completed
 failed: failure, expired-card
 A-3:
-  WARN ship, attempt 1: carrier-down
+  INFO audit: charged 30, receipt R-cat-card-2027-30
+  WARN ship, attempt 1: parcel-refused
   INFO ship tried again
-  WARN ship, attempt 2: carrier-down
+  WARN ship, attempt 2: parcel-refused
   WARN ship given up: retries exhausted
   to Cat: order A-3 could not be completed
-failed: retries exhausted, carrier-down
+failed: retries exhausted, parcel-refused
 A-4:
   WARN charge, attempt 1: expired-card
   WARN charge given up: failure

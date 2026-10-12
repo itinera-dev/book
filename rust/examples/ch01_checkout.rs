@@ -16,28 +16,35 @@ mod outside {
         Refused,
     }
 
-    /// The customers' bank: it knows which cards have expired and which it refuses.
+    /// The customers' bank. A card ends with the year it expires, such as `ann-card-2028`; the
+    /// bank refuses a card that expired before this year, and any charge above its limit.
     pub struct Bank {
-        pub expired: Vec<&'static str>,
-        pub refused: Vec<&'static str>,
+        pub this_year: u32,
+        pub limit: i64,
     }
 
     impl Bank {
         /// Charges an amount to a card, and returns the receipt.
         pub fn charge(&self, card: &str, amount: i64) -> Result<String, Declined> {
-            if self.expired.contains(&card) {
+            if expiry(card).is_some_and(|year| year < self.this_year) {
                 return Err(Declined::ExpiredCard);
             }
-            if self.refused.contains(&card) {
+            if amount > self.limit {
                 return Err(Declined::Refused);
             }
             Ok(format!("R-{card}-{amount}"))
         }
 
-        /// The card that replaced an expired one.
+        /// The card that replaced an expired one: the same card, expiring three years from now.
         pub fn renewed_card(&self, card: &str) -> Option<String> {
-            Some(format!("{card}-renewed"))
+            let (holder, _) = card.rsplit_once('-')?;
+            Some(format!("{holder}-{}", self.this_year + 3))
         }
+    }
+
+    /// The year a card expires, from the end of its number.
+    fn expiry(card: &str) -> Option<u32> {
+        card.rsplit_once('-')?.1.parse().ok()
     }
 
     /// The warehouse, which holds the stock.
@@ -55,18 +62,21 @@ mod outside {
         }
     }
 
-    /// A carrier, which cannot take the parcels of some orders.
+    /// A carrier, which takes parcels up to a weight.
     pub struct Carrier {
         pub name: &'static str,
         pub tracking_prefix: &'static str,
-        pub cannot_take: Vec<&'static str>,
+        pub max_weight: i64,
     }
 
     impl Carrier {
         /// Takes the order's parcel, and returns its tracking number.
-        pub fn ship(&self, order: &str) -> Result<String, String> {
-            if self.cannot_take.contains(&order) {
-                return Err("no van available".to_owned());
+        pub fn ship(&self, order: &str, weight: i64) -> Result<String, String> {
+            if weight > self.max_weight {
+                return Err(format!(
+                    "{weight} kg is over its {} kg limit",
+                    self.max_weight
+                ));
             }
             Ok(format!("{}-{order}", self.tracking_prefix))
         }
@@ -132,15 +142,15 @@ mod shipping {
     // ANCHOR: shipping
     /// Ships through the main carrier, or through the backup carrier when the main one
     /// cannot take the parcel.
-    pub fn ship(main: &Carrier, backup: &Carrier, order: &str) -> Option<String> {
-        match main.ship(order) {
+    pub fn ship(main: &Carrier, backup: &Carrier, order: &str, weight: i64) -> Option<String> {
+        match main.ship(order, weight) {
             Ok(tracking) => Some(tracking),
             Err(error) => {
                 log::warn(&format!(
                     "{} cannot take {order}: {error}; trying {}",
                     main.name, backup.name
                 ));
-                backup.ship(order).ok()
+                backup.ship(order, weight).ok()
             }
         }
     }
@@ -161,6 +171,7 @@ mod checkout {
         pub card: &'static str,
         pub price: i64,
         pub discount: Option<i64>,
+        pub weight: i64,
     }
 
     /// Why a checkout did not complete.
@@ -225,7 +236,8 @@ mod checkout {
                 .map_err(|_| CheckoutError::OutOfStock)?;
             let amount = order.price - order.discount.unwrap_or(0);
             payments::take_payment(&self.bank, order.card, amount)?;
-            shipping::ship(&self.main, &self.backup, order.order).ok_or(CheckoutError::NotShipped)
+            shipping::ship(&self.main, &self.backup, order.order, order.weight)
+                .ok_or(CheckoutError::NotShipped)
         }
         // ANCHOR_END: checkout
     }
@@ -235,8 +247,8 @@ mod checkout {
 fn main() {
     let shop = Shop {
         bank: Bank {
-            expired: vec!["ben-card", "dan-card"],
-            refused: vec!["dan-card-renewed"],
+            this_year: 2026,
+            limit: 1000,
         },
         warehouse: Warehouse {
             out_of_stock: vec![],
@@ -244,12 +256,12 @@ fn main() {
         main: Carrier {
             name: "Rapid",
             tracking_prefix: "T",
-            cannot_take: vec!["A-3"],
+            max_weight: 20,
         },
         backup: Carrier {
             name: "Steady",
             tracking_prefix: "B",
-            cannot_take: vec![],
+            max_weight: 50,
         },
         messages: Messages,
     };
@@ -257,30 +269,34 @@ fn main() {
         Order {
             order: "A-1",
             customer: "Ann",
-            card: "ann-card",
+            card: "ann-card-2028",
             price: 40,
             discount: Some(5),
+            weight: 2,
         },
         Order {
             order: "A-2",
             customer: "Ben",
-            card: "ben-card",
+            card: "ben-card-2024",
             price: 25,
             discount: None,
+            weight: 1,
         },
         Order {
             order: "A-3",
             customer: "Cat",
-            card: "cat-card",
+            card: "cat-card-2027",
             price: 30,
             discount: None,
+            weight: 30,
         },
         Order {
             order: "A-4",
             customer: "Dan",
-            card: "dan-card",
-            price: 15,
+            card: "dan-card-2025",
+            price: 1200,
             discount: None,
+            weight: 3,
         },
     ];
     for order in &orders {
