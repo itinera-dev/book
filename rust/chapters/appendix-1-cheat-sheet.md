@@ -8,6 +8,8 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 |---|---|---|
 | A step | holds one business rule, runs once per attempt and reports an outcome | [6](06-a-workflow-of-one-step.md) |
 | A workflow and its steps | the plan: the steps in order, each under its name | [6](06-a-workflow-of-one-step.md), [7](07-adding-a-step.md) |
+| A workflow instance and its initial data | one journey's starting point | [4](04-what-happens-when-it-runs.md), [6](06-a-workflow-of-one-step.md), [21](21-running-many-journeys.md) |
+| An executor, and running an instance | runs one journey and returns its result, or refuses it | [4](04-what-happens-when-it-runs.md), [6](06-a-workflow-of-one-step.md), [21](21-running-many-journeys.md) |
 | A step's inputs, required or optional | the data a step needs, which the workflow supplies | [8](08-giving-a-step-what-it-needs.md) |
 | A contributor | how a step adds data to the data bag | [9](09-passing-data-on.md) |
 | Reading the result and its output | how the journey ended, and the data bag it left | [9](09-passing-data-on.md), [22](22-reading-the-result.md) |
@@ -23,8 +25,6 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A role | operations the workflow provides to policies | [18](18-letting-policies-act-on-the-outside-world.md) |
 | An input adapter | decides where a step's inputs come from | [19](19-deciding-where-a-steps-data-comes-from.md) |
 | A journey ID generator | names each journey, for example after the order | [20](20-naming-your-journeys.md) |
-| A workflow instance and its initial data | one journey's starting point | [21](21-running-many-journeys.md) |
-| An executor, and running an instance | runs one journey and returns its result, or refuses it | [21](21-running-many-journeys.md) |
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
 | A reporter | receives every event of a journey | [23](23-seeing-what-happened.md) |
 | A step's own events | what only the step knows, emitted as `step_info`, `step_warning` or `step_error`; a hook emits `journey_info`, `journey_warning` or `journey_error` | [23](23-seeing-what-happened.md) |
@@ -38,6 +38,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 |---|---|---|
 | A step | `#[derive(Step)]` on its struct, and `#[step]` on the block holding `fn run(self, ...) -> Result<Outcome, Error>` | 6 |
 | A workflow and its steps | `#[workflow(name = "orders")]` on its struct, then one `#[with_step(Charge, name = "charge")]` line per step, in order | 6, 7 |
+| A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 4, 6, 21 |
+| An executor, and running an instance | `LocalExecutor::new().run(instance)`, which returns `Result<JourneyResult, Refusal>` | 4, 6, 21 |
 | A step's inputs | a field marked `#[input]`, or `#[input("key")]`; an `Option<T>` field is optional | 8 |
 | A contributor | a parameter of `run` marked `#[contributor]`, of type `Contributor<'_>`, then `contributor.contribute("key", value)` | 9 |
 | Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 9, 22 |
@@ -53,8 +55,6 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 18 |
 | An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>` | 19 |
 | A journey ID generator | a method of the same block marked `#[id_generator]`, returning `Result<String, Error>` | 20 |
-| A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 21 |
-| An executor, and running an instance | `LocalExecutor::new().run(instance)`, which returns `Result<JourneyResult, Refusal>` | 21 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |

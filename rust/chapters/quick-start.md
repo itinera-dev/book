@@ -8,7 +8,7 @@ Don't worry about understanding every line yet. Each piece has a chapter of its 
 
 ## The code
 
-Two steps hold the business rules, each a struct with an `impl` block. The charge fails when there is nothing to charge, and otherwise contributes what it charged. Shipping uses the carrier it is given; without one it tries the main carrier, which is down, so it fails in a way that is worth trying again.
+Two steps hold the business rules, each a struct with an `impl` block. The charge contributes what it charged. Shipping uses the carrier it is given; without one it tries the main carrier, which is down, so it fails in a way that is worth trying again.
 
 ```example
 name: quick_start
