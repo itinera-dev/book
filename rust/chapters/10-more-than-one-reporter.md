@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-The shop's customer service desk wants to hear about every order that failed, and about nothing else. You want the desk to get its own view of the journeys, from the same events as the log, without changing the log or any step.
+The shop's customer service desk wants to hear about every order that failed, and where it failed, and about nothing else. You want the desk to read the same record of who decided what as the log, for a purpose of its own, without changing the log or any step.
 
 ## The code
 
@@ -43,3 +43,4 @@ We have shown how several reporters each get every event of a journey, and keep 
 | The usual way | With Itinera |
 |---|---|
 | A new audience for what the code does, such as a support desk, usually means adding a call to it wherever something it cares about happens. | A new audience is one more reporter listed on the workflow, and it receives every event without changing a step. |
+| A second log is often written apart from the first, so the two can tell different stories about the same order. | Every reporter receives the same events in the same order, so the log and the desk tell one story of who decided what. |

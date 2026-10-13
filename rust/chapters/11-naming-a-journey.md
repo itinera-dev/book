@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-Every event says which journey it belongs to, by the journey's ID. You want that ID to be one the shop's people already know, the order's number, so that the log and the desk say which order each line is about.
+Every event says who decided what, and when, and which journey it belongs to, by the journey's ID. You want that ID to be one the shop's people already know, the order's number, so that every decision in the log and at the desk is tied to its order.
 
 ## The code
 
@@ -49,4 +49,4 @@ We have shown how a workflow names its journeys, so every event says which order
 
 | The usual way | With Itinera |
 |---|---|
-| A log line usually carries an order's number only where the code that writes it remembers to add it. | Every event carries the journey's ID, made once by the workflow from the order's data. |
+| A log line usually carries an order's number only where the code that writes it remembers to add it. | Every event, and so every decision, carries the journey's ID, made once by the workflow from the order's data. |
