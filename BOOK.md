@@ -33,8 +33,7 @@ Every example belongs to one small online shop taking orders, which grows a litt
 1. it charges an order, less any discount;
 2. it reserves the stock and ships the order through a carrier, falling back to another carrier when the first one fails;
 3. it audits every successful charge;
-4. it sends an order to review instead of shipping it when its charge is above the review limit the order carries;
-5. it tells the customer how the order went.
+4. it tells the customer how the order went.
 
 Its customers keep their names and order numbers from chapter to chapter, and a chapter adds a customer whenever it needs an order that no earlier one gives, so the book never promises how many there are.
 
@@ -59,14 +58,14 @@ We have shown how a step asks for the data it needs.
 
 | The usual way | With Itinera |
 |---|---|
-| A function gets its data through parameters, shared state or objects it reaches for, and finding where a value came from means following every caller. | Every step asks for its data the same way, by name, and the workflow says where each value comes from. |
+| A function gets its data through parameters, shared state or objects it reaches for, and finding where a value came from means following every caller. | Every step asks for its data the same way, by name, so everything it reads is listed where the step is declared. |
 
 1. The left cell says what competent code usually does, fairly, as a habit rather than a mistake: "usually" or "often", never "always". It names no library or framework, and admits it when the usual way is perfectly reasonable.
 2. The right cell claims only what the chapter's own code shows; in chapter 1, which has no Itinera yet, what chapter 2 shows.
 3. No row repeats a row of an earlier chapter.
-4. The section's heading is "Outcomes", but its text uses "outcome" only in the specification's sense (success, failure or skip): its sentence says "We have shown", never "the outcome is".
+4. The section's heading is "Outcomes", but its text uses "outcome" only in the specification's sense (success, failure or skip): its sentence starts "We have", never "the outcome is".
 
-Chapter 1 is the book's one long comparison, written in code. Every other chapter compares only in its Outcomes table, so the book never shows the usual code again.
+Chapter 1 is the book's one long comparison, written in code. Every other chapter compares only in its Outcomes table, except chapter 2, which answers chapter 1's questions from the workflow, and chapter 28, which moves chapter 1's checkout into Itinera one step at a time. No chapter writes the shop the usual way a second time.
 
 ### Each idea in its own chapter
 
@@ -97,13 +96,13 @@ Two short pages come before Part 1, unnumbered, so a reader meets Itinera and th
 The part makes one argument: the hardest part of understanding a system that mixes business rules with flow control is knowing what is going on, and with Itinera you find out by reading one workflow.
 
 1. **But why Itinera?** The shop written the usual way, before any Itinera: a checkout that reserves, charges, renews an expired card, falls back to another carrier, audits, logs and tells the customer, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed. It is the book's one long comparison.
-2. **The big picture.** The same checkout, with the same orders, written with Itinera. The chapter shows the whole workflow declaration and the listing the language makes from it without running anything, runs the orders, and answers chapter 1's questions from the declaration alone, a short paragraph each. Steps, policies, the workflow, the journey, the data bag, events and the executor are each named in one sentence with a link to the chapter that teaches them; nothing is taught here. It closes with a diagram of a journey through the shop, with the text that says everything it shows, and a paragraph on what Itinera is not: not a job queue, not BPMN, no branching inside a workflow.
+2. **The big picture.** The same checkout, with the same orders, written with Itinera. The chapter shows the whole workflow declaration and the listing the language makes from it without running anything, runs the orders, and answers chapter 1's questions from the declaration alone, a short paragraph each. Each idea in it, such as steps, policies, retry budgets, rescue steps, services, the listing and the journey, is named in one sentence with a link to the chapter that teaches it, and explained only as far as answering a question needs. It closes with a diagram of a journey through the shop, with the text that says everything it shows, and a paragraph on what Itinera is not: not a job queue, not BPMN, no branching inside a workflow.
 
 ### Part 2: Getting started
 
 3. **Installing Itinera.** The package, its options and the language version it needs.
 4. **A workflow of one step.** Charge an order, run the journey and read the result: a step, a workflow, a workflow instance and its initial data, the executor, the journey and its result, and the two execution modes, synchronous and asynchronous.
-5. **Adding a step.** Ship after charging. The order the steps are written in is the order they run.
+5. **Adding a step.** Ship after charging. The order the steps are written in is the order they run, as the workflow's listing shows without running anything.
 6. **Watching a journey.** Events: what each journey reports as it runs, and in what order. Where the language has a reporter that prints every event, the chapter attaches it and explains what it prints.
 
 ### Part 3: Writing steps

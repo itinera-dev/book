@@ -6,12 +6,12 @@ Where each part of the book lives in this repository, and how a chapter shows co
 
 Each language has a book of its own, in its own directory, such as [rust/](rust/). Every book follows BOOK.md: the same shop, the same parts, the same shape of a chapter and the same voice. Beyond that, each is written for its language: it names the language, shows its syntax in the prose, and covers what its readers need, in as much detail as they need. A new language's book usually starts as a copy of an existing one, and is then rewritten for its language.
 
-1. Each chapter is one file under the language's `chapters/`, named after its number and title, for example `rust/chapters/06-a-workflow-of-one-step.md`. The `chapters/README.md` next to it lists the parts and chapters in reading order.
+1. Each chapter is one file under the language's `chapters/`, named after its number and title, for example `rust/chapters/04-a-workflow-of-one-step.md`. The `chapters/README.md` next to it lists the parts and chapters in reading order.
 2. Each appendix is a file named `appendix-N-short-name.md`.
 3. Each welcome page before Part 1 is a file named after its title, without a number, for example `how-to-read-this-book.md`. The contents list them unnumbered, under the heading "Welcome".
 4. A chapter opens with its title as the only level 1 heading, and has the four sections of BOOK.md as level 2 headings, in order: "What you want to do", "The code", "How it works" and "Outcomes". It may use level 3 headings inside the first three, and a level 3 heading never stands alone: it has at least one other under the same level 2 heading. "Outcomes" holds only its sentence and its table.
 5. An appendix or a welcome page opens with its own title, and chooses its own level 2 and level 3 headings.
-6. Every name a chapter gives to an example or a compile error starts with the chapter's number, such as `ch06_one_step`, or with the appendix's, such as `appendix1_cheat_sheet`, so names never clash between chapters.
+6. Every name a chapter gives to an example or a compile error starts with the chapter's number, such as `ch04_one_step`, or with the appendix's, such as `appendix1_cheat_sheet`, so names never clash between chapters.
 7. Any chapter or appendix may show a region of another chapter's example, by naming it, so the same code is never written twice.
 8. A chapter never holds code that is meant to compile. Code that compiles, what it prints and what the compiler refuses are named by directives, below, so every listing in the book is checked. A short fragment that is not a program, such as one attribute or a type's name, may be written inline in the prose.
 
@@ -23,28 +23,28 @@ A directive is a fenced block whose info string is the directive's kind, holding
 
 ````markdown
 ```example
-name: ch06_one_step
+name: ch04_one_step
 region: step
 ```
 ````
 
-The region of the example `ch06_one_step` between the comments `ANCHOR: step` and `ANCHOR_END: step`, with every other anchor line removed. Without `region`, the whole example, anchor lines removed. An example is a complete program; the region is only what the chapter shows of it.
+The region of the example `ch04_one_step` between the comments `ANCHOR: step` and `ANCHOR_END: step`, with every other anchor line removed. Without `region`, the whole example, anchor lines removed. An example is a complete program; the region is only what the chapter shows of it.
 
 ### Output
 
 ````markdown
 ```output
-name: ch06_one_step
+name: ch04_one_step
 ```
 ````
 
-What the example `ch06_one_step` prints, as recorded next to it. An example that is still pending (see "Each language", below) has no recorded output, so no `output` directive names it: the chapter says in its prose what the program does when it runs, and gains the directive when the example stops being pending.
+What the example `ch04_one_step` prints, as recorded next to it. An example that is still pending (see "Each language", below) has no recorded output, so no `output` directive names it: the chapter says in its prose what the program does when it runs, and gains the directive when the example stops being pending.
 
 ### Compile error
 
 ````markdown
 ```compile-error
-name: ch27_role_not_provided
+name: ch29_role_not_provided
 ```
 ````
 
