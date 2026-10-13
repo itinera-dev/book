@@ -6,7 +6,7 @@ You have a workflow; now you want to run it for real orders, and to know the nam
 
 ## The code
 
-This shop is smaller than the one in [chapter 3](03-read-the-workflow-know-what-happens.md): two steps, charge then ship, and nothing around them, so that its events stay short. The workflow lists `DebugReporter`, the ready-made reporter you met in the [quick start](quick-start.md), which prints every event of a journey, one per line.
+This shop is smaller than the one in [chapter 2](02-the-big-picture.md): two steps, charge then ship, and nothing around them, so that its events stay short. The workflow lists `DebugReporter`, a ready-made reporter that comes with `itinera` and prints every event of a journey, one per line.
 
 ```example
 name: ch04_running

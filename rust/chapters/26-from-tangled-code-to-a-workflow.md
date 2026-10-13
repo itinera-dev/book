@@ -92,24 +92,24 @@ Ann's order goes through. The others fail, and the log says exactly why, without
 
 The steps still reach the bank, the warehouse and the carrier by themselves. Instead, each step asks for what it uses as a service, by a key: `payments`, `stock` or `carrier`. Each service is a trait, so the step never knows which implementation it was given. In your system, those traits wrap the clients you already have, such as your payment gateway's client, rather than replacing them: the client stays, and only who decides which one a step gets moves into the workflow.
 
-From this move on, the program is the shop of [chapter 3](03-read-the-workflow-know-what-happens.md).
+From this move on, the program is the shop of [chapter 2](02-the-big-picture.md).
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: services
 ```
 
 The ship step now uses the carrier it is given, and the stock store, which it shares with `reserve`:
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: ship
 ```
 
 The workflow supplies each service through a provider. The payment client and the stock store last for the whole journey. The carrier is made afresh for every attempt: the main carrier on the first, the backup carrier after. The fallback of [chapter 1](01-but-why-itinera.md) is now these few lines, together with the retry budget of `ship`.
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: providers
 ```
 
@@ -118,21 +118,21 @@ region: providers
 The charge takes its payment client as a service, and its business rule does not change:
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: charge
 ```
 
 The card renewal becomes a step of its own, the charge's rescue step. It reads why the charge failed, asks the bank for the new card only when the card has expired, and contributes it as `card`, which the charge reads when it runs once more.
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: rescue
 ```
 
 The workflow declares the rescue step on `charge`, and the rewrite is complete:
 
 ```example
-name: ch03_shop
+name: ch02_big_picture
 region: workflow
 ```
 
@@ -141,7 +141,7 @@ Move 7 uses the services and providers of [chapter 12](12-giving-a-step-the-tool
 When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, because his order of 1,200 is above its limit, so the charge's attempt 2 fails and so does the journey. Every successful charge, Ben's after the rescue included, shows up as an audit line. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
 
 ```output
-name: ch03_shop
+name: ch02_big_picture
 ```
 
 ## How it works

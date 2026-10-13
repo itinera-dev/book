@@ -56,16 +56,19 @@ Every piece of this code is reasonable. We would have written it this way too. N
 4. **Is every successful charge audited?** Only the payments module tells you. The audit happens at the end of the payment function, after the renewal. Reading the checkout, you would never know that charges are audited at all.
 5. **When is the customer told, and what?** At the end of the checkout, whether the order went through or not. On a failure, the customer is told only that the order could not be completed. Why it failed is in the log, where each module writes what its author thought worth writing, in its own way: the checkout logs failures, the payments module logs renewals, the shipping module logs the switch to the backup carrier.
 
-The code mixes two kinds of decision. **Business rules** decide what the shop does: an order is charged its price less any discount, goods are reserved before they are shipped, a parcel goes to a carrier. **Flow control** decides what happens around that work: renew the card and try once more, fall back to another carrier, give up, audit, tell the customer. Logging is woven through both. Every flow decision lives inside a business function, so the only way to find it is to read that function, and the one it calls, and the one after.
+The code mixes two kinds of decision. **Business rules** decide what the shop does: an order is charged its price less any discount, goods are reserved before they are shipped, a parcel goes to a carrier. **Flow control** decides what happens around that work: renew the card and try once more, fall back to another carrier, give up, audit, tell the customer. Logging is woven through both. **Every flow decision lives inside a business function, so the only way to find it is to read that function**, and the one it calls, and the one after.
 
 That is the answer to "why Itinera?": the hardest part of understanding a system like this is knowing what is going on. Answering one question means reading every module, and a decision is easy to miss: the audit tucked into the payment function, the backup carrier's error dropped, the second refusal that travels up without a word. Changing a decision is harder still, because you first have to find every place that makes it.
 
 The shop is small, and you can still read all of it. A system that has grown for years, across teams and repositories, has the same problem with no one left who has read everything, and agents changing it faster than anyone can follow. The Itinera site tells that larger story on [Why Itinera](https://itinera-dev.github.io/why/).
 
-The next chapters write the same shop with Itinera, where every flow decision has one place to live, and you can answer each of these questions by reading one declaration.
+The next chapter writes the same checkout with Itinera, where every flow decision has one place to live, and answers each of these questions by reading one declaration.
 
-## Remember
+## Outcomes
 
-1. A business rule says what the business does; a flow decision says what happens around it: try again, fall back, give up, tell someone. Tell them apart before you change either.
-2. A flow decision made inside a business function is invisible to the code that calls it.
-3. A log says only what its author chose to say. Answer questions about the flow from the code, not from the log.
+We have shown how flow decisions hide inside business code, so that answering a simple question about one order means reading every module it passes through.
+
+| The usual way | With Itinera |
+|---|---|
+| Each function usually decides, inside its own code, what happens when something fails, so the flow is spread across every module it calls. | The flow is declared in one workflow, and [chapter 2](02-the-big-picture.md) answers every question of this chapter from it. |
+| Each module often logs what its author thought worth logging, in its own way, so the log rarely tells the whole story. | One reporter attached to the workflow writes the log of every journey, in one format. |
