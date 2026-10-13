@@ -110,13 +110,14 @@ The part makes one argument: the hardest part of understanding a system that mix
 ### Part 2: Getting started
 
 3. **Installing Itinera.** The package, the language version it needs, and the one thing to know about its options: the defaults are enough to start, and a chapter that needs another option says how to turn it on. It is a library, with nothing else to run.
+4. **A first step.** The charge written as a step: a struct holding the price it asks for as an input, and a `run` that does the work and says how it went, succeeded or failed with a reason, and nothing else. The program declares the step and runs nothing, and the chapter ends on the question that raises: nothing builds the step with an order's price or runs it, so how does the shop charge an order?
 
 ### The chapters to come
 
 They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
 
 1. the package's options other than the defaults;
-2. steps: inputs, required or optional, outcomes, contributions and the data bag, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
+2. steps: optional inputs, the other outcomes, contributions and the data bag, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
 3. workflows, instances and their initial data, the executor, journeys, journey IDs and results, and the two execution modes;
 4. events and reporters, including writing one, a reporter that fails, and global metadata;
 5. retries and rescue steps;
