@@ -1,16 +1,14 @@
-//! With Itinera: the ship step is tested alone with one fake carrier, and the fallback to the
-//! backup carrier, which belongs to the workflow's provider, is tested by the journey's events.
+//! With Itinera: the ship step is tested alone, called with one fake carrier, and the fallback to
+//! the backup carrier, which belongs to the workflow's provider, is tested by the journey's events.
 
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
-use itinera::journey::{
-    Contributor, Failure, InitialData, JourneyResult, JourneyStatus, LastFailure, Output,
-};
+use itinera::journey::{Contributions, Contributor, InitialData, Output, Read};
 use itinera::report::RecordingReporter;
-use itinera::step::{Outcome, Step, step};
+use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
 /// What the shop asks of a carrier: take a parcel and give back its tracking number.
@@ -103,67 +101,54 @@ fn attempt_line(event: &Event) -> Option<String> {
 }
 
 /// Prints what was checked, or fails the program when it does not hold.
-fn check(what: &str, holds: bool) -> Result<(), String> {
+fn check(what: &str, holds: bool) -> Result<(), Error> {
     if !holds {
-        return Err(format!("failed: {what}"));
+        return Err(Error::msg(format!("failed: {what}")));
     }
     println!("ok: {what}");
     Ok(())
 }
 
-/// Whether the last attempt of the step that failed the journey reported this code.
-fn last_failed_with(result: &JourneyResult, code: &str) -> bool {
-    match &result.status {
-        JourneyStatus::Failed {
-            failure: Failure::RetriesExhausted(LastFailure::Reason(reason)),
-            ..
-        } => reason.code() == code,
-        _ => false,
-    }
-}
-
 // ANCHOR: step_alone
-/// The ship step alone, lent the one carrier the test gives it.
-#[workflow(name = "ship alone")]
-#[with_step(Ship, name = "ship")]
-struct ShipAlone {
-    carrier: Parcels,
+/// Runs the ship step for order A-1, outside any journey, lent the carrier the test gives it.
+fn ship(carrier: &Parcels, contributions: &mut Contributions) -> Result<Outcome, Error> {
+    let step = Ship {
+        order: "A-1".to_owned(),
+    };
+    step.run(carrier, contributions.contributor())
 }
 
-#[workflow]
-impl ShipAlone {
-    #[provider]
-    fn carrier(&self) -> Result<Box<dyn Carrier>, Error> {
-        Ok(Box::new(self.carrier.clone()))
-    }
-}
-
-fn ship_alone(up: bool) -> Result<JourneyResult, Box<dyn std::error::Error>> {
-    let instance = ShipAlone::builder()
-        .carrier(Parcels { prefix: "T", up })
-        .initial_data(NewOrder {
-            order: "A-1".to_owned(),
-        })
-        .create()?;
-    Ok(LocalExecutor::new().run(instance)?)
-}
-
-fn the_ship_step_alone() -> Result<(), Box<dyn std::error::Error>> {
-    let shipped: Shipped = ship_alone(true)?.output()?;
+fn the_ship_step_alone() -> Result<(), Error> {
+    let mut contributions = Contributions::default();
+    ship(
+        &Parcels {
+            prefix: "T",
+            up: true,
+        },
+        &mut contributions,
+    )?;
     check(
         "a carrier that is up gives a tracking number",
-        shipped.tracking.as_deref() == Some("T-A-1"),
+        contributions.read::<String>("tracking") == Read::Present("T-A-1".to_owned()),
+    )?;
+
+    let down = ship(
+        &Parcels {
+            prefix: "T",
+            up: false,
+        },
+        &mut Contributions::default(),
     )?;
     check(
         "a carrier that is down is a failure worth trying again",
-        last_failed_with(&ship_alone(false)?, "carrier-down"),
+        down.is_retriable() && down.reason().map(Reason::code) == Some("carrier-down"),
     )?;
     Ok(())
 }
 // ANCHOR_END: step_alone
 
 // ANCHOR: journey
-fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
+fn the_fallback() -> Result<(), Error> {
     let recorder = RecordingReporter::default();
     let instance = Orders::builder()
         .main(Parcels {
@@ -201,7 +186,7 @@ fn the_fallback() -> Result<(), Box<dyn std::error::Error>> {
 }
 // ANCHOR_END: journey
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Error> {
     the_ship_step_alone()?;
     the_fallback()?;
     Ok(())

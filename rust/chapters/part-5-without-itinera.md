@@ -110,7 +110,7 @@ name: part5_testing_the_fallback
 region: fake
 ```
 
-The ship step is tested alone, lent one fake carrier: it ships when the carrier is up, and fails in a way worth trying again when the carrier is down.
+The ship step is tested alone: the test calls its `run` itself, with one fake carrier as its service and a contributor lent by `Contributions`, as in [chapter 24](24-testing-your-workflows.md). It ships when the carrier is up, and fails in a way worth trying again when the carrier is down.
 
 ```example
 name: part5_testing_the_fallback
@@ -130,7 +130,7 @@ It prints an `ok` line for each of its four checks, as [chapter 24](24-testing-y
 name: part5_testing_the_fallback
 ```
 
-Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapter 24](24-testing-your-workflows.md) tests the shop the same way: a step alone, a policy alone on a stand-in step, and a whole journey by its events.
+Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapter 24](24-testing-your-workflows.md) tests the shop the same way: a step alone, a policy alone, and a whole journey by its events.
 
 ## What you gain
 

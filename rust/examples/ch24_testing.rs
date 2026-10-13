@@ -4,10 +4,12 @@
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, Failure, InitialData, JourneyResult, JourneyStatus, Output};
+use itinera::journey::{
+    Contributions, Contributor, Failure, InitialData, JourneyResult, JourneyStatus, Output, Read,
+};
 use itinera::policy::workflow_policy;
 use itinera::report::RecordingReporter;
-use itinera::step::{Outcome, Step, step};
+use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
 // ANCHOR: shop
@@ -92,9 +94,9 @@ struct NewOrder {
 // ANCHOR_END: shop
 
 /// Prints what was checked, or fails the program when it does not hold.
-fn check(what: &str, holds: bool) -> Result<(), String> {
+fn check(what: &str, holds: bool) -> Result<(), Error> {
     if !holds {
-        return Err(format!("failed: {what}"));
+        return Err(Error::msg(format!("failed: {what}")));
     }
     println!("ok: {what}");
     Ok(())
@@ -111,12 +113,6 @@ fn failed_with(result: &JourneyResult, code: &str) -> bool {
     }
 }
 
-/// What a test reads back about the charge.
-#[derive(Output)]
-struct Charged {
-    charged: Option<i64>,
-}
-
 /// What a test reads back about the customer's message.
 #[derive(Output)]
 struct Told {
@@ -124,102 +120,61 @@ struct Told {
 }
 
 // ANCHOR: step_alone
-/// The charge step alone, in a workflow of its own.
-#[workflow(name = "charge alone")]
-#[with_step(Charge, name = "charge")]
-struct ChargeAlone;
-
-/// The price of an order, all the charge step needs.
-#[derive(InitialData)]
-struct Price {
-    price: i64,
+/// Runs the charge step for a price, outside any journey, with a contributor lent by the test.
+fn charge(price: i64, contributions: &mut Contributions) -> Result<Outcome, Error> {
+    Charge { price }.run(contributions.contributor())
 }
 
-fn charge_alone(price: i64) -> Result<JourneyResult, Box<dyn std::error::Error>> {
-    let instance = ChargeAlone::builder()
-        .initial_data(Price { price })
-        .create()?;
-    Ok(LocalExecutor::new().run(instance)?)
-}
-
-fn the_charge_step_alone() -> Result<(), Box<dyn std::error::Error>> {
-    let paid = charge_alone(40)?;
-    let charged: Charged = paid.output()?;
+fn the_charge_step_alone() -> Result<(), Error> {
+    let mut contributions = Contributions::default();
+    let outcome = charge(40, &mut contributions)?;
     check(
-        "the charge step charges a price of 40",
-        charged.charged == Some(40),
+        "the charge step succeeds for a price of 40",
+        outcome.is_success(),
+    )?;
+    check(
+        "the charge step contributes the 40 it charged",
+        contributions.read::<i64>("charged") == Read::Present(40),
     )?;
 
-    let free = charge_alone(0)?;
-    let charged: Charged = free.output()?;
+    let mut contributions = Contributions::default();
+    let outcome = charge(0, &mut contributions)?;
     check(
         "the charge step fails a price of 0 with nothing-to-charge",
-        failed_with(&free, "nothing-to-charge"),
+        outcome.reason().map(Reason::code) == Some("nothing-to-charge"),
     )?;
     check(
-        "the charge step charges nothing for it",
-        charged.charged.is_none(),
+        "the charge step contributes nothing for it",
+        contributions.keys().count() == 0,
     )?;
     Ok(())
 }
 // ANCHOR_END: step_alone
 
 // ANCHOR: policy_alone
-/// A stand-in for the shop's steps, which succeeds or fails as the test says.
-#[derive(Step)]
-struct StandIn {
-    #[input]
-    succeeds: bool,
+/// The message a hook of the notify policy wrote, or nothing.
+fn message(contributions: &Contributions) -> Read<String> {
+    contributions.read("message")
 }
 
-#[step]
-impl StandIn {
-    fn run(self) -> Result<Outcome, Error> {
-        if self.succeeds {
-            return Self::succeed();
-        }
-        Self::fail("declined")
-    }
-}
-
-/// The notify policy alone, attached to a workflow of one stand-in step.
-#[workflow(name = "notify alone", policies = [Notify])]
-#[with_step(StandIn, name = "stand-in")]
-struct NotifyAlone;
-
-/// What the notify policy reads, and how the stand-in ends.
-#[derive(InitialData)]
-struct Ending {
-    order: String,
-    tracking: Option<String>,
-    succeeds: bool,
-}
-
-fn told_after(ending: Ending) -> Result<String, Box<dyn std::error::Error>> {
-    let instance = NotifyAlone::builder().initial_data(ending).create()?;
-    let told: Told = LocalExecutor::new().run(instance)?.output()?;
-    Ok(told.message)
-}
-
-fn the_notify_policy_alone() -> Result<(), Box<dyn std::error::Error>> {
-    let told = told_after(Ending {
-        order: "A-1".to_owned(),
-        tracking: Some("T-A-1".to_owned()),
-        succeeds: true,
-    })?;
+fn the_notify_policy_alone() -> Result<(), Error> {
+    let mut contributions = Contributions::default();
+    Notify.shipped(
+        "A-1".to_owned(),
+        Some("T-A-1".to_owned()),
+        contributions.contributor(),
+    )?;
     check(
         "notify tells the customer a shipped order is on its way",
-        told == "Order A-1 is on its way, tracking T-A-1.",
+        message(&contributions)
+            == Read::Present("Order A-1 is on its way, tracking T-A-1.".to_owned()),
     )?;
 
-    let told = told_after(Ending {
-        order: "A-2".to_owned(),
-        tracking: None,
-        succeeds: false,
-    })?;
+    let mut contributions = Contributions::default();
+    Notify.failed("A-2".to_owned(), contributions.contributor())?;
     check(
         "notify tells the customer a failed order could not be taken",
-        told == "We could not take order A-2.",
+        message(&contributions) == Read::Present("We could not take order A-2.".to_owned()),
     )?;
     Ok(())
 }
@@ -243,7 +198,7 @@ fn line(event: &Event) -> String {
     format!("{} {about}", event.kind())
 }
 
-fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
+fn a_free_orders_journey() -> Result<(), Error> {
     let recorder = RecordingReporter::default();
     let instance = Orders::builder()
         .initial_data(NewOrder {
@@ -282,7 +237,7 @@ fn a_free_orders_journey() -> Result<(), Box<dyn std::error::Error>> {
 // ANCHOR_END: journey
 
 // ANCHOR: main
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Error> {
     the_charge_step_alone()?;
     the_notify_policy_alone()?;
     a_free_orders_journey()?;
