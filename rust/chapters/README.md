@@ -12,11 +12,12 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 1. [But why Itinera?](01-but-why-itinera.md)
 2. [The big picture](02-the-big-picture.md)
 
-4) [What happens when it runs](04-what-happens-when-it-runs.md)
-
 ## Part 2: Getting started
 
-5. [Installing Itinera](05-installing-itinera.md)
+3. [Installing Itinera](03-installing-itinera.md)
+
+4) [What happens when it runs](04-what-happens-when-it-runs.md)
+
 6. [A workflow of one step](06-a-workflow-of-one-step.md)
 7. [Adding a step](07-adding-a-step.md)
 - [Without Itinera](part-2-without-itinera.md)
