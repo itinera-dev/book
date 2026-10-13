@@ -23,23 +23,23 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 9. [Saying what only a step knows](09-saying-what-only-a-step-knows.md)
 10. [More than one reporter](10-more-than-one-reporter.md)
 11. [Naming a journey](11-naming-a-journey.md)
+12. [Trying again](12-trying-again.md)
+13. [A carrier for each attempt](13-a-carrier-for-each-attempt.md)
+14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
+15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
+16. [Skipping a step](16-skipping-a-step.md)
+17. [Doing something when the journey ends](17-doing-something-when-the-journey-ends.md)
+18. [Letting policies act on the outside world](18-letting-policies-act-on-the-outside-world.md)
+19. [An optional input](19-an-optional-input.md)
+20. [Deciding where a step's data comes from](20-deciding-where-a-steps-data-comes-from.md)
 
 ## Part 3: Writing steps
 
-- [Giving a step what it needs](08-giving-a-step-what-it-needs.md)
-- [Saying how it went](10-saying-how-it-went.md)
 - [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
 
 ## Part 4: Controlling the flow
 
-13. [Trying again](13-trying-again.md)
-14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
-15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
-16. [Ending a journey early](16-ending-a-journey-early.md)
-17. [Doing something when the journey ends](17-doing-something-when-the-journey-ends.md)
-18. [Letting policies act on the outside world](18-letting-policies-act-on-the-outside-world.md)
-19. [Deciding where a step's data comes from](19-deciding-where-a-steps-data-comes-from.md)
-- [Without Itinera](part-4-without-itinera.md)
+- [Ending a journey early](16-ending-a-journey-early.md)
 
 ## Part 5: Running it for real
 

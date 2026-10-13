@@ -1,3 +1,0 @@
-A-1: the journey succeeded, R-A-1: charged 35
-A-2: the journey succeeded, R-A-2: charged 40
-A-3: the journey failed

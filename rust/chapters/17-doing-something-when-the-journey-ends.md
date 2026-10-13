@@ -2,51 +2,52 @@
 
 ## What you want to do
 
-Every customer should hear how their order went: that it's on its way, or that it couldn't be taken. You want that message written once the journey is over, whichever step it ended on, without any step having to know it's the last one.
+Every customer should hear how their order went: that the parcel is on its way, with its tracking number, or, for a gift card, its code. You want that message written once the journey has succeeded, whichever step it ended on, without any step having to know it is the last one.
 
 ## The code
 
-The message comes from a workflow policy: a policy attached to the whole workflow, whose hooks run when the journey ends. In Rust it's a type whose `impl` block carries `#[workflow_policy(name = "...")]`. This one, `notify`, defines both workflow hooks, as methods marked `#[on_workflow_success]` and `#[on_workflow_failure]`. The success hook reads the order from the journey's data with `#[from_workflow]`, and its tracking number when there is one, as an `Option<String>`: a digital order finished early, as in [chapter 16](16-ending-a-journey-early.md), has none. The failure hook reads only the order, since a failed order has nothing to track. Each writes the message under `message`, and returns `Ok(())`.
+The message is written by a **workflow policy**: a type deriving `Default`, with an `impl` block marked `#[workflow_policy(name = "notify")]`. Its hook, marked `#[on_workflow_success]`, asks for the order, its tracking number and its gift card's code from the data bag, and contributes the customer's message under `message`. A workflow hook decides nothing, so it returns `Ok(())`.
 
 ```example
-name: ch17_notify
+name: ch17_doing_something_when_the_journey_ends
 region: policy
 ```
 
-The workflow lists the policy among its own, with `policies = [Notify]` in `#[workflow(...)]`, not on a step's line. The steps are the charge and the ship steps of the earlier chapters.
+The workflow lists it on its own line, `#[workflow(...)]`, with `policies = [Notify]`, rather than on a step's:
 
 ```example
-name: ch17_notify
+name: ch17_doing_something_when_the_journey_ends
 region: workflow
 ```
 
-Two orders go through: one that is charged and shipped, and one with nothing to charge.
+The log names a workflow hook by its policy and its hook, since it is about no step, and names the key of a request that found nothing:
 
 ```example
-name: ch17_notify
-region: run
+name: ch17_doing_something_when_the_journey_ends
+region: workflow_hook
 ```
 
-It prints:
+The rest is [chapter 16](16-skipping-a-step.md)'s shop, which now also reads back the message and prints it. It runs the same four orders, and prints:
 
 ```output
-name: ch17_notify
+name: ch17_doing_something_when_the_journey_ends
 ```
 
 ## How it works
 
-1. **Workflow hooks run once, at the end.** `on workflow success` runs when the journey succeeds, including when a hook finished it early, and `on workflow failure` when it fails, including when a hook failed it. They run once the journey's fate is decided, before the result is produced and before the event that says how the journey ended.
-2. **They decide nothing.** The journey's fate is settled when they run, so a workflow hook returns no lifecycle: its type is `Result<(), Error>`. It does something about the end: it writes a message, records it, or tells someone. An `Err` aborts the journey with `hook failed`.
-3. **A workflow hook reads data from the workflow.** It asks for keys of the data bag with `#[from_workflow]`, here `order` and `tracking`. It may also ask for a contributor with `#[contributor]`, as `notify` does to keep its message; the API documentation of `itinera` lists the others under `workflow_policy`. It can't ask for a step's reason or error: those belong to step hooks, which act on one step, so `#[reason]` or `#[from_step]` in a workflow hook doesn't compile. What it needs to know about a failure, a step hook contributes first, since a failed attempt's own contributions never reach the data bag.
-4. **Its contributions are part of the output.** They are committed when the hook returns, before the result is produced, so the message is in the data bag of the result, whether the journey succeeded or failed.
-5. **A workflow policy is built once per journey.** One instance serves the whole journey and is dropped at its end. It is built with `Default`, as `Notify` is, or with a function of its block marked `#[factory]`. If it can't be built, the executor's `run` refuses the journey before it starts, returning a `Refusal` in its `Err`.
-6. **Nothing runs after an abort.** An aborted journey has no business outcome: neither workflow hook runs, and no message is written.
-7. **Each workflow hook is defined once per workflow.** Several workflow policies can be attached to one workflow, but if two of them define the same hook, the workflow is refused before any journey with `hook defined twice`.
+1. **A workflow policy acts on the whole journey.** A step policy is attached to steps, and its hooks are about one step's outcome. A workflow policy is attached to the workflow, and its hooks are about the journey. **What a journey does at its end belongs to a workflow policy, never to the step that happens to run last.**
+2. **`on workflow success` runs once, when the journey has succeeded.** It runs after the last step, once the journey's fate is decided, and before the event that says so: in every journey, `hook_called notify: on workflow success` comes before `journey_succeeded`. Kim's journey ends on a skipped shipping, and Jo's needed a rescue, but each succeeds, so the hook runs for each.
+3. **It reads the data bag, and nothing about any step.** A workflow hook asks for data with `#[from_workflow]`, by the parameter's name. `Option<String>` makes a request optional: Kim's order has no tracking number, and the others have no code, so each gets `None` for what its journey never contributed, and the executor records that as `optional_input_absent`, naming the key, just before the hook is called.
+4. **It decides nothing.** By the time it runs, the journey has succeeded, so the hook can only do something about it. That is why its `Ok` holds `()`.
+5. **Its contributions are part of the result.** The message is committed when the hook returns, before the journey ends, so the shop reads it back with the rest of the output.
+6. **A workflow policy is built once for each journey.** One `Notify` serves the whole journey, made with `Default` before it starts, and is dropped when it ends.
 
-## Remember
+Each customer's message now exists, but only in the data bag, and only `main` prints it. Sending it is something else: today the shop sends it by email, and the workflow policy shouldn't need to know how.
 
-1. A workflow policy is attached to the workflow; a step policy to steps.
-2. Workflow hooks run once, after the journey's fate is decided, and return no lifecycle.
-3. Neither workflow hook runs when a journey is aborted.
-4. A workflow hook reads data from the data bag, never a step's reason or error.
-5. A workflow hook's contributions are part of the journey's output.
+## Outcomes
+
+We have shown how a workflow policy does something once a journey has succeeded, whichever step ended it.
+
+| The usual way | With Itinera |
+|---|---|
+| A message at the end of a process is often sent by whichever function happens to finish it, so every path that can end the process has to remember to send it. | The workflow policy's hook runs once the journey has succeeded, however it got there, and no step knows about it. |

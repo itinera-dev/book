@@ -1,0 +1,102 @@
+Ann's order:
+log orders A-1 #1 journey_started card, gift_card, order, price, weight
+log orders A-1 #2 attempt_started charge, attempt 1
+log orders A-1 #3 service_provided charge gets payments from bank, a ch17_doing_something_when_the_journey_ends::Bank
+the bank charges 40 for order A-1
+log orders A-1 #4 step_succeeded charge
+log orders A-1 #5 contribution_committed receipt
+log orders A-1 #6 hook_called audit: on step success of charge
+log orders A-1 #7 contribution_committed audit
+log orders A-1 #8 attempt_started ship, attempt 1
+log orders A-1 #9 service_provided ship gets carrier from carriers, a ch17_doing_something_when_the_journey_ends::MainCarrier
+the main carrier books order A-1
+log orders A-1 #10 step_info ship: the parcel leaves with receipt R-A-1
+log orders A-1 #11 step_succeeded ship
+log orders A-1 #12 contribution_committed tracking
+log orders A-1 #13 optional_input_absent code
+log orders A-1 #14 hook_called notify: on workflow success
+log orders A-1 #15 contribution_committed message
+log orders A-1 #16 journey_succeeded
+the journey succeeded, with receipt R-A-1 and tracking T-A-1
+audit: charge took 40, receipt R-A-1
+message: Order A-1 is on its way, tracking T-A-1.
+Gil's order:
+log orders A-7 #1 journey_started card, gift_card, order, price, weight
+log orders A-7 #2 attempt_started charge, attempt 1
+log orders A-7 #3 service_provided charge gets payments from bank, a ch17_doing_something_when_the_journey_ends::Bank
+the bank charges 45 for order A-7
+log orders A-7 #4 step_succeeded charge
+log orders A-7 #5 contribution_committed receipt
+log orders A-7 #6 hook_called audit: on step success of charge
+log orders A-7 #7 contribution_committed audit
+log orders A-7 #8 attempt_started ship, attempt 1
+log orders A-7 #9 service_provided ship gets carrier from carriers, a ch17_doing_something_when_the_journey_ends::MainCarrier
+the main carrier books order A-7
+log orders A-7 #10 step_failed ship: too-heavy, retriable
+log orders A-7 #11 step_retrying ship
+log orders A-7 #12 attempt_started ship, attempt 2
+log orders A-7 #13 service_provided ship gets carrier from carriers, a ch17_doing_something_when_the_journey_ends::BackupCarrier
+the backup carrier books order A-7
+log orders A-7 #14 step_info ship: the parcel leaves with receipt R-A-7
+log orders A-7 #15 step_succeeded ship
+log orders A-7 #16 contribution_committed tracking
+log orders A-7 #17 optional_input_absent code
+log orders A-7 #18 hook_called notify: on workflow success
+log orders A-7 #19 contribution_committed message
+log orders A-7 #20 journey_succeeded
+the journey succeeded, with receipt R-A-7 and tracking B-A-7
+audit: charge took 45, receipt R-A-7
+message: Order A-7 is on its way, tracking B-A-7.
+Jo's order:
+log orders A-8 #1 journey_started card, gift_card, order, price, weight
+log orders A-8 #2 attempt_started charge, attempt 1
+log orders A-8 #3 service_provided charge gets payments from bank, a ch17_doing_something_when_the_journey_ends::Bank
+the bank declines card jo-2024: it has expired
+log orders A-8 #4 step_failed charge: card-expired, not retriable
+log orders A-8 #5 step_rescuing charge: failure, rescued by charge_rescue
+log orders A-8 #6 attempt_started charge_rescue, attempt 1
+the bank says card jo-2024 was replaced by jo-2029
+log orders A-8 #7 step_succeeded charge_rescue
+log orders A-8 #8 contribution_committed card
+log orders A-8 #9 data_overwritten card
+log orders A-8 #10 step_rescued charge by charge_rescue
+log orders A-8 #11 attempt_started charge, attempt 2
+the bank charges 30 for order A-8
+log orders A-8 #12 step_succeeded charge
+log orders A-8 #13 contribution_committed receipt
+log orders A-8 #14 hook_called audit: on step success of charge
+log orders A-8 #15 contribution_committed audit
+log orders A-8 #16 attempt_started ship, attempt 1
+log orders A-8 #17 service_provided ship gets carrier from carriers, a ch17_doing_something_when_the_journey_ends::MainCarrier
+the main carrier books order A-8
+log orders A-8 #18 step_info ship: the parcel leaves with receipt R-A-8
+log orders A-8 #19 step_succeeded ship
+log orders A-8 #20 contribution_committed tracking
+log orders A-8 #21 optional_input_absent code
+log orders A-8 #22 hook_called notify: on workflow success
+log orders A-8 #23 contribution_committed message
+log orders A-8 #24 journey_succeeded
+the journey succeeded, with receipt R-A-8 and tracking T-A-8
+audit: charge took 30, receipt R-A-8
+message: Order A-8 is on its way, tracking T-A-8.
+Kim's order:
+log orders A-9 #1 journey_started card, gift_card, order, price, weight
+log orders A-9 #2 attempt_started charge, attempt 1
+log orders A-9 #3 service_provided charge gets payments from bank, a ch17_doing_something_when_the_journey_ends::Bank
+the bank charges 25 for order A-9
+log orders A-9 #4 step_succeeded charge
+log orders A-9 #5 contribution_committed receipt
+log orders A-9 #6 contribution_committed code
+log orders A-9 #7 hook_called audit: on step success of charge
+log orders A-9 #8 contribution_committed audit
+log orders A-9 #9 attempt_started ship, attempt 1
+log orders A-9 #10 service_provided ship gets carrier from carriers, a ch17_doing_something_when_the_journey_ends::MainCarrier
+log orders A-9 #11 step_skipped ship: nothing-to-ship
+log orders A-9 #12 contributions_discarded ship
+log orders A-9 #13 optional_input_absent tracking
+log orders A-9 #14 hook_called notify: on workflow success
+log orders A-9 #15 contribution_committed message
+log orders A-9 #16 journey_succeeded
+the journey succeeded, with receipt R-A-9 and tracking none
+audit: charge took 25, receipt R-A-9
+message: Order A-9 is paid: your gift card's code is G-A-9.

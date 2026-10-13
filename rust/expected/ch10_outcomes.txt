@@ -1,6 +1,0 @@
-the carrier collects order A-1
-A-1: succeeded, tracking T-A-1
-A-2: succeeded, nothing shipped
-the carrier cannot take a parcel of 30 kg
-A-3: failed, retries exhausted, parcel-refused
-A-4: failed, failure, nothing-to-charge: the order costs nothing

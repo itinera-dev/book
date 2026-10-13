@@ -2,70 +2,59 @@
 
 ## What you want to do
 
-In [chapter 17](17-doing-something-when-the-journey-ends.md) the message for the customer was only written into the journey's data. Now you want it sent. How it's sent (by email today, perhaps by text message tomorrow) is the shop's business, not the policy's: the policy should only say "tell the customer this".
+The message for each customer is written, but nobody sends it. You want the notify policy to send it, while how it is sent, by email today and perhaps by text message tomorrow, stays the shop's business: the policy should only say "tell this customer this".
 
 ## The code
 
-What the shop can do for its policies is a workflow role, or role for short: an interface of operations that the workflow implements and offers to its policies. In Rust a role is a trait, here `Messages`, with one operation, `tell`.
+What the policy needs from the shop is a trait of its own, with one operation: tell a customer something.
 
 ```example
-name: ch18_roles
+name: ch18_letting_policies_act_on_the_outside_world
 region: role
-asynchronous: ch18_roles_async
 ```
 
-In the asynchronous form, the trait is declared `trait Messages: Sync`, because an asynchronous hook's future must be `Send`, and the role it borrows goes into that future.
-
-The `notify` policy asks for the role with a parameter marked `#[role]`, of type `&dyn Messages`, just as it asks for data with `#[from_workflow]`, and tells the customer how the order went. It doesn't know whether the message goes by email.
+The notify policy now asks for it, as a parameter marked `#[role]`, and for the customer's name from the data bag, and tells the customer instead of contributing the message:
 
 ```example
-name: ch18_roles
+name: ch18_letting_policies_act_on_the_outside_world
 region: policy
-asynchronous: ch18_roles_async
 ```
 
-In the asynchronous form, the hooks are `async fn`.
-
-The workflow provides the role by implementing the trait, with `#[role]` on the `impl` block. Its own code implements `tell`, using what the shop configured when it created the instance: here, the channel the shop uses to reach its customers, a field of the workflow's struct. In this example, sending an email is printing a line.
+The workflow implements the trait, in an `impl` block marked `#[role]`, and sends through the channel it is configured with, a field of the workflow's struct. Here the channel is faked, and prints what it sends.
 
 ```example
-name: ch18_roles
+name: ch18_letting_policies_act_on_the_outside_world
 region: workflow
-asynchronous: ch18_roles_async
 ```
 
-In the asynchronous form, the steps are asynchronous, and so the workflow is too, as every workflow with asynchronous policies must be.
-
-Each instance is created with the shop's channel, then run.
+Each order now starts with its customer's name, and each instance is created with the channel, `email`:
 
 ```example
-name: ch18_roles
-region: run
-asynchronous: ch18_roles_async
+name: ch18_letting_policies_act_on_the_outside_world
+region: create
 ```
 
-The asynchronous form runs the same journeys on `AsyncLocalExecutor`, awaiting each.
-
-It prints:
+The rest is [chapter 17](17-doing-something-when-the-journey-ends.md)'s shop, and it runs the same four orders. It prints:
 
 ```output
-name: ch18_roles
+name: ch18_letting_policies_act_on_the_outside_world
 ```
 
 ## How it works
 
-1. **A role is what a workflow offers its policies.** It's an interface of operations that the workflow's own code implements, such as "tell the customer". A policy that needs to act on the outside world asks for a role, never for the workflow itself. In Rust, `#[role]` on `impl Messages for Orders` makes the workflow hand itself, as a `&dyn Messages`, to every hook that asks for that role, which is why the trait has to be dyn compatible.
-2. **Roles carry operations, never data.** The customer and the order come to the hook as data from the workflow, read from the data bag. The role only does something with them.
-3. **The workflow's fields are its configuration.** `channel` is the workflow's own configuration, the same for every journey the shop starts with it, never journey data. The instance builder has one setter for each field, such as `.channel("email")`, and `create` doesn't compile until every field that is neither an `Option` nor marked `#[default]` has been set.
-4. **The policy works with any workflow that provides its roles.** `notify` can be attached to any workflow that provides `Messages`. Attaching it to a workflow that doesn't is the violation `role not provided`; in Rust it doesn't even compile, and [chapter 27](27-mistakes-caught-before-a-journey.md) shows the compiler's message.
-5. **Only policies use roles.** Step policies and workflow policies may ask for them. Steps may not: a step does its business with what it is given, and never reaches the workflow.
-6. **Role calls are the workflow's business.** The executor doesn't record them in the events. A hook that wants a call on record emits an event of its own.
-7. **A role operation that fails fails the hook.** A hook can't report an error and carry on, so an error from a role operation that the hook passes on, with `?` for example, aborts the journey with `hook failed`. A role that might fail, such as a mail server that is down, is best written to handle its own trouble, by queueing the message for later, for example.
+1. **A role is what a workflow offers its policies.** It is a set of operations the workflow's own code carries out, such as "tell a customer". A policy that needs to act on the outside world asks for a role, never for the workflow itself. In Rust, `#[role]` on `impl Messages for Orders` makes the workflow lend itself, as a `&dyn Messages`, to every hook that asks for that role.
+2. **A role carries operations, never data.** The customer's name and the order come to the hook as data from the workflow, from the data bag. The role only does something with them.
+3. **A workflow's fields are its configuration.** `channel` is set on the builder of each instance, with `.channel("email")`, and is never in the data bag, so no step or hook can read it as data. `create()` doesn't compile until it is set.
+4. **The policy knows only the role.** `Notify` tells a customer through whatever `Messages` it is lent, so sending by text message would change the workflow's role, and no policy. **A policy acts on the outside world only through the roles its workflow offers.**
+5. **Only policies ask for roles.** Steps never do: a step does its business with its inputs and its services, and never reaches the workflow.
+6. **A role's work is the workflow's business.** The executor doesn't record what a role does: the log shows `hook_called` once the hook has returned, after the email was sent, and nothing in between.
 
-## Remember
+So every customer is told how their order went. The charge, though, still charges the full price of every order, and the shop also gives some customers a discount, which the charge knows nothing about.
 
-1. A policy reaches the outside world only through the roles it asks for.
-2. A role carries operations; the data a hook needs comes from the data bag.
-3. Steps never ask for roles.
-4. A policy attached to a workflow that doesn't provide one of its roles doesn't compile.
-5. An error from a role operation aborts the journey, so a role handles its own trouble where it can.
+## Outcomes
+
+We have shown how a policy acts on the outside world through a role its workflow offers.
+
+| The usual way | With Itinera |
+|---|---|
+| Code that sends a message usually holds the mail client itself, so changing how customers are told changes that code. | The policy asks for a role, and only the workflow, which implements it, knows how the message is sent. |
