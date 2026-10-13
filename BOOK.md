@@ -141,7 +141,7 @@ Without Itinera:
 
 21. **Running many journeys.** Workflow instances and the executor, giving each journey its initial data, and what it means when `run` refuses an instance before any journey starts.
 22. **Reading the result.** Succeeded, failed or aborted: what each means for your users, and what each carries.
-23. **Seeing what happened.** Events and reporters: logging every journey, writing your own reporter, and what happens when a reporter fails.
+23. **Seeing what happened.** Events and reporters: logging every journey, writing your own reporter, global metadata that labels every line of a journey's log, such as the customer and the tracking number, and what happens when a reporter fails.
 24. **Testing your workflows.** Testing a step alone, a policy alone, and a whole journey by its result and its events.
 
 Without Itinera:
