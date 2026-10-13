@@ -114,6 +114,7 @@ impl Carrier for Van {
     }
 }
 
+// ANCHOR: steps
 /// Reserves the order's goods in the stock store.
 #[derive(Step)]
 struct Reserve {
@@ -132,7 +133,8 @@ impl Reserve {
 }
 
 // ANCHOR: charge
-/// Charges the card the price, less any discount.
+/// Charges the card the price, less any discount. It only says how it went: what happens after
+/// a declined card is not its business.
 #[derive(Step)]
 struct Charge {
     #[input]
@@ -196,8 +198,9 @@ impl RenewCard {
 // ANCHOR_END: rescue
 
 // ANCHOR: ship
-/// Ships the order through the carrier it is given. A carrier that cannot take the parcel
-/// might be replaced on another try.
+/// Ships the order through the carrier it is given, without knowing which one it is. A carrier
+/// that cannot take the parcel might be replaced on another try, so that failure is worth trying
+/// again.
 #[derive(Step)]
 struct Ship {
     #[input]
@@ -223,8 +226,10 @@ impl Ship {
     }
 }
 // ANCHOR_END: ship
+// ANCHOR_END: steps
 
-/// Audits every successful charge, in the journey's events.
+// ANCHOR: policies
+/// Audits every successful charge, in the journey's events, including one after a rescue.
 #[derive(Default)]
 struct Audit;
 
@@ -247,7 +252,7 @@ trait Messages {
     fn tell(&self, customer: &str, message: &str);
 }
 
-/// Tells the customer how the order went.
+/// Tells the customer how the order went, once, when the journey ends.
 #[derive(Default)]
 struct Notify;
 
@@ -280,6 +285,8 @@ impl Notify {
     }
 }
 
+// ANCHOR_END: policies
+
 /// The shop's log: every failure, every decision and what the hooks report, for every journey, in
 /// one format.
 #[derive(Default)]
@@ -310,12 +317,17 @@ impl Reporter for Log {
     }
 }
 
+// ANCHOR: declaration
 // ANCHOR: workflow
 /// The shop's workflow: reserve, charge and ship, auditing the charge, rescuing it when the
 /// card has expired, and telling the customer how the order went.
 #[workflow(name = "orders", policies = [Notify], reporters = [Log])]
+// The steps run in this order, and nothing reorders them.
 #[with_step(Reserve, name = "reserve")]
+// The charge runs at most twice: once, and once more after its rescue step succeeds.
+// Every successful charge is audited.
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
+// Shipping may be tried once more, after a failure worth trying again.
 #[with_step(Ship, name = "ship", retry_budget = 1)]
 struct Orders;
 // ANCHOR_END: workflow
@@ -347,12 +359,14 @@ impl Orders {
 }
 // ANCHOR_END: providers
 
+/// How the shop tells a customer something, for the notify policy: here, by printing it.
 #[role]
 impl Messages for Orders {
     fn tell(&self, customer: &str, message: &str) {
         println!("  to {customer}: {message}");
     }
 }
+// ANCHOR_END: declaration
 
 /// What the shop knows about an order when the journey starts.
 #[derive(InitialData)]
@@ -396,6 +410,8 @@ fn entry(listed: &ListedStep) -> String {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ANCHOR: list
+    // The workflow lists its steps, their policies, services and rescue step, without running
+    // anything.
     for listed in Orders::descriptor().listing() {
         println!("{}", entry(&listed));
     }

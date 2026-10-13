@@ -30,12 +30,8 @@ That is exactly what Itinera runs. One execution of a workflow for one order is 
 The book follows one small online shop from start to finish. It charges orders, ships them, falls back to another carrier when the first one fails, audits every successful charge and tells customers how their order went. The shop grows a little in every chapter, and every chapter teaches one thing.
 
 1. **Part 1, Why Itinera,** shows a checkout written the usual way, then the same checkout with Itinera, in one picture.
-2. **Part 2, Getting started,** adds `itinera` to your project, builds the shop's first workflow and watches it run.
-3. **Part 3, Writing steps,** is about the business code: what a step needs, what it passes on and how it says what happened.
-4. **Part 4, Controlling the flow,** is about everything around it: trying again, repairing, reacting, ending early and telling the outside world.
-5. **Part 5, Running it for real,** runs many journeys, reads their results, writes their log and tests them.
-6. **Part 6, Designing with Itinera,** helps you decide where each piece of your own code belongs, bring Itinera into a system you already have, and work with agents.
-7. **The appendices** hold a cheat sheet, a glossary and what this version supports.
+2. **The chapters after it** start small, with a single step, and grow only when you need more: putting steps together into a journey, giving them what they need from the outside world, reacting to how they went, watching, testing and designing it all.
+3. **The appendices** hold a cheat sheet, a glossary and what this version supports.
 
 You can read the book from the start, or jump to the chapter you need: every example is a complete Rust program that runs on its own.
 
