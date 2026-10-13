@@ -21,7 +21,7 @@ The crate has four Cargo features:
 |---|---|---|
 | `macros` | yes | the attributes and derives the book uses to declare steps, policies, workflows and journey data, such as `#[derive(Step)]` and `#[workflow]` |
 | `async` | no | the asynchronous executor, `AsyncLocalExecutor`, and asynchronous steps, hooks and reporters |
-| `testing` | no | `RecordingReporter`, a reporter that keeps every event for a test to read, which [chapter 24](24-testing-your-workflows.md) uses; turn it on for tests only, under `[dev-dependencies]` |
+| `testing` | no | the recorders [chapter 24](24-testing-your-workflows.md) tests with, such as `Contributions` and `RecordingReporter`; turn it on for tests only, under `[dev-dependencies]` |
 | `unstable` | no | API the specification has not settled yet, which may change or go; it is empty for now |
 
 To turn on `async`, add it to the dependency's features, as `itinera = { git = "https://github.com/itinera-dev/itinera-rs", features = ["async"] }`, or pass `--features async` to `cargo add`. Once the crate is published, the same line reads `itinera = { version = "0.1.0-beta.1", features = ["async"] }`.
