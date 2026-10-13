@@ -13,6 +13,20 @@ use itinera::report::Reporter;
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 
+// ANCHOR: workflow
+/// The shop's workflow: reserve, charge and ship, auditing the charge, rescuing it when the
+/// card has expired, and telling the customer how the order went.
+#[workflow(name = "orders", policies = [Notify], reporters = [Log])]
+// The steps run in this order, and nothing reorders them.
+#[with_step(Reserve, name = "reserve")]
+// The charge runs at most twice: once, and once more after its rescue step succeeds.
+// Every successful charge is audited.
+#[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
+// Shipping may be tried once more, after a failure worth trying again.
+#[with_step(Ship, name = "ship", retry_budget = 1)]
+struct Orders;
+// ANCHOR_END: workflow
+
 // ANCHOR: services
 /// Why the bank refused a charge.
 enum Declined {
@@ -317,21 +331,8 @@ impl Reporter for Log {
     }
 }
 
-// ANCHOR: declaration
-// ANCHOR: workflow
-/// The shop's workflow: reserve, charge and ship, auditing the charge, rescuing it when the
-/// card has expired, and telling the customer how the order went.
-#[workflow(name = "orders", policies = [Notify], reporters = [Log])]
-// The steps run in this order, and nothing reorders them.
-#[with_step(Reserve, name = "reserve")]
-// The charge runs at most twice: once, and once more after its rescue step succeeds.
-// Every successful charge is audited.
-#[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
-// Shipping may be tried once more, after a failure worth trying again.
-#[with_step(Ship, name = "ship", retry_budget = 1)]
-struct Orders;
-// ANCHOR_END: workflow
 
+// ANCHOR: supplies
 // ANCHOR: providers
 #[workflow]
 impl Orders {
@@ -366,7 +367,7 @@ impl Messages for Orders {
         println!("  to {customer}: {message}");
     }
 }
-// ANCHOR_END: declaration
+// ANCHOR_END: supplies
 
 /// What the shop knows about an order when the journey starts.
 #[derive(InitialData)]

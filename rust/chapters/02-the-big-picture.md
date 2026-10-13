@@ -6,25 +6,32 @@ You want to see [chapter 1](01-but-why-itinera.md)'s checkout written with Itine
 
 ## The code
 
-The business rules are steps, one for each: reserve the goods, charge the card, renew an expired card, ship the parcel.
+Start with the workflow. Looking at it, you can see at once what happens to every order: which steps run, in what order, how many times, what repairs a failure and who reacts, without reading any of the code it names.
+
+```example
+name: ch02_big_picture
+region: workflow
+```
+
+The business rules it lists are steps, one for each: reserve the goods, charge the card, renew an expired card, ship the parcel.
 
 ```example
 name: ch02_big_picture
 region: steps
 ```
 
-The decisions that react to how things went are policies: audit a successful charge, tell the customer at the end.
+The policies it attaches react to how things went: audit a successful charge, tell the customer at the end.
 
 ```example
 name: ch02_big_picture
 region: policies
 ```
 
-The workflow puts it all together, in one place, and supplies what the steps use: the bank, the warehouse and a carrier for every attempt.
+Its `impl` block supplies what the steps use: the bank, the warehouse and a carrier for every attempt, and the way the shop tells a customer something.
 
 ```example
 name: ch02_big_picture
-region: declaration
+region: supplies
 ```
 
 The bank, the warehouse and the carriers are faked, as in chapter 1, so the program prints the same thing every time. Before it runs anything, it prints the workflow's listing:
