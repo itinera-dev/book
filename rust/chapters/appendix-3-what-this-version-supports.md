@@ -26,7 +26,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## Services, rescue steps and global metadata
 
-[Services](12-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and [global metadata](23-seeing-what-happened.md), the last features added to tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against the commit it pins.
+[Services](07-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and [global metadata](23-seeing-what-happened.md), the last features added to tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against the commit it pins.
 
 ## Capabilities
 

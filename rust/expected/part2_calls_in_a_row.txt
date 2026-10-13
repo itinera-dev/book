@@ -1,4 +1,0 @@
-the bank charges 40
-the carrier collects order A-1
-A-1: charged 40, tracking T-A-1
-A-2: not shipped: nothing to charge

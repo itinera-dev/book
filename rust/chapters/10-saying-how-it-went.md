@@ -20,7 +20,7 @@ name: ch10_outcomes
 region: ship
 ```
 
-The workflow charges, then ships, as in [chapter 7](07-adding-a-step.md).
+The workflow charges, then ships, as in [chapter 6](06-passing-data-on.md).
 
 The shop runs four orders, and each one's data takes it down a different path: a parcel of 2 kg, a digital order, a parcel of 30 kg, more than the 20 kg the carrier takes, and an order that costs nothing. The `report` function prints how each journey ended; [chapter 22](22-reading-the-result.md) shows how to read a result.
 

@@ -6,16 +6,16 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 
 | What you declare | What it does | Chapter |
 |---|---|---|
-| A step | holds one business rule, runs once per attempt and reports an outcome | [6](06-a-workflow-of-one-step.md) |
-| A workflow and its steps | the plan: the steps in order, each under its name | [6](06-a-workflow-of-one-step.md), [7](07-adding-a-step.md) |
-| A workflow instance and its initial data | one journey's starting point | [4](04-what-happens-when-it-runs.md), [6](06-a-workflow-of-one-step.md), [21](21-running-many-journeys.md) |
-| An executor, and running an instance | runs one journey and returns its result, or refuses it | [4](04-what-happens-when-it-runs.md), [6](06-a-workflow-of-one-step.md), [21](21-running-many-journeys.md) |
-| Reading the result and its output | how the journey ended, and the data bag it left | [4](04-what-happens-when-it-runs.md), [6](06-a-workflow-of-one-step.md), [9](09-passing-data-on.md), [22](22-reading-the-result.md) |
+| A step | holds one business rule, runs once per attempt and reports an outcome | [4](04-a-first-step.md) |
+| A workflow and its steps | the plan: the steps in order, each under its name | [5](05-a-first-journey.md), [6](06-passing-data-on.md) |
+| A workflow instance and its initial data | one journey's starting point | [5](05-a-first-journey.md), [21](21-running-many-journeys.md) |
+| An executor, and running an instance | runs one journey and returns its result, or refuses it | [5](05-a-first-journey.md), [21](21-running-many-journeys.md) |
+| Reading the result and its output | how the journey ended, and the data bag it left | [5](05-a-first-journey.md), [6](06-passing-data-on.md), [22](22-reading-the-result.md) |
 | A step's inputs, required or optional | the data a step needs, which the workflow supplies | [8](08-giving-a-step-what-it-needs.md) |
-| A contributor | how a step adds data to the data bag | [9](09-passing-data-on.md) |
+| A contributor | how a step adds data to the data bag | [6](06-passing-data-on.md) |
 | An outcome | success, failure with a reason, a failure that might work next time, or skipped | [10](10-saying-how-it-went.md) |
 | An abnormal termination | an error that escapes a running step | [11](11-when-something-goes-wrong-inside-a-step.md) |
-| A service and its provider | a tool a step asks for by a key, and the part of the workflow that supplies it, per journey or per attempt | [12](12-giving-a-step-the-tools-it-needs.md) |
+| A service and its provider | a tool a step asks for by a key, and the part of the workflow that supplies it, per journey or per attempt | [7](07-giving-a-step-the-tools-it-needs.md) |
 | A retry budget | how many times a step may be tried again | [13](13-trying-again.md) |
 | A rescue step | a step that repairs the cause of a failure before the step runs once more | [14](14-repairing-then-trying-once-more.md) |
 | A step policy and its hooks | reacts to a step's outcome: `on step success`, `on step failure`, `on step retry`, `on step abnormal termination` | [15](15-reacting-to-what-a-step-did.md) |
@@ -57,7 +57,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 19 |
 | A journey ID generator | a method of the same block marked `#[id_generator]`, returning `Result<String, Error>` | 20 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
-| A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
+| A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter`, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |
 | Global metadata | `.reporters_global_metadata("customer", name)` on the instance's builder, or `reporter.set_global_metadata("tracking", number)?` through a `#[reporter]`; a reporter receives each entry in `fn set_global_metadata(&mut self, key: &str, value: &AnyValue) -> Result<(), Error>` and may keep it in a `GlobalMetadata` | 23 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |

@@ -3,7 +3,7 @@
 // A chapter never holds code. It holds fenced blocks such as
 //
 //     ```example
-//     name: ch06_one_step
+//     name: ch04_first_step
 //     region: step
 //     ```
 //

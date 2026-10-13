@@ -16,21 +16,16 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 
 3. [Installing Itinera](03-installing-itinera.md)
 4. [A first step](04-a-first-step.md)
-
-- [What happens when it runs](04-what-happens-when-it-runs.md)
-
-6. [A workflow of one step](06-a-workflow-of-one-step.md)
-7. [Adding a step](07-adding-a-step.md)
-- [Without Itinera](part-2-without-itinera.md)
+5. [A first journey](05-a-first-journey.md)
+6. [Passing data on](06-passing-data-on.md)
+7. [Giving a step the tools it needs](07-giving-a-step-the-tools-it-needs.md)
 
 ## Part 3: Writing steps
 
 8. [Giving a step what it needs](08-giving-a-step-what-it-needs.md)
-9. [Passing data on](09-passing-data-on.md)
-10. [Saying how it went](10-saying-how-it-went.md)
-11. [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
-12. [Giving a step the tools it needs](12-giving-a-step-the-tools-it-needs.md)
-- [Without Itinera](part-3-without-itinera.md)
+
+10) [Saying how it went](10-saying-how-it-went.md)
+11) [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
 
 ## Part 4: Controlling the flow
 

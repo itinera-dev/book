@@ -1,5 +1,5 @@
-//! Passing data on: the charge contributes a receipt that the ship step needs, and a failed
-//! attempt's contributions never reach the data bag.
+//! Passing data on: the charge gives back a receipt that the shipping puts in the parcel, and a
+//! failed attempt's contributions never reach the data bag.
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
@@ -7,19 +7,26 @@ use itinera::journey::{Contributor, InitialData, Output};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
-/// The shop's carrier, faked: it books a parcel and gives a tracking number at once.
+/// The shop's bank, faked: it prints what it charges, and gives a receipt for it.
+fn bank_charges(order: &str, amount: i64) -> String {
+    println!("the bank charges {amount} for order {order}");
+    format!("R-{order}")
+}
+
+/// The shop's carrier, faked: it books any parcel, and gives its tracking number at once.
 fn carrier_books(order: &str) -> String {
     println!("the carrier books order {order}");
     format!("T-{order}")
 }
 
-/// The carrier, faked: it delivers only to customers whose address it knows.
-fn carrier_delivers_to(customer: &str) -> bool {
-    customer == "Ann"
+/// The carrier, faked: it weighs a parcel when it comes to collect it, and takes it only up to
+/// 20 kg.
+fn carrier_collects(weight: i64) -> bool {
+    weight <= 20
 }
 
 // ANCHOR: charge
-/// Charges an order's price, and gives a receipt for it.
+/// Charges an order's price, and gives back the bank's receipt.
 #[derive(Step)]
 struct Charge {
     #[input]
@@ -34,21 +41,21 @@ impl Charge {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        contributor.contribute("charged", self.price);
-        contributor.contribute("receipt", format!("R-{}", self.order));
+        let receipt = bank_charges(&self.order, self.price);
+        contributor.contribute("receipt", receipt);
         Self::succeed()
     }
 }
 // ANCHOR_END: charge
 
 // ANCHOR: ship
-/// Ships an order, with its receipt in the parcel.
+/// Ships an order, with its receipt in the parcel, and gives back its tracking number.
 #[derive(Step)]
 struct Ship {
     #[input]
     order: String,
     #[input]
-    customer: String,
+    weight: i64,
     #[input]
     receipt: String,
 }
@@ -58,8 +65,8 @@ impl Ship {
     fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
         let tracking = carrier_books(&self.order);
         contributor.contribute("tracking", tracking);
-        if !carrier_delivers_to(&self.customer) {
-            return Self::fail("no-address");
+        if !carrier_collects(self.weight) {
+            return Self::fail("too-heavy");
         }
         println!("the parcel leaves with receipt {}", self.receipt);
         Self::succeed()
@@ -67,25 +74,28 @@ impl Ship {
 }
 // ANCHOR_END: ship
 
+// ANCHOR: workflow
 /// The shop's workflow: it charges, then ships.
 #[workflow(name = "orders")]
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]
 struct Orders;
+// ANCHOR_END: workflow
 
-/// What the shop knows about an order when the journey starts.
+// ANCHOR: data
+/// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
     order: String,
     price: i64,
-    customer: String,
+    weight: i64,
 }
+// ANCHOR_END: data
 
 // ANCHOR: output
-/// What the shop reads back once the journey has ended, whether it succeeded or failed.
+/// What the shop reads back once the journey has ended.
 #[derive(Output)]
 struct Order {
-    charged: i64,
     receipt: String,
     tracking: Option<String>,
 }
@@ -93,22 +103,22 @@ struct Order {
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut executor = LocalExecutor::new();
-    for (order, customer) in [("A-1", "Ann"), ("A-2", "Ben")] {
+    // The order, the customer, the price and the parcel's weight in kg.
+    for (order, customer, price, weight) in [("A-1", "Ann", 40, 2), ("A-7", "Gil", 45, 60)] {
+        println!("{customer}'s order:");
         let instance = Orders::builder()
             .initial_data(NewOrder {
                 order: order.to_owned(),
-                price: 40,
-                customer: customer.to_owned(),
+                price,
+                weight,
             })
             .create()?;
-        let result = executor.run(instance)?;
+        let result = LocalExecutor::new().run(instance)?;
         let data: Order = result.output()?;
         let tracking = data.tracking.as_deref().unwrap_or("none");
         println!(
-            "{order}: {}, charged {}, receipt {}, tracking {tracking}",
+            "the journey {}, with receipt {} and tracking {tracking}",
             result.status.kind(),
-            data.charged,
             data.receipt,
         );
     }

@@ -16,7 +16,7 @@ const hasClass = (node: Element, name: string) => {
  * The highlighter makes every `<pre>` focusable, so a keyboard can scroll a
  * wide block at phone width. A focusable element that announces nothing is a
  * dead stop in the tab order, so each one is a group labelled by the caption
- * of the figure it sits in: "Rust, from the program ch06_one_step". The role
+ * of the figure it sits in: "Rust, from the program ch05_first_journey". The role
  * is what lets a screen reader announce that name: on a bare `<pre>`, many
  * ignore it.
  */

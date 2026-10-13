@@ -1,7 +1,7 @@
 // Turns the relative links of the book's Markdown into links that work on the
 // web pages.
 //
-// The chapters link to each other by file name, `06-a-workflow-of-one-step.md`,
+// The chapters link to each other by file name, `05-a-first-journey.md`,
 // so that they work on GitHub. On the site such a link goes to the edition's
 // page for that chapter. A link to any other file of the repository, such as
 // `../../BOOK.md`, goes to that file on GitHub. A link with a scheme, or one to a

@@ -6,7 +6,7 @@ Carriers have limits. When the main carrier cannot take a parcel, you want shipp
 
 ## The code
 
-The ship step ships to the order's address, through the carrier it is lent, as in [chapter 12](12-giving-a-step-the-tools-it-needs.md). An order without an address is a failure that trying again wouldn't fix, so the step returns `Self::fail("no-address")`. A carrier that cannot take the parcel is a failure that another attempt might mend, so the step marks it retriable with `Self::fail_retriably("parcel-refused")`.
+The ship step ships to the order's address, through the carrier it is lent, as in [chapter 7](07-giving-a-step-the-tools-it-needs.md). An order without an address is a failure that trying again wouldn't fix, so the step returns `Self::fail("no-address")`. A carrier that cannot take the parcel is a failure that another attempt might mend, so the step marks it retriable with `Self::fail_retriably("parcel-refused")`.
 
 ```example
 name: ch13_backup_carrier

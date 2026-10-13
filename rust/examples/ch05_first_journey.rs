@@ -1,4 +1,5 @@
-//! A workflow of one step: the shop charges two orders, and the result says how each journey ended.
+//! A first journey: the shop runs the charge for two orders, and the result says how each
+//! journey ended.
 
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
@@ -11,7 +12,6 @@ fn bank_charges(amount: i64) {
     println!("the bank charges {amount}");
 }
 
-// ANCHOR: step
 /// Charges an order's price.
 #[derive(Step)]
 struct Charge {
@@ -29,7 +29,6 @@ impl Charge {
         Self::succeed()
     }
 }
-// ANCHOR_END: step
 
 // ANCHOR: workflow
 /// The shop's workflow: for now, it only charges.
@@ -39,7 +38,7 @@ struct Orders;
 // ANCHOR_END: workflow
 
 // ANCHOR: data
-/// What the shop knows about an order when the journey starts.
+/// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
     price: i64,
@@ -48,12 +47,14 @@ struct NewOrder {
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    for price in [40, 0] {
+    // The customer, and the price of their order.
+    for (customer, price) in [("Ann", 40), ("Hal", 0)] {
+        println!("{customer}'s order:");
         let instance = Orders::builder()
             .initial_data(NewOrder { price })
             .create()?;
         let result = LocalExecutor::new().run(instance)?;
-        println!("price {price}: the journey {}", result.status.kind());
+        println!("the journey {}", result.status.kind());
     }
     Ok(())
 }

@@ -1,8 +1,0 @@
-the warehouse opens a stock store
-the stock store reserves order A-1
-the bank charges 40
-the shop books the carrier
-the carrier collects order A-1
-the stock store hands over order A-1
-the journey succeeded
-receipt R-ann-card-40, tracking T-A-1

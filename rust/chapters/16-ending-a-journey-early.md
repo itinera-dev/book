@@ -27,7 +27,7 @@ name: ch16_ending_early
 region: outage
 ```
 
-The workflow attaches both policies to the charge. It also lists `DebugReporter`, as in [chapter 4](04-what-happens-when-it-runs.md), which prints every event, so that you can see which policy decided.
+The workflow attaches both policies to the charge. It also lists `DebugReporter`, a ready-made reporter that comes with `itinera` and prints every event, so that you can see which policy decided.
 
 ```example
 name: ch16_ending_early

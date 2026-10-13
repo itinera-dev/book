@@ -1,5 +1,5 @@
 // The Markdown copy of each page of the edition this build renders, next to the
-// page itself: /book/rust/06-a-workflow-of-one-step.md.
+// page itself: /book/rust/05-a-first-journey.md.
 
 import type { APIRoute, GetStaticPaths } from 'astro';
 

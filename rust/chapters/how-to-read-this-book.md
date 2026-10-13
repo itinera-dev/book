@@ -30,7 +30,7 @@ Every chapter teaches one thing, in four sections:
 
 Every piece of code in the book is part of a complete program, built and run every time the book changes, and every output is what that program really printed. Each block of code has a caption naming its program, with a link to the whole of it; to run it yourself, run `cargo run --example NAME` in the book's `rust` directory. Some captions carry a mark:
 
-1. **The asynchronous form.** A step, a hook or a reporter can be an `async fn`, run by `AsyncLocalExecutor` instead of `LocalExecutor`. Each chapter shows the synchronous form first, and where the asynchronous form differs, it follows right after.
+1. **The asynchronous form.** A step, a hook or a reporter can be an `async fn`, run by `AsyncLocalExecutor` instead of `LocalExecutor`. Once the book has taught both forms, each chapter shows the synchronous form first, and where the asynchronous form differs, it follows right after.
 2. **Does not compile.** Some mistakes can't even be written: Rust's types and Itinera's macros refuse them. The caption says so, and what the compiler says follows, word for word.
 
 ## Words with one meaning
