@@ -23,7 +23,7 @@ There is no program in this chapter, so nothing is printed.
 
 1. **It is a library, and nothing else.** Itinera runs inside your program. There is no server to start, no database to create and no background process to keep running.
 2. **One crate brings everything.** `itinera` brings in two crates of its own: `itinera-core`, which holds the implementation, and `itinera-macros`, which holds the attributes and derives you declare things with. Don't add either yourself: **every path you write goes through `itinera`**, and you never need to know the other two are there.
-3. **The version follows the specification.** Itinera is defined once, by a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each release of `itinera` says which version of it the release implements. This book is written for `0.1.0-beta.1`, the first release. It is a beta: until `0.1.0`, features may be added and the API may still change.
+3. **Each release says which specification it implements.** Itinera is defined once, by a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each release of `itinera` says which version of it the release implements. This book is written for `0.1.0-beta.1`, the first release. It is a beta: until `0.1.0`, features may be added and the API may still change.
 4. **The book's examples are pinned.** Until the release is published, the book's own `Cargo.toml` adds `itinera` from its repository at one commit, with `rev`, so every example is built against exactly the code it was written for.
 
 ## Outcomes
