@@ -331,7 +331,6 @@ impl Reporter for Log {
     }
 }
 
-
 // ANCHOR: supplies
 // ANCHOR: providers
 #[workflow]

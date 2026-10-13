@@ -27,7 +27,7 @@ name: ch02_big_picture
 region: policies
 ```
 
-Its `impl` block supplies what the steps use: the bank, the warehouse and a carrier for every attempt, and the way the shop tells a customer something.
+Its `impl` blocks supply what the steps use: the bank, the warehouse and a carrier for every attempt, and the way the shop tells a customer something.
 
 ```example
 name: ch02_big_picture
