@@ -42,123 +42,107 @@ Each chapter's example is a complete program that compiles, runs and shows what 
 
 ### The shape of a chapter
 
-Every chapter, and the quick start, has the same four sections, in this order, so a screen reader user can jump straight to the part they need and an agent knows where to look:
+Every chapter teaches one topic, the one its entry under "Contents" names, and has the same four sections, in this order, so a screen reader user can jump straight to the part they need and an agent knows where to look:
 
 1. **What you want to do,** in one or two sentences, in the shop's terms.
 2. **The code,** with what it prints underneath.
-3. **How it works,** in prose.
-4. **Remember:** a short list of rules a reader or an agent must not break, such as "a step's contributions are committed to the data bag only when its attempt succeeds".
+3. **How it works,** in prose or a short numbered list. A rule that a reader or an agent must not break is written in bold where the chapter says it, such as "**a step's contributions are committed to the data bag only when its attempt succeeds**".
+4. **Outcomes:** one sentence saying what the chapter has shown, starting "We have", then a table of one to three rows, as "The Outcomes table" below says.
+
+A chapter aims for 400 to 800 words of prose, not counting its code, its output and its Outcomes table; chapter 1 and chapter 2 may reach 1,300. A chapter that needs more is teaching two topics, and is split.
+
+### The Outcomes table
+
+The table has two columns, headed "The usual way" and "With Itinera". Each row is one contrast, with one sentence in each cell. For chapter 7, it reads:
+
+We have shown how a step asks for the data it needs.
+
+| The usual way | With Itinera |
+|---|---|
+| A function gets its data through parameters, shared state or objects it reaches for, and finding where a value came from means following every caller. | Every step asks for its data the same way, by name, and the workflow says where each value comes from. |
+
+1. The left cell says what competent code usually does, fairly, as a habit rather than a mistake: "usually" or "often", never "always". It names no library or framework, and admits it when the usual way is perfectly reasonable.
+2. The right cell claims only what the chapter's own code shows; in chapter 1, which has no Itinera yet, what chapter 2 shows.
+3. No row repeats a row of an earlier chapter.
+4. The section's heading is "Outcomes", but its text uses "outcome" only in the specification's sense (success, failure or skip): its sentence says "We have shown", never "the outcome is".
+
+Chapter 1 is the book's one long comparison, written in code. Every other chapter compares only in its Outcomes table, so the book never shows the usual code again.
 
 ### Each idea in its own chapter
 
 A reader meets each idea in the chapter that teaches it, and Itinera is flexible enough for every chapter to show only what the reader has learnt so far.
 
-1. The welcome pages, chapters 1 to 3 and Part 1's "Without Itinera" section show ideas so that their argument can be followed. From chapter 4 on, each idea is taught in its own chapter, even one those pages showed: every page, including the other "Without Itinera" sections and the appendices, uses in its code and prose only what it, or an earlier chapter from chapter 4 on, teaches. A later idea may be named in one sentence with a link to the chapter that teaches it, never with its syntax or an explanation. The quick start and chapter 3 show a whole declaration on purpose: each later idea in it is named with a link, and explained no further than the page's own point needs.
-2. An idea is taught by the first chapter, from chapter 4 on, whose entry below names it. Anything else the book explains rather than assumes, such as an attribute of the language's package or a channel of its standard library, is taught by the first chapter, from chapter 4 on, that shows it and explains it.
+1. The welcome pages and chapters 1 and 2 show ideas so that their argument can be followed. From chapter 3 on, each idea is taught in its own chapter, even one those pages showed: every page, including the appendices, uses in its code and prose only what it, or an earlier chapter from chapter 3 on, teaches. A later idea may be named in one sentence with a link to the chapter that teaches it, never with its syntax or an explanation. Chapter 2 shows a whole declaration on purpose: each idea in it is named with a link, and explained no further than the chapter's own point needs.
+2. An idea is taught by the first chapter, from chapter 3 on, whose entry below names it. Anything else the book explains rather than assumes, such as an attribute of the language's package or a channel of its standard library, is taught by the first chapter, from chapter 3 on, that shows it and explains it.
 3. Code a chapter does not show may use anything, as long as the prose never relies on it. Faked outside systems, such as the bank or a carrier, print what they do, so the output tells what happened.
-4. The paths a chapter talks about come from the data its orders start with: each path is run by an order whose data takes it there, and what it prints is shown. Every path the prose or a diagram talks about is run by an order; the prose or a diagram never talks about a branch that no order takes. No hidden counter or flag decides a path, and the prose never asks the reader to change a value to see another path. When a page's point is a failure that passes, such as a retry in the usual code or a circuit breaker, the state that decides it is said plainly in the prose.
-5. Once taught, an idea may be used again, with a link back to its chapter, and is never taught a second time. Where the language has a reporter that prints every event, chapter 4 explains it, and any later chapter whose point is the events may use it.
+4. The paths a chapter talks about come from the data its orders start with: each path is run by an order whose data takes it there, and what it prints is shown. Every path the prose or a diagram talks about is run by an order; the prose or a diagram never talks about a branch that no order takes. No hidden counter or flag decides a path, and the prose never asks the reader to change a value to see another path. When a page's point is a failure that passes, such as a retry in the usual code, the state that decides it is said plainly in the prose.
+5. Once taught, an idea may be used again, with a link back to its chapter, and is never taught a second time. Where the language has a reporter that prints every event, chapter 6 explains it, and any later chapter whose point is the events may use it.
 6. When a page changes, every other page that refers to it, quotes its code or relies on what it shows, before it or after it, is read again, and still holds.
 
 ### Synchronous and asynchronous together
 
 Itinera's synchronous and asynchronous APIs differ little, so the book has no separate chapter on asynchronous code. Each chapter shows the synchronous form first; where the asynchronous form differs, the same example follows in its asynchronous form, with one sentence saying what changed. A language whose executors accept only one execution mode shows only that one.
 
-### Without Itinera: the section that closes each part
-
-Every part except the last ends with a section headed **Without Itinera**. It shows the same shop written the way such code is usually written, without Itinera, and then the Itinera version beside it, so the reader sees what changed and why it matters. Each comparison:
-
-1. shows the usual code honestly, as a competent developer would write it, not as a straw man;
-2. names what that code mixes together (a business rule, a flow decision, logging, a retry strategy);
-3. shows where each of those lives with Itinera, and what the reader gains: one place to read the flow, business code that can be tested alone, observation that is the same everywhere.
-
-The section is not called "outcomes", because outcome is a word of the specification (success, failure or skipped).
-
-The usual code is real code in the book's language too, compiled and run like every other example, so a comparison can never claim the usual code does something it does not.
-
 ## Contents
 
 ### Welcome
 
-Three short pages come before Part 1, unnumbered, so a reader meets Itinera, the book and a whole workflow before the argument starts.
+Two short pages come before Part 1, unnumbered, so a reader meets Itinera and the book before the argument starts.
 
-1. **Welcome to Itinera.** Hello, and what this book is for. What we are trying to change: flow decisions buried in business code, which good habits such as clean modules and dependency injection do not remove, and systems that grow until nobody can say what one request does, which agents make worse; keeping the process apart from the logic was good practice before agents, and is a matter of safety with them. The page takes this from the site's "Why Itinera" and links to it. What Itinera is: steps, workflows, policies and the executor, each in a sentence, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part.
-2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its customers; the shape of a chapter; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; the "Without Itinera" sections; where to go further.
-3. **Quick start.** A whole workflow on one page, declared the shortest way the language offers: two steps, a policy that picks the backup carrier before shipping is tried again, a reporter printing every event, and one journey. It does not explain every line; it shows where each decision lives, and points to the chapters that do.
+1. **Welcome to Itinera.** Hello, and what this book is for. What Itinera is, in a few sentences: steps, workflows, policies and the executor, and one meaning across languages, defined by the specification. Where the name comes from: *itinera* is the Latin plural of *iter*, a journey, and every execution of a workflow for one order is a journey. How the book is laid out, part by part. The argument for Itinera is chapter 1's, and the page links to the site's "Why Itinera" rather than retelling it.
+2. **How to read this book.** The conventions every page shares: the book for each language and the language selector of the web pages; the shop and its customers; the shape of a chapter and its Outcomes table; code that is always a region of a complete program, and the marks a caption may carry (the asynchronous form, not compiled yet, does not compile); words with one meaning, the glossary and the cheat sheet; diagrams always followed by text; where to go further.
 
-### Part 1: Introduction
+### Part 1: Why Itinera
 
-The introduction makes one argument: the hardest part of understanding a system that mixes business rules with flow control is knowing what is going on, and with Itinera you find out by reading one workflow. Every chapter of the part serves that argument, and no later chapter is needed to follow it.
+The part makes one argument: the hardest part of understanding a system that mixes business rules with flow control is knowing what is going on, and with Itinera you find out by reading one workflow.
 
-1. **But why Itinera?** The shop written the usual way, before any Itinera: a checkout that charges, retries, falls back, ships, logs and notifies, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed.
-2. **Steps, policies and workflows.** The three ideas that separate the two kinds of decision. A step holds one business rule, reports what happened and knows nothing of what comes next. A policy holds the flow decisions, through hooks the executor calls after each outcome. A workflow lists the steps in the order they run, with their retry budgets and the policies attached to them. Each idea is shown with the smallest piece of the shop that makes it clear; the policy is the review, whose hook compares what the charge contributed with the review limit in the order's initial data.
-3. **Read the workflow, know what happens.** The shop's workflow declaration, for what chapter 1's checkout does, on its own. The reader answers the questions of chapter 1 from it alone, in a few lines: the order of the steps, how many times the charge is tried, which policy decides what after a failure, what happens at the end. Then the program prints the workflow's listing, which the language makes from the declaration without running anything: the steps in order, the step policies attached to each, the services each step requests with the provider that serves it, and the charge's rescue step. A workflow explains itself, to a person or an agent, before any journey. The chapter closes with a diagram of a journey through the shop, and the text that says everything it shows.
-4. **What happens when it runs.** The remaining words, each in a paragraph: workflow instance and its initial data, journey, executor, data bag, result and event, and the two execution modes, synchronous and asynchronous, introduced once here. Where the language has a reporter that prints every event, the chapter's program uses it, and explains what it prints. Where Itinera fits, and what it is not: not a job queue, not BPMN, no branching inside a workflow.
-
-Without Itinera: the comparison of this part is chapter 1 against chapter 3, so it closes with a short summary of the two side by side rather than new code.
+1. **But why Itinera?** The shop written the usual way, before any Itinera: a checkout that reserves, charges, renews an expired card, falls back to another carrier, audits, logs and tells the customer, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed. It is the book's one long comparison.
+2. **The big picture.** The same checkout, with the same orders, written with Itinera. The chapter shows the whole workflow declaration and the listing the language makes from it without running anything, runs the orders, and answers chapter 1's questions from the declaration alone, a short paragraph each. Steps, policies, the workflow, the journey, the data bag, events and the executor are each named in one sentence with a link to the chapter that teaches them; nothing is taught here. It closes with a diagram of a journey through the shop, with the text that says everything it shows, and a paragraph on what Itinera is not: not a job queue, not BPMN, no branching inside a workflow.
 
 ### Part 2: Getting started
 
-5. **Installing Itinera.** The package, its options and the language version it needs.
-6. **A workflow of one step.** Charge an order, run the journey and read the result.
-7. **Adding a step.** Ship after charging. The order the steps are written in is the order they run.
-
-Without Itinera: the same two calls made directly, one after the other, and what the caller must now know about both.
+3. **Installing Itinera.** The package, its options and the language version it needs.
+4. **A workflow of one step.** Charge an order, run the journey and read the result: a step, a workflow, a workflow instance and its initial data, the executor, the journey and its result, and the two execution modes, synchronous and asynchronous.
+5. **Adding a step.** Ship after charging. The order the steps are written in is the order they run.
+6. **Watching a journey.** Events: what each journey reports as it runs, and in what order. Where the language has a reporter that prints every event, the chapter attaches it and explains what it prints.
 
 ### Part 3: Writing steps
 
-8. **Giving a step what it needs.** Inputs, required or optional, and the journey's initial data.
-9. **Passing data on.** Contributions and the data bag, and why only a successful attempt's contributions are committed.
-10. **Saying how it went.** Succeed; fail with a reason; fail in a way that might work next time; skip. When to use each.
-11. **When something goes wrong inside a step.** Throwing or returning an error (an abnormal termination) versus failing on purpose, and why an unrecoverable failure is outside the model.
-12. **Giving a step the tools it needs.** Services: a payment client, a stock store or a carrier, which a step asks for by a key and uses without knowing which implementation it got. The workflow supplies each through a provider, which decides how long an instance lasts: one shared by the whole journey, such as the stock store used by both reserving and shipping, or a fresh one for every attempt. A provider can also serve only some steps. The step is lent the service for its attempt only.
-
-Without Itinera:
-
-1. A function that calls the next component itself, catches its timeout and decides to retry. Each is a flow decision living in business code.
-2. Data threaded through parameters or shared state, half-written when something fails. With Itinera a failed attempt's contributions never reach the data bag.
+7. **Giving a step what it needs.** Inputs, required or optional, and the journey's initial data.
+8. **Passing data on.** Contributions and the data bag, and why only a successful attempt's contributions are committed.
+9. **Saying how it went.** Succeed; fail with a reason; fail in a way that might work next time; skip. When to use each.
+10. **When something goes wrong inside a step.** Throwing or returning an error (an abnormal termination) versus failing on purpose, and why an unrecoverable failure is outside the model.
+11. **Giving a step the tools it needs.** Services: a payment client, a stock store or a carrier, which a step asks for by a key and uses without knowing which implementation it got. The workflow supplies each through a provider, which decides how long an instance lasts: one shared by the whole journey, such as the stock store used by both reserving and shipping, or a fresh one for every attempt. A provider can also serve only some steps. The step is lent the service for its attempt only.
 
 ### Part 4: Controlling the flow
 
-13. **Trying again.** Retry budgets, and which failures are retried. Shipping is tried twice, and the carrier's provider gives the second attempt the backup carrier, so the ship step never knows there are two.
-14. **Repairing, then trying once more.** Rescue steps: when the charge fails because the card has expired, its rescue step reads why the charge failed, asks the customer's bank for the new card and contributes it, and the charge runs once more. A rescued step is never retried, since the rescue takes the place of retrying. If the rescue fails, the journey fails and the charge never runs again; if the attempt after the rescue fails, the journey fails too. The events show the step being rescued and how the rescue went. Declaring a retry budget above 0 on a step that has a rescue step is refused before any journey, and a rescue step cannot skip: doing so aborts the journey. A rescue step inherits nothing from the step it rescues: an input adapter or service provider it needs is attached to its own name, such as `charge_rescue`, and the listing shows it in a rescue section of its step's entry.
-15. **Reacting to what a step did.** Step policies and their hooks, for example auditing every successful charge.
-16. **Ending a journey early.** Finishing the journey once the charge step has contributed that the order is digital, so nothing is left to ship; giving up at once, instead of rescuing the charge, when the payment network is down and the charge ends in an abnormal termination: the `on step abnormal termination` hook of a step policy fails the journey.
-17. **Doing something when the journey ends.** Workflow policies, for example telling the customer.
-18. **Letting policies act on the outside world.** Roles: the shop provides "tell the customer", and the policy uses it without knowing how it is done.
-19. **Deciding where a step's data comes from.** Input adapters, for example charging the order total less the discount already in the data bag, without the step knowing where the amount came from.
-20. **Naming your journeys.** Journey IDs, and generating them from the order.
-
-Without Itinera:
-
-1. **Retry strategies that multiply.** One call retried in a loop, another through a decorator, a third through a library, each with its own limits and none visible from outside. With Itinera every retry budget is in the workflow's declaration, every other decision to give up follows from the step's outcome, and any earlier stop is decided by a policy, all of it visible in the events.
-2. **Flow decisions in business code.** A charge function that knows shipping comes next and does not call it for digital goods. With Itinera the charge only charges, what follows is in the workflow, and whether a digital order ships is decided where it belongs: the ship step reports that it skipped, or a policy finishes the journey from what the charge contributed.
-3. **A circuit breaker.** The usual breaker wrapped around a client, deciding inside the call whether the call happens. With Itinera, a policy sees every failure and records it through a role, and the carrier's provider, which belongs to the workflow, hands out the backup carrier while the breaker is open. The step only ships.
-4. **Another carrier on the next attempt.** The usual fallback: try the main carrier, catch the failure, call the backup, all inside the shipping code. With Itinera the ship step only ships, through the carrier service it is given. The provider makes a fresh service for every attempt and picks the carrier from the attempt number, or from a choice that the `on step retry` hook of a step policy contributed, which the provider reads as data from the workflow.
-5. **Repair code inside the business rule.** The usual charge that catches an expired card, fetches the new one and tries again, all in one function. With Itinera the repair is a rescue step of its own, the charge stays a charge, and the events say when a rescue happened and how it went.
+12. **Trying again.** Retry budgets, and which failures are retried. Shipping is tried twice, and the carrier's provider gives the second attempt the backup carrier, so the ship step never knows there are two.
+13. **Repairing, then trying once more.** Rescue steps: when the charge fails because the card has expired, its rescue step reads why the charge failed, asks the customer's bank for the new card and contributes it, and the charge runs once more. A rescued step is never retried, since the rescue takes the place of retrying. If the rescue fails, the journey fails and the charge never runs again; if the attempt after the rescue fails, the journey fails too. The events show the step being rescued and how the rescue went. Declaring a retry budget above 0 on a step that has a rescue step is refused before any journey, and a rescue step cannot skip: doing so aborts the journey. A rescue step inherits nothing from the step it rescues: an input adapter or service provider it needs is attached to its own name, such as `charge_rescue`, and the listing shows it in a rescue section of its step's entry.
+14. **Reacting to what a step did.** Step policies and their hooks, for example auditing every successful charge.
+15. **Ending a journey early.** Finishing the journey once the charge step has contributed that the order is digital, so nothing is left to ship; giving up at once, instead of rescuing the charge, when the payment network is down and the charge ends in an abnormal termination: the `on step abnormal termination` hook of a step policy fails the journey.
+16. **Doing something when the journey ends.** Workflow policies, for example telling the customer.
+17. **Letting policies act on the outside world.** Roles: the shop provides "tell the customer", and the policy uses it without knowing how it is done.
+18. **Deciding where a step's data comes from.** Input adapters, for example charging the order total less the discount already in the data bag, without the step knowing where the amount came from.
+19. **Naming your journeys.** Journey IDs, and generating them from the order.
 
 ### Part 5: Running it for real
 
-21. **Running many journeys.** Workflow instances and the executor, giving each journey its initial data, and what it means when `run` refuses an instance before any journey starts.
-22. **Reading the result.** Succeeded, failed or aborted: what each means for your users, and what each carries.
-23. **Seeing what happened.** Events and reporters: logging every journey, writing your own reporter, global metadata that labels every line of a journey's log, such as the customer and the tracking number, and what happens when a reporter fails.
-24. **Testing your workflows.** Testing a step alone, a policy alone, and a whole journey by its result and its events.
-
-Without Itinera:
-
-1. **Logging that depends on who wrote the code.** One module logs before each call, another only on errors, a third swallows the error and logs nothing; reconstructing what happened to one order means reading all three. With Itinera every journey reports the same stream of events, in the same order, and a reporter decides where it goes.
-2. **Testing a flow by mocking it.** Testing the fallback of shipping by mocking two carriers and counting calls. With Itinera the step is tested alone, the policy alone, and the journey by its events.
+20. **Running many journeys.** Workflow instances and the executor, giving each journey its initial data, and what it means when `run` refuses an instance before any journey starts.
+21. **Reading the result.** Succeeded, failed or aborted: what each means for your users, and what each carries.
+22. **Writing your own reporter.** A reporter that writes every journey to the shop's log, and what happens when a reporter fails.
+23. **Labelling a journey's log.** Global metadata that labels every line of a journey's log, such as the customer and the tracking number: given when the instance is built, and set by a step or a policy as the journey runs.
+24. **Testing a step.** Testing a step, a policy's hook or an input adapter alone, by calling it directly with the recorders the language offers, then checking what it reported and contributed.
+25. **Testing the flow without the steps.** Running the real workflow with each step's attempts scripted, so a test checks the retries, rescues and policies' decisions without the business rules.
+26. **Testing a whole journey.** Running the real steps against fake services, and pinning the paths of a few orders, approved by a person, so a flow change that alters them cannot pass unnoticed.
 
 ### Part 6: Designing with Itinera
 
-25. **Step, rescue step or policy?** How to decide where a decision or a repair belongs, with examples from the shop and a few counter-examples.
-26. **From tangled code to a workflow.** Adopting Itinera in a system you already have: one route at a time, starting with the checkout of chapter 1. Its business rules become steps, the services it already calls are wrapped and lent to the steps through providers, and its flow decisions move into the workflow and its policies, one move at a time, each leaving a program that runs. It gathers what each "Without Itinera" section showed.
-27. **Mistakes caught before a journey.** Violations found at admission, refusals, and the rules this language makes impossible to express, each with the real message and how to fix it.
-28. **Declaring by hand.** What the language's shorthand expands to, and when the long form is needed.
-29. **Using a step in another workflow.** The shop starts letting customers collect their orders at the counter. A second workflow lists the same reserve and charge steps and the same audit policy, unchanged, with its own flow (no rescue step, the order put aside instead of shipped), its own services (the back room's stock and the counter's card terminal) and its own notify policy. Both listings, and two orders run through each, show that a step is written once and the workflow decides everything around it.
-30. **Working with agents.** What an agent needs to change a step (its inputs, its contributions, its outcomes and the services it requests) or the flow (one workflow and its policies), and why neither change needs the other. The one rule a reviewer, human or agent, checks on every change: a step decides nothing about the flow. Tests that pin the paths of a few orders, the outcomes and decisions their journeys go through, approved by a person, so a flow change that alters them cannot pass unnoticed. A paragraph for a team's `AGENTS.md` that says so, ready to copy. The chapter stays practical and claims nothing that has not been measured.
-
-Part 6 has no "Without Itinera" section: chapter 26 is that comparison.
+27. **Step, rescue step or policy?** A short guide to deciding where a decision or a repair belongs: a table of the shop's decisions and where each lives, and a paragraph for each kind of place.
+28. **From tangled code to a workflow.** Adopting Itinera in a system you already have: one route at a time, starting with the checkout of chapter 1, as a short list of moves, each leaving a program that runs. Its business rules become steps, the services it already calls are wrapped and lent to the steps through providers, and its flow decisions move into the workflow and its policies.
+29. **Mistakes caught before a journey.** Violations found at admission, refusals, and the rules this language makes impossible to express, each with the real message and how to fix it.
+30. **Declaring by hand.** What the language's shorthand expands to, and when the long form is needed.
+31. **Using a step in another workflow.** The shop starts letting customers collect their orders at the counter. A second workflow lists the same reserve and charge steps and the same audit policy, unchanged, with its own flow (no rescue step, the order put aside instead of shipped), its own services (the back room's stock and the counter's card terminal) and its own notify policy. Both listings, and two orders run through each, show that a step is written once and the workflow decides everything around it.
+32. **Working with agents.** What an agent needs to change a step (its inputs, its contributions, its outcomes and the services it requests) or the flow (one workflow and its policies), and why neither change needs the other. The one rule a reviewer, human or agent, checks on every change: a step decides nothing about the flow. The approved paths of chapter 26 as the guard on flow changes. A paragraph for a team's `AGENTS.md` that says so, ready to copy. The chapter stays practical and claims nothing that has not been measured.
 
 ### Appendices
 
@@ -176,8 +160,7 @@ For every chapter, each language's book provides:
 
 1. the chapter's prose, following this document and written for that language, such as how recoverable and unrecoverable failures work in it. A new language's book usually starts as a copy of an existing one and is then rewritten for its language;
 2. the chapter's example as a complete program, with marked regions the book quotes, and its recorded output;
-3. for the "Without Itinera" sections, the usual code as a complete program too;
-4. for chapter 27, compile-fail cases with their recorded compiler messages, where the language turns mistakes into compile errors.
+3. for chapter 29, compile-fail cases with their recorded compiler messages, where the language turns mistakes into compile errors.
 
 A language that lacks a feature a chapter needs shows that chapter as a short section saying the feature is not in this language yet, with a link to its implementation issue.
 
@@ -196,7 +179,7 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
    3. the main branch, ahead of any release, at `/book/LANGUAGE/next/`.
 
    Until a language's first release, its main branch is published at `/book/LANGUAGE/`, so links to the book work from the start.
-2. A published page keeps its address in every later edition. A new chapter goes where it renumbers no published page, and a page that is moved or renamed leaves a redirect at its old address.
+2. From a language's first release, a published page keeps its address in every later edition: a new chapter goes where it renumbers no published page, and a page that is moved or renamed leaves a redirect at its old address. Before the first release, pages may be renumbered and renamed freely.
 
 ## Open points
 
