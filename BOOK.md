@@ -83,7 +83,7 @@ A reader meets each idea in the chapter that teaches it, and Itinera is flexible
 1. The welcome pages and chapters 1 and 2 show ideas so that their argument can be followed. From chapter 3 on, each idea is taught in its own chapter, even one those pages showed: every page, including the appendices, uses in its code and prose only what it, or an earlier chapter from chapter 3 on, teaches. From chapter 3 on, a page never names a later chapter or an idea the book has not taught yet, not even in passing.
 2. An idea is taught by the first chapter, from chapter 3 on, that shows it and explains it. That includes anything the book explains rather than assumes, such as an attribute of the language's package or a channel of its standard library.
 3. Code a chapter does not show may use anything, as long as the prose never relies on it. Faked outside systems, such as the bank or a carrier, print what they do, so the output tells what happened.
-4. The paths a chapter talks about come from the data its orders start with: each path is run by an order whose data takes it there, and what it prints is shown. Every path the prose or a diagram talks about is run by an order; the prose or a diagram never talks about a branch that no order takes. No hidden counter or flag decides a path, and the prose never asks the reader to change a value to see another path. When a page's point is a failure that passes, such as a retry in the usual code, the state that decides it is said plainly in the prose.
+4. The paths a chapter talks about come from the data its orders start with: each path is run by an order whose data takes it there, and what it prints is shown. Every path the prose or a diagram talks about is run by an order; the prose or a diagram never talks about a branch that no order takes. No hidden counter or flag decides a path, and the prose never asks the reader to change a value to see another path. When a page's point is a failure that passes, such as a retry in the usual code, the state that decides it is said plainly in the prose. A chapter with no program, or whose program runs nothing because the book has not yet taught how to run what it declares, says so, and describes only what it shows.
 5. Once taught, an idea may be used again, with a link back to its chapter, and is never taught a second time.
 6. When a page changes, every other page that refers to it, quotes its code or relies on what it shows, before it or after it, is read again, and still holds.
 
@@ -107,11 +107,15 @@ The part makes one argument: the hardest part of understanding a system that mix
 1. **But why Itinera?** The shop written the usual way, before any Itinera: a checkout that reserves, charges, renews an expired card, falls back to another carrier, audits, logs and tells the customer, with those decisions spread across functions and modules. The reader is asked simple questions, such as "what happens to an order when the card is declined twice?", and the chapter follows the code to answer them, showing how much has to be read, and how easily a decision is missed. It is the book's one long comparison.
 2. **The big picture.** The same checkout, with the same orders and one more for each path they do not take, written with Itinera, as a quick start: the program's workflow first, since reading it alone tells what happens to every order, then the steps, the policies and what the workflow supplies them, with comments that say what each piece is for and answer chapter 1's questions where the code answers them, then what it prints, and a diagram of a journey through the shop with the text that says everything it shows. The prose frames the program and explains none of it: each piece has a chapter of its own later, found as the book needs it.
 
-### The chapters after Part 1
+### Part 2: Getting started
 
-They are written one at a time, as "How the chapters follow one another" says, and each is added here, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
+3. **Installing Itinera.** The package, the language version it needs, and the one thing to know about its options: the defaults are enough to start, and a chapter that needs another option says how to turn it on. It is a library, with nothing else to run.
 
-1. installing the package, its options and the language version it needs;
+### The chapters to come
+
+They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
+
+1. the package's options other than the defaults;
 2. steps: inputs, required or optional, outcomes, contributions and the data bag, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
 3. workflows, instances and their initial data, the executor, journeys, journey IDs and results, and the two execution modes;
 4. events and reporters, including writing one, a reporter that fails, and global metadata;
