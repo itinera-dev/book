@@ -6,7 +6,7 @@ Every event says who decided what, and when, and which journey it belongs to, by
 
 ## The code
 
-The workflow names each journey with a method of its `#[workflow]` block marked `#[id_generator]`. It reads the order's number from the journey's data, and returns it as the journey's ID. The providers are [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s.
+The workflow names each journey with a method of its `#[workflow]` block marked `#[id_generator]`. It reads the order's number from the journey's data, and returns it as the journey's ID. The providers are [chapter 8](08-seeing-what-happened.md)'s.
 
 ```example
 name: ch11_naming_a_journey

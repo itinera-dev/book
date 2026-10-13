@@ -126,7 +126,12 @@ fn detail(body: &EventBody) -> Option<String> {
         EventBody::AttemptStarted { step, .. }
         | EventBody::StepSucceeded { step, .. }
         | EventBody::StepGivenUp { step, .. } => Some(step.step.to_string()),
-        EventBody::ServiceProvided { step, key, .. } => Some(format!("{} gets {key}", step.step)),
+        EventBody::ServiceProvided {
+            step,
+            key,
+            provider,
+            ..
+        } => Some(format!("{} gets {key} from {provider}", step.step)),
         EventBody::StepFailed { step, reason, .. } => {
             Some(format!("{}: {}", step.step, reason.code()))
         }
@@ -153,9 +158,9 @@ impl Orders {
         Ok(Box::new(Bank))
     }
 
-    /// The main carrier, for the journey.
-    #[provider]
-    fn carrier(&self) -> Result<Box<dyn Carrier>, Error> {
+    /// The main carrier, as the carrier of the journey.
+    #[provider(key = "carrier")]
+    fn main_carrier(&self) -> Result<Box<dyn Carrier>, Error> {
         Ok(Box::new(MainCarrier { max_weight: 20 }))
     }
 }
