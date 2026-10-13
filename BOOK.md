@@ -89,7 +89,7 @@ A reader meets each idea in the chapter that teaches it, and Itinera is flexible
 
 ### Synchronous and asynchronous together
 
-Itinera's synchronous and asynchronous APIs differ little, so the book has no separate chapter on asynchronous code. Each chapter shows the synchronous form first; where the asynchronous form differs, the same example follows in its asynchronous form, with one sentence saying what changed. A language whose executors accept only one execution mode shows only that one.
+Itinera's synchronous and asynchronous APIs differ little, so the book teaches the two execution modes in one chapter and has no part on asynchronous code. From that chapter on, each chapter shows the synchronous form first; where the asynchronous form differs, the same example follows in its asynchronous form, with one sentence saying what changed. A language whose executors accept only one execution mode shows only that one.
 
 ## Contents
 
@@ -111,22 +111,25 @@ The part makes one argument: the hardest part of understanding a system that mix
 
 3. **Installing Itinera.** The package, the language version it needs, and the one thing to know about its options: the defaults are enough to start, and a chapter that needs another option says how to turn it on. It is a library, with nothing else to run.
 4. **A first step.** The charge written as a step: a struct holding the price it asks for as an input, and a `run` that does the work and says how it went, succeeded or failed with a reason, and nothing else. The program declares the step and runs nothing, and the chapter ends on the question that raises: nothing builds the step with an order's price or runs it, so how does the shop charge an order?
+5. **A first journey.** The charge of chapter 4 run for two orders, one it charges and one with nothing to charge: a workflow listing the step under a name, each order's initial data, an instance of the workflow for each order, an executor that runs it as a journey, and the result saying how the journey ended, succeeded or failed, a failure being a business outcome rather than an error of the program. The chapter ends on what the result does not say: what the charge did.
+6. **Passing data on.** The charge gives back the receipt the bank gave it, and a second step, the shipping, puts it in the parcel: a contribution, the data bag, a later step reading a contribution as an ordinary input, the steps running in the order the workflow lists them, a failed attempt's contributions never committed, and the data bag read back as the journey's output. The chapter ends on what the steps still do on their own: each reaches the bank or the carrier by itself, so it can only ever use that one.
+7. **Giving a step the tools it needs.** The bank and the carrier become services: traits the steps ask for by a key and use without knowing which implementation they got, which the workflow's providers make once for each journey, the first time a step asks. The chapter ends on what the shop still cannot see: everything it learns comes from what its own code prints.
 
 ### The chapters to come
 
 They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
 
 1. the package's options other than the defaults;
-2. steps: optional inputs, the other outcomes, contributions and the data bag, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
-3. workflows, instances and their initial data, the executor, journeys, journey IDs and results, and the two execution modes;
+2. steps: optional inputs, the other outcomes, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
+3. journey IDs, what explains a failed journey, an aborted journey, what can refuse a journey before it starts, an executor running one journey at a time, and the two execution modes;
 4. events and reporters, including writing one, a reporter that fails, and global metadata;
 5. retries and rescue steps;
 6. step policies and workflow policies, their hooks, and ending a journey early;
-7. services and providers, roles and input adapters;
+7. a provider for every attempt, a provider for some steps only, roles and input adapters;
 8. the listing, violations, refusals, and the mistakes the language refuses to compile;
 9. declaring by hand, without the language's shorthand;
 10. testing a step, a policy's hook or an input adapter alone, testing the flow with scripted steps, and testing a whole journey with fake services and approved paths;
-11. deciding where a decision belongs, adopting Itinera in existing code, using a step in another workflow, and working with agents.
+11. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
 
 ### Appendices
 
