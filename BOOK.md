@@ -118,22 +118,30 @@ The part makes one argument: the hardest part of understanding a system that mix
 9. **Saying what only a step knows.** The shipping reports that the parcel left through its step reporter, as an event of its own in the journey's stream, stamped with the step and its attempt, so the record of who did what holds what only the step knows, and delivered before the call returns; a step never emits what the executor already records. The chapter ends on another audience for the same events: the customer service desk, which wants only the failures.
 10. **More than one reporter.** The desk as a second reporter, reading the same record of who decided what as the log, for a purpose of its own: the dispatcher fanning every event out to each reporter in the order the workflow lists them, the journey waiting for every reporter, and adding a reporter changing nothing else. The chapter ends on what the desk cannot say: which order failed.
 11. **Naming a journey.** An ID generator names each journey after its order, so every event says which order each decision was about: the random default, the generator as the workflow's decision, reading the initial data, and the workflow's name every event also carries, which says what the workflow does while the ID tells its journeys apart. The chapter ends on why Gil's order failed: the shipping gets one attempt, with one carrier.
+12. **Trying again.** The shipping fails retriably on a parcel too heavy for the carrier, and the workflow gives it a retry budget of one, while the charge fails for good on an expired card: a retriable failure as the step's suggestion and the retry budget as the workflow's decision, a fresh step built for each attempt, a failed attempt's contributions thrown away, and the step given up once its budget is spent or its failure is not retriable. The chapter ends on why the second attempt fails too: it gets the same carrier.
+13. **A carrier for each attempt.** A provider made for every attempt, which gives the shipping the main carrier on its first attempt and the backup carrier, which takes heavier parcels, on the next, so Gil's order ships on its second attempt: the provider reading the attempt number, and a service made anew for each attempt instead of once for each journey. The chapter ends on the order still failing: Jo's expired card.
+14. **Repairing, then trying once more.** A rescue step for the charge, which asks the bank for the card that replaced an expired one and contributes it, so the charge runs once more and Jo's order is charged: the rescue step reading why the step failed, deciding whether it can repair it, its contribution replacing the old value in the data bag, and the step tried again after a repair. The chapter ends on another audience for what the charge did: the accountants, who want every charge written down.
+15. **Reacting to what a step did.** An audit step policy attached to the charge, whose hook on the step's success reads the step's name, the order's price and the receipt the charge gave back, and contributes the audit line: a step policy and its hook, what a hook can ask for, carrying on as its decision, and its contribution kept with the step's. The chapter ends on Kim's gift card, which has nothing to ship but still gets a parcel booked.
+16. **Skipping a step.** The shipping skips a gift card, with a reason: a skip as the third outcome, the step's own decision for a reason of its business, its contributions thrown away, the journey moving on, and a skip never retried. The chapter ends on what no customer reads: whether their journey succeeded is only printed by `main`.
+17. **Doing something when the journey ends.** A notify workflow policy writes each customer's message once the journey has succeeded, whichever step ended it: a workflow policy and its hook on the journey's success, optional requests and the absences they record, and a hook that decides nothing. The chapter ends on the message existing only in the data bag.
+18. **Letting policies act on the outside world.** The notify policy sends the message through a role the workflow offers, implemented with the channel the workflow is configured with: a role as operations and never data, the workflow's fields as its configuration, and only policies asking for roles. The chapter ends on a discount the charge knows nothing about.
+19. **An optional input.** The charge takes an order's discount when there is one: an optional input, initial data leaving out what an order does not have, the absence recorded, and the step deciding what the absence means. The chapter ends on the shop's way of pricing having moved into the step that talks to the bank.
+20. **Deciding where a step's data comes from.** The charge asks for an amount, and the workflow's input adapter works it out from the price and the discount: an input adapter belonging to the workflow, asked once for each input as the step is built, supplying a value or leaving the input to the data bag, reading and never writing, and recording what it supplied without its value. The chapter ends on how `main` runs the orders: a new executor for each, waiting for each journey to end.
 
 ### The chapters to come
 
 They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
 
 1. the package's options other than the defaults;
-2. steps: optional inputs, the other outcomes, an abnormal termination, and why an unrecoverable failure is outside the model;
+2. steps: an input or a service asked for under another key, an abnormal termination, and why an unrecoverable failure is outside the model;
 3. what explains a failed journey, an aborted journey, what can refuse a journey before it starts, an executor running one journey at a time, and the two execution modes;
 4. a reporter that fails, a reporter added for one journey only, a ready-made reporter that prints every event, and global metadata;
-5. retries and rescue steps;
-6. step policies and workflow policies, their hooks, and ending a journey early;
-7. a provider for every attempt, a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, roles and input adapters;
-8. the listing, violations, refusals, and the mistakes the language refuses to compile;
-9. declaring by hand, without the language's shorthand;
-10. testing a step, a policy's hook or an input adapter alone, testing the flow with scripted steps, and testing a whole journey with fake services and approved paths;
-11. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
+5. the other hooks of step and workflow policies, what else a hook may request, and ending a journey early;
+6. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
+7. the listing, violations, refusals, and the mistakes the language refuses to compile;
+8. declaring by hand, without the language's shorthand;
+9. testing a step, a policy's hook or an input adapter alone, testing the flow with scripted steps, and testing a whole journey with fake services and approved paths;
+10. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
 
 ### Appendices
 
