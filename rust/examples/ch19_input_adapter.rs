@@ -49,9 +49,9 @@ impl Orders {
         #[from_workflow] discount: Option<i64>,
     ) -> Result<Option<AnyValue>, Error> {
         if key != "amount" {
-            return Ok(None);
+            return Self::from_data_bag();
         }
-        Ok(Some(AnyValue::new(price - discount.unwrap_or_default())))
+        Self::supply(price - discount.unwrap_or_default())
     }
 }
 // ANCHOR_END: workflow

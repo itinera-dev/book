@@ -53,7 +53,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A lifecycle | `Self::carry_on()`, `Self::fail_workflow("code")`, or, from `on step success` only, `Self::finish_workflow()` | 16 |
 | A workflow policy and its hooks | `#[workflow_policy(name = "notify")]` on its block, and a method marked `#[on_workflow_success]` or `#[on_workflow_failure]`; attached with `policies = [Notify]` on `#[workflow(...)]` | 17 |
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 18 |
-| An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>` | 19 |
+| An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 19 |
 | A journey ID generator | a method of the same block marked `#[id_generator]`, returning `Result<String, Error>` | 20 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
