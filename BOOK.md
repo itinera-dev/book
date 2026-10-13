@@ -114,15 +114,19 @@ The part makes one argument: the hardest part of understanding a system that mix
 5. **A first journey.** The charge of chapter 4 run for two orders, one it charges and one with nothing to charge: a workflow listing the step under a name, each order's initial data, an instance of the workflow for each order, an executor that runs it as a journey, and the result saying how the journey ended, succeeded or failed, a failure being a business outcome rather than an error of the program. The chapter ends on what the result does not say: what the charge did.
 6. **Passing data on.** The charge gives back the receipt the bank gave it, and a second step, the shipping, puts it in the parcel: a contribution, the data bag, a later step reading a contribution as an ordinary input, the steps running in the order the workflow lists them, a failed attempt's contributions never committed, and the data bag read back as the journey's output. The chapter ends on what the steps still do on their own: each reaches the bank or the carrier by itself, so it can only ever use that one.
 7. **Giving a step the tools it needs.** The bank and the carrier become services: traits the steps ask for by a key and use without knowing which implementation they got, which the workflow's providers make once for each journey, the first time a step asks. The chapter ends on what the shop still cannot see: everything it learns comes from what its own code prints.
+8. **Seeing what happened.** The shop's log written as a reporter that the workflow lists: the events every journey reports, in the same order and shape whoever wrote the steps, the fields every event carries, its body as an enum, the executor's events naming data and never carrying its value, and delivery as things happen. The chapter ends on the one line still printed by a step: what only the shipping knows.
+9. **Saying what only a step knows.** The shipping reports that the parcel left through its step reporter, as an event of its own in the journey's stream, stamped with the step and its attempt and delivered before the call returns; a step never reports what the executor already reports. The chapter ends on another audience for the same events: the customer service desk, which wants only the failures.
+10. **More than one reporter.** The desk as a second reporter: the dispatcher fanning every event out to each reporter in the order the workflow lists them, the journey waiting for every reporter, and adding a reporter changing nothing else. The chapter ends on what the desk cannot say: which order failed.
+11. **Naming a journey.** An ID generator names each journey after its order, so every event says which order it is about: the random default, the generator as the workflow's decision, and reading the initial data. The chapter ends on why Gil's order failed: the shipping gets one attempt, with one carrier.
 
 ### The chapters to come
 
 They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
 
 1. the package's options other than the defaults;
-2. steps: optional inputs, the other outcomes, the events a step reports, an abnormal termination, and why an unrecoverable failure is outside the model;
-3. journey IDs, what explains a failed journey, an aborted journey, what can refuse a journey before it starts, an executor running one journey at a time, and the two execution modes;
-4. events and reporters, including writing one, a reporter that fails, and global metadata;
+2. steps: optional inputs, the other outcomes, an abnormal termination, and why an unrecoverable failure is outside the model;
+3. what explains a failed journey, an aborted journey, what can refuse a journey before it starts, an executor running one journey at a time, and the two execution modes;
+4. a reporter that fails, a reporter added for one journey only, a ready-made reporter that prints every event, and global metadata;
 5. retries and rescue steps;
 6. step policies and workflow policies, their hooks, and ending a journey early;
 7. a provider for every attempt, a provider for some steps only, roles and input adapters;
