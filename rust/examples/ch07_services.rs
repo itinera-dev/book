@@ -4,6 +4,7 @@
 use itinera::error::Error;
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -114,16 +115,16 @@ struct Orders;
 impl Orders {
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Box<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
         println!("the shop connects to the bank");
-        Ok(Box::new(Bank))
+        Ok(provide!(Bank))
     }
 
     /// The main carrier, for the journey.
     #[provider]
-    fn carrier(&self) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
         println!("the shop calls the carrier");
-        Ok(Box::new(MainCarrier { max_weight: 20 }))
+        Ok(provide!(MainCarrier { max_weight: 20 }))
     }
 }
 // ANCHOR_END: workflow

@@ -8,6 +8,7 @@ use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus};
 use itinera::policy::{OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 
@@ -308,23 +309,23 @@ struct Deliveries;
 #[workflow]
 impl Deliveries {
     #[provider(key = "stock")]
-    fn warehouse(&self) -> Result<Box<dyn StockStore>, Error> {
-        Ok(Box::new(Store { place: "warehouse" }))
+    fn warehouse(&self) -> Result<Provided<dyn StockStore>, Error> {
+        Ok(provide!(Store { place: "warehouse" }))
     }
 
     #[provider(key = "payments")]
-    fn card_network(&self) -> Result<Box<dyn Payments>, Error> {
-        Ok(Box::new(CARD_NETWORK))
+    fn card_network(&self) -> Result<Provided<dyn Payments>, Error> {
+        Ok(provide!(CARD_NETWORK))
     }
 
     #[provider(key = "issuer", steps = ["charge_rescue"])]
-    fn bank(&self) -> Result<Box<dyn Issuer>, Error> {
-        Ok(Box::new(Bank))
+    fn bank(&self) -> Result<Provided<dyn Issuer>, Error> {
+        Ok(provide!(Bank))
     }
 
     #[provider(per_attempt)]
-    fn carrier(&self) -> Result<Box<dyn Carrier>, Error> {
-        Ok(Box::new(Van))
+    fn carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
+        Ok(provide!(Van))
     }
 }
 // ANCHOR_END: deliveries
@@ -348,13 +349,13 @@ struct Collections;
 #[workflow]
 impl Collections {
     #[provider(key = "stock")]
-    fn back_room(&self) -> Result<Box<dyn StockStore>, Error> {
-        Ok(Box::new(Store { place: "back room" }))
+    fn back_room(&self) -> Result<Provided<dyn StockStore>, Error> {
+        Ok(provide!(Store { place: "back room" }))
     }
 
     #[provider(key = "payments")]
-    fn counter(&self) -> Result<Box<dyn Payments>, Error> {
-        Ok(Box::new(COUNTER))
+    fn counter(&self) -> Result<Provided<dyn Payments>, Error> {
+        Ok(provide!(COUNTER))
     }
 }
 // ANCHOR_END: collections

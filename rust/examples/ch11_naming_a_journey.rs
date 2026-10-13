@@ -6,6 +6,7 @@ use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
 use itinera::report::Reporter;
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Step, StepReporter, step};
 use itinera::workflow::workflow;
 
@@ -140,8 +141,12 @@ fn detail(body: &EventBody) -> Option<String> {
             step,
             key,
             provider,
+            implementation,
             ..
-        } => Some(format!("{} gets {key} from {provider}", step.step)),
+        } => Some(format!(
+            "{} gets {key} from {provider}, a {implementation}",
+            step.step
+        )),
         EventBody::StepFailed { step, reason, .. } => {
             Some(format!("{}: {}", step.step, reason.code()))
         }
@@ -184,14 +189,14 @@ impl Orders {
 
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Box<dyn Payments>, Error> {
-        Ok(Box::new(Bank))
+    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+        Ok(provide!(Bank))
     }
 
     /// The main carrier, as the carrier of the journey.
     #[provider(key = "carrier")]
-    fn main_carrier(&self) -> Result<Box<dyn Carrier>, Error> {
-        Ok(Box::new(MainCarrier { max_weight: 20 }))
+    fn main_carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
+        Ok(provide!(MainCarrier { max_weight: 20 }))
     }
 }
 // ANCHOR_END: id

@@ -9,6 +9,7 @@ use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData};
 use itinera::report::RecordingReporter;
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::workflow;
 
@@ -138,20 +139,20 @@ struct Orders {
 #[workflow]
 impl Orders {
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Box<dyn Payments>, Error> {
-        Ok(Box::new(Bank))
+    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+        Ok(provide!(Bank))
     }
 
     #[provider(key = "issuer", steps = ["charge_rescue"])]
-    fn issuer(&self) -> Result<Box<dyn Issuer>, Error> {
-        Ok(Box::new(Bank))
+    fn issuer(&self) -> Result<Provided<dyn Issuer>, Error> {
+        Ok(provide!(Bank))
     }
 
     /// The main carrier on the first attempt, the backup carrier, which is always up, after.
     #[provider(per_attempt)]
-    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
         let up = attempt.get() > 1 || self.main_carrier_up;
-        Ok(Box::new(Van { up }))
+        Ok(provide!(Van { up }))
     }
 }
 

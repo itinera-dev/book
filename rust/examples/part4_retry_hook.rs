@@ -8,6 +8,7 @@ use itinera::journey::{
     Contributor, Failure, InitialData, JourneyResult, JourneyStatus, LastFailure,
 };
 use itinera::policy::{FailWorkflow, step_policy};
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -107,11 +108,14 @@ struct Orders;
 impl Orders {
     /// A fresh carrier for every attempt: the one the data names, or the main one.
     #[provider(per_attempt)]
-    fn carrier(&self, #[from_workflow] carrier: Option<String>) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(
+        &self,
+        #[from_workflow] carrier: Option<String>,
+    ) -> Result<Provided<dyn Carrier>, Error> {
         if carrier.as_deref() == Some("backup") {
-            return Ok(Box::new(BACKUP_CARRIER));
+            return Ok(provide!(BACKUP_CARRIER));
         }
-        Ok(Box::new(MAIN_CARRIER))
+        Ok(provide!(MAIN_CARRIER))
     }
 }
 // ANCHOR_END: workflow

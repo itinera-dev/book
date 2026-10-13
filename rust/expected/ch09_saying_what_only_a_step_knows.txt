@@ -1,12 +1,12 @@
 Ann's order:
 log #1 journey_started order, price, weight
 log #2 attempt_started charge
-log #3 service_provided charge gets payments from bank
+log #3 service_provided charge gets payments from bank, a ch09_saying_what_only_a_step_knows::Bank
 the bank charges 40 for order A-1
 log #4 step_succeeded charge
 log #5 contribution_committed receipt
 log #6 attempt_started ship
-log #7 service_provided ship gets carrier from main_carrier
+log #7 service_provided ship gets carrier from main_carrier, a ch09_saying_what_only_a_step_knows::MainCarrier
 the carrier books order A-1
 log #8 step_info ship: the parcel leaves with receipt R-A-1
 log #9 step_succeeded ship
@@ -16,12 +16,12 @@ the journey succeeded, with receipt R-A-1 and tracking T-A-1
 Gil's order:
 log #1 journey_started order, price, weight
 log #2 attempt_started charge
-log #3 service_provided charge gets payments from bank
+log #3 service_provided charge gets payments from bank, a ch09_saying_what_only_a_step_knows::Bank
 the bank charges 45 for order A-7
 log #4 step_succeeded charge
 log #5 contribution_committed receipt
 log #6 attempt_started ship
-log #7 service_provided ship gets carrier from main_carrier
+log #7 service_provided ship gets carrier from main_carrier, a ch09_saying_what_only_a_step_knows::MainCarrier
 the carrier books order A-7
 log #8 step_failed ship: too-heavy
 log #9 step_given_up ship

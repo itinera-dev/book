@@ -10,6 +10,7 @@ use itinera::error::Error;
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::{role, workflow};
 
@@ -146,11 +147,11 @@ impl Orders {
 impl Orders {
     /// A fresh carrier for every attempt: the main one on attempt 1, unless the breaker is open.
     #[provider(per_attempt)]
-    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
         if self.main_carrier_for(attempt) {
-            return Ok(Box::new(self.main.clone()));
+            return Ok(provide!(self.main.clone()));
         }
-        Ok(Box::new(self.backup.clone()))
+        Ok(provide!(self.backup.clone()))
     }
 }
 

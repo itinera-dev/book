@@ -10,6 +10,7 @@ use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFailure};
 use itinera::policy::{HookReporter, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 
@@ -337,23 +338,23 @@ impl Reporter for Log {
 impl Orders {
     /// One payment client for the journey, used by the charge and its rescue step.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Box<dyn Payments>, Error> {
-        Ok(Box::new(BANK))
+    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+        Ok(provide!(BANK))
     }
 
     /// One stock store for the journey, shared by reserve and ship.
     #[provider(key = "stock")]
-    fn warehouse(&self) -> Result<Box<dyn StockStore>, Error> {
-        Ok(Box::new(WAREHOUSE))
+    fn warehouse(&self) -> Result<Provided<dyn StockStore>, Error> {
+        Ok(provide!(WAREHOUSE))
     }
 
     /// A carrier for every attempt: the main carrier first, the backup carrier after.
     #[provider(per_attempt)]
-    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
         if attempt.get() == 1 {
-            Ok(Box::new(MAIN_CARRIER))
+            Ok(provide!(MAIN_CARRIER))
         } else {
-            Ok(Box::new(BACKUP_CARRIER))
+            Ok(provide!(BACKUP_CARRIER))
         }
     }
 }

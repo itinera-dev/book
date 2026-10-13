@@ -8,6 +8,7 @@ use itinera::event::{Event, EventBody};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributions, Contributor, InitialData, Output, Read};
 use itinera::report::RecordingReporter;
+use itinera::service::{Provided, provide};
 use itinera::step::{Outcome, Reason, Step, step};
 use itinera::workflow::workflow;
 
@@ -69,11 +70,11 @@ struct Orders {
 impl Orders {
     /// A fresh carrier for every attempt: the main one first, the backup one after.
     #[provider(per_attempt)]
-    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Box<dyn Carrier>, Error> {
+    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
         if attempt.get() == 1 {
-            return Ok(Box::new(self.main.clone()));
+            return Ok(provide!(self.main.clone()));
         }
-        Ok(Box::new(self.backup.clone()))
+        Ok(provide!(self.backup.clone()))
     }
 }
 
