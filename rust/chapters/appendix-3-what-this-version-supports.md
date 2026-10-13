@@ -34,7 +34,7 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/c7c38d7223e1c4d16fab358341155facfcfc9692/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.11`, and lists every proposal of specification 0.1 as passing.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/cb24edf53100b79fa72d5d799ca415ccaaca6468/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.12`, and lists every proposal of specification 0.1 as passing.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
