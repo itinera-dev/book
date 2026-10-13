@@ -1,5 +1,0 @@
-created order-A-1
-order-A-1 succeeded
-created order-A-2
-order-A-2 failed
-not created: the journey ID could not be produced: the data bag holds no value under `order`

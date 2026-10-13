@@ -24,7 +24,7 @@ Every chapter teaches one thing, in four sections:
 1. **What you want to do:** the problem, in the shop's terms.
 2. **The code:** the program, with what it prints underneath.
 3. **How it works:** what happened, and why. A rule you must not break is in **bold**.
-4. **Outcomes:** what the chapter has shown, in one sentence, and a small table that puts the usual way of writing it beside the way with Itinera. The usual way is often perfectly reasonable; the table only shows what changes. The heading names what the chapter gives you; a step's outcome, which [chapter 10](10-saying-how-it-went.md) teaches, is another thing.
+4. **Outcomes:** what the chapter has shown, in one sentence, and a small table that puts the usual way of writing it beside the way with Itinera. The usual way is often perfectly reasonable; the table only shows what changes. The heading names what the chapter gives you; a step's outcome, which [Saying how it went](10-saying-how-it-went.md) teaches, is another thing.
 
 ## Code you can trust
 

@@ -27,7 +27,7 @@ name: ch24_testing
 region: policy_alone
 ```
 
-The whole journey of an order with nothing to charge is tested by its result, by its events and by what the customer was told. The events are kept by `RecordingReporter`, `itinera::report::RecordingReporter`, a reporter for tests that keeps every event it receives, and its clones share what they keep: the test adds a clone to the instance, runs the journey, and reads the events from the one it kept. It comes with the `testing` feature too. The `line` function turns each event into its kind and what it is about, as [chapter 23](23-seeing-what-happened.md) reads events; a `hook_called` event's `hook` is a `HookSource`, which names the policy and its hook.
+The whole journey of an order with nothing to charge is tested by its result, by its events and by what the customer was told. The events are kept by `RecordingReporter`, `itinera::report::RecordingReporter`, a reporter for tests that keeps every event it receives, and its clones share what they keep: the test adds a clone to the instance, runs the journey, and reads the events from the one it kept. It comes with the `testing` feature too. The `line` function turns each event into its kind and what it is about, as [chapter 8](08-seeing-what-happened.md) reads events; a `hook_called` event's `hook` is a `HookSource`, which names the policy and its hook.
 
 ```example
 name: ch24_testing

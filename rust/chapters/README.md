@@ -19,13 +19,16 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 5. [A first journey](05-a-first-journey.md)
 6. [Passing data on](06-passing-data-on.md)
 7. [Giving a step the tools it needs](07-giving-a-step-the-tools-it-needs.md)
+8. [Seeing what happened](08-seeing-what-happened.md)
+9. [Saying what only a step knows](09-saying-what-only-a-step-knows.md)
+10. [More than one reporter](10-more-than-one-reporter.md)
+11. [Naming a journey](11-naming-a-journey.md)
 
 ## Part 3: Writing steps
 
-8. [Giving a step what it needs](08-giving-a-step-what-it-needs.md)
-
-10) [Saying how it went](10-saying-how-it-went.md)
-11) [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
+- [Giving a step what it needs](08-giving-a-step-what-it-needs.md)
+- [Saying how it went](10-saying-how-it-went.md)
+- [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
 
 ## Part 4: Controlling the flow
 
@@ -36,15 +39,14 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 17. [Doing something when the journey ends](17-doing-something-when-the-journey-ends.md)
 18. [Letting policies act on the outside world](18-letting-policies-act-on-the-outside-world.md)
 19. [Deciding where a step's data comes from](19-deciding-where-a-steps-data-comes-from.md)
-20. [Naming your journeys](20-naming-your-journeys.md)
 - [Without Itinera](part-4-without-itinera.md)
 
 ## Part 5: Running it for real
 
 21. [Running many journeys](21-running-many-journeys.md)
 22. [Reading the result](22-reading-the-result.md)
-23. [Seeing what happened](23-seeing-what-happened.md)
-24. [Testing your workflows](24-testing-your-workflows.md)
+
+24) [Testing your workflows](24-testing-your-workflows.md)
 - [Without Itinera](part-5-without-itinera.md)
 
 ## Part 6: Designing with Itinera
