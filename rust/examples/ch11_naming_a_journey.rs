@@ -104,7 +104,8 @@ impl Ship {
 }
 
 // ANCHOR: log
-/// The shop's log: it writes a line for every event of a journey.
+/// The shop's log: it writes a line for every event of a journey, starting with the workflow's
+/// name and the journey's ID.
 #[derive(Default)]
 struct Log;
 
@@ -112,13 +113,15 @@ impl Reporter for Log {
     fn report(&mut self, event: &Event) -> Result<(), Error> {
         match detail(&event.body) {
             Some(detail) => println!(
-                "log {} #{} {} {detail}",
+                "log {} {} #{} {} {detail}",
+                event.workflow,
                 event.journey_id,
                 event.sequence,
                 event.kind()
             ),
             None => println!(
-                "log {} #{} {}",
+                "log {} {} #{} {}",
+                event.workflow,
                 event.journey_id,
                 event.sequence,
                 event.kind()
