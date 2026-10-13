@@ -1,20 +1,21 @@
-A-1 #1 journey_started order, price
-A-1 #2 attempt_started reserve (attempt 1)
-A-1 #3 step_succeeded reserve (attempt 1)
-A-1 #4 contribution_committed reserved
-A-1 #5 attempt_started charge (attempt 1)
-A-1 #6 step_succeeded charge (attempt 1)
-A-1 #7 contribution_committed charged
-A-1 #8 attempt_started ship (attempt 1)
-A-1 #9 step_info ship: handed to the carrier
-A-1 #10 step_succeeded ship (attempt 1)
-A-1 #11 contribution_committed tracking
-A-1 #12 journey_succeeded
+A-1 Ann #1 journey_started order, price
+A-1 Ann #2 attempt_started reserve (attempt 1)
+A-1 Ann #3 step_succeeded reserve (attempt 1)
+A-1 Ann #4 contribution_committed reserved
+A-1 Ann #5 attempt_started charge (attempt 1)
+A-1 Ann #6 step_succeeded charge (attempt 1)
+A-1 Ann #7 contribution_committed charged
+A-1 Ann #8 attempt_started ship (attempt 1)
+A-1 Ann #9 step_info ship: handed to the carrier
+A-1 Ann T-A-1 #10 global_metadata_set tracking, set by ship
+A-1 Ann T-A-1 #11 step_succeeded ship (attempt 1)
+A-1 Ann T-A-1 #12 contribution_committed tracking
+A-1 Ann T-A-1 #13 journey_succeeded
 A-1 succeeded
-A-2 #1 journey_started order, price
-A-2 #2 attempt_started reserve (attempt 1)
-A-2 #3 step_succeeded reserve (attempt 1)
-A-2 #4 contribution_committed reserved
-A-2 #5 attempt_started charge (attempt 1)
-A-2 #6 journey_aborted reporter failed: the archive is full
+A-2 Ben #1 journey_started order, price
+A-2 Ben #2 attempt_started reserve (attempt 1)
+A-2 Ben #3 step_succeeded reserve (attempt 1)
+A-2 Ben #4 contribution_committed reserved
+A-2 Ben #5 attempt_started charge (attempt 1)
+A-2 Ben #6 journey_aborted reporter failed: the archive is full
 A-2 aborted

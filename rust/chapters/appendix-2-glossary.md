@@ -58,7 +58,7 @@ Defined in [1.4, Policies, hooks and lifecycles](https://github.com/itinera-dev/
 
 Defined in [1.5, Running](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#15-running).
 
-- **Workflow instance:** what your own code creates from a workflow for each journey, with that journey's initial data, its journey ID and its reporters. It holds the data bag and the rest of the journey's state. In Rust, made with `Orders::builder()`, given its initial data, then `create()`.
+- **Workflow instance:** what your own code creates from a workflow for each journey, with that journey's initial data, its journey ID, its reporters and its initial global metadata. It holds the data bag and the rest of the journey's state. In Rust, made with `Orders::builder()`, given its initial data, then `create()`.
 - **Custom code:** any code of yours that the executor calls: building and running steps, input adapters, service providers, policies and their hooks, role operations, reporters, and dispatcher factories and dispatchers.
 - **Executor:** runs a workflow instance, and carries out what the hooks decide. The **local executor** runs a journey inside your program, keeping nothing once it ends: `LocalExecutor` in Rust, or `AsyncLocalExecutor` for asynchronous workflows.
 - **Journey:** one execution of a workflow instance from start to end: one order going through the shop. In later tiers a journey may move between workflows.
@@ -77,8 +77,9 @@ Defined in [1.6, Events](https://github.com/itinera-dev/spec/blob/main/spec/01-c
 - **Event:** a record of something that happened in a journey, with fixed fields. **Engine events** come from the executor. A step can also emit its own events, `step_info`, `step_warning` and `step_error`, and a hook can emit `journey_info`, `journey_warning` and `journey_error`.
 - **Fact** and **decision:** the two kinds of engine event. A fact records something that happened, such as a step succeeding. A decision records what the executor decided to do next, such as retrying a step or failing the journey, and who decided it.
 - **Event stream:** every event of one journey, in order. It is never rolled back or rewritten. It is how you observe a journey.
-- **Reporter:** receives events one at a time and decides on its own what to do with them, such as writing them to a log. The workflow lists its reporters. A step receives a **step reporter** to emit its own events. In Rust, a reporter implements `Reporter`, and a step asks for its `StepReporter<'_>` with a `#[reporter]` parameter.
-- **Dispatcher:** holds a journey's reporters and delivers each event to them. The executor creates one for each journey, from a **dispatcher factory**.
+- **Reporter:** receives events one at a time, and the journey's global metadata, and decides on its own what to do with them, such as writing them to a log. The workflow lists its reporters. A step receives a **step reporter** to emit its own events and set global metadata. In Rust, a reporter implements `Reporter`, and a step asks for its `StepReporter<'_>` with a `#[reporter]` parameter.
+- **Dispatcher:** holds a journey's reporters and delivers each event and each entry of global metadata to them. The executor creates one for each journey, from a **dispatcher factory**.
+- **Global metadata:** entries of a key and a value, kept apart from the data bag, that every reporter receives as soon as each is set: the journey ID, the entries the instance was created with, and what steps, hooks and service providers set while the journey runs. Nothing in the journey can read it; it exists for reporters, for example to label every line of a log with the customer. In Rust, given with `.reporters_global_metadata(key, value)` on the instance's builder, set with `set_global_metadata` on a reporter handle, and received in `Reporter::set_global_metadata`.
 
 ## Configuration and admission
 

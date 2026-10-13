@@ -2,11 +2,12 @@
 //! aborts the journey it reports.
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody};
+use itinera::event::{Event, EventBody, Source};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, DataBag, InitialData};
-use itinera::report::Reporter;
+use itinera::report::{GlobalMetadata, Reporter};
 use itinera::step::{Outcome, Step, StepReporter, step};
+use itinera::value::AnyValue;
 use itinera::workflow::workflow;
 
 /// Reserves the order's stock in the warehouse.
@@ -40,7 +41,8 @@ impl Charge {
 }
 
 // ANCHOR: ship
-/// Ships an order through the carrier, and says so in an event of its own.
+/// Ships an order through the carrier, says so in an event of its own, and labels the rest of
+/// the journey's log with the tracking number.
 #[derive(Step)]
 struct Ship {
     #[input]
@@ -54,21 +56,37 @@ impl Ship {
         #[contributor] mut contributor: Contributor<'_>,
         #[reporter] mut reporter: StepReporter<'_>,
     ) -> Result<Outcome, Error> {
+        let tracking = format!("T-{}", self.order);
         reporter.info("handed to the carrier")?;
-        contributor.contribute("tracking", format!("T-{}", self.order));
+        reporter.set_global_metadata("tracking", tracking.clone())?;
+        contributor.contribute("tracking", tracking);
         Self::succeed()
     }
 }
 // ANCHOR_END: ship
 
 // ANCHOR: log
-/// Writes every event of a journey to the shop's log, one line each.
+/// Writes every event of a journey to the shop's log, one line each, labelled with the customer
+/// and, once the parcel has shipped, its tracking number.
 #[derive(Default)]
-struct Log;
+struct Log {
+    metadata: GlobalMetadata,
+}
 
 impl Reporter for Log {
+    fn set_global_metadata(&mut self, key: &str, value: &AnyValue) -> Result<(), Error> {
+        self.metadata.insert(key, value.clone());
+        Ok(())
+    }
+
     fn report(&mut self, event: &Event) -> Result<(), Error> {
-        let line = format!("{} #{} {}", event.journey_id, event.sequence, event.kind());
+        let line = format!(
+            "{} {} #{} {}",
+            event.journey_id,
+            labels(&self.metadata),
+            event.sequence,
+            event.kind()
+        );
         match detail(&event.body) {
             Some(detail) => println!("{line} {detail}"),
             None => println!("{line}"),
@@ -86,12 +104,34 @@ fn detail(body: &EventBody) -> Option<String> {
         }
         EventBody::StepInfo { step, message, .. } => Some(format!("{}: {message}", step.step)),
         EventBody::ContributionCommitted { key, .. } => Some(key.clone()),
+        EventBody::GlobalMetadataSet {
+            key,
+            source: Source::Step(step),
+            ..
+        } => Some(format!("{key}, set by {}", step.step)),
         EventBody::JourneyAborted { abort, .. } => match abort.error() {
             Some(error) => Some(format!("{}: {error}", abort.reason())),
             None => Some(abort.reason().to_string()),
         },
         _ => None,
     }
+}
+
+/// The labels of a line: the customer, then the tracking number once the parcel has shipped.
+fn labels(metadata: &GlobalMetadata) -> String {
+    let customer = text(metadata, "customer").unwrap_or("-");
+    match text(metadata, "tracking") {
+        Some(tracking) => format!("{customer} {tracking}"),
+        None => customer.to_owned(),
+    }
+}
+
+/// The text of a global metadata entry, if the journey has one.
+fn text<'a>(metadata: &'a GlobalMetadata, key: &str) -> Option<&'a str> {
+    metadata
+        .get(key)
+        .and_then(AnyValue::downcast_ref::<String>)
+        .map(String::as_str)
 }
 // ANCHOR_END: log
 
@@ -146,6 +186,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             order: "A-1".to_owned(),
             price: 40,
         })
+        .reporters_global_metadata("customer", "Ann".to_owned())
         .create()?;
     let result = executor.run(logged)?;
     println!("A-1 {}", result.status.kind());
@@ -155,6 +196,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             order: "A-2".to_owned(),
             price: 25,
         })
+        .reporters_global_metadata("customer", "Ben".to_owned())
         .reporter(Archive {
             room: 4,
             kept: Vec::new(),

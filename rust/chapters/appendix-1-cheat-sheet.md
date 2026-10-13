@@ -28,6 +28,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
 | A reporter | receives every event of a journey | [23](23-seeing-what-happened.md) |
 | A step's own events | what only the step knows, emitted as `step_info`, `step_warning` or `step_error`; a hook emits `journey_info`, `journey_warning` or `journey_error` | [23](23-seeing-what-happened.md) |
+| Global metadata | entries of a key and a value that every reporter receives, such as the customer: given to the instance, or set by a step, hook or service provider; nothing in the journey reads them | [23](23-seeing-what-happened.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
 
 ## In Rust
@@ -58,6 +59,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log]`, or the ready-made `DebugReporter` of chapter 4, on `#[workflow(...)]`, or added with `.reporter(...)` on the instance's builder | 23 |
 | A step's own events | a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)`; a hook's `#[reporter]` emits the `journey_*` events the same way | 23 |
+| Global metadata | `.reporters_global_metadata("customer", name)` on the instance's builder, or `reporter.set_global_metadata("tracking", number)?` through a `#[reporter]`; a reporter receives each entry in `fn set_global_metadata(&mut self, key: &str, value: &AnyValue) -> Result<(), Error>` and may keep it in a `GlobalMetadata` | 23 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 
 For the asynchronous form, turn on the `async` feature, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, implement `AsyncReporter` for an asynchronous reporter and list it with `async_reporters = [...]`, or keep a synchronous one under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.
