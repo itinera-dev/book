@@ -16,3 +16,45 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "7d5fec366c5ba6f4fe3f4a4977407885ed292f97", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
+serde_json = "1"
+
+# The programs of compile-errors/ must not compile. They are examples only with this feature, so
+# that `cargo build --examples` skips them and tests/compile_errors.rs builds each one on its own.
+# So `--all-features` builds them too, and fails.
+[features]
+compile-errors = []
+
+[[example]]
+name = "ch21_instance_run_twice"
+path = "compile-errors/ch21_instance_run_twice.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_duplicate_step_name"
+path = "compile-errors/ch27_duplicate_step_name.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_hook_defined_twice"
+path = "compile-errors/ch27_hook_defined_twice.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_invalid_lifecycle"
+path = "compile-errors/ch27_invalid_lifecycle.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_mode_not_accepted"
+path = "compile-errors/ch27_mode_not_accepted.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_not_a_value"
+path = "compile-errors/ch27_not_a_value.rs"
+required-features = ["compile-errors"]
+
+[[example]]
+name = "ch27_role_not_provided"
+path = "compile-errors/ch27_role_not_provided.rs"
+required-features = ["compile-errors"]

@@ -1,0 +1,5 @@
+# The compiler's messages in compile-errors/ change from one Rust release to the next, so the book
+# is built with the release that recorded them. Moving to a newer one means recording them again.
+[toolchain]
+channel = "1.97.0"
+components = ["rustfmt"]
