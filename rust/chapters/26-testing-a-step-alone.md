@@ -8,45 +8,45 @@ The shop's business rules live in its steps: what a charge does when the bank de
 
 The tests use recorders that come with the `testing` feature of `itinera`. You turn it on for tests only, by naming `itinera` once more under `[dev-dependencies]` in `Cargo.toml`, with `features = ["testing"]`, so the program you ship never has them.
 
-The program is [chapter 24](24-reading-the-result.md)'s shop, unchanged, with its tests at the end, in a module of their own. `#[cfg(test)]` makes it a module that only a test build compiles: the shop's own build leaves it out, so only the tests may use the `testing` feature, and `use super::*` gives them the shop's steps:
+The program is [chapter 25](25-reading-the-result.md)'s shop, unchanged, with its tests at the end, in a module of their own. `#[cfg(test)]` makes it a module that only a test build compiles: the shop's own build leaves it out, so only the tests may use the `testing` feature, and `use super::*` gives them the shop's steps:
 
 ```example
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 region: module
 ```
 
 A step meets the outside world only through its services, so the tests give it fakes of their own, inside the module. These two answer as the test chooses:
 
 ```example
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 region: fakes
 ```
 
 Each test is a function marked `#[test]`, named after the rule it checks, which fails when an `assert!` or `assert_eq!` doesn't hold. The charge is tested by building it with Ann's order, as the executor would, and calling its `run`. `Contributions`, from `itinera::journey`, lends the contributor `run` asks for, and keeps what the step contributes, read back with `read`:
 
 ```example
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 region: charge
 ```
 
 The rescue step is built the same way, with the reason the test chooses in its `#[reason]` field:
 
 ```example
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 region: rescue
 ```
 
 The shipping also asks for its step reporter. `StepEventReporter`, from `itinera::step`, lends one, and keeps what the step emits through it, read back with `emitted`:
 
 ```example
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 region: ship
 ```
 
 `cargo test` runs every test, and prints a line for each:
 
 ```test-run
-name: ch25_testing_a_step_alone
+name: ch26_testing_a_step_alone
 ```
 
 ## How it works
@@ -58,7 +58,7 @@ name: ch25_testing_a_step_alone
 5. **Fakes come from the test, not from the workflow.** In a journey, the workflow's providers make the bank and the carriers. Here, the test passes a fake where `run` asks for the service, so the step never knows which payment client it got. The fakes are as simple as the tests need: one answer for each case the step has to handle.
 6. **Test support stays in the tests.** `Contributions` and `StepEventReporter` exist only with the `testing` feature, which only a test build has. So everything that uses them sits inside `#[cfg(test)]`, and the shop you ship compiles without them. The book builds this program both ways: as it would ship, and with its tests.
 
-So each rule of the shop's steps is checked without running an order. But some rules live in the shop's policies and its workflow: `heavy_parcels` deciding that no retry can help, or the adapter taking the weight out of the parcel. These tests never reach them.
+So each rule of the shop's steps is checked without running an order. But some rules live in the shop's policies and its workflow: `failed_shipping` deciding that no retry can help and refunding the charge, or the adapter taking the weight out of the parcel. These tests never reach them.
 
 ## Outcomes
 

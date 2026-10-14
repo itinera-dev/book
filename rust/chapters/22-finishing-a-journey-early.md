@@ -70,7 +70,7 @@ name: ch22_finishing_a_journey_early
 5. **The workflow's own hooks still run.** A journey finished early has succeeded, so `notify`'s `on workflow success` tells Mia. Her data bag holds no tracking number and no gift card's code, so she reads `Order A-13 is complete.` The receipt and the tracking of yesterday's journey belong to that journey, so `main` reads none of them in this one.
 6. **The step reports what it found, and the policy decides what follows.** The lookup only says whether the order was completed. Ending the journey there is a decision about the flow, so it lives in a policy. The price, the charge and the shipping could each skip an order already completed, but each of them would then need to know about the order book, and a step added later would need to know too. **A decision about the whole journey belongs in a policy, not in every step it would stop.**
 
-The shop no longer charges an order twice. But look at how `main` runs the orders: it makes a new executor for each one, and waits for each journey to end before it starts the next.
+The shop no longer charges an order twice. But it still keeps the money of an order it charges and never ships, such as Ned's in [chapter 17](17-giving-up-a-step-early.md).
 
 ## Outcomes
 

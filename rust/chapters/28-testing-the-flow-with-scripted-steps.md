@@ -6,38 +6,38 @@ You want to check the shop's flow: that a declined card is rescued, that a parce
 
 ## The code
 
-The program is [chapter 24](24-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 25](25-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders:
+The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 26](26-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders:
 
 ```example
-name: ch27_testing_the_flow_with_scripted_steps
+name: ch28_testing_the_flow_with_scripted_steps
 region: order
 ```
 
 The first test runs the instance with a script. `scripted()`, a method of every workflow instance that comes with the `testing` feature, starts it. `step` names a step, and what follows says what its attempts do in place of running it: what they contribute, and how they end. `on_attempt` moves on to another attempt of the same step, `and_step` to another step, and `run` runs the journey:
 
 ```example
-name: ch27_testing_the_flow_with_scripted_steps
+name: ch28_testing_the_flow_with_scripted_steps
 region: rescued
 ```
 
 The next three run one script, in which the shipping's first attempt fails with the reason each test chooses, and the last of them reads what the shipping was built with:
 
 ```example
-name: ch27_testing_the_flow_with_scripted_steps
+name: ch28_testing_the_flow_with_scripted_steps
 region: given_up
 ```
 
 The last test ends the charge's first attempt in an error, as the bank's would:
 
 ```example
-name: ch27_testing_the_flow_with_scripted_steps
+name: ch28_testing_the_flow_with_scripted_steps
 region: outage
 ```
 
 The shop's log, its desk and its messages still print, since the workflow is the shop's own, but `cargo test` hides what a passing test prints. It prints:
 
 ```test-run
-name: ch27_testing_the_flow_with_scripted_steps
+name: ch28_testing_the_flow_with_scripted_steps
 ```
 
 ## How it works
@@ -46,7 +46,7 @@ name: ch27_testing_the_flow_with_scripted_steps
 2. **A script names steps by their names in the workflow.** A rescue step is named by its own name, `charge_rescue`. `will_fail`, `will_terminate_abnormally` and `will_succeed` end an attempt, and `will_contribute` adds a contribution before it ends, which the executor commits only if the attempt succeeds. An attempt `on_attempt` doesn't name is attempt 1.
 3. **The script must cover what can happen.** `run` checks it before the journey starts, and panics, listing what is missing, if a scripted step leaves out an attempt it can have, after a retry or a rescue, or if a scripted step can fail on attempt 1 and its rescue step has no script. So the shipping's script says what its attempt 2 would do, and the script of the charge that ends in an error says what the rescue step and the charge's attempt 2 would do. The tests then show the workflow never got there.
 4. **The run says what each step went through.** `run` returns a `ScriptedRun`: its `result` is the result an executor would have given, and `step` reads a step's attempts. `attempt(2)` of the charge holds the inputs it was built with, read with `input`: the card the rescue step contributed. Attempts that never ran aren't there, so the rescue step of the charge that ended in an error has none.
-5. **The same script tests one decision of the flow.** Two tests run the shipping's script with only the reason its first attempt gives changed. With `too-heavy`, the shipping is retried and the order succeeds. With `over-parcel-limit`, `heavy_parcels` gives it up, and the result carries the cause `FailWorkflow` with the policy's reason, `Failure::FailWorkflow` in Rust.
+5. **The same script tests one decision of the flow.** Two tests run the shipping's script with only the reason its first attempt gives changed. With `too-heavy`, the shipping is retried and the order succeeds. With `over-parcel-limit`, `failed_shipping` gives it up, and the result carries the cause `FailWorkflow` with the policy's reason, `Failure::FailWorkflow` in Rust.
 
 So the flow is tested apart from the steps' rules: a change to the charge's rules never breaks these tests, and a change to the workflow is caught by them. But neither kind of test runs one real journey from start to end, with the shop's real steps and its services faked.
 

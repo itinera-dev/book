@@ -40,7 +40,7 @@ As steps, the business rules keep only the business. The charge works out the am
 For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, as the tangled code did. Move 7 takes those away.
 
 ```example
-name: ch31_workflow
+name: ch32_workflow
 region: steps
 ```
 
@@ -49,7 +49,7 @@ region: steps
 The order of the work, and how many times shipping may be tried, go in the workflow's declaration: one `#[with_step(...)]` line per step, in order, with `retry_budget = 1` on `ship`.
 
 ```example
-name: ch31_workflow
+name: ch32_workflow
 region: workflow
 ```
 
@@ -58,7 +58,7 @@ region: workflow
 The audit reacts to a successful charge, so it becomes a step policy attached to `charge`, which reports each charge as an event of the journey. Telling the customer reacts to the end of the journey, so it becomes a workflow policy, which reaches the customer through the `Messages` role that the workflow provides.
 
 ```example
-name: ch31_workflow
+name: ch32_workflow
 region: policies
 ```
 
@@ -67,7 +67,7 @@ region: policies
 The steps and policies no longer write log lines. One reporter receives every event of every journey and writes, in one format, the failures, the decisions and the audit that the modules of [chapter 1](01-but-why-itinera.md) each logged in their own way. It's a plain implementation of the `Reporter` trait, listed on the workflow with `reporters = [Log]`, and the workflow makes one with `Default` for every journey. `EventBody` is `#[non_exhaustive]`, so the reporter's `match` ends with an arm for the events it doesn't handle.
 
 ```example
-name: ch31_workflow
+name: ch32_workflow
 region: reporter
 ```
 
@@ -76,14 +76,14 @@ region: reporter
 The same four orders as in [chapter 1](01-but-why-itinera.md):
 
 ```example
-name: ch31_workflow
+name: ch32_workflow
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch31_workflow
+name: ch32_workflow
 ```
 
 Ann's order goes through. The others fail, and the log says exactly why, without a line of logging in the steps. Ben's and Dan's charges fail with `expired-card`, because nothing renews a card yet. Cat's parcel is tried twice with the main carrier, because nothing picks the backup carrier yet. Each move of a rewrite leaves a program that compiles and runs, and its events show you what hasn't moved yet.

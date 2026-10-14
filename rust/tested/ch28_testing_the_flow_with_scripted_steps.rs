@@ -1,4 +1,4 @@
-//! Testing the flow with scripted steps: the shop of chapter 24, with tests that run its workflow
+//! Testing the flow with scripted steps: the shop of chapter 25, with tests that run its workflow
 //! with what its steps do written in a script, so they check the flow without the steps' rules.
 
 use std::fmt;
@@ -11,7 +11,7 @@ use itinera::journey::{
     Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
     Output,
 };
-use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
+use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
@@ -105,13 +105,13 @@ fn expiry(card: &str) -> Option<u32> {
     card.rsplit_once('-')?.1.parse().ok()
 }
 
-/// The shop's main carrier, faked: its booking system fails on a parcel over 100 kg, and it
-/// collects a parcel only up to 20 kg.
+/// The shop's main carrier, faked: its booking system fails on a parcel that weighs nothing, and
+/// it collects a parcel only up to 20 kg.
 struct MainCarrier;
 
 impl Carrier for MainCarrier {
     fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
-        if weight > 100 {
+        if weight == 0 {
             println!("the main carrier's booking system fails on order {order}");
             return Err(BookingFailed);
         }
@@ -124,13 +124,13 @@ impl Carrier for MainCarrier {
     }
 }
 
-/// The shop's backup carrier, faked: its booking system fails on a parcel over 100 kg, and it
-/// collects a parcel only up to 80 kg.
+/// The shop's backup carrier, faked: its booking system fails on a parcel that weighs nothing, and
+/// it collects a parcel only up to 80 kg.
 struct BackupCarrier;
 
 impl Carrier for BackupCarrier {
     fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
-        if weight > 100 {
+        if weight == 0 {
             println!("the backup carrier's booking system fails on order {order}");
             return Err(BookingFailed);
         }
@@ -301,6 +301,11 @@ trait Messages {
     fn tell(&self, customer: &str, message: &str);
 }
 
+/// What the shop does for its policies: give an order's money back.
+trait Refunds {
+    fn refund(&self, receipt: &str, amount: i64);
+}
+
 /// Tells the customer how their order went, once its journey has ended.
 #[derive(Default)]
 struct Notify;
@@ -355,22 +360,54 @@ impl Outage {
     }
 }
 
-/// Gives up the shipping of a parcel over the shop's limit, rather than try it again: the limit
-/// is the same on every attempt, whichever carrier comes.
+/// Deals with a shipping that fails for good. It gives up a parcel over the shop's limit rather
+/// than try it again, since the limit is the same on every attempt, whichever carrier comes. And
+/// whatever gave the shipping up, it refunds the order's charge.
 #[derive(Default)]
-struct HeavyParcels;
+struct FailedShipping;
 
-#[step_policy(name = "heavy_parcels")]
-impl HeavyParcels {
+#[step_policy(name = "failed_shipping")]
+impl FailedShipping {
     #[on_step_retry]
     fn before_retrying(
         &self,
         #[reason] reason: Option<Reason>,
+        #[from_workflow] receipt: String,
+        #[from_workflow] amount: i64,
+        #[role] refunds: &dyn Refunds,
+        #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
+            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit");
             return Self::fail_workflow("no-carrier-can-take-it");
         }
         Self::carry_on()
+    }
+
+    #[on_step_failure]
+    fn given_up(
+        &self,
+        #[cause] cause: StepFailureCause,
+        #[from_workflow] receipt: String,
+        #[from_workflow] amount: i64,
+        #[role] refunds: &dyn Refunds,
+        #[contributor] contributor: Contributor<'_>,
+    ) -> Result<Option<FailWorkflow>, Error> {
+        self.refund(refunds, contributor, &receipt, amount, &cause.to_string());
+        Self::carry_on()
+    }
+
+    /// Gives the order's money back, and records why.
+    fn refund(
+        &self,
+        refunds: &dyn Refunds,
+        mut contributor: Contributor<'_>,
+        receipt: &str,
+        amount: i64,
+        why: &str,
+    ) {
+        refunds.refund(receipt, amount);
+        contributor.contribute("refund", format!("{amount} back on {receipt}: {why}"));
     }
 }
 
@@ -535,15 +572,23 @@ impl Reporter for Desk {
 
 /// The shop's workflow: it looks the order up, and finishes an order already completed. Otherwise
 /// it works out what the order costs, then charges it, repairing a charge that fails and auditing
-/// one that succeeds, then ships, and shipping may be tried once more.
+/// one that succeeds, then ships, and shipping may be tried once more, its charge refunded if it
+/// is given up.
 /// Once a journey has ended, the customer is told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
 #[with_step(Lookup, name = "lookup", policies = [AlreadyCompleted])]
 #[with_step(Price, name = "price")]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit, Outage])]
-#[with_step(Ship, name = "ship", retry_budget = 1, policies = [HeavyParcels])]
+#[with_step(Ship, name = "ship", retry_budget = 1, policies = [FailedShipping])]
 struct Orders {
     channel: &'static str,
+}
+
+#[role]
+impl Refunds for Orders {
+    fn refund(&self, receipt: &str, amount: i64) {
+        println!("the bank gives {amount} back on receipt {receipt}");
+    }
 }
 
 #[role]

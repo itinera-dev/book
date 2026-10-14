@@ -6,31 +6,31 @@ When an order doesn't go through, you want the code that runs the shop to read w
 
 ## The code
 
-The shop is [chapter 23](23-running-many-journeys.md)'s, with one more customer: Max, whose order arrives without a card, because the page that took it forgot to ask for one. The order's card is now an `Option`, and Max's is `None`.
+The shop is [chapter 24](24-running-many-journeys.md)'s, with one more customer: Max, whose order arrives without a card, because the page that took it forgot to ask for one. The order's card is now an `Option`, and Max's is `None`.
 
 ```example
-name: ch24_reading_the_result
+name: ch25_reading_the_result
 region: data
 ```
 
 `main` hands each journey's result to `follow_up`, which looks at how the journey ended before it reads anything else, with a `match` on its status:
 
 ```example
-name: ch24_reading_the_result
+name: ch25_reading_the_result
 region: follow_up
 ```
 
 Two small functions put into words what explains a failure, and an abort:
 
 ```example
-name: ch24_reading_the_result
+name: ch25_reading_the_result
 region: explain
 ```
 
 It runs the six orders, and prints:
 
 ```output
-name: ch24_reading_the_result
+name: ch25_reading_the_result
 ```
 
 ## How it works

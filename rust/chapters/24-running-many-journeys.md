@@ -6,23 +6,23 @@ Orders come in all day, and the shop shouldn't make a new executor for each one.
 
 ## The code
 
-The shop is [chapter 22](22-finishing-a-journey-early.md)'s, unchanged. Only `main` changes: it makes one executor before the loop, and hands it each order's instance in turn.
+The shop is [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md)'s, unchanged. Only `main` changes: it makes one executor before the loop, and hands it each order's instance in turn.
 
 ```example
-name: ch23_one_executor_for_every_order
+name: ch24_one_executor_for_every_order
 region: run
 ```
 
 It runs [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s five orders, none of which the order book has completed, and prints:
 
 ```output
-name: ch23_one_executor_for_every_order
+name: ch24_one_executor_for_every_order
 ```
 
 An instance runs one journey and no more. Handing the same instance to the executor a second time is a mistake, and Rust won't compile it:
 
 ```compile-error
-name: ch23_instance_run_twice
+name: ch24_instance_run_twice
 ```
 
 ## How it works

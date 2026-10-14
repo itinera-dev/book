@@ -1,4 +1,4 @@
-//! Testing a hook or an input adapter alone: the shop of chapter 24, with tests that call its
+//! Testing a hook or an input adapter alone: the shop of chapter 25, with tests that call its
 //! policies' hooks and its workflow's adapter outside any journey.
 
 use std::fmt;
@@ -11,7 +11,7 @@ use itinera::journey::{
     Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
     Output,
 };
-use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
+use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
@@ -105,13 +105,13 @@ fn expiry(card: &str) -> Option<u32> {
     card.rsplit_once('-')?.1.parse().ok()
 }
 
-/// The shop's main carrier, faked: its booking system fails on a parcel over 100 kg, and it
-/// collects a parcel only up to 20 kg.
+/// The shop's main carrier, faked: its booking system fails on a parcel that weighs nothing, and
+/// it collects a parcel only up to 20 kg.
 struct MainCarrier;
 
 impl Carrier for MainCarrier {
     fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
-        if weight > 100 {
+        if weight == 0 {
             println!("the main carrier's booking system fails on order {order}");
             return Err(BookingFailed);
         }
@@ -124,13 +124,13 @@ impl Carrier for MainCarrier {
     }
 }
 
-/// The shop's backup carrier, faked: its booking system fails on a parcel over 100 kg, and it
-/// collects a parcel only up to 80 kg.
+/// The shop's backup carrier, faked: its booking system fails on a parcel that weighs nothing, and
+/// it collects a parcel only up to 80 kg.
 struct BackupCarrier;
 
 impl Carrier for BackupCarrier {
     fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
-        if weight > 100 {
+        if weight == 0 {
             println!("the backup carrier's booking system fails on order {order}");
             return Err(BookingFailed);
         }
@@ -301,6 +301,11 @@ trait Messages {
     fn tell(&self, customer: &str, message: &str);
 }
 
+/// What the shop does for its policies: give an order's money back.
+trait Refunds {
+    fn refund(&self, receipt: &str, amount: i64);
+}
+
 /// Tells the customer how their order went, once its journey has ended.
 #[derive(Default)]
 struct Notify;
@@ -355,22 +360,54 @@ impl Outage {
     }
 }
 
-/// Gives up the shipping of a parcel over the shop's limit, rather than try it again: the limit
-/// is the same on every attempt, whichever carrier comes.
+/// Deals with a shipping that fails for good. It gives up a parcel over the shop's limit rather
+/// than try it again, since the limit is the same on every attempt, whichever carrier comes. And
+/// whatever gave the shipping up, it refunds the order's charge.
 #[derive(Default)]
-struct HeavyParcels;
+struct FailedShipping;
 
-#[step_policy(name = "heavy_parcels")]
-impl HeavyParcels {
+#[step_policy(name = "failed_shipping")]
+impl FailedShipping {
     #[on_step_retry]
     fn before_retrying(
         &self,
         #[reason] reason: Option<Reason>,
+        #[from_workflow] receipt: String,
+        #[from_workflow] amount: i64,
+        #[role] refunds: &dyn Refunds,
+        #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
+            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit");
             return Self::fail_workflow("no-carrier-can-take-it");
         }
         Self::carry_on()
+    }
+
+    #[on_step_failure]
+    fn given_up(
+        &self,
+        #[cause] cause: StepFailureCause,
+        #[from_workflow] receipt: String,
+        #[from_workflow] amount: i64,
+        #[role] refunds: &dyn Refunds,
+        #[contributor] contributor: Contributor<'_>,
+    ) -> Result<Option<FailWorkflow>, Error> {
+        self.refund(refunds, contributor, &receipt, amount, &cause.to_string());
+        Self::carry_on()
+    }
+
+    /// Gives the order's money back, and records why.
+    fn refund(
+        &self,
+        refunds: &dyn Refunds,
+        mut contributor: Contributor<'_>,
+        receipt: &str,
+        amount: i64,
+        why: &str,
+    ) {
+        refunds.refund(receipt, amount);
+        contributor.contribute("refund", format!("{amount} back on {receipt}: {why}"));
     }
 }
 
@@ -535,15 +572,23 @@ impl Reporter for Desk {
 
 /// The shop's workflow: it looks the order up, and finishes an order already completed. Otherwise
 /// it works out what the order costs, then charges it, repairing a charge that fails and auditing
-/// one that succeeds, then ships, and shipping may be tried once more.
+/// one that succeeds, then ships, and shipping may be tried once more, its charge refunded if it
+/// is given up.
 /// Once a journey has ended, the customer is told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
 #[with_step(Lookup, name = "lookup", policies = [AlreadyCompleted])]
 #[with_step(Price, name = "price")]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit, Outage])]
-#[with_step(Ship, name = "ship", retry_budget = 1, policies = [HeavyParcels])]
+#[with_step(Ship, name = "ship", retry_budget = 1, policies = [FailedShipping])]
 struct Orders {
     channel: &'static str,
+}
+
+#[role]
+impl Refunds for Orders {
+    fn refund(&self, receipt: &str, amount: i64) {
+        println!("the bank gives {amount} back on receipt {receipt}");
+    }
 }
 
 #[role]
@@ -749,7 +794,7 @@ mod tests {
 
     use super::*;
 
-    // ANCHOR: messages
+    // ANCHOR: fakes
     /// Messages for tests: it keeps each message it is asked to send, with the customer's name.
     #[derive(Default)]
     struct TestMessages {
@@ -763,38 +808,90 @@ mod tests {
                 .push(format!("{customer}: {message}"));
         }
     }
-    // ANCHOR_END: messages
 
-    // ANCHOR: heavy_parcels
-    /// The reason `heavy_parcels` gave the shipping up with, if it did.
-    fn given_up_with(reason: Option<Reason>) -> Result<Option<String>, Error> {
-        let decision = HeavyParcels.before_retrying(reason)?;
-        Ok(decision
+    /// Refunds for tests: it keeps each refund it is asked to give, with its receipt.
+    #[derive(Default)]
+    struct TestRefunds {
+        given: RefCell<Vec<String>>,
+    }
+
+    impl Refunds for TestRefunds {
+        fn refund(&self, receipt: &str, amount: i64) {
+            self.given
+                .borrow_mut()
+                .push(format!("{amount} back on {receipt}"));
+        }
+    }
+    // ANCHOR_END: fakes
+
+    // ANCHOR: failed_shipping
+    /// What `before_retrying` decides for Ned's shipping, which failed with this reason after he
+    /// paid 50: the reason it gave the shipping up with, if it did, and the refunds it asked for.
+    fn before_retrying(reason: Option<Reason>) -> Result<(Option<String>, Vec<String>), Error> {
+        let refunds = TestRefunds::default();
+        let mut contributions = Contributions::default();
+        let decision = FailedShipping.before_retrying(
+            reason,
+            "R-A-12".to_owned(),
+            50,
+            &refunds,
+            contributions.contributor(),
+        )?;
+        let given_up_with = decision
             .map(Reason::from)
-            .map(|reason| reason.code().to_owned()))
+            .map(|reason| reason.code().to_owned());
+        Ok((given_up_with, refunds.given.into_inner()))
     }
 
     #[test]
-    fn heavy_parcels_gives_up_a_shipping_that_failed_with_over_parcel_limit() -> Result<(), Error> {
+    fn failed_shipping_refunds_and_gives_up_a_shipping_that_failed_with_over_parcel_limit()
+    -> Result<(), Error> {
         assert_eq!(
-            given_up_with(Some(Reason::from("over-parcel-limit")))?,
-            Some("no-carrier-can-take-it".to_owned())
+            before_retrying(Some(Reason::from("over-parcel-limit")))?,
+            (
+                Some("no-carrier-can-take-it".to_owned()),
+                vec!["50 back on R-A-12".to_owned()]
+            )
         );
         Ok(())
     }
 
     #[test]
-    fn heavy_parcels_lets_a_shipping_that_failed_with_too_heavy_be_retried() -> Result<(), Error> {
-        assert_eq!(given_up_with(Some(Reason::from("too-heavy")))?, None);
+    fn failed_shipping_lets_a_shipping_that_failed_with_too_heavy_be_retried() -> Result<(), Error>
+    {
+        assert_eq!(
+            before_retrying(Some(Reason::from("too-heavy")))?,
+            (None, vec![])
+        );
         Ok(())
     }
 
     #[test]
-    fn heavy_parcels_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<(), Error> {
-        assert_eq!(given_up_with(None)?, None);
+    fn failed_shipping_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<(), Error> {
+        assert_eq!(before_retrying(None)?, (None, vec![]));
         Ok(())
     }
-    // ANCHOR_END: heavy_parcels
+
+    #[test]
+    fn failed_shipping_refunds_a_shipping_the_executor_gave_up() -> Result<(), Error> {
+        let refunds = TestRefunds::default();
+        let mut contributions = Contributions::default();
+        let decision = FailedShipping.given_up(
+            StepFailureCause::RetriesExhausted,
+            "R-A-14".to_owned(),
+            20,
+            &refunds,
+            contributions.contributor(),
+        )?;
+        assert!(decision.is_none());
+        assert_eq!(refunds.given.into_inner(), ["20 back on R-A-14"]);
+        assert_eq!(
+            contributions.read::<String>("refund"),
+            Read::Present("20 back on R-A-14: retries exhausted".to_owned())
+        );
+        Ok(())
+    }
+    // ANCHOR_END: failed_shipping
 
     // ANCHOR: audit
     #[test]
