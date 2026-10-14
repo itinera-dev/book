@@ -6,7 +6,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
@@ -371,7 +371,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 card: card.to_owned(),
             })
             .create()?;
-        let result = LocalExecutor::new().run(instance)?;
+        let result = local_executor_for!(Orders).run(instance)?;
         let data: Order = result.output()?;
         let receipt = data.receipt.as_deref().unwrap_or("none");
         let tracking = data.tracking.as_deref().unwrap_or("none");

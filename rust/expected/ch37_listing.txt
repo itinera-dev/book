@@ -1,0 +1,4 @@
+1. lookup, with already_completed; services: order_book from ledger
+2. price
+3. charge, with audit, outage; services: payments from bank; rescued by charge_rescue, services: cards from cards
+4. ship, with failed_shipping; adapted by parcels; services: carrier from carriers

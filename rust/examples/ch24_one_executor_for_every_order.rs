@@ -5,7 +5,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
@@ -670,7 +670,7 @@ struct Order {
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut executor = LocalExecutor::new();
+    let mut executor = local_executor_for!(Orders);
     // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
     // cm, the card, and whether the order is a gift card.
     let orders = [

@@ -7,7 +7,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::executor::{AsyncLocalExecutor, Refusal};
+use itinera::executor::{Refusal, local_executor_for};
 use itinera::instance::Instance;
 use itinera::journey::{Contributor, DataBag, InitialData, JourneyResult};
 use itinera::mode::{Asynchronous, async_trait};
@@ -797,7 +797,7 @@ fn order(
 
 /// Runs an order's journey with an executor of its own.
 async fn journey(instance: Instance<Orders, Asynchronous>) -> Result<JourneyResult, Refusal> {
-    AsyncLocalExecutor::new().run(instance).await
+    local_executor_for!(Orders).run(instance).await
 }
 
 #[tokio::main]

@@ -2,7 +2,7 @@
 //! failed attempt's contributions never reach the data bag.
 
 use itinera::error::Error;
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
@@ -113,7 +113,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 weight,
             })
             .create()?;
-        let result = LocalExecutor::new().run(instance)?;
+        let result = local_executor_for!(Orders).run(instance)?;
         let data: Order = result.output()?;
         let tracking = data.tracking.as_deref().unwrap_or("none");
         println!(

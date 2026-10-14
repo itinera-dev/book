@@ -6,7 +6,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
 use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
@@ -710,7 +710,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 gift_card,
             })
             .create()?;
-        let result = LocalExecutor::new().run(instance)?;
+        let result = local_executor_for!(Orders).run(instance)?;
         let data: Order = result.output()?;
         let receipt = data.receipt.as_deref().unwrap_or("none");
         let tracking = data.tracking.as_deref().unwrap_or("none");

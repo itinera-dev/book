@@ -4,7 +4,7 @@ What the version of `itinera` this book covers implements, how you can check it,
 
 ## The specification
 
-This book follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1: a single workflow, with everything the book teaches in parts 2 to 6:
+This book follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1: a single workflow, with everything the book teaches in parts 2 to 5:
 
 1. steps, their inputs, their outcomes and their abnormal terminations;
 2. services, and the service providers that supply them to steps;
@@ -34,9 +34,9 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/7d5fec366c5ba6f4fe3f4a4977407885ed292f97/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.13`, and lists every proposal of specification 0.1 as passing.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/7156f7fe1ef754a53f7ce8295a112f8a250474ba/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
 
-A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 36](36-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
+A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
 1. a lifecycle a hook may not return (`invalid-lifecycle`);
 2. a policy needing a role the workflow doesn't provide (`role-not-provided`);

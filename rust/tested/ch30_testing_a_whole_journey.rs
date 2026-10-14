@@ -7,7 +7,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{
     Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
     Output,
@@ -719,7 +719,7 @@ fn what_went_wrong(abort: &Abort) -> String {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut executor = LocalExecutor::new();
+    let mut executor = local_executor_for!(Orders);
     // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
     // cm, the card, if the order has one, and whether the order is a gift card.
     let orders = [
@@ -860,7 +860,7 @@ mod tests {
             .fake_provider::<dyn Payments>("bank", move || Ok(provide!(bank)))
             .fake_provider::<dyn Carrier>("carriers", move || Ok(provide!(carrier)))
             .create()?;
-        LocalExecutor::new().run(instance)?;
+        local_executor_for!(Orders).run(instance)?;
         Ok(recorder.path())
     }
     // ANCHOR_END: path

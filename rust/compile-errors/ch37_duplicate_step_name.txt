@@ -1,0 +1,5 @@
+error: duplicate step name: ship, which an earlier `#[with_step]` line already gives
+  --> compile-errors/ch37_duplicate_step_name.rs:34:26
+   |
+34 | #[with_step(Ship, name = "ship", retry_budget = 1)]
+   |                          ^^^^^^

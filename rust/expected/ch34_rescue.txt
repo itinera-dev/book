@@ -1,3 +1,0 @@
-A-1: succeeded
-A-2: failed, FailWorkflow: payment-network-down
-A-3: failed, failure: nothing-to-renew

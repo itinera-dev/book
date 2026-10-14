@@ -38,7 +38,11 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A reporter that fails | a reporter whose report fails aborts the journey with `reporter failed`, and receives nothing more | [31](31-stopping-a-journey-when-its-log-fails.md) |
 | A reporter that prints every event | a reporter that comes with Itinera, prints each event as it is, and never fails | [32](32-seeing-every-event-of-a-journey.md) |
 | Global metadata | a key and a value every reporter of a journey receives, set by the instance before the first event or by a step while it runs | [33](33-giving-every-reporter-what-it-needs.md) |
-| A workflow declared by hand | the long form of everything above | [37](37-declaring-by-hand.md) |
+| What only a hook can know | the journey's ID, the attempt a step hook is about, and the error the step ended in | [34](34-saying-which-attempt-took-the-money.md) |
+| A key of its own, and a provider for some steps | an input or a service found under a key other than its field's name; a provider attached to some steps only, handing over a service already boxed, with data saying which it is | [35](35-giving-the-rescue-step-a-service-of-its-own.md) |
+| An order stopped before its journey | an instance not created when its journey ID can't be produced, and a journey refused when a reporter can't take its global metadata | [36](36-orders-refused-before-they-start.md) |
+| The listing, and the violations of admission | how a workflow is put together, read without running anything, and the mistakes caught before any journey | [37](37-mistakes-caught-before-a-journey.md) |
+| A workflow declared by hand | the long form of everything above, and the violations `build` returns | [38](38-declaring-by-hand.md) |
 
 ## In Rust
 
@@ -51,7 +55,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | An outcome | `Self::succeed()`, `Self::fail("code")`, `Self::skip()` or `Self::skip_because("code")` | 4, 16 |
 | A workflow and its steps | `#[workflow(name = "orders")]` on its struct, then one `#[with_step(Charge, name = "charge")]` line per step, in order | 5, 6 |
 | A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 5, 24 |
-| An executor, and running an instance | `let mut executor = LocalExecutor::new();`, then `executor.run(instance)` for each instance, which returns `Result<JourneyResult, Refusal>` | 5, 24 |
+| An executor, and running an instance | `let mut executor = local_executor_for!(Orders);`, then `executor.run(instance)` for each instance, which returns `Result<JourneyResult, Refusal>` | 5, 24 |
 | Reading the result and its output | a `match` on `result.status`: `JourneyStatus::Succeeded`, `Failed { failure, .. }` with `failure.cause()`, or `Aborted(abort)` with `abort.reason()`; and `#[derive(Output)]` on a struct read with `result.output::<Order>()?` | 5, 6, 25 |
 | A contributor | a parameter of `run` marked `#[contributor]`, of type `Contributor<'_>`, then `contributor.contribute("key", value)` | 6 |
 | A service and its provider | a parameter of `run` marked `#[service]`, of type `&dyn Trait`; a method of the workflow's `#[workflow] impl` block marked `#[provider]`, or `#[provider(key = "...", per_attempt)]` for a new instance for each attempt, returning `Result<Provided<dyn Trait>, Error>`, made with `provide!(...)`; a per-attempt provider may request `#[attempt]` | 7, 13 |
@@ -70,7 +74,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A value of your own type | `#[derive(Clone, Serialize, Deserialize)]` on its struct, with the `serde` crate and its `derive` feature | 21 |
 | Finishing a journey early | `Self::finish_workflow()`, returned by a method marked `#[on_step_success]` | 22 |
 | Undoing a step's work when it is given up | a method marked `#[on_step_failure]`, returning `Result<Option<FailWorkflow>, Error>`, which may ask for `#[cause] cause: StepFailureCause`; and a method of the policy's own, without a mark, that its hooks call | 23 |
-| The asynchronous execution mode | the `async` feature; `#[async_trait]`, from `itinera::mode`, on the trait of each service that waits, and each implementation; `async fn run` and `async fn` hooks; a role's trait that is `Sync`; `AsyncLocalExecutor::new().run(instance).await`, with an executor for each journey running at the same time | 26 |
+| The asynchronous execution mode | the `async` feature; `#[async_trait]`, from `itinera::mode`, on the trait of each service that waits, and each implementation; `async fn run` and `async fn` hooks; a role's trait that is `Sync`; `local_executor_for!(Orders).run(instance).await`, with an executor for each journey running at the same time | 26 |
 | A step tested alone | with the `testing` feature under `[dev-dependencies]`, and only inside `#[cfg(test)] mod tests`, a `#[test]` function calling `Charge { ... }.run(&fake, contributions.contributor())`, with `Contributions` from `itinera::journey` and `StepEventReporter` from `itinera::step`; for an asynchronous step, an `async fn` marked `#[tokio::test]` that awaits `run`, with `events.async_reporter()` | 27 |
 | A hook or an input adapter tested alone | `FailedShipping.before_retrying(Some(Reason::from("code")), receipt, amount, &refunds, contributions.contributor())?`, read with `keeps_default()` or `fails_workflow()` from `itinera::policy::ReturnedLifecycle`, or `Orders { ... }.parcels("weight", parcel)?` | 28 |
 | A scripted run | with the `testing` feature under `[dev-dependencies]`, and only inside `#[cfg(test)] mod tests`, `instance.scripted().step("charge").will_fail("code").on_attempt(2).will_succeed().and_step("charge_rescue").will_succeed().run()?`, which returns a `ScriptedRun` | 29 |
@@ -78,6 +82,10 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A reporter that fails | `report` returning `Err`, which aborts the journey; the result's `Abort::ReporterFailed(error)` holds the error | 31 |
 | A reporter that prints every event | `DebugReporter`, from `itinera::report`, in `reporters = [DebugReporter, ...]` | 32 |
 | Global metadata | `.reporters_global_metadata("customer", value)` on the instance builder, or `reporter.set_global_metadata("receipt", value)?` in a step with `#[reporter] mut reporter: StepReporter<'_>`, received by `Reporter::set_global_metadata(&mut self, key, value)` | 33 |
-| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 37 |
+| What only a hook can know | parameters marked `#[journey_id] journey: &JourneyId`, `#[attempt] attempt: NonZeroU32` and `#[error] error: &Error` on `on step abnormal termination`, or `Option<&Error>` on `on step retry` and `on step failure` | 34 |
+| A key of its own, and a provider for some steps | `#[input("card")] expired: String` or `#[service("cards")] registry: &dyn Cards`; `#[provider(steps = ["charge_rescue"])]`, returning `Provided::from_box(boxed).with_data(value)` | 35 |
+| An order stopped before its journey | `create()` returning `Err` when the ID generator fails; `run` returning `Err(refusal)` when a reporter's `set_global_metadata` returns `Err` | 36 |
+| The listing, and the violations of admission | `Orders::descriptor().listing()`, with `Workflow` from `itinera::workflow` in scope, giving a `ListedStep` for each step; with the attributes, a violation is a compile error | 37 |
+| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("price"), Pricing)).build()`, which returns `Result<WorkflowDescriptor<Orders>, Violations>`; a `StepFactory` and a `Step` for a step, a hook's trait such as `OnStepSuccess<Orders>` for a policy | 38 |
 
-For the asynchronous form, as chapter 26 shows, turn on the `async` feature, mark the trait of each service that waits, and its implementations, `#[async_trait]`, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, keep a synchronous reporter under `reporters = [...]`, or declare an `AsyncReporter` under `async_reporters = [...]`, as chapter 31 shows, and run on `AsyncLocalExecutor`, awaiting its `run`.
+For the asynchronous form, as chapter 26 shows, turn on the `async` feature, mark the trait of each service that waits, and its implementations, `#[async_trait]`, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, keep a synchronous reporter under `reporters = [...]`, or declare an `AsyncReporter` under `async_reporters = [...]`, as chapter 31 shows, and await the `run` of the executor `local_executor_for!` makes, an `AsyncLocalExecutor`.

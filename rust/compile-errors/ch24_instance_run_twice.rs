@@ -1,7 +1,7 @@
 //! Running one instance twice: an instance runs one journey, so this does not compile.
 
 use itinera::error::Error;
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::InitialData;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
@@ -35,7 +35,7 @@ struct NewOrder {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut executor = LocalExecutor::new();
+    let mut executor = local_executor_for!(Orders);
     let instance = Orders::builder()
         .initial_data(NewOrder { price: 40 })
         .create()?;

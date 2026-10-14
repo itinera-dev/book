@@ -6,7 +6,7 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, HookSource};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFailure};
 use itinera::policy::{HookReporter, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
@@ -429,7 +429,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("A-7", "Gil", "gil-card-2029", 45, None, 60),
     ];
     // ANCHOR_END: orders
-    let mut executor = LocalExecutor::new();
+    let mut executor = local_executor_for!(Orders);
     for (order, customer, card, price, discount, weight) in orders {
         println!("{order}:");
         let instance = Orders::builder()

@@ -30,7 +30,7 @@ region: approved
 asynchronous: ch30_testing_a_whole_journey_async
 ```
 
-In the asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, the fakes implement the services with `#[async_trait]` and `async fn`, `path_of` runs the instance on an `AsyncLocalExecutor` and awaits it, and each test is an `async fn` marked `#[tokio::test]`.
+In the asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, the fakes implement the services with `#[async_trait]` and `async fn`, `path_of` runs the instance on the executor `local_executor_for!` makes, an `AsyncLocalExecutor`, and awaits it, and each test is an `async fn` marked `#[tokio::test]`.
 
 As in [chapter 29](29-testing-the-flow-with-scripted-steps.md), `cargo test` hides what the shop's log, its desk and its messages print. It prints the same for both forms:
 

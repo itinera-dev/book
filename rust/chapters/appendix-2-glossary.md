@@ -60,7 +60,7 @@ Defined in [1.5, Running](https://github.com/itinera-dev/spec/blob/main/spec/01-
 
 - **Workflow instance:** what your own code creates from a workflow for each journey, with that journey's initial data, its journey ID, its reporters and its initial global metadata. It holds the data bag and the rest of the journey's state. In Rust, made with `Orders::builder()`, given its initial data, then `create()`.
 - **Custom code:** any code of yours that the executor calls: building and running steps, input adapters, service providers, policies and their hooks, role operations, reporters, and dispatcher factories and dispatchers.
-- **Executor:** runs a workflow instance, and carries out what the hooks decide. The **local executor** runs a journey inside your program, keeping nothing once it ends: `LocalExecutor` in Rust, or `AsyncLocalExecutor` for asynchronous workflows.
+- **Executor:** runs a workflow instance, and carries out what the hooks decide. The **local executor** runs a journey inside your program, keeping nothing once it ends: `LocalExecutor` in Rust, or `AsyncLocalExecutor` for asynchronous workflows, which `local_executor_for!` picks from the workflow.
 - **Journey:** one execution of a workflow instance from start to end: one order going through the shop. In later tiers a journey may move between workflows.
 - **Run:** one workflow executed within a journey. In this version a journey has exactly one run, so the two are the same.
 - **Journey ID:** the identifier of a journey, made while the instance is created; a random UUID unless the workflow makes its own, for example from the order.

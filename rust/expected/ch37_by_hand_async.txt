@@ -1,5 +1,0 @@
-1. charge, with audit
-2. ship
-to Ann: order A-1 is complete
-the journey succeeded
-charged 40; audit: charged 40

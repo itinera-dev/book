@@ -8,13 +8,13 @@ description = "The Rust examples of the Itinera book."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "be972e154b3630f87adffba2ff1f4481f686ead7", features = ["async"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "7156f7fe1ef754a53f7ce8295a112f8a250474ba", features = ["async"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 # The same commit as above, with the `testing` feature that chapters 27 to 30 use: bump both together.
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "be972e154b3630f87adffba2ff1f4481f686ead7", features = ["testing"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "7156f7fe1ef754a53f7ce8295a112f8a250474ba", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
 serde_json = "1"
@@ -57,37 +57,45 @@ path = "tested/ch30_testing_a_whole_journey.rs"
 name = "ch30_testing_a_whole_journey_async"
 path = "tested/ch30_testing_a_whole_journey_async.rs"
 
+[[bin]]
+name = "ch42_working_with_agents"
+path = "tested/ch42_working_with_agents.rs"
+
+[[bin]]
+name = "ch42_working_with_agents_async"
+path = "tested/ch42_working_with_agents_async.rs"
+
 [[example]]
 name = "ch24_instance_run_twice"
 path = "compile-errors/ch24_instance_run_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_duplicate_step_name"
-path = "compile-errors/ch36_duplicate_step_name.rs"
+name = "ch37_duplicate_step_name"
+path = "compile-errors/ch37_duplicate_step_name.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_hook_defined_twice"
-path = "compile-errors/ch36_hook_defined_twice.rs"
+name = "ch37_hook_defined_twice"
+path = "compile-errors/ch37_hook_defined_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_invalid_lifecycle"
-path = "compile-errors/ch36_invalid_lifecycle.rs"
+name = "ch37_invalid_lifecycle"
+path = "compile-errors/ch37_invalid_lifecycle.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_mode_not_accepted"
-path = "compile-errors/ch36_mode_not_accepted.rs"
+name = "ch37_result_not_awaited"
+path = "compile-errors/ch37_result_not_awaited.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_not_a_value"
-path = "compile-errors/ch36_not_a_value.rs"
+name = "ch37_not_a_value"
+path = "compile-errors/ch37_not_a_value.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch36_role_not_provided"
-path = "compile-errors/ch36_role_not_provided.rs"
+name = "ch37_role_not_provided"
+path = "compile-errors/ch37_role_not_provided.rs"
 required-features = ["compile-errors"]

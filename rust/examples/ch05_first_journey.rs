@@ -2,7 +2,7 @@
 //! journey ended.
 
 use itinera::error::Error;
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::InitialData;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let instance = Orders::builder()
             .initial_data(NewOrder { price })
             .create()?;
-        let result = LocalExecutor::new().run(instance)?;
+        let result = local_executor_for!(Orders).run(instance)?;
         println!("the journey {}", result.status.kind());
     }
     Ok(())

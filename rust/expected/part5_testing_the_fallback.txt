@@ -1,4 +1,0 @@
-ok: a carrier that is up gives a tracking number
-ok: a carrier that is down is a failure worth trying again
-ok: the order ships through the backup carrier
-ok: shipping is tried twice, as its events show

@@ -1,0 +1,25 @@
+error[E0277]: the workflow `Orders` does not provide the role `(dyn Messages + 'static)`
+  --> compile-errors/ch37_role_not_provided.rs:43:41
+   |
+43 | #[workflow(name = "orders", policies = [Notify])]
+   |                                         ^^^^^^ this workflow does not provide the role
+   |
+help: the trait `Provides<(dyn Messages + 'static)>` is not implemented for `Orders`
+  --> compile-errors/ch37_role_not_provided.rs:45:1
+   |
+45 | struct Orders;
+   | ^^^^^^^^^^^^^
+   = note: a workflow provides a role by implementing `Provides<(dyn Messages + 'static)>`, which `#[role]` does on its implementation of the role's trait
+help: the trait `itinera::policy::WorkflowPolicy<__ItineraWorkflow>` is implemented for `Notify`
+  --> compile-errors/ch37_role_not_provided.rs:29:1
+   |
+29 | #[workflow_policy(name = "notify")]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: required for `Notify` to implement `itinera::policy::WorkflowPolicy<Orders>`
+  --> compile-errors/ch37_role_not_provided.rs:29:1
+   |
+29 | #[workflow_policy(name = "notify")]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unsatisfied trait bound introduced here
+30 | impl Notify {
+   |      ^^^^^^
+   = note: this error originates in the attribute macro `workflow_policy` (in Nightly builds, run with -Z macro-backtrace for more info)

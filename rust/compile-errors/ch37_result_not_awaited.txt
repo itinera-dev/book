@@ -1,0 +1,11 @@
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
+  --> compile-errors/ch37_result_not_awaited.rs:26:18
+   |
+26 |     let result = local_executor_for!(Orders).run(Orders::builder().create()?)?;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the `?` operator cannot be applied to type `impl Future<Output = Result<JourneyResult, Refusal>>`
+   |
+   = help: the nightly-only, unstable trait `Try` is not implemented for `impl Future<Output = Result<JourneyResult, Refusal>>`
+help: consider `await`ing on the `Future`
+   |
+26 |     let result = local_executor_for!(Orders).run(Orders::builder().create()?).await?;
+   |                                                                              ++++++

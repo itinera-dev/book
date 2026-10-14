@@ -1,0 +1,44 @@
+Jo's order:
+log orders A-8 for Jo #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-8 for Jo #2 attempt_started lookup, attempt 1
+log orders A-8 for Jo #3 service_provided lookup gets order_book from ledger, a ch35_giving_the_rescue_step_a_service_of_its_own::Ledger
+the order book has no order A-8 yet
+log orders A-8 for Jo #4 step_succeeded lookup
+log orders A-8 for Jo #5 contribution_committed completed
+log orders A-8 for Jo #6 hook_called already_completed: on step success of lookup
+log orders A-8 for Jo #7 attempt_started price, attempt 1
+log orders A-8 for Jo #8 optional_input_absent discount
+log orders A-8 for Jo #9 step_succeeded price
+log orders A-8 for Jo #10 contribution_committed amount
+log orders A-8 for Jo #11 attempt_started charge, attempt 1
+log orders A-8 for Jo #12 service_provided charge gets payments from bank, a ch35_giving_the_rescue_step_a_service_of_its_own::Bank
+the bank declines card jo-2024: it has expired
+log orders A-8 for Jo #13 step_failed charge: card-expired
+log orders A-8 for Jo #14 step_rescuing charge: failure, rescued by charge_rescue
+log orders A-8 for Jo #15 attempt_started charge_rescue, attempt 1
+log orders A-8 for Jo #16 service_provided charge_rescue gets cards from cards, a dyn ch35_giving_the_rescue_step_a_service_of_its_own::Cards, with eu
+the card registry in eu says card jo-2024 was replaced by jo-2029
+log orders A-8 for Jo #17 step_succeeded charge_rescue
+log orders A-8 for Jo #18 contribution_committed card
+log orders A-8 for Jo #19 data_overwritten card
+log orders A-8 for Jo #20 step_rescued charge by charge_rescue
+log orders A-8 for Jo #21 attempt_started charge, attempt 2
+the bank charges 30 for order A-8
+log orders A-8 for Jo, receipt R-A-8 #22 global_metadata_set receipt
+log orders A-8 for Jo, receipt R-A-8 #23 step_succeeded charge
+log orders A-8 for Jo, receipt R-A-8 #24 contribution_committed receipt
+log orders A-8 for Jo, receipt R-A-8 #25 hook_called audit: on step success of charge
+log orders A-8 for Jo, receipt R-A-8 #26 contribution_committed audit
+log orders A-8 for Jo, receipt R-A-8 #27 attempt_started ship, attempt 1
+log orders A-8 for Jo, receipt R-A-8 #28 input_adapter_supplied ship gets weight from parcels
+log orders A-8 for Jo, receipt R-A-8 #29 service_provided ship gets carrier from carriers, a ch35_giving_the_rescue_step_a_service_of_its_own::MainCarrier
+the main carrier books order A-8
+log orders A-8 for Jo, receipt R-A-8 #30 step_info ship: the parcel leaves with receipt R-A-8
+log orders A-8 for Jo, receipt R-A-8 #31 step_succeeded ship
+log orders A-8 for Jo, receipt R-A-8 #32 contribution_committed tracking
+log orders A-8 for Jo, receipt R-A-8 #33 optional_input_absent code
+email to Jo: Order A-8 is on its way, tracking T-A-8.
+log orders A-8 for Jo, receipt R-A-8 #34 hook_called notify: on workflow success
+log orders A-8 for Jo, receipt R-A-8 #35 journey_succeeded
+the journey succeeded, with receipt R-A-8 and tracking T-A-8
+audit: A-8: charge took 30 on attempt 2, receipt R-A-8

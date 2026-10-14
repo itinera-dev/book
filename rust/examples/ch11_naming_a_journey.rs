@@ -3,7 +3,7 @@
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody};
-use itinera::executor::LocalExecutor;
+use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
@@ -230,7 +230,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 weight,
             })
             .create()?;
-        let result = LocalExecutor::new().run(instance)?;
+        let result = local_executor_for!(Orders).run(instance)?;
         let data: Order = result.output()?;
         let tracking = data.tracking.as_deref().unwrap_or("none");
         println!(
