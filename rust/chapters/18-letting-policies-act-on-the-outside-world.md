@@ -49,7 +49,7 @@ name: ch18_letting_policies_act_on_the_outside_world
 5. **Only policies ask for roles.** Steps never do: a step does its business with its inputs and its services, and never reaches the workflow.
 6. **A role's work is the workflow's business.** The executor doesn't record what a role does: the log shows `hook_called` once the hook has returned, after the email was sent, and nothing in between.
 
-So every customer is told how their order went. The charge, though, still charges the full price of every order, and the shop also gives some customers a discount, which the charge knows nothing about.
+So every customer is told how their order went. The charge, though, still charges the full price of every order, while the shop gives some customers a discount that nothing in the shop applies.
 
 ## Outcomes
 

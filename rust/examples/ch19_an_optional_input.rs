@@ -1,5 +1,5 @@
-//! An optional input: the charge takes the order's discount when it has one, and charges the full
-//! price when it has none.
+//! An optional input: the pricing, a step of its own, takes the order's discount when it has one,
+//! and the charge charges the amount it works out.
 
 use std::num::NonZeroU32;
 
@@ -92,18 +92,35 @@ impl Carrier for BackupCarrier {
     }
 }
 
+// ANCHOR: price
+/// Works out what an order costs: its price, less its discount if it has one, given back as the
+/// amount to charge.
+#[derive(Step)]
+struct Price {
+    #[input]
+    price: i64,
+    #[input]
+    discount: Option<i64>,
+}
+
+#[step]
+impl Price {
+    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+        contributor.contribute("amount", self.price - self.discount.unwrap_or(0));
+        Self::succeed()
+    }
+}
+// ANCHOR_END: price
+
 // ANCHOR: charge
-/// Charges an order's price, less its discount if it has one, to its card through the payment
-/// client, and gives back what it charged and its receipt, and the gift card's code when the
-/// order is a gift card.
+/// Charges an order's amount to its card through the payment client, and gives back its receipt,
+/// and the gift card's code when the order is a gift card.
 #[derive(Step)]
 struct Charge {
     #[input]
     order: String,
     #[input]
-    price: i64,
-    #[input]
-    discount: Option<i64>,
+    amount: i64,
     #[input]
     card: String,
     #[input]
@@ -117,14 +134,12 @@ impl Charge {
         #[service] payments: &dyn Payments,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
-        let amount = self.price - self.discount.unwrap_or(0);
-        if amount <= 0 {
+        if self.amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        let Some(receipt) = payments.charge(&self.order, &self.card, amount) else {
+        let Some(receipt) = payments.charge(&self.order, &self.card, self.amount) else {
             return Self::fail("card-expired");
         };
-        contributor.contribute("charged", amount);
         contributor.contribute("receipt", receipt);
         if self.gift_card {
             contributor.contribute("code", format!("G-{}", self.order));
@@ -163,8 +178,8 @@ impl RenewCard {
 }
 
 // ANCHOR: audit
-/// Writes an audit line for every step it is attached to that succeeds: what the step charged, and
-/// the receipt it gave back.
+/// Writes an audit line for every step it is attached to that succeeds: the amount the order was
+/// charged, and the receipt the step gave back.
 #[derive(Default)]
 struct Audit;
 
@@ -174,11 +189,11 @@ impl Audit {
     fn charged(
         &self,
         #[step_name] step: StepName,
-        #[from_step] charged: i64,
+        #[from_workflow] amount: i64,
         #[from_step] receipt: String,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Option<OnSuccess>, Error> {
-        contributor.contribute("audit", format!("{step} took {charged}, receipt {receipt}"));
+        contributor.contribute("audit", format!("{step} took {amount}, receipt {receipt}"));
         Self::carry_on()
     }
 }
@@ -376,15 +391,18 @@ impl Reporter for Desk {
     }
 }
 
-/// The shop's workflow: it charges, repairing a charge that fails and auditing one that succeeds,
-/// then ships, and shipping may be tried once more. Once a journey has ended, the customer is
-/// told, through the channel the shop configures.
+// ANCHOR: workflow
+/// The shop's workflow: it works out what the order costs, then charges it, repairing a charge
+/// that fails and auditing one that succeeds, then ships, and shipping may be tried once more.
+/// Once a journey has ended, the customer is told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
+#[with_step(Price, name = "price")]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
 #[with_step(Ship, name = "ship", retry_budget = 1)]
 struct Orders {
     channel: &'static str,
 }
+// ANCHOR_END: workflow
 
 #[role]
 impl Messages for Orders {

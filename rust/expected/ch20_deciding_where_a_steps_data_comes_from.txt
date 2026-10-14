@@ -1,47 +1,49 @@
 Ann's order:
-log orders A-1 #1 journey_started card, customer, discount, gift_card, order, price, weight
-log orders A-1 #2 attempt_started charge, attempt 1
-log orders A-1 #3 input_adapter_supplied charge gets amount from pricing
-log orders A-1 #4 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
+log orders A-1 #1 journey_started card, customer, discount, gift_card, order, parcel, price
+log orders A-1 #2 attempt_started price, attempt 1
+log orders A-1 #3 step_succeeded price
+log orders A-1 #4 contribution_committed amount
+log orders A-1 #5 attempt_started charge, attempt 1
+log orders A-1 #6 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
 the bank charges 30 for order A-1
-log orders A-1 #5 step_succeeded charge
-log orders A-1 #6 contribution_committed charged
-log orders A-1 #7 contribution_committed receipt
-log orders A-1 #8 hook_called audit: on step success of charge
-log orders A-1 #9 contribution_committed audit
-log orders A-1 #10 attempt_started ship, attempt 1
-log orders A-1 #11 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
+log orders A-1 #7 step_succeeded charge
+log orders A-1 #8 contribution_committed receipt
+log orders A-1 #9 hook_called audit: on step success of charge
+log orders A-1 #10 contribution_committed audit
+log orders A-1 #11 attempt_started ship, attempt 1
+log orders A-1 #12 input_adapter_supplied ship gets weight from parcels
+log orders A-1 #13 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
 the main carrier books order A-1
-log orders A-1 #12 step_info ship: the parcel leaves with receipt R-A-1
-log orders A-1 #13 step_succeeded ship
-log orders A-1 #14 contribution_committed tracking
-log orders A-1 #15 optional_input_absent code
+log orders A-1 #14 step_info ship: the parcel leaves with receipt R-A-1
+log orders A-1 #15 step_succeeded ship
+log orders A-1 #16 contribution_committed tracking
+log orders A-1 #17 optional_input_absent code
 email to Ann: Order A-1 is on its way, tracking T-A-1.
-log orders A-1 #16 hook_called notify: on workflow success
-log orders A-1 #17 journey_succeeded
+log orders A-1 #18 hook_called notify: on workflow success
+log orders A-1 #19 journey_succeeded
 the journey succeeded, with receipt R-A-1 and tracking T-A-1
 audit: charge took 30, receipt R-A-1
 Gil's order:
-log orders A-7 #1 journey_started card, customer, gift_card, order, price, weight
-log orders A-7 #2 attempt_started charge, attempt 1
+log orders A-7 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-7 #2 attempt_started price, attempt 1
 log orders A-7 #3 optional_input_absent discount
-log orders A-7 #4 optional_input_absent discount
-log orders A-7 #5 input_adapter_supplied charge gets amount from pricing
-log orders A-7 #6 optional_input_absent discount
-log orders A-7 #7 optional_input_absent discount
-log orders A-7 #8 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
+log orders A-7 #4 step_succeeded price
+log orders A-7 #5 contribution_committed amount
+log orders A-7 #6 attempt_started charge, attempt 1
+log orders A-7 #7 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
 the bank charges 45 for order A-7
-log orders A-7 #9 step_succeeded charge
-log orders A-7 #10 contribution_committed charged
-log orders A-7 #11 contribution_committed receipt
-log orders A-7 #12 hook_called audit: on step success of charge
-log orders A-7 #13 contribution_committed audit
-log orders A-7 #14 attempt_started ship, attempt 1
-log orders A-7 #15 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
+log orders A-7 #8 step_succeeded charge
+log orders A-7 #9 contribution_committed receipt
+log orders A-7 #10 hook_called audit: on step success of charge
+log orders A-7 #11 contribution_committed audit
+log orders A-7 #12 attempt_started ship, attempt 1
+log orders A-7 #13 input_adapter_supplied ship gets weight from parcels
+log orders A-7 #14 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
 the main carrier books order A-7
-log orders A-7 #16 step_failed ship: too-heavy, retriable
-log orders A-7 #17 step_retrying ship
-log orders A-7 #18 attempt_started ship, attempt 2
+log orders A-7 #15 step_failed ship: too-heavy, retriable
+log orders A-7 #16 step_retrying ship
+log orders A-7 #17 attempt_started ship, attempt 2
+log orders A-7 #18 input_adapter_supplied ship gets weight from parcels
 log orders A-7 #19 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::BackupCarrier
 the backup carrier books order A-7
 log orders A-7 #20 step_info ship: the parcel leaves with receipt R-A-7
@@ -54,92 +56,84 @@ log orders A-7 #25 journey_succeeded
 the journey succeeded, with receipt R-A-7 and tracking B-A-7
 audit: charge took 45, receipt R-A-7
 Jo's order:
-log orders A-8 #1 journey_started card, customer, gift_card, order, price, weight
-log orders A-8 #2 attempt_started charge, attempt 1
+log orders A-8 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-8 #2 attempt_started price, attempt 1
 log orders A-8 #3 optional_input_absent discount
-log orders A-8 #4 optional_input_absent discount
-log orders A-8 #5 input_adapter_supplied charge gets amount from pricing
-log orders A-8 #6 optional_input_absent discount
-log orders A-8 #7 optional_input_absent discount
-log orders A-8 #8 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
+log orders A-8 #4 step_succeeded price
+log orders A-8 #5 contribution_committed amount
+log orders A-8 #6 attempt_started charge, attempt 1
+log orders A-8 #7 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
 the bank declines card jo-2024: it has expired
-log orders A-8 #9 step_failed charge: card-expired, not retriable
-log orders A-8 #10 step_rescuing charge: failure, rescued by charge_rescue
-log orders A-8 #11 attempt_started charge_rescue, attempt 1
+log orders A-8 #8 step_failed charge: card-expired, not retriable
+log orders A-8 #9 step_rescuing charge: failure, rescued by charge_rescue
+log orders A-8 #10 attempt_started charge_rescue, attempt 1
 the bank says card jo-2024 was replaced by jo-2029
-log orders A-8 #12 step_succeeded charge_rescue
-log orders A-8 #13 contribution_committed card
-log orders A-8 #14 data_overwritten card
-log orders A-8 #15 step_rescued charge by charge_rescue
-log orders A-8 #16 attempt_started charge, attempt 2
-log orders A-8 #17 optional_input_absent discount
-log orders A-8 #18 optional_input_absent discount
-log orders A-8 #19 input_adapter_supplied charge gets amount from pricing
-log orders A-8 #20 optional_input_absent discount
-log orders A-8 #21 optional_input_absent discount
+log orders A-8 #11 step_succeeded charge_rescue
+log orders A-8 #12 contribution_committed card
+log orders A-8 #13 data_overwritten card
+log orders A-8 #14 step_rescued charge by charge_rescue
+log orders A-8 #15 attempt_started charge, attempt 2
 the bank charges 30 for order A-8
-log orders A-8 #22 step_succeeded charge
-log orders A-8 #23 contribution_committed charged
-log orders A-8 #24 contribution_committed receipt
-log orders A-8 #25 hook_called audit: on step success of charge
-log orders A-8 #26 contribution_committed audit
-log orders A-8 #27 attempt_started ship, attempt 1
-log orders A-8 #28 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
+log orders A-8 #16 step_succeeded charge
+log orders A-8 #17 contribution_committed receipt
+log orders A-8 #18 hook_called audit: on step success of charge
+log orders A-8 #19 contribution_committed audit
+log orders A-8 #20 attempt_started ship, attempt 1
+log orders A-8 #21 input_adapter_supplied ship gets weight from parcels
+log orders A-8 #22 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
 the main carrier books order A-8
-log orders A-8 #29 step_info ship: the parcel leaves with receipt R-A-8
-log orders A-8 #30 step_succeeded ship
-log orders A-8 #31 contribution_committed tracking
-log orders A-8 #32 optional_input_absent code
+log orders A-8 #23 step_info ship: the parcel leaves with receipt R-A-8
+log orders A-8 #24 step_succeeded ship
+log orders A-8 #25 contribution_committed tracking
+log orders A-8 #26 optional_input_absent code
 email to Jo: Order A-8 is on its way, tracking T-A-8.
-log orders A-8 #33 hook_called notify: on workflow success
-log orders A-8 #34 journey_succeeded
+log orders A-8 #27 hook_called notify: on workflow success
+log orders A-8 #28 journey_succeeded
 the journey succeeded, with receipt R-A-8 and tracking T-A-8
 audit: charge took 30, receipt R-A-8
 Kim's order:
-log orders A-9 #1 journey_started card, customer, gift_card, order, price, weight
-log orders A-9 #2 attempt_started charge, attempt 1
+log orders A-9 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-9 #2 attempt_started price, attempt 1
 log orders A-9 #3 optional_input_absent discount
-log orders A-9 #4 optional_input_absent discount
-log orders A-9 #5 input_adapter_supplied charge gets amount from pricing
-log orders A-9 #6 optional_input_absent discount
-log orders A-9 #7 optional_input_absent discount
-log orders A-9 #8 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
+log orders A-9 #4 step_succeeded price
+log orders A-9 #5 contribution_committed amount
+log orders A-9 #6 attempt_started charge, attempt 1
+log orders A-9 #7 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
 the bank charges 25 for order A-9
-log orders A-9 #9 step_succeeded charge
-log orders A-9 #10 contribution_committed charged
-log orders A-9 #11 contribution_committed receipt
-log orders A-9 #12 contribution_committed code
-log orders A-9 #13 hook_called audit: on step success of charge
-log orders A-9 #14 contribution_committed audit
-log orders A-9 #15 attempt_started ship, attempt 1
-log orders A-9 #16 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
-log orders A-9 #17 step_skipped ship: nothing-to-ship
-log orders A-9 #18 contributions_discarded ship
-log orders A-9 #19 optional_input_absent tracking
+log orders A-9 #8 step_succeeded charge
+log orders A-9 #9 contribution_committed receipt
+log orders A-9 #10 contribution_committed code
+log orders A-9 #11 hook_called audit: on step success of charge
+log orders A-9 #12 contribution_committed audit
+log orders A-9 #13 attempt_started ship, attempt 1
+log orders A-9 #14 input_adapter_supplied ship gets weight from parcels
+log orders A-9 #15 service_provided ship gets carrier from carriers, a ch20_deciding_where_a_steps_data_comes_from::MainCarrier
+log orders A-9 #16 step_skipped ship: nothing-to-ship
+log orders A-9 #17 contributions_discarded ship
+log orders A-9 #18 optional_input_absent tracking
 email to Kim: Order A-9 is paid: your gift card's code is G-A-9.
-log orders A-9 #20 hook_called notify: on workflow success
-log orders A-9 #21 journey_succeeded
+log orders A-9 #19 hook_called notify: on workflow success
+log orders A-9 #20 journey_succeeded
 the journey succeeded, with receipt R-A-9 and tracking none
 audit: charge took 25, receipt R-A-9
 Lee's order:
-log orders A-10 #1 journey_started card, customer, gift_card, order, price, weight
-log orders A-10 #2 attempt_started charge, attempt 1
+log orders A-10 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-10 #2 attempt_started price, attempt 1
 log orders A-10 #3 optional_input_absent discount
-log orders A-10 #4 optional_input_absent discount
-log orders A-10 #5 input_adapter_supplied charge gets amount from pricing
-log orders A-10 #6 optional_input_absent discount
-log orders A-10 #7 optional_input_absent discount
-log orders A-10 #8 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
+log orders A-10 #4 step_succeeded price
+log orders A-10 #5 contribution_committed amount
+log orders A-10 #6 attempt_started charge, attempt 1
+log orders A-10 #7 service_provided charge gets payments from bank, a ch20_deciding_where_a_steps_data_comes_from::Bank
 the bank declines card lee-2019: it has expired
-log orders A-10 #9 step_failed charge: card-expired, not retriable
-log orders A-10 #10 step_rescuing charge: failure, rescued by charge_rescue
-log orders A-10 #11 attempt_started charge_rescue, attempt 1
+log orders A-10 #8 step_failed charge: card-expired, not retriable
+log orders A-10 #9 step_rescuing charge: failure, rescued by charge_rescue
+log orders A-10 #10 attempt_started charge_rescue, attempt 1
 the bank says nothing replaced card lee-2019
-log orders A-10 #12 step_failed charge_rescue: not-replaced, not retriable
-log orders A-10 #13 step_given_up charge_rescue: failure
+log orders A-10 #11 step_failed charge_rescue: not-replaced, not retriable
+log orders A-10 #12 step_given_up charge_rescue: failure
 email to Lee: Sorry, order A-10 could not be completed.
-log orders A-10 #14 hook_called notify: on workflow failure
-log orders A-10 #15 journey_failed charge_rescue
+log orders A-10 #13 hook_called notify: on workflow failure
+log orders A-10 #14 journey_failed charge_rescue
 desk: order A-10 failed at charge_rescue
 the journey failed, with receipt none and tracking none
 audit: none

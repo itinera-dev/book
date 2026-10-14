@@ -4,11 +4,10 @@
 use itinera::error::Error;
 use itinera::journey::Contributor;
 use itinera::policy::{HookNeeds, InputAdapter, OnSuccess, Requested, StepPolicy, step_policy};
-use itinera::step::{
-    DescribedStep, Input, OptionalInput, Outcome, Step, StepName, step, step_name,
-};
+use itinera::step::{DescribedStep, Input, Outcome, Step, StepName, step, step_name};
 use itinera::value::AnyValue;
 use itinera::workflow::{InputAdapterDescriptor, WorkflowDescriptor};
+use serde::{Deserialize, Serialize};
 
 /// Charges an order's price.
 #[derive(Step)]
@@ -28,9 +27,13 @@ impl Charge {
     }
 }
 
-/// Ships an order through the carrier.
+/// Ships an order's parcel, of this weight in kg, through the carrier.
 #[derive(Step)]
-struct Ship;
+struct Ship {
+    #[input]
+    #[expect(dead_code, reason = "the shipping is declared, never run")]
+    weight: i64,
+}
 
 #[step]
 impl Ship {
@@ -76,26 +79,31 @@ impl Receipts {
 /// The shop's workflow, which holds nothing of its own.
 struct Orders;
 
-const PRICE: Input<i64> = Input::new("price");
-const DISCOUNT: OptionalInput<i64> = OptionalInput::new("discount");
+/// How the warehouse describes an order's parcel: its weight in kg, and its size in cm.
+#[derive(Clone, Serialize, Deserialize)]
+struct Parcel {
+    weight: i64,
+    size: [i64; 3],
+}
 
-/// Works out the price to charge: the price, less any discount.
-fn pricing(
+const PARCEL: Input<Parcel> = Input::new("parcel");
+
+/// Gives the shipping the weight of the order's parcel. Every other input is read from the data
+/// bag.
+fn parcels(
     _: &Orders,
     mut got: Requested<'_, Orders, InputAdapter>,
 ) -> Result<Option<AnyValue>, Error> {
-    let price = got.from_workflow(&PRICE)?;
-    let discount = got.optional_from_workflow(&DISCOUNT)?;
-    Ok(Some(AnyValue::new(price - discount.unwrap_or_default())))
+    if got.key() != "weight" {
+        return Ok(None);
+    }
+    Ok(Some(AnyValue::new(got.from_workflow(&PARCEL)?.weight)))
 }
 
-/// Declares the pricing adapter, attached to the step of this name.
-fn pricing_for(step: StepName) -> InputAdapterDescriptor<Orders> {
-    InputAdapterDescriptor::new("pricing", step, pricing).needing(
-        HookNeeds::new()
-            .from_workflow(&PRICE)
-            .optional_from_workflow(&DISCOUNT),
-    )
+/// Declares the parcels adapter, attached to the step of this name.
+fn parcels_for(step: StepName) -> InputAdapterDescriptor<Orders> {
+    InputAdapterDescriptor::new("parcels", step, parcels)
+        .needing(HookNeeds::new().from_workflow(&PARCEL))
 }
 
 fn main() {
@@ -108,7 +116,7 @@ fn main() {
         )
         .step(Ship::descriptor(step_name!("ship")))
         .step(Ship::descriptor(step_name!("ship")).retry_budget(1))
-        .input_adapter(pricing_for(step_name!("charging")))
+        .input_adapter(parcels_for(step_name!("shipping")))
         .build();
     // ANCHOR_END: wrong
     // ANCHOR: report
@@ -126,7 +134,7 @@ fn main() {
     let built = WorkflowDescriptor::builder("orders")
         .step(Charge::descriptor(step_name!("charge")).policy(Audit::descriptor()))
         .step(Ship::descriptor(step_name!("ship")).retry_budget(1))
-        .input_adapter(pricing_for(step_name!("charge")))
+        .input_adapter(parcels_for(step_name!("ship")))
         .build();
     match built {
         Ok(orders) => {

@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "7d5fec366c5ba6f4fe3f4a4977407885ed292f97", features = ["async"] }
+serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]

@@ -1,5 +1,5 @@
-//! Deciding where a step's data comes from: the charge charges an amount, and the workflow's input
-//! adapter works the amount out from the order's price and discount.
+//! Deciding where a step's data comes from: the warehouse describes each parcel as one value, and
+//! the workflow's input adapter gives the shipping only the weight it asks for.
 
 use std::num::NonZeroU32;
 
@@ -15,6 +15,7 @@ use itinera::step::{
 };
 use itinera::value::AnyValue;
 use itinera::workflow::{role, workflow};
+use serde::{Deserialize, Serialize};
 
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
 /// when the card has expired; and it says which card replaced one, if any did.
@@ -93,9 +94,26 @@ impl Carrier for BackupCarrier {
     }
 }
 
-// ANCHOR: charge
-/// Charges an amount to the order's card through the payment client, and gives back what it
-/// charged and its receipt, and the gift card's code when the order is a gift card.
+/// Works out what an order costs: its price, less its discount if it has one, given back as the
+/// amount to charge.
+#[derive(Step)]
+struct Price {
+    #[input]
+    price: i64,
+    #[input]
+    discount: Option<i64>,
+}
+
+#[step]
+impl Price {
+    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+        contributor.contribute("amount", self.price - self.discount.unwrap_or(0));
+        Self::succeed()
+    }
+}
+
+/// Charges an order's amount to its card through the payment client, and gives back its receipt,
+/// and the gift card's code when the order is a gift card.
 #[derive(Step)]
 struct Charge {
     #[input]
@@ -121,7 +139,6 @@ impl Charge {
         let Some(receipt) = payments.charge(&self.order, &self.card, self.amount) else {
             return Self::fail("card-expired");
         };
-        contributor.contribute("charged", self.amount);
         contributor.contribute("receipt", receipt);
         if self.gift_card {
             contributor.contribute("code", format!("G-{}", self.order));
@@ -129,7 +146,6 @@ impl Charge {
         Self::succeed()
     }
 }
-// ANCHOR_END: charge
 
 /// Repairs a charge that failed because its card had expired: it asks the bank for the card that
 /// replaced it, and gives it back as the order's card.
@@ -159,8 +175,8 @@ impl RenewCard {
     }
 }
 
-/// Writes an audit line for every step it is attached to that succeeds: what the step charged, and
-/// the receipt it gave back.
+/// Writes an audit line for every step it is attached to that succeeds: the amount the order was
+/// charged, and the receipt the step gave back.
 #[derive(Default)]
 struct Audit;
 
@@ -170,11 +186,11 @@ impl Audit {
     fn charged(
         &self,
         #[step_name] step: StepName,
-        #[from_step] charged: i64,
+        #[from_workflow] amount: i64,
         #[from_step] receipt: String,
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Option<OnSuccess>, Error> {
-        contributor.contribute("audit", format!("{step} took {charged}, receipt {receipt}"));
+        contributor.contribute("audit", format!("{step} took {amount}, receipt {receipt}"));
         Self::carry_on()
     }
 }
@@ -376,10 +392,11 @@ impl Reporter for Desk {
     }
 }
 
-/// The shop's workflow: it charges, repairing a charge that fails and auditing one that succeeds,
-/// then ships, and shipping may be tried once more. Once a journey has ended, the customer is
-/// told, through the channel the shop configures.
+/// The shop's workflow: it works out what the order costs, then charges it, repairing a charge
+/// that fails and auditing one that succeeds, then ships, and shipping may be tried once more.
+/// Once a journey has ended, the customer is told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
+#[with_step(Price, name = "price")]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
 #[with_step(Ship, name = "ship", retry_budget = 1)]
 struct Orders {
@@ -402,19 +419,18 @@ impl Orders {
     }
 
     // ANCHOR: adapter
-    /// Works out the amount the charge charges: the order's price, less its discount if it has
-    /// one. Every other input of the charge is read from the data bag.
-    #[input_adapter(steps = ["charge"])]
-    fn pricing(
+    /// Gives the shipping the weight of the order's parcel, as the warehouse describes it. Every
+    /// other input of the shipping is read from the data bag.
+    #[input_adapter(steps = ["ship"])]
+    fn parcels(
         &self,
         #[key] key: &str,
-        #[from_workflow] price: i64,
-        #[from_workflow] discount: Option<i64>,
+        #[from_workflow] parcel: Parcel,
     ) -> Result<Option<AnyValue>, Error> {
-        if key != "amount" {
+        if key != "weight" {
             return Self::from_data_bag();
         }
-        Self::supply(price - discount.unwrap_or(0))
+        Self::supply(parcel.weight)
     }
     // ANCHOR_END: adapter
 
@@ -434,6 +450,7 @@ impl Orders {
     }
 }
 
+// ANCHOR: data
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
@@ -441,10 +458,21 @@ struct NewOrder {
     customer: String,
     price: i64,
     discount: Option<i64>,
-    weight: i64,
+    parcel: Parcel,
     card: String,
     gift_card: bool,
 }
+// ANCHOR_END: data
+
+// ANCHOR: parcel
+/// How the warehouse describes an order's parcel: its weight in kg, and its length, width and
+/// height in cm.
+#[derive(Clone, Serialize, Deserialize)]
+struct Parcel {
+    weight: i64,
+    size: [i64; 3],
+}
+// ANCHOR_END: parcel
 
 /// What the shop reads back once the journey has ended.
 #[derive(Output)]
@@ -455,16 +483,25 @@ struct Order {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // The order, the customer, the price, the discount, the parcel's weight in kg, the card, and
-    // whether the order is a gift card.
+    // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
+    // cm, the card, and whether the order is a gift card.
     let orders = [
-        ("A-1", "Ann", 40, Some(10), 2, "ann-2028", false),
-        ("A-7", "Gil", 45, None, 60, "gil-2027", false),
-        ("A-8", "Jo", 30, None, 1, "jo-2024", false),
-        ("A-9", "Kim", 25, None, 0, "kim-2027", true),
-        ("A-10", "Lee", 35, None, 3, "lee-2019", false),
+        (
+            "A-1",
+            "Ann",
+            40,
+            Some(10),
+            2,
+            [30, 20, 10],
+            "ann-2028",
+            false,
+        ),
+        ("A-7", "Gil", 45, None, 60, [120, 80, 60], "gil-2027", false),
+        ("A-8", "Jo", 30, None, 1, [20, 15, 5], "jo-2024", false),
+        ("A-9", "Kim", 25, None, 0, [0, 0, 0], "kim-2027", true),
+        ("A-10", "Lee", 35, None, 3, [40, 30, 20], "lee-2019", false),
     ];
-    for (order, customer, price, discount, weight, card, gift_card) in orders {
+    for (order, customer, price, discount, weight, size, card, gift_card) in orders {
         println!("{customer}'s order:");
         let instance = Orders::builder()
             .channel("email")
@@ -473,7 +510,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 customer: customer.to_owned(),
                 price,
                 discount,
-                weight,
+                parcel: Parcel { weight, size },
                 card: card.to_owned(),
                 gift_card,
             })

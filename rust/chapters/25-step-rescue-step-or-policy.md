@@ -134,7 +134,7 @@ A few counter-examples, each with its place:
 1. **A step that retries itself in a loop.** The retries are invisible from outside and have their own limit, hidden in the code. Report a failure that might work next time, and give the step a retry budget in the workflow.
 2. **A step that repairs, then tries again inside itself,** as above. The repair leaves no trace in the events, and the step now holds two business rules. Move the repair to a rescue step.
 3. **A step that tells the customer.** It mixes a business rule with a reaction to it. Let a policy react, through a role.
-4. **A hook that works out the price, or decides whether a card is good enough.** Those are business decisions. Put them in a step, or, for where a step's data comes from, in an input adapter of the workflow.
+4. **A hook that works out the price, or decides whether a card is good enough.** Those are business decisions. Put them in a step. An input adapter only changes the form of a step's data, never the business.
 5. **A hook that wants to skip the next step.** Hooks cannot skip steps. Let the step skip, or let a policy finish the journey from what an earlier step contributed, as [Ending a journey early](16-ending-a-journey-early.md) shows.
 6. **A rescue step for a failure that would go away by itself.** Nothing needs fixing, so there is nothing for it to do. Use a retry budget instead.
 

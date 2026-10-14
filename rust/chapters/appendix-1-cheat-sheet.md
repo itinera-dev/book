@@ -25,6 +25,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A workflow policy and its hooks | reacts to how the journey ended: `on workflow success`, `on workflow failure` | [17](17-doing-something-when-the-journey-ends.md) |
 | A role | operations the workflow provides to policies | [18](18-letting-policies-act-on-the-outside-world.md) |
 | An input adapter | decides where a step's inputs come from | [20](20-deciding-where-a-steps-data-comes-from.md) |
+| A value of your own type | a struct of yours, held in the data bag like any other value | [20](20-deciding-where-a-steps-data-comes-from.md) |
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
 | An abnormal termination | an error that escapes a running step | [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md) |
@@ -54,7 +55,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | What a hook requests | parameters marked `#[from_step]`, `#[from_workflow]`, `#[step_name]`, `#[role]` or `#[contributor]` | 15, 17, 18 |
 | A workflow policy and its hooks | `#[workflow_policy(name = "notify")]` on its block, and a method marked `#[on_workflow_success]` or `#[on_workflow_failure]`; attached with `policies = [Notify]` on `#[workflow(...)]` | 17 |
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 18 |
-| An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 20 |
+| An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["ship"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 20 |
+| A value of your own type | `#[derive(Clone, Serialize, Deserialize)]` on its struct, with the `serde` crate and its `derive` feature | 20 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 | An abnormal termination | `run` returns `Err(error)`, often through `?`; `abnormal_termination_retriable` on the step's `#[with_step]` line lets it spend the retry budget | When something goes wrong inside a step |
