@@ -46,7 +46,7 @@ region: adapter
 asynchronous: ch28_testing_a_hook_or_an_adapter_alone_async
 ```
 
-In the asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, each test of a hook is an `async fn` marked `#[tokio::test]` that awaits the hook, and the fakes keep what they are asked in a `Mutex` in place of a `RefCell`.
+In the asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, each test of a hook is an `async fn` marked `#[tokio::test]` that awaits the hook, and the fakes implement the roles with `#[async_trait]` and `async fn`, keeping what they are asked in a `Mutex` in place of a `RefCell`.
 
 `cargo test` prints the same for both forms:
 

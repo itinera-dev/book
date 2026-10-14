@@ -68,9 +68,6 @@ log orders A-1 #19 step_info ship: the parcel leaves with receipt R-A-1
 log orders A-1 #20 step_succeeded ship
 log orders A-1 #21 contribution_committed tracking
 log orders A-1 #22 optional_input_absent code
-email to Ann: Order A-1 is on its way, tracking T-A-1.
-log orders A-1 #23 hook_called notify: on workflow success
-log orders A-1 #24 journey_succeeded
 log orders A-7 #20 step_failed ship: too-heavy
 log orders A-7 #21 hook_called failed_shipping: on step retry of ship
 log orders A-7 #22 step_retrying ship
@@ -87,13 +84,13 @@ log orders A-8 #26 input_adapter_supplied ship gets weight from parcels
 log orders A-8 #27 service_provided ship gets carrier from carriers, a ch26_running_async_journeys_while_others_wait::MainCarrier
 the backup carrier books order A-7
 the main carrier books order A-8
+email to Ann: Order A-1 is on its way, tracking T-A-1.
+log orders A-1 #23 hook_called notify: on workflow success
+log orders A-1 #24 journey_succeeded
 log orders A-8 #28 step_info ship: the parcel leaves with receipt R-A-8
 log orders A-8 #29 step_succeeded ship
 log orders A-8 #30 contribution_committed tracking
 log orders A-8 #31 optional_input_absent code
-email to Jo: Order A-8 is on its way, tracking T-A-8.
-log orders A-8 #32 hook_called notify: on workflow success
-log orders A-8 #33 journey_succeeded
 log orders A-7 #26 step_info ship: the parcel leaves with receipt R-A-7
 log orders A-7 #27 step_succeeded ship
 log orders A-7 #28 contribution_committed tracking
@@ -101,6 +98,9 @@ log orders A-7 #29 optional_input_absent code
 email to Gil: Order A-7 is on its way, tracking B-A-7.
 log orders A-7 #30 hook_called notify: on workflow success
 log orders A-7 #31 journey_succeeded
+email to Jo: Order A-8 is on its way, tracking T-A-8.
+log orders A-8 #32 hook_called notify: on workflow success
+log orders A-8 #33 journey_succeeded
 order A-1 succeeded
 order A-7 succeeded
 order A-8 succeeded

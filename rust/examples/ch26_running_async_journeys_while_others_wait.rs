@@ -333,15 +333,19 @@ impl Audit {
     }
 }
 
+// ANCHOR: roles
 /// What the shop does for its policies: tell a customer something.
+#[async_trait]
 trait Messages: Sync {
-    fn tell(&self, customer: &str, message: &str);
+    async fn tell(&self, customer: &str, message: &str);
 }
 
 /// What the shop does for its policies: give an order's money back.
+#[async_trait]
 trait Refunds: Sync {
-    fn refund(&self, receipt: &str, amount: i64);
+    async fn refund(&self, receipt: &str, amount: i64);
 }
+// ANCHOR_END: roles
 
 /// Tells the customer how their order went, once its journey has ended.
 #[derive(Default)]
@@ -365,7 +369,7 @@ impl Notify {
             }
             (None, None) => format!("Order {order} is complete."),
         };
-        messages.tell(&customer, &message);
+        messages.tell(&customer, &message).await;
         Ok(())
     }
 
@@ -376,10 +380,12 @@ impl Notify {
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(
-            &customer,
-            &format!("Sorry, order {order} could not be completed."),
-        );
+        messages
+            .tell(
+                &customer,
+                &format!("Sorry, order {order} could not be completed."),
+            )
+            .await;
         Ok(())
     }
 }
@@ -416,7 +422,8 @@ impl FailedShipping {
         #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
-            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit");
+            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit")
+                .await;
             return Self::fail_workflow("no-carrier-can-take-it");
         }
         Self::carry_on()
@@ -431,12 +438,13 @@ impl FailedShipping {
         #[role] refunds: &dyn Refunds,
         #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
-        self.refund(refunds, contributor, &receipt, amount, &cause.to_string());
+        self.refund(refunds, contributor, &receipt, amount, &cause.to_string())
+            .await;
         Self::carry_on()
     }
 
     /// Gives the order's money back, and records why.
-    fn refund(
+    async fn refund(
         &self,
         refunds: &dyn Refunds,
         mut contributor: Contributor<'_>,
@@ -444,7 +452,7 @@ impl FailedShipping {
         amount: i64,
         why: &str,
     ) {
-        refunds.refund(receipt, amount);
+        refunds.refund(receipt, amount).await;
         contributor.contribute("refund", format!("{amount} back on {receipt}: {why}"));
     }
 }
@@ -628,15 +636,19 @@ struct Orders {
 }
 
 #[role]
+#[async_trait]
 impl Refunds for Orders {
-    fn refund(&self, receipt: &str, amount: i64) {
+    async fn refund(&self, receipt: &str, amount: i64) {
+        network().await;
         println!("the bank gives {amount} back on receipt {receipt}");
     }
 }
 
 #[role]
+#[async_trait]
 impl Messages for Orders {
-    fn tell(&self, customer: &str, message: &str) {
+    async fn tell(&self, customer: &str, message: &str) {
+        network().await;
         println!("{} to {customer}: {message}", self.channel);
     }
 }
