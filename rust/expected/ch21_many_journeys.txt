@@ -1,3 +1,0 @@
-A-1: succeeded
-A-2: failed
-A-3: succeeded

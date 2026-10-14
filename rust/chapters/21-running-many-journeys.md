@@ -2,55 +2,21 @@
 
 ## What you want to do
 
-Orders come in all day. You want to run the shop's workflow once for every order, each journey with that order's own data, and know what to do on the rare occasion when the executor's `run` won't start a journey at all.
+Orders come in all day, and the shop shouldn't make a new executor for each one. You want one executor that runs every order of the day, one journey after another, each starting from its own order and nothing else.
 
 ## The code
 
-The workflow charges, then ships. Each journey is named after its order, as [chapter 11](11-naming-a-journey.md) showed, so the output below is the same on every run.
+The shop is [chapter 20](20-deciding-where-a-steps-data-comes-from.md)'s, unchanged. Only `main` changes: it makes one executor before the loop, and hands it each order's instance in turn.
 
 ```example
-name: ch21_many_journeys
-region: workflow
-```
-
-Each order is the data one journey starts with: a struct that derives `InitialData`, whose fields become the keys of the data bag. The second order has nothing to charge.
-
-```example
-name: ch21_many_journeys
-region: data
-```
-
-One executor runs them all, one after another. For each order you create a new workflow instance with that order's data, and hand it to the executor.
-
-```example
-name: ch21_many_journeys
+name: ch21_one_executor_for_every_order
 region: run
 ```
 
-It prints:
+It runs the same five orders, and prints what chapter 20's program printed:
 
 ```output
-name: ch21_many_journeys
-```
-
-Sometimes a journey can't even start. Here the shop's `notify` policy, which tells the customer how the order went, needs the texts the shop sends, and the file that holds them is missing. The policy is built by its `#[factory]` function before the journey starts, so building it fails first.
-
-```example
-name: ch21_refused
-region: policy
-```
-
-This time the call to `run` gives back a refusal instead of a result.
-
-```example
-name: ch21_refused
-region: run
-```
-
-It prints:
-
-```output
-name: ch21_refused
+name: ch21_one_executor_for_every_order
 ```
 
 An instance runs one journey and no more. Handing the same instance to the executor a second time is a mistake, and Rust won't compile it:
@@ -61,18 +27,17 @@ name: ch21_instance_run_twice
 
 ## How it works
 
-1. **The workflow is declared once; its instances are many.** The workflow is the plan, the same for every order. A workflow instance is one order's copy of that plan: it's made for one journey, with that journey's initial data, its journey ID and its reporters, and it holds everything the journey changes. Its initial data is what the data bag starts with.
-2. **Creating an instance is three calls.** `Orders::builder()` starts a new instance, `initial_data` gives it the order, and `create` makes it. Creating it can fail before any journey, with an `InstanceError`, when the workflow's ID generator or a reporter fails while the instance is made. That isn't a refusal, since the executor isn't involved yet; the `?` in the loop simply hands the error to `main`.
-3. **The executor runs one journey at a time and remembers nothing.** The executor here is `LocalExecutor`, the local executor, which runs a journey inside your program, without saving anything: the journey lives only as long as the call to `run`. When `run` returns, nothing of that journey remains in the executor, so the failure of order A-2 has no effect on order A-3, and the same executor runs every order of the day. On the asynchronous executor, `AsyncLocalExecutor`, the loop is the same, with the call to `run` awaited.
-4. **A journey that fails still has a result.** Order A-2 has nothing to charge, so its journey failed, but `run` returned its result like any other. Whatever happens inside a journey, a failure or even an abort, is in its result, which [chapter 22](22-reading-the-result.md) reads in detail.
-5. **An instance runs at most one journey, and the compiler checks it.** The executor's `run` takes the instance by value, so once an instance has run it's gone: using it again is the "use of moved value" error above, not something that waits to be found while the shop is open. To run an order again, for example after the customer has corrected it, create a new instance with the corrected data.
-6. **Side by side means several executors.** An executor never runs two journeys at once. Its `run` borrows it mutably, so starting a second journey on the same executor while one is running doesn't compile either. To run journeys in parallel, give each thread its own `LocalExecutor`.
-7. **A refusal means no journey started.** The executor's `run` returns `Result<JourneyResult, Refusal>`, and a refusal is the `Err`: the journey couldn't start, so there's no journey, no event and no result. Nothing ran, so order A-1 was not charged and there is nothing to undo. Fix the cause, then run the order again with a new instance.
-8. **In Rust, little is left for `run` to refuse.** The specification lists the causes of a refusal: the workflow is put together wrongly, the executor doesn't accept its execution mode, the initial data or the instance's global metadata holds something that is not a value, that global metadata breaks a rule of its own, or code of yours that runs before the journey starts fails. The first three never reach `run` in Rust. A workflow put together wrongly is caught when it is built: by the compiler when it is declared with the attributes, or, in the long form of [chapter 28](28-declaring-by-hand.md), when the program builds it. A step, hook or reporter in a mode the executor doesn't accept doesn't compile. And initial data and global metadata can only hold values, since their types must implement `Value`. What's left is global metadata that breaks its own rule, refused with `Refusal::ReservedMetadataKey`, and your code that runs before the journey starts, for which each variant of `Refusal` names the code and carries its error: `Refusal::WorkflowPolicy` when a workflow policy's `#[factory]` returns an `Err`, since workflow policies are built once for each journey before it starts, and three more variants when the code that delivers events and global metadata to the reporters fails as the journey is set up.
+1. **An executor keeps nothing between journeys.** `LocalExecutor` runs a journey inside the call to its `run`, and saves nothing: the journey lives only as long as that call. When `run` returns, nothing of that journey remains in the executor, so the next journey starts from its own order alone. Gil's shipping needed the backup carrier and Jo's card was replaced, yet Kim's journey, run next by the same executor, starts like every other: `journey_started` with Kim's data, the price's first attempt, and the bank made anew for Kim's charge, as `service_provided` shows. Its log starts again at `#1`, since an event's sequence number counts the events of its own journey, never those of the journeys before it. **What one journey did never reaches another through the executor.**
+2. **The loop still creates an instance for every order.** An instance is made for one journey, and runs once, as [chapter 5](05-a-first-journey.md) showed. Rust checks it when the program is built: `run` takes the instance by value, so using it again is the "use of moved value" error above, never something found while the shop is open. To run an order again, for example after the customer has corrected it, create a new instance with the corrected data.
+3. **An executor runs one journey at a time.** `run` borrows the executor mutably, which is why it is declared with `let mut`: it can't be handed a second journey until the first has ended, and each call returns only once its journey has. That is why the loop waits for each order before it starts the next.
 
-## Remember
+The executor now runs every order. But for Lee's order, `main` learns only that the journey failed. The log shows why, line by line, but the code that runs the shop has only the result, and reads from it only how the journey ended and its output.
 
-1. Create a new workflow instance for every journey, with that journey's own data; an instance moves into `run`, so it can never run twice.
-2. An executor runs one journey at a time and keeps nothing between journeys; to run journeys side by side, use one executor for each.
-3. A journey that fails or is aborted still returns a result; `run` refuses only a journey that can't start.
-4. A refusal means nothing ran and no event was emitted: fix its cause, then run a new instance.
+## Outcomes
+
+We have shown how one executor runs every order of the day, each journey starting from its own data.
+
+| The usual way | With Itinera |
+|---|---|
+| Code that handles many requests often keeps state between them, in a cache or a field, and a request can be affected by the ones before it. | The executor keeps nothing between journeys: each starts from its own order, with services made for it. |
+| Running the same request twice by mistake is usually found at run time, if at all. | An instance moves into `run`, so running it twice doesn't compile. |

@@ -50,7 +50,7 @@ name: ch27_not_a_value
 
 ### Refused by run
 
-A workflow can be put together correctly and still fail to start a journey, when something it supplies fails before the journey starts. [Chapter 21](21-running-many-journeys.md) showed one: the `notify` policy needs the texts the shop sends, and the file that holds them is missing.
+A workflow can be put together correctly and still fail to start a journey, when something it supplies fails before the journey starts. Here is one: the `notify` policy, built by a function marked `#[factory]` that may fail, needs the texts the shop sends, and the file that holds them is missing.
 
 ```example
 name: ch21_refused
@@ -107,7 +107,7 @@ The refusal is all there is to see. A refused journey has no events: had the wor
    - a provider that returns no service: a provider returns a `Provided` of the service, never nothing.
 5. **A refusal is not a result.** When a journey can't start, `run` returns a `Refusal` as its `Err` instead of a journey result. The specification refuses a journey when the workflow is refused at admission, and when the workflow's own code called before the journey starts fails. In Rust, admission has almost all happened by the time you call `run`: what's left of it is an instance whose global metadata sets `journey_id`, the key only the executor sets. The rest is that code: a workflow policy while it is built, or the dispatcher factory, the dispatcher and the reporters while they are given the journey ID and the instance's global metadata. A refusal has no journey and no events. It's never a business outcome: nothing ran, so fix the cause and run a new instance.
 6. **One instance, one journey.** The specification refuses an instance that has already run. In Rust you can't even try: `run` takes the instance by value, as [chapter 21](21-running-many-journeys.md) shows.
-7. **The rest shows up during a journey.** Some mistakes can't be seen before a journey runs: a step that can't be built, required data missing from the data bag, or a value of the wrong type. Each aborts the journey with its own abort reason, as [chapter 22](22-reading-the-result.md) shows. A step policy, built afresh for every attempt, is one of them: when its `#[factory]` fails, the journey is aborted, not refused.
+7. **The rest shows up during a journey.** Some mistakes can't be seen before a journey runs: a step that can't be built, required data missing from the data bag, or a value of the wrong type. Each aborts the journey with its own abort reason, as [chapter 22](22-reading-the-result.md) shows for required data missing. A step policy, built afresh for every attempt, is one of them: when its `#[factory]` fails, the journey is aborted, not refused.
 8. **Where the rules come from.** `service not provided` is the violation of a step asking for a service that no provider of the workflow serves; [chapter 7](07-giving-a-step-the-tools-it-needs.md) teaches services and providers. The rule behind `rescued step retried`, that a step with a rescue step is never retried, is in [chapter 14](14-repairing-then-trying-once-more.md).
 
 ## Remember

@@ -11,8 +11,8 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | An outcome | success, failure with a reason, or skipped | [4](04-a-first-step.md), [16](16-skipping-a-step.md) |
 | A workflow and its steps | the plan: the steps in order, each under its name | [5](05-a-first-journey.md), [6](06-passing-data-on.md) |
 | A workflow instance and its initial data | one journey's starting point | [5](05-a-first-journey.md), [21](21-running-many-journeys.md) |
-| An executor, and running an instance | runs one journey and returns its result, or refuses it | [5](05-a-first-journey.md), [21](21-running-many-journeys.md) |
-| Reading the result and its output | how the journey ended, and the data bag it left | [5](05-a-first-journey.md), [6](06-passing-data-on.md), [22](22-reading-the-result.md) |
+| An executor, and running an instance | runs one journey at a time and returns its result, or refuses it, keeping nothing between journeys | [5](05-a-first-journey.md), [21](21-running-many-journeys.md) |
+| Reading the result and its output | how the journey ended and what explains it, and the data bag it left, unless it was aborted | [5](05-a-first-journey.md), [6](06-passing-data-on.md), [22](22-reading-the-result.md) |
 | A contributor | how a step adds data to the data bag | [6](06-passing-data-on.md) |
 | A service and its provider | a tool a step asks for by a key, and the part of the workflow that supplies it, per journey or per attempt | [7](07-giving-a-step-the-tools-it-needs.md), [13](13-a-carrier-for-each-attempt.md) |
 | A reporter | receives every event of a journey | [8](08-seeing-what-happened.md), [10](10-more-than-one-reporter.md) |
@@ -27,7 +27,6 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A role | operations the workflow provides to policies | [18](18-letting-policies-act-on-the-outside-world.md) |
 | An input adapter | decides where a step's inputs come from | [20](20-deciding-where-a-steps-data-comes-from.md) |
 | A value of your own type | a struct of yours, held in the data bag like any other value | [20](20-deciding-where-a-steps-data-comes-from.md) |
-| A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
 | A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
 | A lifecycle | what a hook returns to end the journey early: `FailWorkflow` or `FinishWorkflow` | [Ending a journey early](16-ending-a-journey-early.md) |
 
@@ -42,8 +41,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | An outcome | `Self::succeed()`, `Self::fail("code")`, `Self::skip()` or `Self::skip_because("code")` | 4, 16 |
 | A workflow and its steps | `#[workflow(name = "orders")]` on its struct, then one `#[with_step(Charge, name = "charge")]` line per step, in order | 5, 6 |
 | A workflow instance and its initial data | `#[derive(InitialData)]` on a struct, then `Orders::builder().initial_data(order).create()?` | 5, 21 |
-| An executor, and running an instance | `LocalExecutor::new().run(instance)`, which returns `Result<JourneyResult, Refusal>` | 5, 21 |
-| Reading the result and its output | `result.status`, and `#[derive(Output)]` on a struct read with `result.output::<Receipt>()?` | 5, 6, 22 |
+| An executor, and running an instance | `let mut executor = LocalExecutor::new();`, then `executor.run(instance)` for each instance, which returns `Result<JourneyResult, Refusal>` | 5, 21 |
+| Reading the result and its output | a `match` on `result.status`: `JourneyStatus::Succeeded`, `Failed { failure, .. }` with `failure.cause()`, or `Aborted(abort)` with `abort.reason()`; and `#[derive(Output)]` on a struct read with `result.output::<Order>()?` | 5, 6, 22 |
 | A contributor | a parameter of `run` marked `#[contributor]`, of type `Contributor<'_>`, then `contributor.contribute("key", value)` | 6 |
 | A service and its provider | a parameter of `run` marked `#[service]`, of type `&dyn Trait`; a method of the workflow's `#[workflow] impl` block marked `#[provider]`, or `#[provider(key = "...", per_attempt)]` for a new instance for each attempt, returning `Result<Provided<dyn Trait>, Error>`, made with `provide!(...)`; a per-attempt provider may request `#[attempt]` | 7, 13 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log, Desk]` on `#[workflow(...)]` | 8, 10 |
@@ -58,7 +57,6 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 18 |
 | An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["ship"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 20 |
 | A value of your own type | `#[derive(Clone, Serialize, Deserialize)]` on its struct, with the `serde` crate and its `derive` feature | 20 |
-| A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |
 | A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
 | A lifecycle | `Self::carry_on()`, `Self::fail_workflow("code")`, or, from `on step success` only, `Self::finish_workflow()` | Ending a journey early |
 
