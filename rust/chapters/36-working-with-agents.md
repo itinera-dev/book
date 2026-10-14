@@ -18,7 +18,7 @@ name: ch36_approved_paths
 region: paths
 ```
 
-`RecordingReporter`, from [chapter 29](29-testing-a-whole-journey.md), keeps a journey's events, and `on_the_path` keeps the ones on its path: each outcome of a step, each decision about one, and how the journey ended. Everything else, such as which data was committed, is left out, because it belongs to the steps.
+`RecordingReporter`, from [chapter 30](30-testing-a-whole-journey.md), keeps a journey's events, and `on_the_path` keeps the ones on its path: each outcome of a step, each decision about one, and how the journey ended. Everything else, such as which data was committed, is left out, because it belongs to the steps.
 
 ```example
 name: ch36_approved_paths
@@ -42,7 +42,7 @@ A change to a business rule, such as charging the price less a discount, leaves 
 
 ## How it works
 
-1. **What an agent needs to change a step is the step.** A step names its inputs and services by key, and reports an outcome. It never calls another step and never decides what happens next, so an agent changing it reads the step, and the step's own tests check it alone, as [chapter 26](26-testing-a-step-alone.md) shows.
+1. **What an agent needs to change a step is the step.** A step names its inputs and services by key, and reports an outcome. It never calls another step and never decides what happens next, so an agent changing it reads the step, and the step's own tests check it alone, as [chapter 27](27-testing-a-step-alone.md) shows.
 2. **What an agent needs to change the flow is one workflow.** Every flow decision is in the workflow's declaration, its policies and its providers, or is a default that applies because the declaration says nothing. Its listing, which [chapter 2](02-the-big-picture.md) prints, shows the steps in order, their step policies, their services and providers, and their rescue steps, without running anything; retry budgets and workflow policies are read in the declaration.
 3. **Neither change needs the other.** A business rule changes without touching the workflow, and the flow changes without touching a step. When a change touches both, it is two changes, and a reviewer can ask for them separately.
 4. **One rule to check on every change: a step decides nothing about the flow.** A step that tries its work again inside itself, calls a second carrier when the first fails, or decides which step comes next has taken a flow decision. A reviewer, a person or an agent, looks for those in every change to a step. [Chapter 31](31-step-rescue-step-or-policy.md) lists what belongs where.

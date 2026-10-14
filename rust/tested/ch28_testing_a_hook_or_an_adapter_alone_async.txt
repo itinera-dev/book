@@ -1,0 +1,12 @@
+running 8 tests
+test tests::audit_writes_the_step_the_amount_and_the_receipt ... ok
+test tests::failed_shipping_lets_a_shipping_that_ended_in_an_error_be_retried ... ok
+test tests::failed_shipping_lets_a_shipping_that_failed_with_too_heavy_be_retried ... ok
+test tests::failed_shipping_refunds_a_shipping_the_executor_gave_up ... ok
+test tests::failed_shipping_refunds_and_gives_up_a_shipping_that_failed_with_over_parcel_limit ... ok
+test tests::notify_gives_a_gift_cards_code_and_says_sorry_for_a_failed_order ... ok
+test tests::parcels_gives_the_shipping_the_parcels_weight ... ok
+test tests::parcels_leaves_every_other_input_to_the_data_bag ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

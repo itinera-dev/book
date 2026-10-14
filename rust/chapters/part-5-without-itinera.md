@@ -110,27 +110,27 @@ name: part5_testing_the_fallback
 region: fake
 ```
 
-The ship step is tested alone: the test calls its `run` itself, with one fake carrier as its service and a contributor lent by `Contributions`, as in [chapter 26](26-testing-a-step-alone.md). It ships when the carrier is up, and fails in a way worth trying again when the carrier is down.
+The ship step is tested alone: the test calls its `run` itself, with one fake carrier as its service and a contributor lent by `Contributions`, as in [chapter 27](27-testing-a-step-alone.md). It ships when the carrier is up, and fails in a way worth trying again when the carrier is down.
 
 ```example
 name: part5_testing_the_fallback
 region: step_alone
 ```
 
-The fallback belongs to the workflow, so it is tested on a whole journey, by its events: with the main carrier down and the backup up, the ship step's first attempt fails, the executor decides to try it again, and the second attempt succeeds. The events are kept by `RecordingReporter`, as in [chapter 29](29-testing-a-whole-journey.md), and a small function, `attempt_line`, not shown here, keeps a line for each event about an attempt.
+The fallback belongs to the workflow, so it is tested on a whole journey, by its events: with the main carrier down and the backup up, the ship step's first attempt fails, the executor decides to try it again, and the second attempt succeeds. The events are kept by `RecordingReporter`, as in [chapter 30](30-testing-a-whole-journey.md), and a small function, `attempt_line`, not shown here, keeps a line for each event about an attempt.
 
 ```example
 name: part5_testing_the_fallback
 region: journey
 ```
 
-It prints an `ok` line for each of its four checks, as the programs of [chapter 26](26-testing-a-step-alone.md) do:
+It prints an `ok` line for each of its four checks, as the programs of [chapter 27](27-testing-a-step-alone.md) do:
 
 ```output
 name: part5_testing_the_fallback
 ```
 
-Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapters 26 to 29](26-testing-a-step-alone.md) test the shop the same way: a step alone, a hook or an adapter alone, the flow with scripted steps, and a whole journey by its path.
+Each rule is tested where it lives. The step's test checks shipping and nothing else. The journey's test checks the fallback through the event stream, which says what happened in the specification's own words: a failed attempt, a retry, a successful attempt. Change which carrier comes first, and only the workflow's provider and the journey's expected tracking number change; the step and its tests stay as they are. [Chapters 27 to 30](27-testing-a-step-alone.md) test the shop the same way: a step alone, a hook or an adapter alone, the flow with scripted steps, and a whole journey by its path.
 
 ## What you gain
 

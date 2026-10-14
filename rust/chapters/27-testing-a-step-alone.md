@@ -11,42 +11,50 @@ The tests use recorders that come with the `testing` feature of `itinera`. You t
 The program is [chapter 25](25-reading-the-result.md)'s shop, unchanged, with its tests at the end, in a module of their own. `#[cfg(test)]` makes it a module that only a test build compiles: the shop's own build leaves it out, so only the tests may use the `testing` feature, and `use super::*` gives them the shop's steps:
 
 ```example
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
 region: module
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
 A step meets the outside world only through its services, so the tests give it fakes of their own, inside the module. These two answer as the test chooses:
 
 ```example
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
 region: fakes
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
 Each test is a function marked `#[test]`, named after the rule it checks, which fails when an `assert!` or `assert_eq!` doesn't hold. The charge is tested by building it with Ann's order, as the executor would, and calling its `run`. `Contributions`, from `itinera::journey`, lends the contributor `run` asks for, and keeps what the step contributes, read back with `read`:
 
 ```example
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
 region: charge
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
 The rescue step is built the same way, with the reason the test chooses in its `#[reason]` field:
 
 ```example
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
 region: rescue
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
 The shipping also asks for its step reporter. `StepEventReporter`, from `itinera::step`, lends one, and keeps what the step emits through it, read back with `emitted`:
 
 ```example
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
 region: ship
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
-`cargo test` runs every test, and prints a line for each:
+Where it differs, each example is followed by its asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop the same way: its fakes implement the services with `#[async_trait]` and `async fn`, and each test is an `async fn` marked `#[tokio::test]`, which runs it on tokio's runtime, awaits `run`, and has the shipping's step reporter lent by `async_reporter`.
+
+`cargo test` runs every test, and prints a line for each, the same for both forms:
 
 ```test-run
-name: ch26_testing_a_step_alone
+name: ch27_testing_a_step_alone
+asynchronous: ch27_testing_a_step_alone_async
 ```
 
 ## How it works

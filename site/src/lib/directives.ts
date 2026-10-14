@@ -22,7 +22,9 @@
 //   prints follows, under the same two conditions.
 //   An example may also be a tested program, in `tested/NAME.EXT`.
 // - `test-run`: `tested/NAME.txt`, as a plain block captioned as what running
-//   the tests of the tested program prints.
+//   the tests of the tested program prints. With `asynchronous: NAME`, the
+//   report of the asynchronous form follows, under the same two conditions;
+//   how long the tests took is not a difference.
 // - `compile-error`: `compile-errors/NAME.EXT`, captioned as a program that
 //   does not compile, then the compiler's message from `compile-errors/NAME.txt`.
 //
@@ -54,7 +56,7 @@ type Kind = 'example' | 'output' | 'test-run' | 'compile-error';
 const KEYS: Record<Kind, readonly string[]> = {
 	example: ['name', 'region', 'asynchronous'],
 	output: ['name', 'asynchronous'],
-	'test-run': ['name'],
+	'test-run': ['name', 'asynchronous'],
 	'compile-error': ['name'],
 };
 
@@ -286,19 +288,48 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return shown;
 		};
 
+		/** A test report without how long its tests took, which changes from run to run. */
+		const timeless = (report: string) => report.replace(/finished in \d+(\.\d+)?s/g, 'finished');
+
 		const testRun = (directive: Directive): RootContent[] => {
-			const path = `tested/${directive.name}.txt`;
-			return figure({
-				classes: ['listing--output'],
-				caption: [
-					text('What running the tests of '),
-					programName(directive.name),
-					text(' prints, recorded in '),
-					link(sourceHref(repoPath(path)), `${directive.name}.txt`),
-				],
-				lang: 'text',
-				code: read(path, `a test-run directive names ${directive.name}`).replace(/\n+$/, ''),
-			});
+			const report = (name: string, what: string) => {
+				const path = `tested/${name}.txt`;
+				return { path, text: read(path, what).replace(/\n+$/, '') };
+			};
+			const sync = report(directive.name, `a test-run directive names ${directive.name}`);
+			const shown = [
+				...figure({
+					classes: ['listing--output'],
+					caption: [
+						text('What running the tests of '),
+						programName(directive.name),
+						text(' prints, recorded in '),
+						link(sourceHref(repoPath(sync.path)), `${directive.name}.txt`),
+					],
+					lang: 'text',
+					code: sync.text,
+				}),
+			];
+			const asynchronous = asynchronousOf(directive);
+			if (asynchronous) {
+				const other = report(asynchronous, `the test report of the asynchronous form ${asynchronous} is shown`);
+				if (timeless(other.text) !== timeless(sync.text)) {
+					shown.push(
+						...figure({
+							classes: ['listing--output', 'listing--asynchronous'],
+							caption: [
+								text('What running the tests of the asynchronous form '),
+								programName(asynchronous),
+								text(' prints, recorded in '),
+								link(sourceHref(repoPath(other.path)), `${asynchronous}.txt`),
+							],
+							lang: 'text',
+							code: other.text,
+						}),
+					);
+				}
+			}
+			return shown;
 		};
 
 		const compileError = (directive: Directive): RootContent[] => {

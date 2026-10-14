@@ -11,49 +11,49 @@ The shop is [chapter 25](25-reading-the-result.md)'s, written in Itinera's other
 The payment client and the carrier now answer asynchronously, so their methods are `async fn`. The order book answers from the shop's own records without waiting, so it stays as it was. In Rust, a trait with `async fn` methods can't be used as `&dyn Payments`, the way a step asks for a service, unless it is marked `#[async_trait]`, from `itinera::mode`, and so is each implementation of it:
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: services
 ```
 
 The faked bank and carriers await `network` before each answer. It hands the thread back once, as a real call does while it waits for the other side. The bank's implementation is marked `#[async_trait]` too:
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: network
 ```
 
 Each step's `run` becomes an `async fn`, even the pricing's, which has nothing to wait for:
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: price
 ```
 
 A step awaits the services it calls. The shipping's step reporter is now an `AsyncStepReporter`, whose `info` is awaited too:
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: ship
 ```
 
 Each hook becomes an `async fn` as well; `refund`, which is no hook and waits for nothing, stays as it was:
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: failed_shipping
 ```
 
 `main` runs three of the day's orders, Ann's, Gil's and Jo's, at the same time. `order`, not shown, makes each one's instance as chapter 25's `main` did, and `journey` runs it with an `AsyncLocalExecutor` of its own. `#[tokio::main]` starts tokio's runtime and runs `main` on it, and `tokio::join!` awaits the three journeys together in `main`'s own task, so they take turns on the one thread that runs it, and the output is the same on every run; it returns once all of them have ended. The runtime has several threads by default; with one, as `#[tokio::main(flavor = "current_thread")]` asks, the shop runs just the same.
 
 ```example
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch30_running_async_journeys_while_others_wait
+name: ch26_running_async_journeys_while_others_wait
 ```
 
 ## How it works
@@ -65,7 +65,7 @@ name: ch30_running_async_journeys_while_others_wait
 5. **An executor runs one journey at a time,** as [chapter 24](24-running-many-journeys.md) showed, so each journey that runs at the same time as others gets an executor of its own. An executor keeps nothing between journeys, so the three share nothing.
 6. **A role an asynchronous hook asks for is `Sync`.** An asynchronous hook's future may move to another thread between two waits, and it holds the role while it runs. Rust lets it move only if the role can be used from several threads, which is what `Sync` says, so the shop's traits are now `trait Messages: Sync` and `trait Refunds: Sync`.
 
-Ann's, Gil's and Jo's journeys now go on together, each while the others wait. But the shop's log will soon write to a logging service, over the network too, where a write can fail.
+Ann's, Gil's and Jo's journeys now go on together, each while the others wait. But the only way to know that the shop still gives the same answers after a change is to run every order again, against the bank and the carriers, and read the log.
 
 ## Outcomes
 

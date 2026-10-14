@@ -13,7 +13,7 @@ serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
-# The same commit as above, with the `testing` feature that chapters 26 to 29 use: bump both together.
+# The same commit as above, with the `testing` feature that chapters 27 to 30 use: bump both together.
 itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "788c6f2f0aa9bcdd5450292903fe58a9af6feae6", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
@@ -26,20 +26,36 @@ serde_json = "1"
 compile-errors = []
 
 [[bin]]
-name = "ch26_testing_a_step_alone"
-path = "tested/ch26_testing_a_step_alone.rs"
+name = "ch27_testing_a_step_alone"
+path = "tested/ch27_testing_a_step_alone.rs"
 
 [[bin]]
-name = "ch27_testing_a_hook_or_an_adapter_alone"
-path = "tested/ch27_testing_a_hook_or_an_adapter_alone.rs"
+name = "ch27_testing_a_step_alone_async"
+path = "tested/ch27_testing_a_step_alone_async.rs"
 
 [[bin]]
-name = "ch28_testing_the_flow_with_scripted_steps"
-path = "tested/ch28_testing_the_flow_with_scripted_steps.rs"
+name = "ch28_testing_a_hook_or_an_adapter_alone"
+path = "tested/ch28_testing_a_hook_or_an_adapter_alone.rs"
 
 [[bin]]
-name = "ch29_testing_a_whole_journey"
-path = "tested/ch29_testing_a_whole_journey.rs"
+name = "ch28_testing_a_hook_or_an_adapter_alone_async"
+path = "tested/ch28_testing_a_hook_or_an_adapter_alone_async.rs"
+
+[[bin]]
+name = "ch29_testing_the_flow_with_scripted_steps"
+path = "tested/ch29_testing_the_flow_with_scripted_steps.rs"
+
+[[bin]]
+name = "ch29_testing_the_flow_with_scripted_steps_async"
+path = "tested/ch29_testing_the_flow_with_scripted_steps_async.rs"
+
+[[bin]]
+name = "ch30_testing_a_whole_journey"
+path = "tested/ch30_testing_a_whole_journey.rs"
+
+[[bin]]
+name = "ch30_testing_a_whole_journey_async"
+path = "tested/ch30_testing_a_whole_journey_async.rs"
 
 [[example]]
 name = "ch24_instance_run_twice"

@@ -6,38 +6,45 @@ You want to check the shop's flow: that a declined card is rescued, that a parce
 
 ## The code
 
-The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 26](26-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders:
+The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders:
 
 ```example
-name: ch28_testing_the_flow_with_scripted_steps
+name: ch29_testing_the_flow_with_scripted_steps
 region: order
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
 The first test runs the instance with a script. `scripted()`, a method of every workflow instance that comes with the `testing` feature, starts it. `step` names a step, and what follows says what its attempts do in place of running it: what they contribute, and how they end. `on_attempt` moves on to another attempt of the same step, `and_step` to another step, and `run` runs the journey:
 
 ```example
-name: ch28_testing_the_flow_with_scripted_steps
+name: ch29_testing_the_flow_with_scripted_steps
 region: rescued
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
 The next three run one script, in which the shipping's first attempt fails with the reason each test chooses, and the last of them reads what the shipping was built with:
 
 ```example
-name: ch28_testing_the_flow_with_scripted_steps
+name: ch29_testing_the_flow_with_scripted_steps
 region: given_up
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
 The last test ends the charge's first attempt in an error, as the bank's would:
 
 ```example
-name: ch28_testing_the_flow_with_scripted_steps
+name: ch29_testing_the_flow_with_scripted_steps
 region: outage
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
-The shop's log, its desk and its messages still print, since the workflow is the shop's own, but `cargo test` hides what a passing test prints. It prints:
+In the asynchronous form, which tests [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, the instance is an `Instance<Orders, Asynchronous>`, and each test is an `async fn` marked `#[tokio::test]` that awaits the scripted run, written the same way.
+
+The shop's log, its desk and its messages still print, since the workflow is the shop's own, but `cargo test` hides what a passing test prints. It prints the same for both forms:
 
 ```test-run
-name: ch28_testing_the_flow_with_scripted_steps
+name: ch29_testing_the_flow_with_scripted_steps
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
 ## How it works
