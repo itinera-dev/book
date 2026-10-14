@@ -9,7 +9,7 @@ name: Rust book
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, next]
 
 permissions:
   contents: read

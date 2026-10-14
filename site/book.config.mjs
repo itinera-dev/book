@@ -45,7 +45,7 @@ export const root = resolve(process.env.BOOK_ROOT ?? resolve(process.cwd(), '..'
 
 const SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
 
-/** The version segment of the edition built from main, ahead of any release. */
+/** The version segment of the edition built from the `next` branch, ahead of any release. */
 const NEXT = 'next';
 
 /**

@@ -1,6 +1,6 @@
 # The Rust book
 
-The Rust book: its [chapters](chapters/README.md), and the examples and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` at the commit or version pinned in [Cargo.toml](Cargo.toml).
+The Rust book: its [chapters](chapters/README.md), and the examples and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` as [Cargo.toml](Cargo.toml) pins it: on `main`, the latest release from crates.io, named exactly; on `next`, a commit of [itinera-rs](https://github.com/itinera-dev/itinera-rs), as [BOOK.md](../BOOK.md#how-the-examples-are-checked) explains.
 
 ## Running the examples
 
