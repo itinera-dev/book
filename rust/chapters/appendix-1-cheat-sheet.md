@@ -36,7 +36,9 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A scripted run | in a test, a journey in which a script says how the steps' attempts end, in place of running them | [29](29-testing-the-flow-with-scripted-steps.md) |
 | A fake provider and a journey's path | in a test, a function in place of a workflow's provider, and the journey's outcomes and decisions as lines a test compares | [30](30-testing-a-whole-journey.md) |
 | A reporter that fails | a reporter whose report fails aborts the journey with `reporter failed`, and receives nothing more | [31](31-stopping-a-journey-when-its-log-fails.md) |
-| A workflow declared by hand | the long form of everything above | [35](35-declaring-by-hand.md) |
+| A reporter that prints every event | a reporter that comes with Itinera, prints each event as it is, and never fails | [32](32-seeing-every-event-of-a-journey.md) |
+| Global metadata | a key and a value every reporter of a journey receives, set by the instance before the first event or by a step while it runs | [33](33-giving-every-reporter-what-it-needs.md) |
+| A workflow declared by hand | the long form of everything above | [37](37-declaring-by-hand.md) |
 
 ## In Rust
 
@@ -74,6 +76,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A scripted run | with the `testing` feature under `[dev-dependencies]`, and only inside `#[cfg(test)] mod tests`, `instance.scripted().step("charge").will_fail("code").on_attempt(2).will_succeed().and_step("charge_rescue").will_succeed().run()?`, which returns a `ScriptedRun` | 29 |
 | A fake provider and a journey's path | with the `testing` feature under `[dev-dependencies]`, and only inside `#[cfg(test)] mod tests`, `.fake_provider::<dyn Payments>("bank", fake)` on the builder, where `fake` returns `Ok(provide!(...))`, and `.reporter(recorder.clone())` with a `RecordingReporter`, then `recorder.path()` | 30 |
 | A reporter that fails | `report` returning `Err`, which aborts the journey; the result's `Abort::ReporterFailed(error)` holds the error | 31 |
-| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 35 |
+| A reporter that prints every event | `DebugReporter`, from `itinera::report`, in `reporters = [DebugReporter, ...]` | 32 |
+| Global metadata | `.reporters_global_metadata("customer", value)` on the instance builder, or `reporter.set_global_metadata("receipt", value)?` in a step with `#[reporter] mut reporter: StepReporter<'_>`, received by `Reporter::set_global_metadata(&mut self, key, value)` | 33 |
+| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 37 |
 
 For the asynchronous form, as chapter 26 shows, turn on the `async` feature, mark the trait of each service that waits, and its implementations, `#[async_trait]`, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, keep a synchronous reporter under `reporters = [...]`, or declare an `AsyncReporter` under `async_reporters = [...]`, as chapter 31 shows, and run on `AsyncLocalExecutor`, awaiting its `run`.

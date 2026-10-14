@@ -1,0 +1,49 @@
+Ann's order:
+log orders A-1 for Ann #1 journey_started card, customer, discount, gift_card, order, parcel, price
+log orders A-1 for Ann #2 attempt_started lookup, attempt 1
+log orders A-1 for Ann #3 service_provided lookup gets order_book from ledger, a ch33_giving_every_reporter_what_it_needs::Ledger
+the order book has no order A-1 yet
+log orders A-1 for Ann #4 step_succeeded lookup
+log orders A-1 for Ann #5 contribution_committed completed
+log orders A-1 for Ann #6 hook_called already_completed: on step success of lookup
+log orders A-1 for Ann #7 attempt_started price, attempt 1
+log orders A-1 for Ann #8 step_succeeded price
+log orders A-1 for Ann #9 contribution_committed amount
+log orders A-1 for Ann #10 attempt_started charge, attempt 1
+log orders A-1 for Ann #11 service_provided charge gets payments from bank, a ch33_giving_every_reporter_what_it_needs::Bank
+the bank charges 30 for order A-1
+log orders A-1 for Ann, receipt R-A-1 #12 global_metadata_set receipt
+log orders A-1 for Ann, receipt R-A-1 #13 step_succeeded charge
+log orders A-1 for Ann, receipt R-A-1 #14 contribution_committed receipt
+log orders A-1 for Ann, receipt R-A-1 #15 hook_called audit: on step success of charge
+log orders A-1 for Ann, receipt R-A-1 #16 contribution_committed audit
+log orders A-1 for Ann, receipt R-A-1 #17 attempt_started ship, attempt 1
+log orders A-1 for Ann, receipt R-A-1 #18 input_adapter_supplied ship gets weight from parcels
+log orders A-1 for Ann, receipt R-A-1 #19 service_provided ship gets carrier from carriers, a ch33_giving_every_reporter_what_it_needs::MainCarrier
+the main carrier books order A-1
+log orders A-1 for Ann, receipt R-A-1 #20 step_info ship: the parcel leaves with receipt R-A-1
+log orders A-1 for Ann, receipt R-A-1 #21 step_succeeded ship
+log orders A-1 for Ann, receipt R-A-1 #22 contribution_committed tracking
+log orders A-1 for Ann, receipt R-A-1 #23 optional_input_absent code
+email to Ann: Order A-1 is on its way, tracking T-A-1.
+log orders A-1 for Ann, receipt R-A-1 #24 hook_called notify: on workflow success
+log orders A-1 for Ann, receipt R-A-1 #25 journey_succeeded
+the journey succeeded, with receipt R-A-1 and tracking T-A-1
+audit: charge took 30, receipt R-A-1
+Pat's order:
+log orders A-15 for Pat #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-15 for Pat #2 attempt_started lookup, attempt 1
+log orders A-15 for Pat #3 service_provided lookup gets order_book from ledger, a ch33_giving_every_reporter_what_it_needs::Ledger
+the order book has no order A-15 yet
+log orders A-15 for Pat #4 step_succeeded lookup
+log orders A-15 for Pat #5 contribution_committed completed
+log orders A-15 for Pat #6 hook_called already_completed: on step success of lookup
+log orders A-15 for Pat #7 attempt_started price, attempt 1
+log orders A-15 for Pat #8 optional_input_absent discount
+log orders A-15 for Pat #9 step_succeeded price
+log orders A-15 for Pat #10 contribution_committed amount
+log orders A-15 for Pat #11 attempt_started charge, attempt 1
+log orders A-15 for Pat #12 service_provided charge gets payments from bank, a ch33_giving_every_reporter_what_it_needs::Bank
+the bank charges 50 for order A-15
+log orders A-15 for Pat, receipt R-A-15 #13 global_metadata_set receipt
+the journey was aborted (reporter failed: the logging service is down)

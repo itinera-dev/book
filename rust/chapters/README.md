@@ -49,17 +49,19 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 29. [Testing the flow with scripted steps](29-testing-the-flow-with-scripted-steps.md)
 30. [Testing a whole journey](30-testing-a-whole-journey.md)
 31. [Stopping a journey when its log fails](31-stopping-a-journey-when-its-log-fails.md)
+32. [Seeing every event of a journey](32-seeing-every-event-of-a-journey.md)
+33. [Giving every reporter what it needs](33-giving-every-reporter-what-it-needs.md)
 
 - [Without Itinera](part-5-without-itinera.md)
 
 ## Part 5: Designing with Itinera
 
-32. [Step, rescue step or policy?](32-step-rescue-step-or-policy.md)
-33. [From tangled code to a workflow](33-from-tangled-code-to-a-workflow.md)
-34. [Mistakes caught before a journey](34-mistakes-caught-before-a-journey.md)
-35. [Declaring by hand](35-declaring-by-hand.md)
-36. [Using a step in another workflow](36-using-a-step-in-another-workflow.md)
-37. [Working with agents](37-working-with-agents.md)
+34. [Step, rescue step or policy?](34-step-rescue-step-or-policy.md)
+35. [From tangled code to a workflow](35-from-tangled-code-to-a-workflow.md)
+36. [Mistakes caught before a journey](36-mistakes-caught-before-a-journey.md)
+37. [Declaring by hand](37-declaring-by-hand.md)
+38. [Using a step in another workflow](38-using-a-step-in-another-workflow.md)
+39. [Working with agents](39-working-with-agents.md)
 
 ## Appendices
 

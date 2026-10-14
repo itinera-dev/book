@@ -1,0 +1,30 @@
+Pat's order:
+Event { sequence: 1, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358384048 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: JourneyStarted { initial_keys: ["card", "customer", "gift_card", "order", "parcel", "price"] } }
+log orders A-15 #1 journey_started card, customer, gift_card, order, parcel, price
+Event { sequence: 2, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358494850 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "lookup" }, attempt: 1 } } }
+log orders A-15 #2 attempt_started lookup, attempt 1
+Event { sequence: 3, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358534694 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: ServiceProvided { step: StepAttempt { step: StepName { name: "lookup" }, attempt: 1 }, key: "order_book", provider: ProviderName("ledger"), implementation: Implementation { name: "ch32_seeing_every_event_of_a_journey::Ledger" }, data: None } }
+log orders A-15 #3 service_provided lookup gets order_book from ledger, a ch32_seeing_every_event_of_a_journey::Ledger
+the order book has no order A-15 yet
+Event { sequence: 4, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358597163 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "lookup" }, attempt: 1 } } }
+log orders A-15 #4 step_succeeded lookup
+Event { sequence: 5, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358638290 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "completed", source: Step(StepAttempt { step: StepName { name: "lookup" }, attempt: 1 }) } }
+log orders A-15 #5 contribution_committed completed
+Event { sequence: 6, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358705836 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: HookCalled { hook: Step { policy: PolicyName("already_completed"), hook: OnStepSuccess, step: StepAttempt { step: StepName { name: "lookup" }, attempt: 1 } }, lifecycle: None } }
+log orders A-15 #6 hook_called already_completed: on step success of lookup
+Event { sequence: 7, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358741056 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "price" }, attempt: 1 } } }
+log orders A-15 #7 attempt_started price, attempt 1
+Event { sequence: 8, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358777468 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: OptionalInputAbsent { key: "discount", requester: Step(StepAttempt { step: StepName { name: "price" }, attempt: 1 }) } }
+log orders A-15 #8 optional_input_absent discount
+Event { sequence: 9, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358818731 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "price" }, attempt: 1 } } }
+log orders A-15 #9 step_succeeded price
+Event { sequence: 10, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358852815 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: ContributionCommitted { key: "amount", source: Step(StepAttempt { step: StepName { name: "price" }, attempt: 1 }) } }
+log orders A-15 #10 contribution_committed amount
+Event { sequence: 11, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358888211 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: AttemptStarted { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+log orders A-15 #11 attempt_started charge, attempt 1
+Event { sequence: 12, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358932113 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: ServiceProvided { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 }, key: "payments", provider: ProviderName("bank"), implementation: Implementation { name: "ch32_seeing_every_event_of_a_journey::Bank" }, data: None } }
+log orders A-15 #12 service_provided charge gets payments from bank, a ch32_seeing_every_event_of_a_journey::Bank
+the bank charges 50 for order A-15
+Event { sequence: 13, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 358993910 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: StepSucceeded { step: StepAttempt { step: StepName { name: "charge" }, attempt: 1 } } }
+Event { sequence: 14, timestamp: Timestamp { instant: SystemTime { tv_sec: 1791996170, tv_nsec: 359022110 } }, journey_id: JourneyId("A-15"), workflow: WorkflowName("orders"), body: JourneyAborted { abort: ReporterFailed { step: Some(StepName { name: "charge" }), error: "the logging service is down" } } }
+the journey was aborted (reporter failed: the logging service is down)

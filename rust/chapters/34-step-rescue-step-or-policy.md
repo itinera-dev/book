@@ -21,55 +21,55 @@ Here is the shop with each of its decisions where it belongs. The table says whe
 The charge holds the business rule and nothing else. It asks the bank, and reports what happened: success, or a failure with a reason that says why. When the bank can't be reached at all, the `?` after `bank(&self.card)` returns the error from `run`, and an error that escapes a step is an abnormal termination.
 
 ```example
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 region: charge
 ```
 
 The ship step knows that a digital order has nothing to ship, so it skips, with a reason, through `Self::skip_because("digital")`.
 
 ```example
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 region: ship
 ```
 
 The policies hold the flow decisions. `audit` reacts to every successful charge. `outage` gives up on the order at once when the charge ends in an abnormal termination, returning `FailWorkflow` with a reason the shop can act on. `notify` tells the customer how the order went, through the shop's `Messages` role.
 
 ```example
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 region: policies
 ```
 
 The workflow puts them together: the steps in order, the retry budget of `ship`, and which policy is attached where, each on its `#[with_step(...)]` line or on `#[workflow(...)]`.
 
 ```example
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 region: workflow
 ```
 
 Four orders run: one to ship, one digital, one paid with an expired card, and one whose bank is offline.
 
 ```example
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch32_where_it_belongs
+name: ch34_where_it_belongs
 ```
 
 The order paid with an expired card fails, because nothing repairs the card yet. The repair belongs in a rescue step of the charge, which reads why the charge failed, when the charge gave a reason, and, when the card had expired, asks the bank for the renewed one and contributes it.
 
 ```example
-name: ch32_rescue
+name: ch34_rescue
 region: rescue
 ```
 
 The workflow attaches it to the charge with `rescue = RenewCard` on the charge's `#[with_step(...)]` line, and the charge then has no retry budget.
 
 ```example
-name: ch32_rescue
+name: ch34_rescue
 region: workflow
 ```
 
@@ -78,7 +78,7 @@ region: workflow
 It prints:
 
 ```output
-name: ch32_rescue
+name: ch34_rescue
 ```
 
 The order paid with an expired card succeeds now: the charge fails with `expired-card`, the rescue step contributes the renewed card, and the charge's attempt 2 succeeds. The order whose bank is offline still fails with `payment-network-down`, since `outage` gives up before any rescue. An order whose card is declined fails too, with `nothing-to-renew`: the rescue step is not there to repair a declined card, so it fails, and the journey with it.
@@ -86,14 +86,14 @@ The order paid with an expired card succeeds now: the charge fails with `expired
 Now a counter-example. This charge works, and its journey succeeds, but it repairs the card itself and tells the customer itself, with a `println!` in the middle of the business rule.
 
 ```example
-name: ch32_counter_example
+name: ch34_counter_example
 region: step
 ```
 
 It prints:
 
 ```output
-name: ch32_counter_example
+name: ch34_counter_example
 ```
 
 The events say that one attempt of the charge succeeded, and that a key was overwritten. Nothing says the card had expired, that it was renewed, or that the customer was told. To learn that, you would have to read the step.
