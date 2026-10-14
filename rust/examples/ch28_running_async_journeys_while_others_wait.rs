@@ -1,5 +1,5 @@
-//! Running journeys while others wait: the shop's bank and carriers answer over the network, so
-//! the shop runs asynchronously, and its orders go forward together on one thread.
+//! Running async journeys while others wait: the shop's bank and carriers answer over the
+//! network, so the shop runs asynchronously, and its orders go forward together.
 
 use std::fmt;
 use std::num::NonZeroU32;
