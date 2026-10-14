@@ -12,7 +12,7 @@ Then open <http://localhost:4321/book/rust/>.
 
 - The diagrams are drawn in the reader's browser by [Mermaid](https://mermaid.js.org), as GitHub draws them, so building or serving the site needs no browser of its own.
 - It needs Node 22.12 or later.
-- The dev server reloads the page when a chapter or a file of the Rust book changes: anything in `../rust/chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/compile-errors/` or `../rust/pending/`. When the contents, `../rust/chapters/README.md`, changes, or a chapter file is added or removed, the server restarts on its own, which takes a few seconds.
+- The dev server reloads the page when a chapter or a file of the Rust book changes: anything in `../rust/chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/tested/`, `../rust/compile-errors/` or `../rust/pending/`. When the contents, `../rust/chapters/README.md`, changes, or a chapter file is added or removed, the server restarts on its own, which takes a few seconds.
 
 ## What this is
 

@@ -2,7 +2,9 @@ name: Rust book
 
 # Runs every example of the Rust book and checks that it prints what the book
 # shows, and that every compile error gives the message the book shows, with
-# `cargo test` in rust/ (rust/tests/examples.rs and rust/tests/compile_errors.rs).
+# `cargo test` in rust/ (rust/tests/examples.rs and rust/tests/compile_errors.rs), and that
+# every tested program builds without test support and its tests report what the book shows
+# (rust/tests/tested.rs).
 
 on:
   pull_request:

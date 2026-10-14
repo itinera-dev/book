@@ -20,6 +20,9 @@
 // - `output`: `expected/NAME.txt`, as a plain block captioned as what the
 //   program prints. With `asynchronous: NAME`, what the asynchronous form
 //   prints follows, under the same two conditions.
+//   An example may also be a tested program, in `tested/NAME.EXT`.
+// - `test-run`: `tested/NAME.txt`, as a plain block captioned as what running
+//   the tests of the tested program prints.
 // - `compile-error`: `compile-errors/NAME.EXT`, captioned as a program that
 //   does not compile, then the compiler's message from `compile-errors/NAME.txt`.
 //
@@ -46,11 +49,12 @@ export interface DirectiveOptions {
 	markdown?: boolean;
 }
 
-type Kind = 'example' | 'output' | 'compile-error';
+type Kind = 'example' | 'output' | 'test-run' | 'compile-error';
 
 const KEYS: Record<Kind, readonly string[]> = {
 	example: ['name', 'region', 'asynchronous'],
 	output: ['name', 'asynchronous'],
+	'test-run': ['name'],
 	'compile-error': ['name'],
 };
 
@@ -184,10 +188,11 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			...after,
 		];
 
-		/** Where an example lives: released in `examples/`, or waiting in `pending/`. */
+		/** Where an example lives: released in `examples/` or `tested/`, or waiting in `pending/`. */
 		const locate = (name: string, role: string) => {
 			const program = `${name}.${edition.extension}`;
 			if (existsSync(join(directory, 'examples', program))) return { path: `examples/${program}`, pending: false };
+			if (existsSync(join(directory, 'tested', program))) return { path: `tested/${program}`, pending: false };
 			if (existsSync(join(directory, 'pending', program))) {
 				if (build.release) {
 					throw new Error(
@@ -197,7 +202,7 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 				return { path: `pending/${program}`, pending: true };
 			}
 			throw new Error(
-				`${chapter}: ${role} names the example ${name}, but neither ${repoPath('examples', program)} nor ${repoPath('pending', program)} exists.`,
+				`${chapter}: ${role} names the example ${name}, but none of ${repoPath('examples', program)}, ${repoPath('tested', program)} and ${repoPath('pending', program)} exists.`,
 			);
 		};
 
@@ -281,6 +286,21 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 			return shown;
 		};
 
+		const testRun = (directive: Directive): RootContent[] => {
+			const path = `tested/${directive.name}.txt`;
+			return figure({
+				classes: ['listing--output'],
+				caption: [
+					text('What running the tests of '),
+					programName(directive.name),
+					text(' prints, recorded in '),
+					link(sourceHref(repoPath(path)), `${directive.name}.txt`),
+				],
+				lang: 'text',
+				code: read(path, `a test-run directive names ${directive.name}`).replace(/\n+$/, ''),
+			});
+		};
+
 		const compileError = (directive: Directive): RootContent[] => {
 			const program = `compile-errors/${directive.name}.${edition.extension}`;
 			const code = region(read(program, `the compile error ${directive.name} is shown`), undefined, `${chapter}: ${repoPath(program)}`);
@@ -312,6 +332,8 @@ export default function remarkBookDirectives(options: DirectiveOptions) {
 					return example(directive);
 				case 'output':
 					return output(directive);
+				case 'test-run':
+					return testRun(directive);
 				case 'compile-error':
 					return compileError(directive);
 			}

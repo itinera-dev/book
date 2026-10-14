@@ -1,19 +1,21 @@
-//! Testing a hook or an input adapter alone: the shop's policies and its workflow's adapter, each
-//! called by a test outside any journey.
+//! Testing a hook or an input adapter alone: the shop of chapter 23, with tests that call its
+//! policies' hooks and its workflow's adapter outside any journey.
 
-use std::cell::RefCell;
 use std::fmt;
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::journey::{Contributions, Contributor, DataBag, Read};
+use itinera::executor::LocalExecutor;
+use itinera::journey::{
+    Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
+    Output,
+};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
     Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step, step,
-    step_name,
 };
 use itinera::value::AnyValue;
 use itinera::workflow::{role, workflow};
@@ -526,6 +528,19 @@ impl Orders {
     }
 }
 
+/// What the shop knows about an order when its journey starts. An order with no card leaves it
+/// out.
+#[derive(InitialData)]
+struct NewOrder {
+    order: String,
+    customer: String,
+    price: i64,
+    discount: Option<i64>,
+    parcel: Parcel,
+    card: Option<String>,
+    gift_card: bool,
+}
+
 /// How the warehouse describes an order's parcel: its weight in kg, and its length, width and
 /// height in cm.
 #[derive(Clone, Serialize, Deserialize)]
@@ -534,126 +549,249 @@ struct Parcel {
     size: [i64; 3],
 }
 
-// ANCHOR: messages
-/// Messages for tests: it keeps each message it is asked to send, with the customer's name.
-#[derive(Default)]
-struct TestMessages {
-    told: RefCell<Vec<String>>,
+/// What the shop reads back once the journey has ended.
+#[derive(Output)]
+struct Order {
+    receipt: Option<String>,
+    tracking: Option<String>,
+    audit: Option<String>,
 }
 
-impl Messages for TestMessages {
-    fn tell(&self, customer: &str, message: &str) {
-        self.told
-            .borrow_mut()
-            .push(format!("{customer}: {message}"));
+/// Says how an order's journey ended, and what explains it.
+fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
+    match &result.status {
+        JourneyStatus::Succeeded { .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            let tracking = data.tracking.as_deref().unwrap_or("none");
+            println!("the journey succeeded, with receipt {receipt} and tracking {tracking}");
+            println!("audit: {}", data.audit.as_deref().unwrap_or("none"));
+        }
+        JourneyStatus::Failed { failure, .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            println!(
+                "the journey failed ({}), with receipt {receipt}",
+                why(failure)
+            );
+        }
+        JourneyStatus::Aborted(abort) => {
+            println!("the journey was aborted ({})", what_went_wrong(abort));
+        }
+        _ => println!("the journey ended as {}", result.status.kind()),
+    }
+    Ok(())
+}
+
+/// The cause of a failure, with the reason a step gave for it when it gave one.
+fn why(failure: &Failure) -> String {
+    match failure {
+        Failure::Failure(reason) => format!("{}: {}", failure.cause(), reason.code()),
+        _ => failure.cause().to_string(),
     }
 }
-// ANCHOR_END: messages
 
-/// Prints what was checked, or fails the program when it does not hold.
-fn check(what: &str, holds: bool) -> Result<(), Error> {
-    if !holds {
-        return Err(Error::msg(format!("failed: {what}")));
+/// The reason of an abort, with the key that was missing when that is what happened.
+fn what_went_wrong(abort: &Abort) -> String {
+    match abort {
+        Abort::RequiredDataMissing(MissingData::Key { key, .. }) => {
+            format!("{}: {key}", abort.reason())
+        }
+        _ => abort.reason().to_string(),
     }
-    println!("ok: {what}");
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut executor = LocalExecutor::new();
+    // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
+    // cm, the card, if the order has one, and whether the order is a gift card.
+    let orders = [
+        (
+            "A-1",
+            "Ann",
+            40,
+            Some(10),
+            2,
+            [30, 20, 10],
+            Some("ann-2028"),
+            false,
+        ),
+        (
+            "A-7",
+            "Gil",
+            45,
+            None,
+            60,
+            [120, 80, 60],
+            Some("gil-2027"),
+            false,
+        ),
+        (
+            "A-8",
+            "Jo",
+            30,
+            None,
+            1,
+            [20, 15, 5],
+            Some("jo-2024"),
+            false,
+        ),
+        ("A-9", "Kim", 25, None, 0, [0, 0, 0], Some("kim-2027"), true),
+        (
+            "A-10",
+            "Lee",
+            35,
+            None,
+            3,
+            [40, 30, 20],
+            Some("lee-2019"),
+            false,
+        ),
+        ("A-11", "Max", 20, None, 1, [20, 10, 5], None, false),
+    ];
+    for (order, customer, price, discount, weight, size, card, gift_card) in orders {
+        println!("{customer}'s order:");
+        let instance = Orders::builder()
+            .channel("email")
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                customer: customer.to_owned(),
+                price,
+                discount,
+                parcel: Parcel { weight, size },
+                card: card.map(str::to_owned),
+                gift_card,
+            })
+            .create()?;
+        let result = executor.run(instance)?;
+        follow_up(&result)?;
+    }
     Ok(())
 }
 
-// ANCHOR: heavy_parcels
-/// The reason `heavy_parcels` gave the shipping up with, if it did.
-fn given_up_with(reason: Option<Reason>) -> Result<Option<String>, Error> {
-    let decision = HeavyParcels.before_retrying(reason)?;
-    Ok(decision
-        .map(Reason::from)
-        .map(|reason| reason.code().to_owned()))
-}
+#[cfg(test)]
+mod tests {
+    use std::cell::RefCell;
 
-fn the_heavy_parcels_policy() -> Result<(), Error> {
-    check(
-        "heavy_parcels gives up a shipping that failed with over-parcel-limit",
-        given_up_with(Some(Reason::from("over-parcel-limit")))?
-            == Some("no-carrier-can-take-it".to_owned()),
-    )?;
-    check(
-        "it lets a shipping that failed with too-heavy be retried",
-        given_up_with(Some(Reason::from("too-heavy")))?.is_none(),
-    )?;
-    check(
-        "it lets a shipping that ended in an error be retried",
-        given_up_with(None)?.is_none(),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: heavy_parcels
+    use itinera::journey::{Contributions, Read};
+    use itinera::step::step_name;
 
-// ANCHOR: audit
-fn the_audit_policy() -> Result<(), Error> {
-    let mut contributions = Contributions::default();
-    Audit.charged(
-        step_name!("charge"),
-        30,
-        "R-A-1".to_owned(),
-        contributions.contributor(),
-    )?;
-    check(
-        "audit writes the step, the amount and the receipt",
-        contributions.read::<String>("audit")
-            == Read::Present("charge took 30, receipt R-A-1".to_owned()),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: audit
+    use super::*;
 
-// ANCHOR: notify
-fn the_notify_policy() -> Result<(), Error> {
-    let messages = TestMessages::default();
-    Notify.succeeded(
-        "Kim".to_owned(),
-        "A-9".to_owned(),
-        None,
-        Some("G-A-9".to_owned()),
-        &messages,
-    )?;
-    Notify.failed("Lee".to_owned(), "A-10".to_owned(), &messages)?;
-    check(
-        "notify gives a gift card's code, and says sorry for a failed order",
-        messages.told.into_inner()
-            == [
+    // ANCHOR: messages
+    /// Messages for tests: it keeps each message it is asked to send, with the customer's name.
+    #[derive(Default)]
+    struct TestMessages {
+        told: RefCell<Vec<String>>,
+    }
+
+    impl Messages for TestMessages {
+        fn tell(&self, customer: &str, message: &str) {
+            self.told
+                .borrow_mut()
+                .push(format!("{customer}: {message}"));
+        }
+    }
+    // ANCHOR_END: messages
+
+    // ANCHOR: heavy_parcels
+    /// The reason `heavy_parcels` gave the shipping up with, if it did.
+    fn given_up_with(reason: Option<Reason>) -> Result<Option<String>, Error> {
+        let decision = HeavyParcels.before_retrying(reason)?;
+        Ok(decision
+            .map(Reason::from)
+            .map(|reason| reason.code().to_owned()))
+    }
+
+    #[test]
+    fn heavy_parcels_gives_up_a_shipping_that_failed_with_over_parcel_limit() -> Result<(), Error> {
+        assert_eq!(
+            given_up_with(Some(Reason::from("over-parcel-limit")))?,
+            Some("no-carrier-can-take-it".to_owned())
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn heavy_parcels_lets_a_shipping_that_failed_with_too_heavy_be_retried() -> Result<(), Error> {
+        assert_eq!(given_up_with(Some(Reason::from("too-heavy")))?, None);
+        Ok(())
+    }
+
+    #[test]
+    fn heavy_parcels_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<(), Error> {
+        assert_eq!(given_up_with(None)?, None);
+        Ok(())
+    }
+    // ANCHOR_END: heavy_parcels
+
+    // ANCHOR: audit
+    #[test]
+    fn audit_writes_the_step_the_amount_and_the_receipt() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        Audit.charged(
+            step_name!("charge"),
+            30,
+            "R-A-1".to_owned(),
+            contributions.contributor(),
+        )?;
+        assert_eq!(
+            contributions.read::<String>("audit"),
+            Read::Present("charge took 30, receipt R-A-1".to_owned())
+        );
+        Ok(())
+    }
+    // ANCHOR_END: audit
+
+    // ANCHOR: notify
+    #[test]
+    fn notify_gives_a_gift_cards_code_and_says_sorry_for_a_failed_order() -> Result<(), Error> {
+        let messages = TestMessages::default();
+        Notify.succeeded(
+            "Kim".to_owned(),
+            "A-9".to_owned(),
+            None,
+            Some("G-A-9".to_owned()),
+            &messages,
+        )?;
+        Notify.failed("Lee".to_owned(), "A-10".to_owned(), &messages)?;
+        assert_eq!(
+            messages.told.into_inner(),
+            [
                 "Kim: Order A-9 is paid: your gift card's code is G-A-9.",
                 "Lee: Sorry, order A-10 could not be completed.",
-            ],
-    )?;
-    Ok(())
-}
-// ANCHOR_END: notify
+            ]
+        );
+        Ok(())
+    }
+    // ANCHOR_END: notify
 
-// ANCHOR: adapter
-fn the_parcels_adapter() -> Result<(), Error> {
-    let orders = Orders { channel: "email" };
-    let parcel = Parcel {
-        weight: 60,
-        size: [120, 80, 60],
-    };
-    let weight = orders.parcels("weight", parcel.clone())?;
-    check(
-        "parcels gives the shipping the parcel's weight",
-        weight
-            .as_ref()
-            .and_then(|value| value.downcast_ref::<i64>())
-            == Some(&60),
-    )?;
-    check(
-        "it leaves every other input to the data bag",
-        orders.parcels("receipt", parcel)?.is_none(),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: adapter
+    // ANCHOR: adapter
+    /// Gil's parcel, as the warehouse describes it.
+    fn gils_parcel() -> Parcel {
+        Parcel {
+            weight: 60,
+            size: [120, 80, 60],
+        }
+    }
 
-fn main() -> Result<(), Error> {
-    the_heavy_parcels_policy()?;
-    the_audit_policy()?;
-    the_notify_policy()?;
-    the_parcels_adapter()?;
-    Ok(())
+    #[test]
+    fn parcels_gives_the_shipping_the_parcels_weight() -> Result<(), Error> {
+        let weight = Orders { channel: "email" }.parcels("weight", gils_parcel())?;
+        assert_eq!(
+            weight
+                .as_ref()
+                .and_then(|value| value.downcast_ref::<i64>()),
+            Some(&60)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn parcels_leaves_every_other_input_to_the_data_bag() -> Result<(), Error> {
+        let receipt = Orders { channel: "email" }.parcels("receipt", gils_parcel())?;
+        assert!(receipt.is_none());
+        Ok(())
+    }
+    // ANCHOR_END: adapter
 }

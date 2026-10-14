@@ -1,5 +1,6 @@
-//! Testing a whole journey: the shop's real steps and policies run with its services faked, and
-//! each journey's path compared with the one the shop approved.
+//! Testing a whole journey: the shop of chapter 23, with tests that run its real steps and
+//! policies with its services faked, and compare each journey's path with the one the shop
+//! approved.
 
 use std::fmt;
 use std::num::NonZeroU32;
@@ -7,9 +8,12 @@ use std::num::NonZeroU32;
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::LocalExecutor;
-use itinera::journey::{Contributor, DataBag, InitialData};
+use itinera::journey::{
+    Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
+    Output,
+};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
-use itinera::report::{RecordingReporter, Reporter};
+use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
     Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step, step,
@@ -546,124 +550,254 @@ struct Parcel {
     size: [i64; 3],
 }
 
-// ANCHOR: fakes
-/// A bank for tests: it charges every card, or its network is down.
-#[derive(Clone, Copy)]
-enum TestBank {
-    Charges,
-    IsDown,
+/// What the shop reads back once the journey has ended.
+#[derive(Output)]
+struct Order {
+    receipt: Option<String>,
+    tracking: Option<String>,
+    audit: Option<String>,
 }
 
-impl Payments for TestBank {
-    fn charge(&self, order: &str, _: &str, _: i64) -> Result<Option<String>, NetworkDown> {
-        match self {
-            TestBank::Charges => Ok(Some(format!("R-{order}"))),
-            TestBank::IsDown => Err(NetworkDown),
+/// Says how an order's journey ended, and what explains it.
+fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
+    match &result.status {
+        JourneyStatus::Succeeded { .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            let tracking = data.tracking.as_deref().unwrap_or("none");
+            println!("the journey succeeded, with receipt {receipt} and tracking {tracking}");
+            println!("audit: {}", data.audit.as_deref().unwrap_or("none"));
         }
+        JourneyStatus::Failed { failure, .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            println!(
+                "the journey failed ({}), with receipt {receipt}",
+                why(failure)
+            );
+        }
+        JourneyStatus::Aborted(abort) => {
+            println!("the journey was aborted ({})", what_went_wrong(abort));
+        }
+        _ => println!("the journey ended as {}", result.status.kind()),
     }
-
-    fn replacement(&self, _: &str) -> Option<String> {
-        None
-    }
-}
-
-/// A carrier for tests: it books every parcel, and collects every parcel or none.
-#[derive(Clone, Copy)]
-enum TestCarrier {
-    CollectsAll,
-    CollectsNone,
-}
-
-impl Carrier for TestCarrier {
-    fn book(&self, order: &str, _: i64) -> Result<String, BookingFailed> {
-        Ok(format!("T-{order}"))
-    }
-
-    fn collects(&self, _: i64) -> bool {
-        matches!(self, TestCarrier::CollectsAll)
-    }
-}
-// ANCHOR_END: fakes
-
-/// Prints what was checked, or fails the program when it does not hold.
-fn check(what: &str, holds: bool) -> Result<(), Error> {
-    if !holds {
-        return Err(Error::msg(format!("failed: {what}")));
-    }
-    println!("ok: {what}");
     Ok(())
 }
 
-// ANCHOR: path
-/// Runs an order of 30 with a parcel of this weight, through the shop's real steps and policies,
-/// with the test's bank and carriers in place of the shop's, and gives back its journey's path.
-fn path_of(
-    order: &str,
-    weight: i64,
-    bank: TestBank,
-    carrier: TestCarrier,
-) -> Result<Vec<String>, Error> {
-    let recorder = RecordingReporter::default();
-    let instance = Orders::builder()
-        .channel("email")
-        .initial_data(NewOrder {
-            order: order.to_owned(),
-            customer: "Ann".to_owned(),
-            price: 30,
-            discount: None,
-            parcel: Parcel {
-                weight,
-                size: [20, 15, 5],
-            },
-            card: Some("ann-2028".to_owned()),
-            gift_card: false,
-        })
-        .reporter(recorder.clone())
-        .fake_provider::<dyn Payments>("bank", move || Ok(provide!(bank)))
-        .fake_provider::<dyn Carrier>("carriers", move || Ok(provide!(carrier)))
-        .create()?;
-    LocalExecutor::new().run(instance)?;
-    Ok(recorder.path())
+/// The cause of a failure, with the reason a step gave for it when it gave one.
+fn why(failure: &Failure) -> String {
+    match failure {
+        Failure::Failure(reason) => format!("{}: {}", failure.cause(), reason.code()),
+        _ => failure.cause().to_string(),
+    }
 }
-// ANCHOR_END: path
 
-// ANCHOR: approved
-fn the_approved_paths() -> Result<(), Error> {
-    check(
-        "an order the bank charges and the carrier takes is shipped",
-        path_of("A-1", 2, TestBank::Charges, TestCarrier::CollectsAll)?
-            == [
+/// The reason of an abort, with the key that was missing when that is what happened.
+fn what_went_wrong(abort: &Abort) -> String {
+    match abort {
+        Abort::RequiredDataMissing(MissingData::Key { key, .. }) => {
+            format!("{}: {key}", abort.reason())
+        }
+        _ => abort.reason().to_string(),
+    }
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut executor = LocalExecutor::new();
+    // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
+    // cm, the card, if the order has one, and whether the order is a gift card.
+    let orders = [
+        (
+            "A-1",
+            "Ann",
+            40,
+            Some(10),
+            2,
+            [30, 20, 10],
+            Some("ann-2028"),
+            false,
+        ),
+        (
+            "A-7",
+            "Gil",
+            45,
+            None,
+            60,
+            [120, 80, 60],
+            Some("gil-2027"),
+            false,
+        ),
+        (
+            "A-8",
+            "Jo",
+            30,
+            None,
+            1,
+            [20, 15, 5],
+            Some("jo-2024"),
+            false,
+        ),
+        ("A-9", "Kim", 25, None, 0, [0, 0, 0], Some("kim-2027"), true),
+        (
+            "A-10",
+            "Lee",
+            35,
+            None,
+            3,
+            [40, 30, 20],
+            Some("lee-2019"),
+            false,
+        ),
+        ("A-11", "Max", 20, None, 1, [20, 10, 5], None, false),
+    ];
+    for (order, customer, price, discount, weight, size, card, gift_card) in orders {
+        println!("{customer}'s order:");
+        let instance = Orders::builder()
+            .channel("email")
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                customer: customer.to_owned(),
+                price,
+                discount,
+                parcel: Parcel { weight, size },
+                card: card.map(str::to_owned),
+                gift_card,
+            })
+            .create()?;
+        let result = executor.run(instance)?;
+        follow_up(&result)?;
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use itinera::report::RecordingReporter;
+
+    use super::*;
+
+    // ANCHOR: fakes
+    /// A bank for tests: it charges every card, or its network is down.
+    #[derive(Clone, Copy)]
+    enum TestBank {
+        Charges,
+        IsDown,
+    }
+
+    impl Payments for TestBank {
+        fn charge(&self, order: &str, _: &str, _: i64) -> Result<Option<String>, NetworkDown> {
+            match self {
+                TestBank::Charges => Ok(Some(format!("R-{order}"))),
+                TestBank::IsDown => Err(NetworkDown),
+            }
+        }
+
+        fn replacement(&self, _: &str) -> Option<String> {
+            None
+        }
+    }
+
+    /// A carrier for tests: it books every parcel, and collects every parcel or none.
+    #[derive(Clone, Copy)]
+    enum TestCarrier {
+        CollectsAll,
+        CollectsNone,
+    }
+
+    impl Carrier for TestCarrier {
+        fn book(&self, order: &str, _: i64) -> Result<String, BookingFailed> {
+            Ok(format!("T-{order}"))
+        }
+
+        fn collects(&self, _: i64) -> bool {
+            matches!(self, TestCarrier::CollectsAll)
+        }
+    }
+    // ANCHOR_END: fakes
+
+    // ANCHOR: path
+    /// Runs an order of 30 with a parcel of this weight, through the shop's real steps and
+    /// policies, with the test's bank and carriers in place of the shop's, and gives back its
+    /// journey's path.
+    fn path_of(
+        order: &str,
+        weight: i64,
+        bank: TestBank,
+        carrier: TestCarrier,
+    ) -> Result<Vec<String>, Error> {
+        let recorder = RecordingReporter::default();
+        let instance = Orders::builder()
+            .channel("email")
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                customer: "Ann".to_owned(),
+                price: 30,
+                discount: None,
+                parcel: Parcel {
+                    weight,
+                    size: [20, 15, 5],
+                },
+                card: Some("ann-2028".to_owned()),
+                gift_card: false,
+            })
+            .reporter(recorder.clone())
+            .fake_provider::<dyn Payments>("bank", move || Ok(provide!(bank)))
+            .fake_provider::<dyn Carrier>("carriers", move || Ok(provide!(carrier)))
+            .create()?;
+        LocalExecutor::new().run(instance)?;
+        Ok(recorder.path())
+    }
+    // ANCHOR_END: path
+
+    // ANCHOR: approved
+    #[test]
+    fn an_order_the_bank_charges_and_the_carrier_takes_is_shipped() -> Result<(), Error> {
+        assert_eq!(
+            path_of("A-1", 2, TestBank::Charges, TestCarrier::CollectsAll)?,
+            [
                 "price attempt 1 succeeded",
                 "charge attempt 1 succeeded",
                 "ship attempt 1 succeeded",
                 "journey succeeded",
-            ],
-    )?;
-    check(
-        "a parcel over the limit is given up after its first attempt",
-        path_of("A-2", 90, TestBank::Charges, TestCarrier::CollectsAll)?
-            == [
+            ]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_parcel_over_the_limit_is_given_up_after_its_first_attempt() -> Result<(), Error> {
+        assert_eq!(
+            path_of("A-2", 90, TestBank::Charges, TestCarrier::CollectsAll)?,
+            [
                 "price attempt 1 succeeded",
                 "charge attempt 1 succeeded",
                 "ship attempt 1 failed: over-parcel-limit",
                 "ship given up: FailWorkflow from heavy_parcels",
                 "journey failed at ship: no-carrier-can-take-it",
-            ],
-    )?;
-    check(
-        "a charge whose bank is down is given up, and never rescued",
-        path_of("A-3", 2, TestBank::IsDown, TestCarrier::CollectsAll)?
-            == [
+            ]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_charge_whose_bank_is_down_is_given_up_and_never_rescued() -> Result<(), Error> {
+        assert_eq!(
+            path_of("A-3", 2, TestBank::IsDown, TestCarrier::CollectsAll)?,
+            [
                 "price attempt 1 succeeded",
                 "charge attempt 1 terminated abnormally: the payment network is down",
                 "charge given up: FailWorkflow from outage",
                 "journey failed at charge: payment-network-down",
-            ],
-    )?;
-    check(
-        "a parcel no carrier collects is tried once more, then given up",
-        path_of("A-4", 60, TestBank::Charges, TestCarrier::CollectsNone)?
-            == [
+            ]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_parcel_no_carrier_collects_is_tried_once_more_then_given_up() -> Result<(), Error> {
+        assert_eq!(
+            path_of("A-4", 60, TestBank::Charges, TestCarrier::CollectsNone)?,
+            [
                 "price attempt 1 succeeded",
                 "charge attempt 1 succeeded",
                 "ship attempt 1 failed: too-heavy",
@@ -671,12 +805,9 @@ fn the_approved_paths() -> Result<(), Error> {
                 "ship attempt 2 failed: too-heavy",
                 "ship given up: retries exhausted",
                 "journey failed at ship: too-heavy",
-            ],
-    )?;
-    Ok(())
-}
-// ANCHOR_END: approved
-
-fn main() -> Result<(), Error> {
-    the_approved_paths()
+            ]
+        );
+        Ok(())
+    }
+    // ANCHOR_END: approved
 }

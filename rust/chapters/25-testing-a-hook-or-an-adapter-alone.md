@@ -6,14 +6,14 @@ Some of the shop's rules live outside its steps: `heavy_parcels` deciding that n
 
 ## The code
 
-The program is [chapter 23](23-reading-the-result.md)'s shop, with checks in place of the orders. The `notify` policy tells customers through the role `Messages`, so the test brings messages of its own, which keep what they are asked to send:
+The program is [chapter 23](23-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 24](24-testing-a-step-alone.md). The `notify` policy tells customers through the role `Messages`, so the tests bring messages of their own, which keep what they are asked to send:
 
 ```example
 name: ch25_testing_a_hook_or_an_adapter_alone
 region: messages
 ```
 
-`heavy_parcels` is tested by calling its hook `before_retrying` with the reason the test chooses, and reading the decision it returns:
+`heavy_parcels` is tested by calling its hook `before_retrying` with the reason each test chooses, and reading the decision it returns:
 
 ```example
 name: ch25_testing_a_hook_or_an_adapter_alone
@@ -34,23 +34,23 @@ name: ch25_testing_a_hook_or_an_adapter_alone
 region: notify
 ```
 
-The adapter is a method of the workflow, so the test makes the workflow's value, with its channel, and asks it for two of the shipping's inputs:
+The adapter is a method of the workflow, so the tests make the workflow's value, with its channel, and ask it for two of the shipping's inputs:
 
 ```example
 name: ch25_testing_a_hook_or_an_adapter_alone
 region: adapter
 ```
 
-It prints:
+`cargo test` prints:
 
-```output
+```test-run
 name: ch25_testing_a_hook_or_an_adapter_alone
 ```
 
 ## How it works
 
 1. **A hook is a method.** The test calls it with what its parameters ask for. Their attributes, such as `#[reason]`, `#[from_workflow]` or `#[role]`, only tell the executor what to give them in a journey. Nothing else changes: the policies are the shop's own.
-2. **A hook is tested through its decision.** `before_retrying` returns an `Option<FailWorkflow>`: `Some` gives the step up, and `None` carries on. `Reason::from` turns a `FailWorkflow` into its reason. The test gives the hook every case it has to handle, including no reason at all, which is what it gets after an attempt that ended in an error.
+2. **A hook is tested through its decision.** `before_retrying` returns an `Option<FailWorkflow>`: `Some` gives the step up, and `None` carries on. `Reason::from` turns a `FailWorkflow` into its reason. The tests give the hook every case it has to handle, including no reason at all, which is what it gets after an attempt that ended in an error.
 3. **A role is faked like a service.** `notify` asks for `&dyn Messages`, so the test passes its own `TestMessages`, and reads what the hooks told whom. A role's methods take `&self`, so the fake keeps its messages in a `RefCell`, Rust's way of letting a value change behind a shared reference.
 4. **A hook's contributions are read as a step's.** The audit contributes its line through the contributor `Contributions` lends, and the test reads it back with `read`.
 5. **An adapter is tested through what it supplies.** `parcels` returns `Some` of an `AnyValue` for the weight, which `downcast_ref` reads as the type the shipping asks for, and `None` for every other input, which leaves it to the data bag. The test gives it the parcel itself, as a journey would give it from the data bag.

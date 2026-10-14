@@ -17,7 +17,7 @@ import { resolve } from 'node:path';
  * @property {string} language The language's identifier, used in URLs: `rust`.
  * @property {string} name The language's name, as a reader says it: `Rust`.
  * @property {string} directory The language's directory in the repository, holding
- *   `examples/`, `expected/`, `notes/`, `compile-errors/` and `pending/`.
+ *   `examples/`, `expected/`, `tested/`, `notes/`, `compile-errors/` and `pending/`.
  * @property {string} extension The extension of its programs, without the dot.
  * @property {string} highlight The highlighter's name for the language.
  * @property {boolean} asynchronous Whether the language's executors have an
@@ -31,7 +31,7 @@ export const editions = [
 ];
 
 /** The directories of a language's directory that the book reads. */
-export const editionDirectories = ['chapters', 'examples', 'expected', 'compile-errors', 'pending'];
+export const editionDirectories = ['chapters', 'examples', 'expected', 'tested', 'compile-errors', 'pending'];
 
 /** The site's origin, and the path the whole book is served under. */
 export const site = 'https://itinera-dev.github.io';

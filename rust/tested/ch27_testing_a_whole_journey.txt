@@ -1,0 +1,8 @@
+running 4 tests
+test tests::a_charge_whose_bank_is_down_is_given_up_and_never_rescued ... ok
+test tests::a_parcel_no_carrier_collects_is_tried_once_more_then_given_up ... ok
+test tests::a_parcel_over_the_limit_is_given_up_after_its_first_attempt ... ok
+test tests::an_order_the_bank_charges_and_the_carrier_takes_is_shipped ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

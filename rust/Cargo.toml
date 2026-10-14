@@ -25,6 +25,22 @@ serde_json = "1"
 [features]
 compile-errors = []
 
+[[bin]]
+name = "ch24_testing_a_step_alone"
+path = "tested/ch24_testing_a_step_alone.rs"
+
+[[bin]]
+name = "ch25_testing_a_hook_or_an_adapter_alone"
+path = "tested/ch25_testing_a_hook_or_an_adapter_alone.rs"
+
+[[bin]]
+name = "ch26_testing_the_flow_with_scripted_steps"
+path = "tested/ch26_testing_the_flow_with_scripted_steps.rs"
+
+[[bin]]
+name = "ch27_testing_a_whole_journey"
+path = "tested/ch27_testing_a_whole_journey.rs"
+
 [[example]]
 name = "ch22_instance_run_twice"
 path = "compile-errors/ch22_instance_run_twice.rs"

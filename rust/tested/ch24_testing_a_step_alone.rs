@@ -1,14 +1,15 @@
-//! Testing the flow with scripted steps: the shop's workflow run with what its steps do written
-//! in a script, so a test checks the flow without the steps' business rules.
+//! Testing a step alone: the shop of chapter 23, with tests that run its charge, its rescue step
+//! and its shipping outside any journey, with services faked for the test.
 
 use std::fmt;
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::instance::{Instance, WorkflowInstance};
+use itinera::executor::LocalExecutor;
 use itinera::journey::{
-    Contributor, DataBag, Failure, InitialData, JourneyStatus, Read, ScriptedRun,
+    Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
+    Output,
 };
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
@@ -548,141 +549,292 @@ struct Parcel {
     size: [i64; 3],
 }
 
-/// Prints what was checked, or fails the program when it does not hold.
-fn check(what: &str, holds: bool) -> Result<(), Error> {
-    if !holds {
-        return Err(Error::msg(format!("failed: {what}")));
+/// What the shop reads back once the journey has ended.
+#[derive(Output)]
+struct Order {
+    receipt: Option<String>,
+    tracking: Option<String>,
+    audit: Option<String>,
+}
+
+/// Says how an order's journey ended, and what explains it.
+fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
+    match &result.status {
+        JourneyStatus::Succeeded { .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            let tracking = data.tracking.as_deref().unwrap_or("none");
+            println!("the journey succeeded, with receipt {receipt} and tracking {tracking}");
+            println!("audit: {}", data.audit.as_deref().unwrap_or("none"));
+        }
+        JourneyStatus::Failed { failure, .. } => {
+            let data: Order = result.output()?;
+            let receipt = data.receipt.as_deref().unwrap_or("none");
+            println!(
+                "the journey failed ({}), with receipt {receipt}",
+                why(failure)
+            );
+        }
+        JourneyStatus::Aborted(abort) => {
+            println!("the journey was aborted ({})", what_went_wrong(abort));
+        }
+        _ => println!("the journey ended as {}", result.status.kind()),
     }
-    println!("ok: {what}");
     Ok(())
 }
 
-// ANCHOR: order
-/// An instance of the shop's workflow for an order of 30, with this card and this parcel.
-fn order(order: &str, card: &str, weight: i64) -> Result<Instance<Orders>, Error> {
-    Ok(Orders::builder()
-        .channel("email")
-        .initial_data(NewOrder {
-            order: order.to_owned(),
-            customer: "Ann".to_owned(),
-            price: 30,
-            discount: None,
-            parcel: Parcel {
-                weight,
-                size: [20, 15, 5],
-            },
-            card: Some(card.to_owned()),
+/// The cause of a failure, with the reason a step gave for it when it gave one.
+fn why(failure: &Failure) -> String {
+    match failure {
+        Failure::Failure(reason) => format!("{}: {}", failure.cause(), reason.code()),
+        _ => failure.cause().to_string(),
+    }
+}
+
+/// The reason of an abort, with the key that was missing when that is what happened.
+fn what_went_wrong(abort: &Abort) -> String {
+    match abort {
+        Abort::RequiredDataMissing(MissingData::Key { key, .. }) => {
+            format!("{}: {key}", abort.reason())
+        }
+        _ => abort.reason().to_string(),
+    }
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut executor = LocalExecutor::new();
+    // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
+    // cm, the card, if the order has one, and whether the order is a gift card.
+    let orders = [
+        (
+            "A-1",
+            "Ann",
+            40,
+            Some(10),
+            2,
+            [30, 20, 10],
+            Some("ann-2028"),
+            false,
+        ),
+        (
+            "A-7",
+            "Gil",
+            45,
+            None,
+            60,
+            [120, 80, 60],
+            Some("gil-2027"),
+            false,
+        ),
+        (
+            "A-8",
+            "Jo",
+            30,
+            None,
+            1,
+            [20, 15, 5],
+            Some("jo-2024"),
+            false,
+        ),
+        ("A-9", "Kim", 25, None, 0, [0, 0, 0], Some("kim-2027"), true),
+        (
+            "A-10",
+            "Lee",
+            35,
+            None,
+            3,
+            [40, 30, 20],
+            Some("lee-2019"),
+            false,
+        ),
+        ("A-11", "Max", 20, None, 1, [20, 10, 5], None, false),
+    ];
+    for (order, customer, price, discount, weight, size, card, gift_card) in orders {
+        println!("{customer}'s order:");
+        let instance = Orders::builder()
+            .channel("email")
+            .initial_data(NewOrder {
+                order: order.to_owned(),
+                customer: customer.to_owned(),
+                price,
+                discount,
+                parcel: Parcel { weight, size },
+                card: card.map(str::to_owned),
+                gift_card,
+            })
+            .create()?;
+        let result = executor.run(instance)?;
+        follow_up(&result)?;
+    }
+    Ok(())
+}
+
+// ANCHOR: module
+#[cfg(test)]
+mod tests {
+    use itinera::journey::{Contributions, Read};
+    use itinera::step::StepEventReporter;
+
+    use super::*;
+    // ANCHOR_END: module
+
+    // ANCHOR: fakes
+    /// A bank for tests: it answers every charge as the test chose, and has replaced every card
+    /// with one named after its holder that expires in 2029.
+    enum TestBank {
+        Charges,
+        Declines,
+        IsDown,
+    }
+
+    impl Payments for TestBank {
+        fn charge(&self, order: &str, _: &str, _: i64) -> Result<Option<String>, NetworkDown> {
+            match self {
+                TestBank::Charges => Ok(Some(format!("R-{order}"))),
+                TestBank::Declines => Ok(None),
+                TestBank::IsDown => Err(NetworkDown),
+            }
+        }
+
+        fn replacement(&self, card: &str) -> Option<String> {
+            let (holder, _) = card.rsplit_once('-')?;
+            Some(format!("{holder}-2029"))
+        }
+    }
+
+    /// A carrier for tests: it books and collects every parcel, or its booking system is down.
+    enum TestCarrier {
+        Works,
+        IsDown,
+    }
+
+    impl Carrier for TestCarrier {
+        fn book(&self, order: &str, _: i64) -> Result<String, BookingFailed> {
+            match self {
+                TestCarrier::Works => Ok(format!("T-{order}")),
+                TestCarrier::IsDown => Err(BookingFailed),
+            }
+        }
+
+        fn collects(&self, _: i64) -> bool {
+            true
+        }
+    }
+    // ANCHOR_END: fakes
+
+    // ANCHOR: charge
+    /// Ann's charge of 40 to her card.
+    fn anns_charge() -> Charge {
+        Charge {
+            order: "A-1".to_owned(),
+            amount: 40,
+            card: "ann-2028".to_owned(),
             gift_card: false,
-        })
-        .create()?)
-}
-// ANCHOR_END: order
-
-// ANCHOR: rescued
-fn a_declined_card_is_renewed() -> Result<(), Error> {
-    let run = order("A-1", "ann-2024", 1)?
-        .scripted()
-        .step("charge")
-        .will_fail("card-expired")
-        .on_attempt(2)
-        .will_contribute("receipt", "R-A-1".to_owned())
-        .will_succeed()
-        .and_step("charge_rescue")
-        .will_contribute("card", "ann-2029".to_owned())
-        .will_succeed()
-        .and_step("ship")
-        .will_contribute("tracking", "T-A-1".to_owned())
-        .will_succeed()
-        .run()?;
-    check(
-        "a charge that fails with card-expired is rescued, and the order succeeds",
-        matches!(run.result.status, JourneyStatus::Succeeded { .. }),
-    )?;
-    let retried = run.step("charge").attempt(2);
-    check(
-        "the charge's attempt 2 is built with the card the rescue step gave",
-        retried.map(|attempt| attempt.input::<String>("card"))
-            == Some(Read::Present("ann-2029".to_owned())),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: rescued
-
-// ANCHOR: given_up
-/// The reason a policy failed the journey with, if one did.
-fn failed_by_a_policy(status: &JourneyStatus) -> Option<&str> {
-    match status {
-        JourneyStatus::Failed {
-            failure: Failure::FailWorkflow(reason),
-            ..
-        } => Some(reason.code()),
-        _ => None,
+        }
     }
-}
 
-/// Runs an order whose shipping fails on attempt 1 with this reason, and would succeed on
-/// attempt 2.
-fn shipping_that_fails_with(reason: &str) -> Result<ScriptedRun, Error> {
-    Ok(order("A-2", "ann-2028", 60)?
-        .scripted()
-        .step("charge")
-        .will_contribute("receipt", "R-A-2".to_owned())
-        .will_succeed()
-        .and_step("ship")
-        .will_fail(reason)
-        .on_attempt(2)
-        .will_contribute("tracking", "B-A-2".to_owned())
-        .will_succeed()
-        .run()?)
-}
+    #[test]
+    fn a_charge_the_bank_takes_gives_back_the_banks_receipt() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let outcome = anns_charge().run(&TestBank::Charges, contributions.contributor())?;
+        assert!(outcome.is_success());
+        assert_eq!(
+            contributions.read::<String>("receipt"),
+            Read::Present("R-A-1".to_owned())
+        );
+        Ok(())
+    }
 
-fn a_parcel_over_the_limit_is_given_up() -> Result<(), Error> {
-    let run = shipping_that_fails_with("too-heavy")?;
-    check(
-        "a shipping that fails with too-heavy is tried again, and the order succeeds",
-        run.step("ship").attempts().len() == 2
-            && matches!(run.result.status, JourneyStatus::Succeeded { .. }),
-    )?;
-    let run = shipping_that_fails_with("over-parcel-limit")?;
-    check(
-        "a shipping that fails with over-parcel-limit is given up after attempt 1",
-        run.step("ship").attempts().len() == 1,
-    )?;
-    check(
-        "the order fails, with the reason heavy_parcels gave",
-        failed_by_a_policy(&run.result.status) == Some("no-carrier-can-take-it"),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: given_up
+    #[test]
+    fn a_charge_the_bank_declines_fails_with_card_expired_and_no_receipt() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let outcome = anns_charge().run(&TestBank::Declines, contributions.contributor())?;
+        assert_eq!(outcome.reason().map(Reason::code), Some("card-expired"));
+        assert_eq!(contributions.read::<String>("receipt"), Read::Absent);
+        Ok(())
+    }
 
-// ANCHOR: outage
-fn a_charge_that_ends_in_an_error_is_given_up() -> Result<(), Error> {
-    let run = order("A-3", "ann-2028", 1)?
-        .scripted()
-        .step("charge")
-        .will_terminate_abnormally("the payment network is down")
-        .on_attempt(2)
-        .will_contribute("receipt", "R-A-3".to_owned())
-        .will_succeed()
-        .and_step("charge_rescue")
-        .will_succeed()
-        .run()?;
-    check(
-        "a charge that ends in an error is never rescued",
-        run.step("charge_rescue").attempts().is_empty(),
-    )?;
-    check(
-        "the order fails, with the reason outage gave",
-        failed_by_a_policy(&run.result.status) == Some("payment-network-down"),
-    )?;
-    Ok(())
-}
-// ANCHOR_END: outage
+    #[test]
+    fn a_charge_lets_the_error_of_a_bank_that_is_down_escape() {
+        let mut contributions = Contributions::default();
+        let ended = anns_charge().run(&TestBank::IsDown, contributions.contributor());
+        assert!(ended.is_err());
+    }
+    // ANCHOR_END: charge
 
-fn main() -> Result<(), Error> {
-    a_declined_card_is_renewed()?;
-    a_parcel_over_the_limit_is_given_up()?;
-    a_charge_that_ends_in_an_error_is_given_up()?;
-    Ok(())
+    // ANCHOR: rescue
+    #[test]
+    fn renewing_an_expired_card_gives_back_the_card_that_replaced_it() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let renew = RenewCard {
+            card: "jo-2024".to_owned(),
+            reason: Reason::from("card-expired"),
+        };
+        let outcome = renew.run(&TestBank::Charges, contributions.contributor())?;
+        assert!(outcome.is_success());
+        assert_eq!(
+            contributions.read::<String>("card"),
+            Read::Present("jo-2029".to_owned())
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_failure_that_is_not_an_expired_card_is_not_repairable() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let renew = RenewCard {
+            card: "max-2027".to_owned(),
+            reason: Reason::from("nothing-to-charge"),
+        };
+        let outcome = renew.run(&TestBank::Charges, contributions.contributor())?;
+        assert_eq!(outcome.reason().map(Reason::code), Some("not-repairable"));
+        Ok(())
+    }
+    // ANCHOR_END: rescue
+
+    // ANCHOR: ship
+    /// An order's shipping, for a parcel of this weight.
+    fn shipping(weight: i64) -> Ship {
+        Ship {
+            order: "A-1".to_owned(),
+            weight,
+            receipt: "R-A-1".to_owned(),
+            gift_card: false,
+        }
+    }
+
+    #[test]
+    fn a_parcel_of_2_kg_leaves_with_its_receipt() -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let mut events = StepEventReporter::default();
+        let outcome = shipping(2).run(
+            &TestCarrier::Works,
+            contributions.contributor(),
+            events.reporter(),
+        )?;
+        assert!(outcome.is_success());
+        assert_eq!(
+            events.emitted().first().map(|event| event.message()),
+            Some("the parcel leaves with receipt R-A-1")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_parcel_of_90_kg_fails_with_over_parcel_limit_before_the_carrier_is_called()
+    -> Result<(), Error> {
+        let mut contributions = Contributions::default();
+        let mut events = StepEventReporter::default();
+        let outcome = shipping(90).run(
+            &TestCarrier::IsDown,
+            contributions.contributor(),
+            events.reporter(),
+        )?;
+        assert_eq!(
+            outcome.reason().map(Reason::code),
+            Some("over-parcel-limit")
+        );
+        Ok(())
+    }
+    // ANCHOR_END: ship
 }
