@@ -39,7 +39,9 @@ fn errors(name: &str, checkout: &Regex) -> String {
         .filter(is_error)
         .filter_map(rendered)
         .collect();
-    checkout.replace_all(&rendered, "itinera-rs/$crates").into_owned()
+    checkout
+        .replace_all(&rendered, "itinera-rs/$crates")
+        .into_owned()
 }
 
 fn is_error(message: &Value) -> bool {
