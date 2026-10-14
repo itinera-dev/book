@@ -15,7 +15,7 @@ A reader finishes the book able to:
 
 An agent working with the book gains what a person does, and one thing more: in an Itinera codebase, changing a business rule needs only its step, and changing the flow needs only one workflow, so the context an agent needs is given to it rather than left for it to rebuild.
 
-The book follows the message and the design of the Itinera site, [itinera-dev.github.io](https://itinera-dev.github.io/), which owns them: its slogan, "Separate process from logic. Make agentic code safer.", its argument on the "Why Itinera" page, its colours and its logo. The book teaches what the site claims, with code that compiles and runs, and links to the site rather than retelling it.
+The book follows the message and the design of the Itinera site, [itinera-dev.org](https://itinera-dev.org/), which owns them: its slogan, "Separate process from logic. Make agentic code safer.", its argument on the "Why Itinera" page, its colours and its logo. The book teaches what the site claims, with code that compiles and runs, and links to the site rather than retelling it.
 
 ## How the book is written
 
