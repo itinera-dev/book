@@ -137,6 +137,7 @@ The part makes one argument: the hardest part of understanding a system that mix
 25. **Testing a hook or an adapter alone.** `heavy_parcels`, the audit and `notify` have their hooks called by a test, and the workflow's adapter is asked for the shipping's inputs: a hook as a method, tested through its decision, a role faked like a service, a hook's contributions read as a step's, and an adapter tested through what it supplies. The chapter ends on what no test checks yet: how the workflow puts the pieces together.
 26. **Testing the flow with scripted steps.** Three of Ann's orders run with a script saying how the steps' attempts end, for a rescued charge, a shipping given up or retried by reason, and a charge ending in an error: a script replacing only a step's `run`, every step still built for real, unscripted steps running for real, rescue steps scripted by their own names, the script checked before the journey for what it leaves out, and the record of each step's attempts and their inputs. The chapter ends on the one test still missing: a whole journey with the shop's real steps and its services faked.
 27. **Testing a whole journey.** Ann's orders run through the shop's real steps and policies, with a fake bank and carrier in place of the workflow's providers, and each journey's path is compared with the one the shop approved: a reporter added to one journey's instance, a fake provider replacing only a provider's function and keeping its key and scope, everything else real, a path as the lines of a journey's flow, each a plain sentence, and an approved path as a decision of the flow written down. The chapter ends on the shop's real bank and carriers answering over the network, while the journey holds the program's thread.
+28. **Running journeys while others wait.** The bank's and the carriers' operations become asynchronous, since their answers come over the network, so the shop's steps and hooks become asynchronous too, and three of the day's orders run at once on one thread, each journey going on while the others wait: the two execution modes, a workflow taking its mode from its steps, the hooks in the same mode, input adapters, providers and reporters that may stay synchronous, a role that may be held across a wait, the asynchronous executor needing no particular async runtime, and an executor for each journey that runs at the same time, since an executor runs one at a time. The chapter ends on the shop's log, which is about to write to a service over the network too, where a write can fail.
 
 ### The chapters to come
 
@@ -144,7 +145,7 @@ They are written one at a time, as "How the chapters follow one another" says, a
 
 1. the package's options other than the defaults;
 2. steps: an input or a service asked for under another key;
-3. what can refuse a journey before it starts, and the two execution modes;
+3. what can refuse a journey before it starts;
 4. a reporter that fails, a ready-made reporter that prints every event, and global metadata;
 5. `on step failure`, what else a hook may request, and finishing a journey early with `FinishWorkflow`;
 6. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
