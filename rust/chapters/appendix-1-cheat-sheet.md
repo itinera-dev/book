@@ -32,7 +32,8 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A hook or an input adapter tested alone | called as a method, with the data it asks for and fakes of its roles | [25](25-testing-a-hook-or-an-adapter-alone.md) |
 | A scripted run | a journey in which a script says how the steps' attempts end, in place of running them | [26](26-testing-the-flow-with-scripted-steps.md) |
 | A fake provider and a journey's path | a function in place of a workflow's provider, and the journey's outcomes and decisions as lines a test compares | [27](27-testing-a-whole-journey.md) |
-| A workflow declared by hand | the long form of everything above | [31](31-declaring-by-hand.md) |
+| The asynchronous execution mode | steps, hooks and services that wait without holding the thread, so journeys run at the same time | [28](28-running-journeys-while-others-wait.md) |
+| A workflow declared by hand | the long form of everything above | [32](32-declaring-by-hand.md) |
 | A lifecycle | what a hook returns to end the journey early: `FailWorkflow` or `FinishWorkflow` | [17](17-giving-up-a-step-early.md), [Ending a journey early](16-ending-a-journey-early.md) |
 
 ## In Rust
@@ -67,7 +68,8 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A hook or an input adapter tested alone | `HeavyParcels.before_retrying(Some(Reason::from("code")))?` or `Orders { ... }.parcels("weight", parcel)?` | 25 |
 | A scripted run | `instance.scripted().step("charge").will_fail("code").on_attempt(2).will_succeed().and_step("charge_rescue").will_succeed().run()?`, which returns a `ScriptedRun` | 26 |
 | A fake provider and a journey's path | `.fake_provider::<dyn Payments>("bank", fake)` on the builder, where `fake` returns `Ok(provide!(...))`, and `.reporter(recorder.clone())` with a `RecordingReporter`, then `recorder.path()` | 27 |
-| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 31 |
+| The asynchronous execution mode | the `async` feature; `#[async_trait]`, from `itinera::mode`, on a service's trait and each implementation; `async fn run` and `async fn` hooks; a role's trait that is `Sync`; `AsyncLocalExecutor::new().run(instance).await`, with an executor for each journey running at the same time | 28 |
+| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 32 |
 | A lifecycle | `Self::carry_on()`, `Self::fail_workflow("code")`, or, from `on step success` only, `Self::finish_workflow()` | 17, Ending a journey early |
 
-For the asynchronous form, turn on the `async` feature, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, implement `AsyncReporter` for an asynchronous reporter and list it with `async_reporters = [...]`, or keep a synchronous one under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.
+For the asynchronous form, as chapter 28 shows, turn on the `async` feature, mark each service's trait and its implementations `#[async_trait]`, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, keep a synchronous reporter under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.

@@ -1,5 +1,5 @@
 error[E0308]: mismatched types
-  --> compile-errors/ch30_invalid_lifecycle.rs:28:9
+  --> compile-errors/ch31_invalid_lifecycle.rs:28:9
    |
 27 |     fn forgiven(&self) -> Result<Option<FailWorkflow>, Error> {
    |                           ----------------------------------- expected `Result<Option<itinera::policy::FailWorkflow>, itinera::error::Error>` because of return type

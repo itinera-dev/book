@@ -11,41 +11,41 @@ The shop's workflow is put together from many parts: steps with their names, pol
 A workflow declared with `#[workflow(...)]` and put together wrongly never gets as far as being built: the program doesn't compile. Here is the ship step listed twice:
 
 ```compile-error
-name: ch30_duplicate_step_name
+name: ch31_duplicate_step_name
 ```
 
 Two policies of the charge that both define `on step success`:
 
 ```compile-error
-name: ch30_hook_defined_twice
+name: ch31_hook_defined_twice
 ```
 
-Every violation in the table below is a compile error in a workflow declared with `#[workflow(...)]`, together with a few mistakes of the attributes themselves, such as a workflow without steps. Some of the messages say "evaluation panicked": the check runs in a constant the compiler evaluates, so it's still a compile error, and nothing panics when the program runs. A workflow declared by hand compiles with the same mistakes, and they are reported as data when it is built, as [chapter 31](31-declaring-by-hand.md#a-workflow-put-together-wrongly) shows.
+Every violation in the table below is a compile error in a workflow declared with `#[workflow(...)]`, together with a few mistakes of the attributes themselves, such as a workflow without steps. Some of the messages say "evaluation panicked": the check runs in a constant the compiler evaluates, so it's still a compile error, and nothing panics when the program runs. A workflow declared by hand compiles with the same mistakes, and they are reported as data when it is built, as [chapter 32](32-declaring-by-hand.md#a-workflow-put-together-wrongly) shows.
 
 ### Rules Rust makes impossible to break
 
 Some rules go further: through Rust's types, a mistake can't be written at all, in either form. A policy that tells the customer through the `Messages` role, attached to a workflow that doesn't provide that role:
 
 ```compile-error
-name: ch30_role_not_provided
+name: ch31_role_not_provided
 ```
 
 An asynchronous workflow handed to `LocalExecutor`, which runs only synchronous ones:
 
 ```compile-error
-name: ch30_mode_not_accepted
+name: ch31_mode_not_accepted
 ```
 
 A hook that tries to end the journey as succeeded after the charge failed, which `on step failure` may not do:
 
 ```compile-error
-name: ch30_invalid_lifecycle
+name: ch31_invalid_lifecycle
 ```
 
 A step that contributes its connection to the bank, which is not a value and can never enter the data bag:
 
 ```compile-error
-name: ch30_not_a_value
+name: ch31_not_a_value
 ```
 
 ### Refused by run
@@ -53,21 +53,21 @@ name: ch30_not_a_value
 A workflow can be put together correctly and still fail to start a journey, when something it supplies fails before the journey starts. Here is one: the `notify` policy, built by a function marked `#[factory]` that may fail, needs the texts the shop sends, and the file that holds them is missing.
 
 ```example
-name: ch30_refused
+name: ch31_refused
 region: policy
 ```
 
 The executor builds the workflow's policies before the journey starts, so `run` refuses the instance instead of returning a result.
 
 ```example
-name: ch30_refused
+name: ch31_refused
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch30_refused
+name: ch31_refused
 ```
 
 The refusal is all there is to see. A refused journey has no events: had the workflow listed a reporter, it would have received none.
@@ -94,7 +94,7 @@ The refusal is all there is to see. A refused journey has no events: had the wor
    | `wrong service type` | the provider serving a step supplies another type than the step requests for that key | make the provider return what the step asks for, or ask for the key the provider serves |
    | `attempt request in journey scope` | a service provider of journey scope requests the name of the step being built or the attempt number | make it a provider for every attempt, or stop requesting them |
 
-3. **Rust catches these as early as it can.** The specification asks implementations to report violations when the program is compiled wherever the language allows it, and Rust allows a lot. With the attributes, every violation in the table is a compile error, those about services included. The one exception is rare: when the providers of one key write the service type they return in different ways, or one of them writes its return type other than as `Result<Provided<T>, ...>`, a step or rescue step asking for another type is only found when the program first uses the workflow, which panics with `wrong service type`. Declared by hand, as chapter 31 shows, they are reported when the workflow is built, as the program runs and before any journey, except `role not provided`, `mode not accepted` and `attempt request in journey scope`, which Rust's types rule out in either form.
+3. **Rust catches these as early as it can.** The specification asks implementations to report violations when the program is compiled wherever the language allows it, and Rust allows a lot. With the attributes, every violation in the table is a compile error, those about services included. The one exception is rare: when the providers of one key write the service type they return in different ways, or one of them writes its return type other than as `Result<Provided<T>, ...>`, a step or rescue step asking for another type is only found when the program first uses the workflow, which panics with `wrong service type`. Declared by hand, as chapter 32 shows, they are reported when the workflow is built, as the program runs and before any journey, except `role not provided`, `mode not accepted` and `attempt request in journey scope`, which Rust's types rule out in either form.
 4. **Some rules can't be broken at all.** The specification lets a language make some mistakes impossible to write, and `itinera` lists the ones it does in its `conformance.json`, each proven by a test of its own:
    - a hook returning a lifecycle it may not return: each hook's return type lists only the lifecycles that hook may return. `on step failure` returns a `Result<Option<FailWorkflow>, Error>`, and `Self::finish_workflow()` gives a `Result<Option<OnSuccess>, Error>`, the return type of `on step success`, the only hook that may return `FinishWorkflow`. The types don't match, which is what the message says;
    - a policy attached to a workflow that doesn't provide its role: the workflow must implement `Provides<dyn Messages>`, which `#[role]` does on its implementation of the role's trait;

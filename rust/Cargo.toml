@@ -8,13 +8,13 @@ description = "The Rust examples of the Itinera book."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "baa2e2d8e7767f421d640e30b9e08fba9d5f30ab", features = ["async"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "788c6f2f0aa9bcdd5450292903fe58a9af6feae6", features = ["async"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 # The same commit as above, with the `testing` feature that chapters 24 to 27 use: bump both together.
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "baa2e2d8e7767f421d640e30b9e08fba9d5f30ab", features = ["testing"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "788c6f2f0aa9bcdd5450292903fe58a9af6feae6", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
 serde_json = "1"
@@ -31,31 +31,31 @@ path = "compile-errors/ch22_instance_run_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_duplicate_step_name"
-path = "compile-errors/ch30_duplicate_step_name.rs"
+name = "ch31_duplicate_step_name"
+path = "compile-errors/ch31_duplicate_step_name.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_hook_defined_twice"
-path = "compile-errors/ch30_hook_defined_twice.rs"
+name = "ch31_hook_defined_twice"
+path = "compile-errors/ch31_hook_defined_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_invalid_lifecycle"
-path = "compile-errors/ch30_invalid_lifecycle.rs"
+name = "ch31_invalid_lifecycle"
+path = "compile-errors/ch31_invalid_lifecycle.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_mode_not_accepted"
-path = "compile-errors/ch30_mode_not_accepted.rs"
+name = "ch31_mode_not_accepted"
+path = "compile-errors/ch31_mode_not_accepted.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_not_a_value"
-path = "compile-errors/ch30_not_a_value.rs"
+name = "ch31_not_a_value"
+path = "compile-errors/ch31_not_a_value.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch30_role_not_provided"
-path = "compile-errors/ch30_role_not_provided.rs"
+name = "ch31_role_not_provided"
+path = "compile-errors/ch31_role_not_provided.rs"
 required-features = ["compile-errors"]
