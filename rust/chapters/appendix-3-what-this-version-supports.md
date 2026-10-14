@@ -22,7 +22,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The version of `itinera` this book covers
 
-This book covers `itinera` `0.1.0-beta.1`, its first release, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.1`. The book's own `Cargo.toml` asks for exactly that release, and every example you read here compiles and runs against it.
+This book covers `itinera` `0.1.0-beta.1`, its first release, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.1`, and every example you read here compiles and runs against it.
 
 ## Services, rescue steps and global metadata
 
