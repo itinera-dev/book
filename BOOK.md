@@ -128,13 +128,18 @@ The part makes one argument: the hardest part of understanding a system that mix
 19. **An optional input.** A pricing step of its own takes an order's discount when there is one and gives back the amount, which the charge charges without knowing prices or discounts: an optional input, initial data leaving out what an order does not have, the absence recorded, the step deciding what the absence means, and each rule of the business a step of its own. The chapter ends on the warehouse describing each parcel as one value, its weight and its size, which the shipping cannot read.
 20. **Deciding where a step's data comes from.** The workflow's input adapter takes the weight out of the warehouse's parcel and gives it to the shipping, which still asks only for a weight: an input adapter satisfying what a step needs in the form it needs, so the step depends on nothing else, belonging to the workflow, asked once for each input as the step is built, supplying a value or leaving the input to the data bag, its uses (taking a field out of a value, converting a type, fetching data only when a step needs it) and never a rule of the business, reading and never writing, and recording what it supplied without its value. The chapter ends on how `main` runs the orders: a new executor for each, waiting for each journey to end.
 
+### Part 4: Running it for real
+
+21. **Running many journeys.** One executor runs every order of the day, one journey after another: an executor keeping nothing between journeys, the compiler refusing to run an instance twice, and an executor running one journey at a time. The chapter ends on what `main` learns from Lee's result: only that the journey failed.
+22. **Reading the result.** `main` reads how each journey ended, and a new customer's order arrives without a card: the status as an enum, a failure's cause and reason, the result naming no step, an abort when something that must not happen did, such as required data missing, and an aborted journey with no output, running no workflow hook and never resumed. The chapter ends on the shop's real bank and carriers answering over the network, while the journey holds the program's thread.
+
 ### The chapters to come
 
 They are written one at a time, as "How the chapters follow one another" says, and each is added above, with its entry, once it is written. Until a topic has its chapter, it stays on this list of what Tier 1 still has to teach, in no particular order:
 
 1. the package's options other than the defaults;
 2. steps: an input or a service asked for under another key;
-3. what explains a failed journey, an aborted journey, what can refuse a journey before it starts, an executor running one journey at a time, and the two execution modes;
+3. what can refuse a journey before it starts, and the two execution modes;
 4. a reporter that fails, a reporter added for one journey only, a ready-made reporter that prints every event, and global metadata;
 5. the other hooks of step policies, what else a hook may request, and ending a journey early;
 6. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
