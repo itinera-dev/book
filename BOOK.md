@@ -132,7 +132,11 @@ The part makes one argument: the hardest part of understanding a system that mix
 ### Part 4: Running it for real
 
 22. **Running many journeys.** One executor runs every order of the day, one journey after another: an executor keeping nothing between journeys, the compiler refusing to run an instance twice, and an executor running one journey at a time. The chapter ends on what `main` learns from Lee's result: only that the journey failed.
-23. **Reading the result.** `main` reads how each journey ended, and a new customer's order arrives without a card: the status as an enum, a failure's cause and reason, the result naming no step, an abort when something that must not happen did, such as required data missing, and an aborted journey with no output, running no workflow hook and never resumed. The chapter ends on the shop's real bank and carriers answering over the network, while the journey holds the program's thread.
+23. **Reading the result.** `main` reads how each journey ended, and a new customer's order arrives without a card: the status as an enum, a failure's cause and reason, the result naming no step, an abort when something that must not happen did, such as required data missing, and an aborted journey with no output, running no workflow hook and never resumed. The chapter ends on how the shop knows its answers still hold after a change: by running every order again, against the bank and the carriers, and reading the log.
+24. **Testing a step alone.** The charge, its rescue step and the shipping are each built from their inputs and run by a test, with a bank and a carrier faked for it: the `testing` feature for tests only, a step as a value whose `run` a test calls with what its parameters ask for, the outcome read back, an error escaping as in a journey, recorders lending a contributor and a step reporter and keeping what they receive, and fakes passed where a step asks for a service. The chapter ends on the rules these tests never reach: those of the policies and the workflow.
+25. **Testing a hook or an adapter alone.** `heavy_parcels`, the audit and `notify` have their hooks called by a test, and the workflow's adapter is asked for the shipping's inputs: a hook as a method, tested through its decision, a role faked like a service, a hook's contributions read as a step's, and an adapter tested through what it supplies. The chapter ends on what no test checks yet: how the workflow puts the pieces together.
+26. **Testing the flow with scripted steps.** Three of Ann's orders run with a script saying how the steps' attempts end, for a rescued charge, a shipping given up or retried by reason, and a charge ending in an error: a script replacing only a step's `run`, every step still built for real, unscripted steps running for real, rescue steps scripted by their own names, the script checked before the journey for what it leaves out, and the record of each step's attempts and their inputs. The chapter ends on the one test still missing: a whole journey with the shop's real steps and its services faked.
+27. **Testing a whole journey.** Ann's orders run through the shop's real steps and policies, with a fake bank and carrier in place of the workflow's providers, and each journey's path is compared with the one the shop approved: a reporter added to one journey's instance, a fake provider replacing only a provider's function and keeping its key and scope, everything else real, a path as the lines of a journey's flow, each a plain sentence, and an approved path as a decision of the flow written down. The chapter ends on the shop's real bank and carriers answering over the network, while the journey holds the program's thread.
 
 ### The chapters to come
 
@@ -141,13 +145,12 @@ They are written one at a time, as "How the chapters follow one another" says, a
 1. the package's options other than the defaults;
 2. steps: an input or a service asked for under another key;
 3. what can refuse a journey before it starts, and the two execution modes;
-4. a reporter that fails, a reporter added for one journey only, a ready-made reporter that prints every event, and global metadata;
+4. a reporter that fails, a ready-made reporter that prints every event, and global metadata;
 5. `on step failure`, what else a hook may request, and finishing a journey early with `FinishWorkflow`;
 6. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
 7. the listing, violations, refusals, and the mistakes the language refuses to compile;
 8. declaring by hand, without the language's shorthand;
-9. testing a step, a policy's hook or an input adapter alone, testing the flow with scripted steps, and testing a whole journey with fake services and approved paths;
-10. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
+9. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
 
 ### Appendices
 
