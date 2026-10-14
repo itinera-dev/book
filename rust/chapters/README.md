@@ -28,10 +28,11 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
 15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
 16. [Skipping a step](16-skipping-a-step.md)
-17. [Doing something when the journey ends](17-doing-something-when-the-journey-ends.md)
-18. [Letting policies act on the outside world](18-letting-policies-act-on-the-outside-world.md)
-19. [An optional input](19-an-optional-input.md)
-20. [Deciding where a step's data comes from](20-deciding-where-a-steps-data-comes-from.md)
+17. [Giving up a step early](17-giving-up-a-step-early.md)
+18. [Doing something when the journey ends](18-doing-something-when-the-journey-ends.md)
+19. [Letting policies act on the outside world](19-letting-policies-act-on-the-outside-world.md)
+20. [An optional input](20-an-optional-input.md)
+21. [Deciding where a step's data comes from](21-deciding-where-a-steps-data-comes-from.md)
 
 ## Part 3: Controlling the flow
 
@@ -39,8 +40,8 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 
 ## Part 4: Running it for real
 
-21. [Running many journeys](21-running-many-journeys.md)
-22. [Reading the result](22-reading-the-result.md)
+22. [Running many journeys](22-running-many-journeys.md)
+23. [Reading the result](23-reading-the-result.md)
 
 24) [Testing your workflows](24-testing-your-workflows.md)
 - [Without Itinera](part-5-without-itinera.md)

@@ -84,3 +84,26 @@ log orders A-9 #12 contributions_discarded ship
 log orders A-9 #13 journey_succeeded
 the journey succeeded, with receipt R-A-9 and tracking none
 audit: charge took 25, receipt R-A-9
+Ned's order:
+log orders A-12 #1 journey_started card, gift_card, order, price, weight
+log orders A-12 #2 attempt_started charge, attempt 1
+log orders A-12 #3 service_provided charge gets payments from bank, a ch16_skipping_a_step::Bank
+the bank charges 50 for order A-12
+log orders A-12 #4 step_succeeded charge
+log orders A-12 #5 contribution_committed receipt
+log orders A-12 #6 hook_called audit: on step success of charge
+log orders A-12 #7 contribution_committed audit
+log orders A-12 #8 attempt_started ship, attempt 1
+log orders A-12 #9 service_provided ship gets carrier from carriers, a ch16_skipping_a_step::MainCarrier
+the main carrier books order A-12
+log orders A-12 #10 step_failed ship: too-heavy
+log orders A-12 #11 step_retrying ship
+log orders A-12 #12 attempt_started ship, attempt 2
+log orders A-12 #13 service_provided ship gets carrier from carriers, a ch16_skipping_a_step::BackupCarrier
+the backup carrier books order A-12
+log orders A-12 #14 step_failed ship: too-heavy
+log orders A-12 #15 step_given_up ship: retries exhausted
+log orders A-12 #16 journey_failed ship
+desk: order A-12 failed at ship
+the journey failed, with receipt R-A-12 and tracking none
+audit: charge took 50, receipt R-A-12

@@ -403,6 +403,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("A-7", "Gil", 45, 60, "gil-2027", false),
         ("A-8", "Jo", 30, 1, "jo-2024", false),
         ("A-9", "Kim", 25, 0, "kim-2027", true),
+        ("A-12", "Ned", 50, 90, "ned-2028", false),
     ];
     for (order, customer, price, weight, card, gift_card) in orders {
         println!("{customer}'s order:");

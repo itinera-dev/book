@@ -96,7 +96,7 @@ name: ch28_by_hand
 
 This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the parcels adapter is attached to `shipping`, a step the workflow doesn't have.
 
-Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built. Its steps and policies are declared with the attributes and go into the builder through their `descriptor`, as item 7 below explains, and `parcels_for` makes the `InputAdapterDescriptor` of [chapter 20](20-deciding-where-a-steps-data-comes-from.md)'s parcels adapter, attached to the step it is given.
+Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built. Its steps and policies are declared with the attributes and go into the builder through their `descriptor`, as item 7 below explains, and `parcels_for` makes the `InputAdapterDescriptor` of [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s parcels adapter, attached to the step it is given.
 
 ```example
 name: ch28_violations

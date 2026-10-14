@@ -9,35 +9,35 @@ The message for each customer is written, but nobody sends it. You want the noti
 What the policy needs from the shop is a trait of its own, with one operation: tell a customer something.
 
 ```example
-name: ch18_letting_policies_act_on_the_outside_world
+name: ch19_letting_policies_act_on_the_outside_world
 region: role
 ```
 
 The notify policy's two hooks now ask for it, as a parameter marked `#[role]`, and for the customer's name from the data bag, and tell the customer instead of contributing the message:
 
 ```example
-name: ch18_letting_policies_act_on_the_outside_world
+name: ch19_letting_policies_act_on_the_outside_world
 region: policy
 ```
 
 The workflow implements the trait, in an `impl` block marked `#[role]`, and sends through the channel it is configured with, a field of the workflow's struct. Here the channel is faked, and prints what it sends.
 
 ```example
-name: ch18_letting_policies_act_on_the_outside_world
+name: ch19_letting_policies_act_on_the_outside_world
 region: workflow
 ```
 
 Each order now starts with its customer's name, and each instance is created with the channel, `email`:
 
 ```example
-name: ch18_letting_policies_act_on_the_outside_world
+name: ch19_letting_policies_act_on_the_outside_world
 region: create
 ```
 
-The rest is [chapter 17](17-doing-something-when-the-journey-ends.md)'s shop, and it runs the same five orders. It prints:
+The rest is [chapter 18](18-doing-something-when-the-journey-ends.md)'s shop, and it runs the same five orders. It prints:
 
 ```output
-name: ch18_letting_policies_act_on_the_outside_world
+name: ch19_letting_policies_act_on_the_outside_world
 ```
 
 ## How it works

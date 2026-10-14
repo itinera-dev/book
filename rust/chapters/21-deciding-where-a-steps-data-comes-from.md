@@ -9,35 +9,35 @@ The warehouse now describes each order's parcel as one value, its weight and its
 The parcel is a struct of the shop's own. It derives `Clone`, and `Serialize` and `Deserialize` from the `serde` crate, added with its `derive` feature, so that it is a value that the data bag can hold:
 
 ```example
-name: ch20_deciding_where_a_steps_data_comes_from
+name: ch21_deciding_where_a_steps_data_comes_from
 region: parcel
 ```
 
 Each order's initial data holds the parcel, in place of the weight it held before:
 
 ```example
-name: ch20_deciding_where_a_steps_data_comes_from
+name: ch21_deciding_where_a_steps_data_comes_from
 region: data
 ```
 
 The shipping doesn't change at all. The workflow gives it the weight with an **input adapter**: a method of its `#[workflow]` block marked `#[input_adapter(steps = ["ship"])]`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one with its parameter marked `#[key]`. It returns `Ok` of an `Option<AnyValue>`, where `AnyValue` holds a value of any type. For `weight`, it reads the parcel from the data bag and supplies its weight with `Self::supply(...)`, which is `Some` of it. For any other input, it returns `Self::from_data_bag()`, which is `None`, and that input is read from the data bag as before.
 
 ```example
-name: ch20_deciding_where_a_steps_data_comes_from
+name: ch21_deciding_where_a_steps_data_comes_from
 region: adapter
 ```
 
 The log says which input an adapter supplied, to which step:
 
 ```example
-name: ch20_deciding_where_a_steps_data_comes_from
+name: ch21_deciding_where_a_steps_data_comes_from
 region: supplied
 ```
 
-The rest is [chapter 19](19-an-optional-input.md)'s shop, and it runs the same five orders. It prints:
+The rest is [chapter 20](20-an-optional-input.md)'s shop, and it runs the same five orders. It prints:
 
 ```output
-name: ch20_deciding_where_a_steps_data_comes_from
+name: ch21_deciding_where_a_steps_data_comes_from
 ```
 
 ## How it works

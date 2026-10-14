@@ -5,10 +5,10 @@ use std::fmt;
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
-use itinera::event::{Event, EventBody, HookSource};
+use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::LocalExecutor;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
-use itinera::policy::{OnSuccess, step_policy, workflow_policy};
+use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
@@ -286,9 +286,41 @@ impl Notify {
     }
 }
 
+/// Gives up a step that ends in an error at once: the bank's network is down, and neither a retry
+/// nor a rescue can mend that.
+#[derive(Default)]
+struct Outage;
+
+#[step_policy(name = "outage")]
+impl Outage {
+    #[on_step_abnormal_termination]
+    fn ended_in_error(&self) -> Result<Option<FailWorkflow>, Error> {
+        Self::fail_workflow("payment-network-down")
+    }
+}
+
+/// Gives up the shipping of a parcel over the shop's limit, rather than try it again: the limit
+/// is the same on every attempt, whichever carrier comes.
+#[derive(Default)]
+struct HeavyParcels;
+
+#[step_policy(name = "heavy_parcels")]
+impl HeavyParcels {
+    #[on_step_retry]
+    fn before_retrying(
+        &self,
+        #[reason] reason: Option<Reason>,
+    ) -> Result<Option<FailWorkflow>, Error> {
+        if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
+            return Self::fail_workflow("no-carrier-can-take-it");
+        }
+        Self::carry_on()
+    }
+}
+
 /// Ships an order through the carrier, with its receipt in the parcel, gives back its tracking
 /// number, and says when the parcel has left. A parcel the carrier won't collect may be taken on
-/// another attempt. A gift card has nothing to ship.
+/// another attempt. A gift card has nothing to ship, and the shop ships no parcel over 80 kg.
 #[derive(Step)]
 struct Ship {
     #[input]
@@ -311,6 +343,9 @@ impl Ship {
     ) -> Result<Outcome, Error> {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
+        }
+        if self.weight > 80 {
+            return Self::fail("over-parcel-limit");
         }
         let tracking = carrier.book(&self.order, self.weight)?;
         contributor.contribute("tracking", tracking);
@@ -382,6 +417,18 @@ fn detail(body: &EventBody) -> Option<String> {
         EventBody::StepAbnormalTermination { step, message, .. } => {
             Some(format!("{}: {message}", step.step))
         }
+        EventBody::StepGivenUp {
+            step,
+            cause: GiveUpCause::FailWorkflow {
+                decided_by, reason, ..
+            },
+            ..
+        } => Some(format!(
+            "{}: FailWorkflow from {}, {}",
+            step.step,
+            decided_by.policy,
+            reason.code()
+        )),
         EventBody::StepGivenUp { step, cause, .. } => Some(format!("{}: {cause}", step.step)),
         EventBody::StepRescuing {
             step,
@@ -429,8 +476,8 @@ impl Reporter for Desk {
 /// Once a journey has ended, the customer is told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
 #[with_step(Price, name = "price")]
-#[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
-#[with_step(Ship, name = "ship", retry_budget = 1)]
+#[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit, Outage])]
+#[with_step(Ship, name = "ship", retry_budget = 1, policies = [HeavyParcels])]
 struct Orders {
     channel: &'static str,
 }

@@ -9,28 +9,28 @@ Every customer should hear how their order went: that the parcel is on its way, 
 The message is written by a **workflow policy**: a type deriving `Default`, with an `impl` block marked `#[workflow_policy(name = "notify")]`. Its hook marked `#[on_workflow_success]` asks for the order, its tracking number and its gift card's code from the data bag, and contributes the customer's message under `message`. Its hook marked `#[on_workflow_failure]` asks only for the order, and contributes the apology under the same key. A workflow hook decides nothing, so each returns `Ok(())`.
 
 ```example
-name: ch17_doing_something_when_the_journey_ends
+name: ch18_doing_something_when_the_journey_ends
 region: policy
 ```
 
 The workflow lists it on its own line, `#[workflow(...)]`, with `policies = [Notify]`, rather than on a step's:
 
 ```example
-name: ch17_doing_something_when_the_journey_ends
+name: ch18_doing_something_when_the_journey_ends
 region: workflow
 ```
 
 The log names a workflow hook by its policy and its hook, since it is about no step, and names the key of a request that found nothing:
 
 ```example
-name: ch17_doing_something_when_the_journey_ends
+name: ch18_doing_something_when_the_journey_ends
 region: workflow_hook
 ```
 
-The rest is [chapter 16](16-skipping-a-step.md)'s shop, which now also reads back the message and prints it. It runs the same four orders, then a new customer's: Lee's card expired in 2019, and the faked bank now has no replacement for a card that expired more than three years ago. It prints:
+The rest is [chapter 17](17-giving-up-a-step-early.md)'s shop, which now also reads back the message and prints it. It runs Ann's, Gil's, Jo's and Kim's orders again, then a new customer's: Lee's card expired in 2019, and the faked bank now has no replacement for a card that expired more than three years ago. It prints:
 
 ```output
-name: ch17_doing_something_when_the_journey_ends
+name: ch18_doing_something_when_the_journey_ends
 ```
 
 ## How it works
