@@ -2,6 +2,7 @@
 
 import { join, normalize, sep } from 'node:path';
 
+import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 import { base, chapters, editionDirectories, editions, root, site } from './book.config.mjs';
@@ -66,6 +67,7 @@ export default defineConfig({
 	base,
 	trailingSlash: 'always',
 	build: { format: 'directory' },
+	integrations: [sitemap({ filter: (page) => !page.endsWith('/404/') })],
 	vite: {
 		plugins: [watchTheBook()],
 		// Mermaid is large, and is fetched only by a page that has a diagram.

@@ -20,6 +20,7 @@
     "verify": "npm run check && npm run brand && npm run contrast && npm run build:strict && npm run pages && npm run a11y && npm run layout"
   },
   "dependencies": {
+    "@astrojs/sitemap": "3.7.3",
     "@shikijs/rehype": "4.4.3",
     "astro": "7.3.5",
     "hast-util-to-string": "3.0.1",
