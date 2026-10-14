@@ -28,6 +28,7 @@ Use the words defined in chapter 1 of the specification, [01-concepts.md](https:
 4. **Each language has its own book, and all of them follow BOOK.md.** A language's book names its language and is written for it; the story, the parts, the shape of a chapter and the voice come from BOOK.md, and a change to those changes BOOK.md first.
 5. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. Diagrams are Mermaid diagrams in fenced `mermaid` blocks; each declares `accTitle` and `accDescr` and is accompanied by text, usually a numbered list, that says everything it shows. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees.
 6. **No code in workflow YAML.** Automation is Python, standard library only, in [itinera-dev/actions](https://github.com/itinera-dev/actions), with tests; a workflow only declares triggers and permissions and calls an action at a released version. The full rule is the "Automation" section of the [contributing guide](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#automation).
+7. **Test support stays in tests.** Code the book shows outside a test never uses what exists only for tests, such as a package option turned on for tests only, so a reader who copies it gets code that compiles in their own setup. A program whose tests a chapter shows is a tested program, as [FORMAT.md](FORMAT.md) says: its tests sit beside its code, and CI builds it as it would ship, without test support, before running its tests.
 
 ## Commits and pull requests
 

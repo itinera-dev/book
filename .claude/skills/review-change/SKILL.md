@@ -42,23 +42,24 @@ For each item, the reviewer lists every place the item applies, not only the fir
 9. Every page's prose against its recorded output, line by line, against hard rule 3 of AGENTS.md, "Every piece of code shown is checked in CI", and item 4 of "Each idea in its own chapter". Ignore what changes between runs, such as timestamps and journey IDs. Check each "How it works" item, each event walk-through and each sentence that says what the program prints.
 10. Every piece of code shown, against hard rule 3 and FORMAT.md items 7 and 8 of "Each language's book": it is a marked region of a complete program, and its output is recorded.
 11. Every example the change touches, against FORMAT.md item 2 of "Each language": its comments describe the code as it is, and it holds no line, import, helper or region marker that nothing uses.
-12. Every word of the specification's vocabulary, against "Vocabulary" in AGENTS.md and item 2 of "Voice" in BOOK.md: used exactly, and explained the first time the book uses it.
+12. **Test support.** Every use of what exists only for tests, such as a package option turned on for tests only, a recorder, a scripted run or a fake provider, against hard rule 7 of AGENTS.md and FORMAT.md item 5 of "Each language": it sits inside a test of a tested program, and no prose, cheat-sheet line or region outside a test presents it as available to code that ships. Confirm that the build of the tested programs without test support passed.
+13. Every word of the specification's vocabulary, against "Vocabulary" in AGENTS.md and item 2 of "Voice" in BOOK.md: used exactly, and explained the first time the book uses it.
 
 ### Links and order
 
-13. Every link and every mention of another chapter, part or section, against item 1 of "Each idea in its own chapter" and FORMAT.md's "Web pages": it points to the page that really teaches or shows what the sentence claims, and its anchor exists on the built site.
-14. The cheat sheet and the glossary, when the change touches what they list, against their entries under "Appendices" in BOOK.md: the cheat sheet's rows in the order the book teaches them, each with the chapter that teaches it. The contents, `chapters/README.md`, when the change adds, removes, renames or moves a page, against FORMAT.md item 1 of "Each language's book".
+14. Every link and every mention of another chapter, part or section, against item 1 of "Each idea in its own chapter" and FORMAT.md's "Web pages": it points to the page that really teaches or shows what the sentence claims, and its anchor exists on the built site.
+15. The cheat sheet and the glossary, when the change touches what they list, against their entries under "Appendices" in BOOK.md: the cheat sheet's rows in the order the book teaches them, each with the chapter that teaches it. The contents, `chapters/README.md`, when the change adds, removes, renames or moves a page, against FORMAT.md item 1 of "Each language's book".
 
 ### Writing
 
-15. Every page, against "Voice" and "The shape of a chapter" in BOOK.md, hard rule 5 of AGENTS.md, "Screen-reader friendly writing", and FORMAT.md items 4 and 5 of "Each language's book": the four sections in order, rules in bold where they are said, no level 3 heading standing alone, and every diagram followed by text that says everything it shows.
-16. **Outcomes.** Every changed chapter's Outcomes, against "The Outcomes table" in BOOK.md: the sentence starts "We have" and says what the chapter has shown; the table has one to three rows, with one sentence in each cell; each left cell is fair to what competent code usually does, names no library or framework, never says "always", and admits it when the usual way is perfectly reasonable; each right cell is shown by the chapter's own code, quoted or run, or for chapter 1 by chapter 2's; no row repeats a row of an earlier chapter, checked by reading every earlier chapter's table; and "outcome" is used only in the specification's sense.
-17. **Length.** Every changed chapter's prose, counted without its code, output and Outcomes table, against the length in "The shape of a chapter": flag a chapter above 800 words (1,300 for chapters 1 and 2), and say which topic in it could be its own chapter.
-18. The commit message or pull request description, against "Commits and pull requests" in AGENTS.md.
+16. Every page, against "Voice" and "The shape of a chapter" in BOOK.md, hard rule 5 of AGENTS.md, "Screen-reader friendly writing", and FORMAT.md items 4 and 5 of "Each language's book": the four sections in order, rules in bold where they are said, no level 3 heading standing alone, and every diagram followed by text that says everything it shows.
+17. **Outcomes.** Every changed chapter's Outcomes, against "The Outcomes table" in BOOK.md: the sentence starts "We have" and says what the chapter has shown; the table has one to three rows, with one sentence in each cell; each left cell is fair to what competent code usually does, names no library or framework, never says "always", and admits it when the usual way is perfectly reasonable; each right cell is shown by the chapter's own code, quoted or run, or for chapter 1 by chapter 2's; no row repeats a row of an earlier chapter, checked by reading every earlier chapter's table; and "outcome" is used only in the specification's sense.
+18. **Length.** Every changed chapter's prose, counted without its code, output and Outcomes table, against the length in "The shape of a chapter": flag a chapter above 800 words (1,300 for chapters 1 and 2), and say which topic in it could be its own chapter.
+19. The commit message or pull request description, against "Commits and pull requests" in AGENTS.md.
 
 ### Checks
 
-19. In the worktree, the checks of BOOK.md's "How the examples are checked" and of each language's README: the language's examples check, such as `cargo test --locked` in `rust/`, and in `site/`, `npx playwright install chromium`, then `npm run verify`, as CI runs it. Where Playwright cannot run, run `npm run -s build:strict` and `npm run -s pages`, and say which checks were skipped. Report any that fail.
+20. In the worktree, the checks of BOOK.md's "How the examples are checked" and of each language's README: the language's examples check, such as `cargo test --locked` in `rust/`, and in `site/`, `npx playwright install chromium`, then `npm run verify`, as CI runs it. Where Playwright cannot run, run `npm run -s build:strict` and `npm run -s pages`, and say which checks were skipped. Report any that fail.
 
 ## Handling the findings
 
@@ -69,4 +70,4 @@ For each item, the reviewer lists every place the item applies, not only the fir
 
 ## Auditing the whole book
 
-After a change to BOOK.md's order of chapters, a release of a language's package, or whenever the maintainer asks, run items 1 to 5, 7 to 9, 11 and 13 to 17 of the checklist over every page of a language's book, in reading order: the welcome pages, then each part, then the appendices. The auditor writes its findings to a file, page by page, each with a severity and a fix, and the fixes are then made and reviewed as any other change.
+After a change to BOOK.md's order of chapters, a release of a language's package, or whenever the maintainer asks, run items 1 to 5, 7 to 9, 11, 12 and 14 to 18 of the checklist over every page of a language's book, in reading order: the welcome pages, then each part, then the appendices. The auditor writes its findings to a file, page by page, each with a severity and a fix, and the fixes are then made and reviewed as any other change.
