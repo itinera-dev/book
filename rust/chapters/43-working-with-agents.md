@@ -9,17 +9,17 @@ The shop now works with coding agents, which change its steps and, sometimes, it
 The program is [chapter 30](30-testing-a-whole-journey.md)'s, with its approved paths, so it has none of what chapters 31 to 35 added to the shop. An agent was asked to cap discounts, and changed the pricing step alone:
 
 ```example
-name: ch42_working_with_agents
+name: ch43_working_with_agents
 region: price
-asynchronous: ch42_working_with_agents_async
+asynchronous: ch43_working_with_agents_async
 ```
 
 Another agent proposes a change to the flow: a parcel the carrier won't collect should be given up at once, rather than tried again with the backup carrier. Before it replaces the workflow, the shop declares the proposal in its tests, beside the approved workflow of [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), with `ship` and no retry budget:
 
 ```example
-name: ch42_working_with_agents
+name: ch43_working_with_agents
 region: proposed
-asynchronous: ch42_working_with_agents_async
+asynchronous: ch43_working_with_agents_async
 ```
 
 What it names is as earlier chapters show it: the lookup, `already_completed` and the log in [chapter 22](22-finishing-a-journey-early.md), the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping and `outage` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
@@ -27,16 +27,16 @@ What it names is as earlier chapters show it: the lookup, `already_completed` an
 A test runs each approved order through both, and says which paths the proposal keeps, and what it makes of the others:
 
 ```example
-name: ch42_working_with_agents
+name: ch43_working_with_agents
 region: compared
-asynchronous: ch42_working_with_agents_async
+asynchronous: ch43_working_with_agents_async
 ```
 
 In the asynchronous form, the pricing's `run` is an `async fn`, and the test is an `async fn` marked `#[tokio::test]`, which awaits each path. The tests print:
 
 ```test-run
-name: ch42_working_with_agents
-asynchronous: ch42_working_with_agents_async
+name: ch43_working_with_agents
+asynchronous: ch43_working_with_agents_async
 ```
 
 ## How it works
@@ -44,7 +44,7 @@ asynchronous: ch42_working_with_agents_async
 1. **A business rule changes in a step, and the paths hold.** The pricing now caps the discount at half the price, and all four approved paths still pass: the step decides an amount, and the flow around it is the same. To change it, the agent read one step, which names its inputs by key and decides nothing about what comes next.
 2. **A flow change shows in the paths it changes.** The proposal changes the path of the parcel no carrier collects, as intended: `ship given up: failure` after one attempt. It also changes the path of the parcel over the limit, which nobody asked for. That order was given up by `failed_shipping`, in the hook it runs before a retry; with no retry budget there is no retry, so the hook never runs, and the journey now fails with `over-parcel-limit` instead of `no-carrier-can-take-it`. The test says so before any order takes that path.
 3. **A path is the flow a person agreed.** An approved path changes only when a person agrees to the new one. A failing path test is not a test to fix: it is a flow change waiting for that decision, here two of them.
-4. **One rule for every change to a step: it decides nothing about the flow.** A step that tries its work again, calls another service when the first fails, or tells anyone anything has taken a decision that belongs elsewhere, as [chapter 39](39-deciding-where-a-decision-belongs.md) showed. A reviewer, a person or an agent, checks every change to a step for that, and every change to a workflow, a policy or a provider against the paths.
+4. **One rule for every change to a step: it decides nothing about the flow.** A step that tries its work again, calls another service when the first fails, or tells anyone anything has taken a decision that belongs elsewhere, as [chapter 40](40-recognising-a-decision-in-the-wrong-place.md) showed. A reviewer, a person or an agent, checks every change to a step for that, and every change to a workflow, a policy or a provider against the paths.
 
 The shop gives its agents this paragraph in its `AGENTS.md`:
 

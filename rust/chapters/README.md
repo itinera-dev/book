@@ -60,9 +60,10 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 ## Part 5: Designing with Itinera
 
 39. [Deciding where a decision belongs](39-deciding-where-a-decision-belongs.md)
-40. [Bringing Itinera into existing code](40-bringing-itinera-into-existing-code.md)
-41. [Using a step in another workflow](41-using-a-step-in-another-workflow.md)
-42. [Working with agents](42-working-with-agents.md)
+40. [Recognising a decision in the wrong place](40-recognising-a-decision-in-the-wrong-place.md)
+41. [Bringing Itinera into existing code](41-bringing-itinera-into-existing-code.md)
+42. [Using a step in another workflow](42-using-a-step-in-another-workflow.md)
+43. [Working with agents](43-working-with-agents.md)
 
 ## Appendices
 

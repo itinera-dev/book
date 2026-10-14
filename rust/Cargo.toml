@@ -58,12 +58,12 @@ name = "ch30_testing_a_whole_journey_async"
 path = "tested/ch30_testing_a_whole_journey_async.rs"
 
 [[bin]]
-name = "ch42_working_with_agents"
-path = "tested/ch42_working_with_agents.rs"
+name = "ch43_working_with_agents"
+path = "tested/ch43_working_with_agents.rs"
 
 [[bin]]
-name = "ch42_working_with_agents_async"
-path = "tested/ch42_working_with_agents_async.rs"
+name = "ch43_working_with_agents_async"
+path = "tested/ch43_working_with_agents_async.rs"
 
 [[example]]
 name = "ch24_instance_run_twice"

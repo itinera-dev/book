@@ -1,6 +1,6 @@
 log orders A-8 for Jo #1 journey_started card, customer, gift_card, order, parcel, price
 log orders A-8 for Jo #2 attempt_started lookup, attempt 1
-log orders A-8 for Jo #3 service_provided lookup gets order_book from ledger, a ch39_counter_example::Ledger
+log orders A-8 for Jo #3 service_provided lookup gets order_book from ledger, a ch40_counter_example::Ledger
 the order book has no order A-8 yet
 log orders A-8 for Jo #4 step_succeeded lookup
 log orders A-8 for Jo #5 contribution_committed completed
@@ -10,8 +10,8 @@ log orders A-8 for Jo #8 optional_input_absent discount
 log orders A-8 for Jo #9 step_succeeded price
 log orders A-8 for Jo #10 contribution_committed amount
 log orders A-8 for Jo #11 attempt_started charge, attempt 1
-log orders A-8 for Jo #12 service_provided charge gets payments from bank, a ch39_counter_example::Bank
-log orders A-8 for Jo #13 service_provided charge gets cards from cards, a dyn ch39_counter_example::Cards, with eu
+log orders A-8 for Jo #12 service_provided charge gets payments from bank, a ch40_counter_example::Bank
+log orders A-8 for Jo #13 service_provided charge gets cards from cards, a dyn ch40_counter_example::Cards, with eu
 the bank declines card jo-2024: it has expired
 the card registry in eu says card jo-2024 was replaced by jo-2029
 email to Jo: card jo-2024 has expired, so we charged jo-2029.
@@ -25,7 +25,7 @@ log orders A-8 for Jo, receipt R-A-8 #19 hook_called audit: on step success of c
 log orders A-8 for Jo, receipt R-A-8 #20 contribution_committed audit
 log orders A-8 for Jo, receipt R-A-8 #21 attempt_started ship, attempt 1
 log orders A-8 for Jo, receipt R-A-8 #22 input_adapter_supplied ship gets weight from parcels
-log orders A-8 for Jo, receipt R-A-8 #23 service_provided ship gets carrier from carriers, a ch39_counter_example::MainCarrier
+log orders A-8 for Jo, receipt R-A-8 #23 service_provided ship gets carrier from carriers, a ch40_counter_example::MainCarrier
 the main carrier books order A-8
 log orders A-8 for Jo, receipt R-A-8 #24 step_info ship: the parcel leaves with receipt R-A-8
 log orders A-8 for Jo, receipt R-A-8 #25 step_succeeded ship

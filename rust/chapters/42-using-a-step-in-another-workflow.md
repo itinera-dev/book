@@ -9,17 +9,17 @@ Customers can now collect their orders at the shop's counter, paying at the coun
 The shop is the one [chapter 37](37-mistakes-caught-before-a-journey.md) lists. The counter's terminal is one more implementation of the `Payments` trait the charge already asks for, as [chapter 12](12-trying-again.md) shows it:
 
 ```example
-name: ch41_using_a_step_in_another_workflow
+name: ch42_using_a_step_in_another_workflow
 region: terminal
-asynchronous: ch41_using_a_step_in_another_workflow_async
+asynchronous: ch42_using_a_step_in_another_workflow_async
 ```
 
 The counter's workflow lists three of the shop's steps, `Lookup`, `Price` and `Charge`, under the same names, and provides the order book and the terminal. Its initial data has what those steps read, and no parcel:
 
 ```example
-name: ch41_using_a_step_in_another_workflow
+name: ch42_using_a_step_in_another_workflow
 region: counter
-asynchronous: ch41_using_a_step_in_another_workflow_async
+asynchronous: ch42_using_a_step_in_another_workflow_async
 ```
 
 What it names is as earlier chapters show it: the lookup, `already_completed` and `OrderBook` in [chapter 22](22-finishing-a-journey-early.md), the pricing in [chapter 20](20-an-optional-input.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), the audit in [chapter 34](34-saying-which-attempt-took-the-money.md), and the log in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 36](36-orders-refused-before-they-start.md).
@@ -27,24 +27,24 @@ What it names is as earlier chapters show it: the lookup, `already_completed` an
 `main` prints the listing of each workflow, as [chapter 37](37-mistakes-caught-before-a-journey.md) did:
 
 ```example
-name: ch41_using_a_step_in_another_workflow
+name: ch42_using_a_step_in_another_workflow
 region: listings
-asynchronous: ch41_using_a_step_in_another_workflow_async
+asynchronous: ch42_using_a_step_in_another_workflow_async
 ```
 
 Then it runs two new orders at the counter: Nia's, with a discount, and Omar's, whose card has expired:
 
 ```example
-name: ch41_using_a_step_in_another_workflow
+name: ch42_using_a_step_in_another_workflow
 region: run
-asynchronous: ch41_using_a_step_in_another_workflow_async
+asynchronous: ch42_using_a_step_in_another_workflow_async
 ```
 
 In the asynchronous form, `Payments` and the terminal take `#[async_trait]`, the counter lists `Log` under `async_reporters`, and each journey is awaited. It prints:
 
 ```output
-name: ch41_using_a_step_in_another_workflow
-asynchronous: ch41_using_a_step_in_another_workflow_async
+name: ch42_using_a_step_in_another_workflow
+asynchronous: ch42_using_a_step_in_another_workflow_async
 ```
 
 ## How it works

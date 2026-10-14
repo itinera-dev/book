@@ -1,5 +1,5 @@
-//! A counter-example: a charge that renews an expired card itself, and tells the customer itself.
-//! Its journey succeeds, and records none of it.
+//! A counter-example, in the asynchronous form: a charge that renews an expired card itself, and
+//! tells the customer itself. Its journey succeeds, and records none of it.
 
 use std::fmt;
 use std::num::NonZeroU32;
@@ -11,23 +11,32 @@ use itinera::journey::{
     Abort, Contributor, DataBag, Failure, InitialData, JourneyId, JourneyResult, JourneyStatus,
     MissingData, Output,
 };
+use itinera::mode::async_trait;
 use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
-use itinera::report::{GlobalMetadata, Reporter};
+use itinera::report::{AsyncReporter, GlobalMetadata, Reporter};
 use itinera::service::{Provided, provide};
-use itinera::step::{Outcome, Reason, Step, StepName, StepReporter, step};
+use itinera::step::{AsyncStepReporter, Outcome, Reason, Step, StepName, step};
 use itinera::value::AnyValue;
 use itinera::workflow::{role, workflow};
 use serde::{Deserialize, Serialize};
 
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
-/// when the card has expired, or the error of a network that failed.
+/// when the card has expired, or the error of a network that failed. Each answer comes over the
+/// network.
+#[async_trait]
 trait Payments: Send + Sync {
-    fn charge(&self, order: &str, card: &str, amount: i64) -> Result<Option<String>, NetworkDown>;
+    async fn charge(
+        &self,
+        order: &str,
+        card: &str,
+        amount: i64,
+    ) -> Result<Option<String>, NetworkDown>;
 }
 
-/// A card registry: it says which card replaced one, if any did.
+/// A card registry: it says which card replaced one, if any did. Its answer comes over the network.
+#[async_trait]
 trait Cards: Send + Sync {
-    fn replacement(&self, card: &str) -> Option<String>;
+    async fn replacement(&self, card: &str) -> Option<String>;
 }
 
 /// The bank's own library: it connects to the bank's card registry for a region, and hands back
@@ -40,10 +49,12 @@ fn card_registry(region: &str) -> Box<dyn Cards> {
 }
 
 /// A carrier: it books a parcel of this weight in kg and gives back its tracking number, or the
-/// error of a booking system that failed, then says whether it collects the parcel.
+/// error of a booking system that failed, then says whether it collects the parcel. Each answer
+/// comes over the network.
+#[async_trait]
 trait Carrier: Send + Sync {
-    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed>;
-    fn collects(&self, weight: i64) -> bool;
+    async fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed>;
+    async fn collects(&self, weight: i64) -> bool;
 }
 
 /// The shop's order book: it says whether an order was already completed.
@@ -75,15 +86,28 @@ impl fmt::Display for BookingFailed {
 
 impl std::error::Error for BookingFailed {}
 
+/// The network the fakes answer over: it hands the thread back once before the answer comes, as a
+/// real call does while it waits.
+async fn network() {
+    tokio::task::yield_now().await;
+}
+
 /// The shop's bank, faked: a card is its holder's name and the year it expires, and the bank
 /// declines a card that expired before this year. Its network fails on any amount over 100. It
-/// prints what it does.
+/// prints what it does once it has answered.
 struct Bank {
     this_year: u32,
 }
 
+#[async_trait]
 impl Payments for Bank {
-    fn charge(&self, order: &str, card: &str, amount: i64) -> Result<Option<String>, NetworkDown> {
+    async fn charge(
+        &self,
+        order: &str,
+        card: &str,
+        amount: i64,
+    ) -> Result<Option<String>, NetworkDown> {
+        network().await;
         if amount > 100 {
             println!("the bank's network fails while charging order {order}");
             return Err(NetworkDown);
@@ -103,10 +127,12 @@ struct Registry {
     this_year: u32,
 }
 
+#[async_trait]
 impl Cards for Registry {
     /// A card that expired in the last three years was replaced by its holder's card that expires
     /// in three years. An older one was not.
-    fn replacement(&self, card: &str) -> Option<String> {
+    async fn replacement(&self, card: &str) -> Option<String> {
+        network().await;
         if expiry(card)? + 3 < self.this_year {
             println!(
                 "the card registry in {} says nothing replaced card {card}",
@@ -133,8 +159,10 @@ fn expiry(card: &str) -> Option<u32> {
 /// it collects a parcel only up to 20 kg.
 struct MainCarrier;
 
+#[async_trait]
 impl Carrier for MainCarrier {
-    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+    async fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+        network().await;
         if weight == 0 {
             println!("the main carrier's booking system fails on order {order}");
             return Err(BookingFailed);
@@ -143,7 +171,8 @@ impl Carrier for MainCarrier {
         Ok(format!("T-{order}"))
     }
 
-    fn collects(&self, weight: i64) -> bool {
+    async fn collects(&self, weight: i64) -> bool {
+        network().await;
         weight <= 20
     }
 }
@@ -152,8 +181,10 @@ impl Carrier for MainCarrier {
 /// it collects a parcel only up to 80 kg.
 struct BackupCarrier;
 
+#[async_trait]
 impl Carrier for BackupCarrier {
-    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+    async fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+        network().await;
         if weight == 0 {
             println!("the backup carrier's booking system fails on order {order}");
             return Err(BookingFailed);
@@ -162,7 +193,8 @@ impl Carrier for BackupCarrier {
         Ok(format!("B-{order}"))
     }
 
-    fn collects(&self, weight: i64) -> bool {
+    async fn collects(&self, weight: i64) -> bool {
+        network().await;
         weight <= 80
     }
 }
@@ -193,7 +225,7 @@ struct Lookup {
 
 #[step]
 impl Lookup {
-    fn run(
+    async fn run(
         self,
         #[service] order_book: &dyn OrderBook,
         #[contributor] mut contributor: Contributor<'_>,
@@ -211,7 +243,7 @@ struct AlreadyCompleted;
 #[step_policy(name = "already_completed")]
 impl AlreadyCompleted {
     #[on_step_success]
-    fn looked_up(&self, #[from_step] completed: bool) -> Result<Option<OnSuccess>, Error> {
+    async fn looked_up(&self, #[from_step] completed: bool) -> Result<Option<OnSuccess>, Error> {
         if completed {
             return Self::finish_workflow();
         }
@@ -231,7 +263,7 @@ struct Price {
 
 #[step]
 impl Price {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    async fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
         contributor.contribute("amount", self.price - self.discount.unwrap_or(0));
         Self::succeed()
     }
@@ -257,31 +289,35 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(
+    async fn run(
         self,
         #[service] payments: &dyn Payments,
         #[service] cards: &dyn Cards,
         #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
+        #[reporter] mut reporter: AsyncStepReporter<'_>,
     ) -> Result<Outcome, Error> {
         if self.amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        let mut receipt = payments.charge(&self.order, &self.card, self.amount)?;
+        let mut receipt = payments
+            .charge(&self.order, &self.card, self.amount)
+            .await?;
         if receipt.is_none()
-            && let Some(renewed) = cards.replacement(&self.card)
+            && let Some(renewed) = cards.replacement(&self.card).await
         {
             println!(
                 "email to {}: card {} has expired, so we charged {renewed}.",
                 self.customer, self.card
             );
-            receipt = payments.charge(&self.order, &renewed, self.amount)?;
+            receipt = payments.charge(&self.order, &renewed, self.amount).await?;
             contributor.contribute("card", renewed);
         }
         let Some(receipt) = receipt else {
             return Self::fail("card-expired");
         };
-        reporter.set_global_metadata("receipt", receipt.clone())?;
+        reporter
+            .set_global_metadata("receipt", receipt.clone())
+            .await?;
         contributor.contribute("receipt", receipt);
         if self.gift_card {
             contributor.contribute("code", format!("G-{}", self.order));
@@ -299,7 +335,7 @@ struct Audit;
 #[step_policy(name = "audit")]
 impl Audit {
     #[on_step_success]
-    fn charged(
+    async fn charged(
         &self,
         #[journey_id] journey: &JourneyId,
         #[step_name] step: StepName,
@@ -317,13 +353,15 @@ impl Audit {
 }
 
 /// What the shop does for its policies: tell a customer something.
-trait Messages {
-    fn tell(&self, customer: &str, message: &str);
+#[async_trait]
+trait Messages: Sync {
+    async fn tell(&self, customer: &str, message: &str);
 }
 
 /// What the shop does for its policies: give an order's money back.
-trait Refunds {
-    fn refund(&self, receipt: &str, amount: i64);
+#[async_trait]
+trait Refunds: Sync {
+    async fn refund(&self, receipt: &str, amount: i64);
 }
 
 /// Tells the customer how their order went, once its journey has ended.
@@ -333,7 +371,7 @@ struct Notify;
 #[workflow_policy(name = "notify")]
 impl Notify {
     #[on_workflow_success]
-    fn succeeded(
+    async fn succeeded(
         &self,
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
@@ -348,21 +386,23 @@ impl Notify {
             }
             (None, None) => format!("Order {order} is complete."),
         };
-        messages.tell(&customer, &message);
+        messages.tell(&customer, &message).await;
         Ok(())
     }
 
     #[on_workflow_failure]
-    fn failed(
+    async fn failed(
         &self,
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
     ) -> Result<(), Error> {
-        messages.tell(
-            &customer,
-            &format!("Sorry, order {order} could not be completed."),
-        );
+        messages
+            .tell(
+                &customer,
+                &format!("Sorry, order {order} could not be completed."),
+            )
+            .await;
         Ok(())
     }
 }
@@ -376,7 +416,7 @@ struct Outage;
 #[step_policy(name = "outage")]
 impl Outage {
     #[on_step_abnormal_termination]
-    fn ended_in_error(
+    async fn ended_in_error(
         &self,
         #[journey_id] journey: &JourneyId,
         #[step_name] step: StepName,
@@ -405,7 +445,7 @@ struct FailedShipping;
 #[step_policy(name = "failed_shipping")]
 impl FailedShipping {
     #[on_step_retry]
-    fn before_retrying(
+    async fn before_retrying(
         &self,
         #[reason] reason: Option<Reason>,
         #[from_workflow] receipt: String,
@@ -414,14 +454,15 @@ impl FailedShipping {
         #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
-            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit");
+            self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit")
+                .await;
             return Self::fail_workflow("no-carrier-can-take-it");
         }
         Self::carry_on()
     }
 
     #[on_step_failure]
-    fn given_up(
+    async fn given_up(
         &self,
         #[cause] cause: StepFailureCause,
         #[from_workflow] receipt: String,
@@ -429,12 +470,13 @@ impl FailedShipping {
         #[role] refunds: &dyn Refunds,
         #[contributor] contributor: Contributor<'_>,
     ) -> Result<Option<FailWorkflow>, Error> {
-        self.refund(refunds, contributor, &receipt, amount, &cause.to_string());
+        self.refund(refunds, contributor, &receipt, amount, &cause.to_string())
+            .await;
         Self::carry_on()
     }
 
     /// Gives the order's money back, and records why.
-    fn refund(
+    async fn refund(
         &self,
         refunds: &dyn Refunds,
         mut contributor: Contributor<'_>,
@@ -442,7 +484,7 @@ impl FailedShipping {
         amount: i64,
         why: &str,
     ) {
-        refunds.refund(receipt, amount);
+        refunds.refund(receipt, amount).await;
         contributor.contribute("refund", format!("{amount} back on {receipt}: {why}"));
     }
 }
@@ -464,11 +506,11 @@ struct Ship {
 
 #[step]
 impl Ship {
-    fn run(
+    async fn run(
         self,
         #[service] carrier: &dyn Carrier,
         #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
+        #[reporter] mut reporter: AsyncStepReporter<'_>,
     ) -> Result<Outcome, Error> {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
@@ -476,12 +518,14 @@ impl Ship {
         if self.weight > 80 {
             return Self::fail("over-parcel-limit");
         }
-        let tracking = carrier.book(&self.order, self.weight)?;
+        let tracking = carrier.book(&self.order, self.weight).await?;
         contributor.contribute("tracking", tracking);
-        if !carrier.collects(self.weight) {
+        if !carrier.collects(self.weight).await {
             return Self::fail("too-heavy");
         }
-        reporter.info(format!("the parcel leaves with receipt {}", self.receipt))?;
+        reporter
+            .info(format!("the parcel leaves with receipt {}", self.receipt))
+            .await?;
         Self::succeed()
     }
 }
@@ -510,8 +554,8 @@ impl fmt::Display for NoCustomer {
 
 impl std::error::Error for NoCustomer {}
 
-/// The shop's logging service, faked: it prints each line it takes. It is down when the line
-/// saying that order A-15's charge succeeded reaches it.
+/// The shop's logging service, faked: it prints each line it takes, once the network has
+/// answered. It is down when the line saying that order A-15's charge succeeded reaches it.
 #[derive(Default)]
 struct LoggingService;
 
@@ -524,7 +568,8 @@ impl LoggingService {
         Ok(())
     }
 
-    fn write(&self, line: String) -> Result<(), LoggingDown> {
+    async fn write(&self, line: String) -> Result<(), LoggingDown> {
+        network().await;
         if line.contains(" A-15 ") && line.ends_with(" step_succeeded charge") {
             return Err(LoggingDown);
         }
@@ -542,7 +587,7 @@ struct Log {
     metadata: GlobalMetadata,
 }
 
-impl Reporter for Log {
+impl AsyncReporter for Log {
     fn set_global_metadata(&mut self, key: &str, value: &AnyValue) -> Result<(), Error> {
         if key == "customer" {
             let customer = value.downcast_ref::<String>().map_or("", String::as_str);
@@ -552,7 +597,7 @@ impl Reporter for Log {
         Ok(())
     }
 
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    async fn report(&mut self, event: &Event) -> Result<(), Error> {
         let line = format!(
             "log {} {} {} #{} {}",
             event.workflow,
@@ -565,7 +610,7 @@ impl Reporter for Log {
             Some(detail) => format!("{line} {detail}"),
             None => line,
         };
-        self.service.write(line)?;
+        self.service.write(line).await?;
         Ok(())
     }
 }
@@ -691,11 +736,12 @@ impl Reporter for Desk {
 }
 
 /// The shop's workflow: it looks the order up, and finishes an order already completed. Otherwise
-/// it works out what the order costs, then charges it, repairing a charge that fails and auditing
-/// one that succeeds, then ships, and shipping may be tried once more, its charge refunded if it
-/// is given up.
+/// it works out what the order costs, then charges it, which renews an expired card itself,
+/// auditing a charge that succeeds, then ships, and shipping may be tried once more, its charge
+/// refunded if it is given up.
 /// Once a journey has ended, the customer is told, through the channel the shop configures.
-#[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
+// ANCHOR: workflow
+#[workflow(name = "orders", reporters = [Desk], async_reporters = [Log], policies = [Notify])]
 #[with_step(Lookup, name = "lookup", policies = [AlreadyCompleted])]
 #[with_step(Price, name = "price")]
 #[with_step(Charge, name = "charge", policies = [Audit, Outage])]
@@ -703,17 +749,22 @@ impl Reporter for Desk {
 struct Orders {
     channel: &'static str,
 }
+// ANCHOR_END: workflow
 
 #[role]
+#[async_trait]
 impl Refunds for Orders {
-    fn refund(&self, receipt: &str, amount: i64) {
+    async fn refund(&self, receipt: &str, amount: i64) {
+        network().await;
         println!("the bank gives {amount} back on receipt {receipt}");
     }
 }
 
 #[role]
+#[async_trait]
 impl Messages for Orders {
-    fn tell(&self, customer: &str, message: &str) {
+    async fn tell(&self, customer: &str, message: &str) {
+        network().await;
         println!("{} to {customer}: {message}", self.channel);
     }
 }
@@ -754,11 +805,13 @@ impl Orders {
         Ok(provide!(Bank { this_year: 2026 }))
     }
 
+    // ANCHOR: provider
     /// The bank's card registry in Europe, for the charge only.
     #[provider(steps = ["charge"])]
     fn cards(&self) -> Result<Provided<dyn Cards>, Error> {
         Ok(Provided::from_box(card_registry("eu")).with_data("eu".to_owned()))
     }
+    // ANCHOR_END: provider
 
     /// A carrier for every attempt of a step: the main carrier first, the backup carrier after.
     #[provider(key = "carrier", per_attempt)]
@@ -846,7 +899,8 @@ fn what_went_wrong(abort: &Abort) -> String {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let instance = Orders::builder()
         .channel("email")
         .reporters_global_metadata("customer", "Jo".to_owned())
@@ -863,7 +917,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             gift_card: false,
         })
         .create()?;
-    let result = local_executor_for!(Orders).run(instance)?;
+    let result = local_executor_for!(Orders).run(instance).await?;
     follow_up(&result)?;
     Ok(())
 }

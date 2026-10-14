@@ -10,7 +10,7 @@ counter:
 Nia's order A-17, at the counter:
 log counter A-17 for Nia #1 journey_started card, discount, gift_card, order, price
 log counter A-17 for Nia #2 attempt_started lookup, attempt 1
-log counter A-17 for Nia #3 service_provided lookup gets order_book from ledger, a ch41_using_a_step_in_another_workflow_async::Ledger
+log counter A-17 for Nia #3 service_provided lookup gets order_book from ledger, a ch42_using_a_step_in_another_workflow::Ledger
 the order book has no order A-17 yet
 log counter A-17 for Nia #4 step_succeeded lookup
 log counter A-17 for Nia #5 contribution_committed completed
@@ -19,7 +19,7 @@ log counter A-17 for Nia #7 attempt_started price, attempt 1
 log counter A-17 for Nia #8 step_succeeded price
 log counter A-17 for Nia #9 contribution_committed amount
 log counter A-17 for Nia #10 attempt_started charge, attempt 1
-log counter A-17 for Nia #11 service_provided charge gets payments from terminal, a ch41_using_a_step_in_another_workflow_async::Terminal
+log counter A-17 for Nia #11 service_provided charge gets payments from terminal, a ch42_using_a_step_in_another_workflow::Terminal
 the counter's terminal charges 15 for order A-17
 log counter A-17 for Nia, receipt C-A-17 #12 global_metadata_set receipt
 log counter A-17 for Nia, receipt C-A-17 #13 step_succeeded charge
@@ -32,7 +32,7 @@ audit: A-17: charge took 15 on attempt 1, receipt C-A-17
 Omar's order A-18, at the counter:
 log counter A-18 for Omar #1 journey_started card, gift_card, order, price
 log counter A-18 for Omar #2 attempt_started lookup, attempt 1
-log counter A-18 for Omar #3 service_provided lookup gets order_book from ledger, a ch41_using_a_step_in_another_workflow_async::Ledger
+log counter A-18 for Omar #3 service_provided lookup gets order_book from ledger, a ch42_using_a_step_in_another_workflow::Ledger
 the order book has no order A-18 yet
 log counter A-18 for Omar #4 step_succeeded lookup
 log counter A-18 for Omar #5 contribution_committed completed
@@ -42,7 +42,7 @@ log counter A-18 for Omar #8 optional_input_absent discount
 log counter A-18 for Omar #9 step_succeeded price
 log counter A-18 for Omar #10 contribution_committed amount
 log counter A-18 for Omar #11 attempt_started charge, attempt 1
-log counter A-18 for Omar #12 service_provided charge gets payments from terminal, a ch41_using_a_step_in_another_workflow_async::Terminal
+log counter A-18 for Omar #12 service_provided charge gets payments from terminal, a ch42_using_a_step_in_another_workflow::Terminal
 the counter's terminal declines card omar-2023: it has expired
 log counter A-18 for Omar #13 step_failed charge: card-expired
 log counter A-18 for Omar #14 step_given_up charge: failure
