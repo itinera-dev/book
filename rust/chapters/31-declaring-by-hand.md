@@ -11,36 +11,36 @@ So far you've declared the shop in the short form: the attributes and derives th
 Here is the shop in the short form you've used so far: a charge and a ship step, the `audit` and `notify` policies, the `Messages` role, and the workflow that puts them together.
 
 ```example
-name: ch28_short_form
+name: ch31_short_form
 region: step
 ```
 
 ```example
-name: ch28_short_form
+name: ch31_short_form
 region: policies
 ```
 
 ```example
-name: ch28_short_form
+name: ch31_short_form
 region: workflow
 ```
 
 ```example
-name: ch28_short_form
+name: ch31_short_form
 region: data
 ```
 
 It lists the workflow's steps, then runs one order:
 
 ```example
-name: ch28_short_form
+name: ch31_short_form
 region: run
 ```
 
 It prints:
 
 ```output
-name: ch28_short_form
+name: ch31_short_form
 ```
 
 ### The same shop by hand
@@ -48,40 +48,40 @@ name: ch28_short_form
 Now the same shop, by hand. A step is two things: the step itself, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`. The factory says what the step needs, as a `StepNeeds`, and builds the step from what the workflow resolved. A step that needs nothing can be a plain function.
 
 ```example
-name: ch28_by_hand
+name: ch31_by_hand
 region: step
-asynchronous: ch28_by_hand_async
+asynchronous: ch31_by_hand_async
 ```
 
 A policy implements the trait of each of its hooks, such as `OnStepSuccess<Orders>`: it says what the hook requests, and reads what it requested when it is called. The role is a trait the workflow implements, and the workflow says it provides it by implementing `Provides<dyn Messages>`; a hook then asks for it by its type.
 
 ```example
-name: ch28_by_hand
+name: ch31_by_hand
 region: policies
-asynchronous: ch28_by_hand_async
+asynchronous: ch31_by_hand_async
 ```
 
 The workflow is declared part by part: each step under its name, with its retry budget and its policies, then the workflow's own policies. Building it checks the declaration, and gives you either the workflow or every violation found.
 
 ```example
-name: ch28_by_hand
+name: ch31_by_hand
 region: workflow
-asynchronous: ch28_by_hand_async
+asynchronous: ch31_by_hand_async
 ```
 
 Reading the output by hand means implementing `Output` yourself, reading each key from the data bag.
 
 ```example
-name: ch28_by_hand
+name: ch31_by_hand
 region: data
 ```
 
 Running it is the same, except that the instance comes from the descriptor, and its initial data is given key by key.
 
 ```example
-name: ch28_by_hand
+name: ch31_by_hand
 region: run
-asynchronous: ch28_by_hand_async
+asynchronous: ch31_by_hand_async
 ```
 
 The asynchronous form changes the step, the hooks and the executor to their asynchronous kinds, and declares the workflow asynchronous; everything else is the same. The step implements `AsyncStep` and its factory `AsyncStepFactory`, the hooks implement `AsyncOnStepSuccess` and `AsyncOnWorkflowSuccess`, the descriptors are made with `new_async` and `WorkflowDescriptor::async_builder`, and the instance runs on `AsyncLocalExecutor`. An asynchronous hook's future must be `Send`, and the role it borrows goes into that future, which is why `Messages` is declared `trait Messages: Sync` there.
@@ -89,24 +89,24 @@ The asynchronous form changes the step, the hooks and the executor to their asyn
 It prints exactly what the short form printed:
 
 ```output
-name: ch28_by_hand
+name: ch31_by_hand
 ```
 
 ### A workflow put together wrongly
 
 This declaration of the shop has three mistakes: the ship step is listed twice under the same name, two policies attached to the charge both react to its success, and the parcels adapter is attached to `shipping`, a step the workflow doesn't have.
 
-Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 27](27-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built. Its steps and policies are declared with the attributes and go into the builder through their `descriptor`, as item 7 below explains, and `parcels_for` makes the `InputAdapterDescriptor` of [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s parcels adapter, attached to the step it is given.
+Declared with `#[workflow(...)]`, these mistakes wouldn't compile, as [chapter 30](30-mistakes-caught-before-a-journey.md) shows. Declared by hand, the program compiles, and the mistakes appear as data when the workflow is built. Its steps and policies are declared with the attributes and go into the builder through their `descriptor`, as item 7 below explains, and `parcels_for` makes the `InputAdapterDescriptor` of [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s parcels adapter, attached to the step it is given.
 
 ```example
-name: ch28_violations
+name: ch31_violations
 region: wrong
 ```
 
 Building it doesn't give you a workflow. The builder's `build()` returns `Result<WorkflowDescriptor<W>, Violations>`, and the `Err` holds every violation found, which you can read one by one.
 
 ```example
-name: ch28_violations
+name: ch31_violations
 region: report
 ```
 
@@ -117,14 +117,14 @@ Two mistakes never become a violation in the long form. Two input adapters of on
 Fixed, the declaration lists each step once, keeps one policy for the charge's success, and attaches the adapter to `ship`.
 
 ```example
-name: ch28_violations
+name: ch31_violations
 region: fixed
 ```
 
 It prints:
 
 ```output
-name: ch28_violations
+name: ch31_violations
 ```
 
 ## How it works
@@ -137,7 +137,7 @@ name: ch28_violations
    - `#[derive(InitialData)]` and `#[derive(Output)]` implement `InitialData` and `Output`. By hand, the instance's builder takes each key with `.data(key, value)`, and `Output::from_data` reads each key from the `DataBag`.
 3. **A step descriptor** holds the step's name, how to build the step, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. How to build the step means saying what it needs, its inputs, its services and its handles, which are its contributor and step reporter, and building it, for each attempt, from what was resolved. Nothing carries over from one attempt to the next, because each attempt gets a new step. That's also why the step in the long form borrows its contributor with a lifetime, `Charge<'a>`: it lives for one attempt only.
 4. **A policy descriptor** holds the policy's name, the hooks it defines, what each hook requests, and how to build an instance of it, here the closure `|| Audit`. Workflow policies are built once per journey, step policies for every attempt.
-5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as the shop with three mistakes above shows; [chapter 27](27-mistakes-caught-before-a-journey.md) lists every violation and how to fix it. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
+5. **Building the workflow is the first half of admission.** In the long form you see it happen: `build()` checks the declaration, and returns every violation found as `Violations`, as the shop with three mistakes above shows; [chapter 30](30-mistakes-caught-before-a-journey.md) lists every violation and how to fix it. The short form runs the same checks while the program compiles, so a workflow declared with `#[workflow(...)]` that holds a violation doesn't compile.
 6. **The listing reads the descriptor.** Both shops, short and long, list the workflow's steps, in order, with their policies, without running anything. A workflow is fixed before any journey, whichever form declared it.
 7. **The two forms mix.** A step or policy declared in the short form goes into a builder through its `descriptor`, as `Charge::descriptor(step_name!("charge"))` and `Audit::descriptor()`. You can write most of a workflow in the short form and only the part that needs it in the long form.
 8. **When you need the long form:**

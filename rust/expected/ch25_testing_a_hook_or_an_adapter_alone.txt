@@ -1,0 +1,7 @@
+ok: heavy_parcels gives up a shipping that failed with over-parcel-limit
+ok: it lets a shipping that failed with too-heavy be retried
+ok: it lets a shipping that ended in an error be retried
+ok: audit writes the step, the amount and the receipt
+ok: notify gives a gift card's code, and says sorry for a failed order
+ok: parcels gives the shipping the parcel's weight
+ok: it leaves every other input to the data bag

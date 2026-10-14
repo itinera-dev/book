@@ -1,0 +1,86 @@
+log orders A-1 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-1 #2 attempt_started price, attempt 1
+log orders A-1 #3 optional_input_absent discount
+log orders A-1 #4 step_succeeded price
+log orders A-1 #5 contribution_committed amount
+log orders A-1 #6 attempt_started charge, attempt 1
+log orders A-1 #7 service_provided charge gets payments from bank, a ch27_testing_a_whole_journey::TestBank
+log orders A-1 #8 step_succeeded charge
+log orders A-1 #9 contribution_committed receipt
+log orders A-1 #10 hook_called audit: on step success of charge
+log orders A-1 #11 contribution_committed audit
+log orders A-1 #12 attempt_started ship, attempt 1
+log orders A-1 #13 input_adapter_supplied ship gets weight from parcels
+log orders A-1 #14 service_provided ship gets carrier from carriers, a ch27_testing_a_whole_journey::TestCarrier
+log orders A-1 #15 step_info ship: the parcel leaves with receipt R-A-1
+log orders A-1 #16 step_succeeded ship
+log orders A-1 #17 contribution_committed tracking
+log orders A-1 #18 optional_input_absent code
+email to Ann: Order A-1 is on its way, tracking T-A-1.
+log orders A-1 #19 hook_called notify: on workflow success
+log orders A-1 #20 journey_succeeded
+ok: an order the bank charges and the carrier takes is shipped
+log orders A-2 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-2 #2 attempt_started price, attempt 1
+log orders A-2 #3 optional_input_absent discount
+log orders A-2 #4 step_succeeded price
+log orders A-2 #5 contribution_committed amount
+log orders A-2 #6 attempt_started charge, attempt 1
+log orders A-2 #7 service_provided charge gets payments from bank, a ch27_testing_a_whole_journey::TestBank
+log orders A-2 #8 step_succeeded charge
+log orders A-2 #9 contribution_committed receipt
+log orders A-2 #10 hook_called audit: on step success of charge
+log orders A-2 #11 contribution_committed audit
+log orders A-2 #12 attempt_started ship, attempt 1
+log orders A-2 #13 input_adapter_supplied ship gets weight from parcels
+log orders A-2 #14 service_provided ship gets carrier from carriers, a ch27_testing_a_whole_journey::TestCarrier
+log orders A-2 #15 step_failed ship: over-parcel-limit
+log orders A-2 #16 hook_called heavy_parcels: on step retry of ship
+log orders A-2 #17 step_given_up ship: FailWorkflow from heavy_parcels, no-carrier-can-take-it
+email to Ann: Sorry, order A-2 could not be completed.
+log orders A-2 #18 hook_called notify: on workflow failure
+log orders A-2 #19 journey_failed ship
+desk: order A-2 failed at ship
+ok: a parcel over the limit is given up after its first attempt
+log orders A-3 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-3 #2 attempt_started price, attempt 1
+log orders A-3 #3 optional_input_absent discount
+log orders A-3 #4 step_succeeded price
+log orders A-3 #5 contribution_committed amount
+log orders A-3 #6 attempt_started charge, attempt 1
+log orders A-3 #7 service_provided charge gets payments from bank, a ch27_testing_a_whole_journey::TestBank
+log orders A-3 #8 step_abnormal_termination charge: the payment network is down
+log orders A-3 #9 hook_called outage: on step abnormal termination of charge
+log orders A-3 #10 step_given_up charge: FailWorkflow from outage, payment-network-down
+email to Ann: Sorry, order A-3 could not be completed.
+log orders A-3 #11 hook_called notify: on workflow failure
+log orders A-3 #12 journey_failed charge
+desk: order A-3 failed at charge
+ok: a charge whose bank is down is given up, and never rescued
+log orders A-4 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-4 #2 attempt_started price, attempt 1
+log orders A-4 #3 optional_input_absent discount
+log orders A-4 #4 step_succeeded price
+log orders A-4 #5 contribution_committed amount
+log orders A-4 #6 attempt_started charge, attempt 1
+log orders A-4 #7 service_provided charge gets payments from bank, a ch27_testing_a_whole_journey::TestBank
+log orders A-4 #8 step_succeeded charge
+log orders A-4 #9 contribution_committed receipt
+log orders A-4 #10 hook_called audit: on step success of charge
+log orders A-4 #11 contribution_committed audit
+log orders A-4 #12 attempt_started ship, attempt 1
+log orders A-4 #13 input_adapter_supplied ship gets weight from parcels
+log orders A-4 #14 service_provided ship gets carrier from carriers, a ch27_testing_a_whole_journey::TestCarrier
+log orders A-4 #15 step_failed ship: too-heavy
+log orders A-4 #16 hook_called heavy_parcels: on step retry of ship
+log orders A-4 #17 step_retrying ship
+log orders A-4 #18 attempt_started ship, attempt 2
+log orders A-4 #19 input_adapter_supplied ship gets weight from parcels
+log orders A-4 #20 service_provided ship gets carrier from carriers, a ch27_testing_a_whole_journey::TestCarrier
+log orders A-4 #21 step_failed ship: too-heavy
+log orders A-4 #22 step_given_up ship: retries exhausted
+email to Ann: Sorry, order A-4 could not be completed.
+log orders A-4 #23 hook_called notify: on workflow failure
+log orders A-4 #24 journey_failed ship
+desk: order A-4 failed at ship
+ok: a parcel no carrier collects is tried once more, then given up

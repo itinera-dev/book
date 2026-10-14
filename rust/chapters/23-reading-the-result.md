@@ -42,7 +42,7 @@ name: ch23_reading_the_result
 5. **An aborted journey has no output.** Max's pricing succeeded, and its amount was committed, but the data bag of a stopped journey may stand halfway through a change, so the result doesn't offer it. `result.output()` returns an `Err` for an aborted journey, which is why only the other two arms read it.
 6. **An aborted journey runs no workflow hook.** Lee was told the order could not be completed, and Max was told nothing, since the hooks of a workflow policy run only for a journey that succeeded or failed. No `journey_failed` was recorded either, so the desk is silent: Max's log ends with `journey_aborted`. **An aborted journey is never resumed:** fix the cause, then run the order again with a new instance.
 
-Every order now ends with an answer the shop can act on. But the shop's real bank and carriers answer over the network, and while a step waits for them, its journey holds the program's thread.
+Every order now ends with an answer the shop can act on. But the only way to know that the shop still gives those answers after a change is to run every order again, against the bank and the carriers, and read the log.
 
 ## Outcomes
 

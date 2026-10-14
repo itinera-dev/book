@@ -28,7 +28,11 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A role | operations the workflow provides to policies | [19](19-letting-policies-act-on-the-outside-world.md) |
 | An input adapter | decides where a step's inputs come from | [21](21-deciding-where-a-steps-data-comes-from.md) |
 | A value of your own type | a struct of yours, held in the data bag like any other value | [21](21-deciding-where-a-steps-data-comes-from.md) |
-| A workflow declared by hand | the long form of everything above | [28](28-declaring-by-hand.md) |
+| A step tested alone | a step built from its inputs, and run with fakes of its services and recorders lending its contributor and reporter | [24](24-testing-a-step-alone.md) |
+| A hook or an input adapter tested alone | called as a method, with the data it asks for and fakes of its roles | [25](25-testing-a-hook-or-an-adapter-alone.md) |
+| A scripted run | a journey in which a script says how the steps' attempts end, in place of running them | [26](26-testing-the-flow-with-scripted-steps.md) |
+| A fake provider and a journey's path | a function in place of a workflow's provider, and the journey's outcomes and decisions as lines a test compares | [27](27-testing-a-whole-journey.md) |
+| A workflow declared by hand | the long form of everything above | [31](31-declaring-by-hand.md) |
 | A lifecycle | what a hook returns to end the journey early: `FailWorkflow` or `FinishWorkflow` | [17](17-giving-up-a-step-early.md), [Ending a journey early](16-ending-a-journey-early.md) |
 
 ## In Rust
@@ -59,7 +63,11 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 19 |
 | An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["ship"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 21 |
 | A value of your own type | `#[derive(Clone, Serialize, Deserialize)]` on its struct, with the `serde` crate and its `derive` feature | 21 |
-| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 28 |
+| A step tested alone | with the `testing` feature under `[dev-dependencies]`, `Charge { ... }.run(&fake, contributions.contributor())`, with `Contributions` from `itinera::journey` and `StepEventReporter` from `itinera::step` | 24 |
+| A hook or an input adapter tested alone | `HeavyParcels.before_retrying(Some(Reason::from("code")))?` or `Orders { ... }.parcels("weight", parcel)?` | 25 |
+| A scripted run | `instance.scripted().step("charge").will_fail("code").on_attempt(2).will_succeed().and_step("charge_rescue").will_succeed().run()?`, which returns a `ScriptedRun` | 26 |
+| A fake provider and a journey's path | `.fake_provider::<dyn Payments>("bank", fake)` on the builder, where `fake` returns `Ok(provide!(...))`, and `.reporter(recorder.clone())` with a `RecordingReporter`, then `recorder.path()` | 27 |
+| A workflow declared by hand | `WorkflowDescriptor::builder("orders").step(StepDescriptor::new(step_name!("charge"), Charging)).build()?` | 31 |
 | A lifecycle | `Self::carry_on()`, `Self::fail_workflow("code")`, or, from `on step success` only, `Self::finish_workflow()` | 17, Ending a journey early |
 
 For the asynchronous form, turn on the `async` feature, write `async fn run`, which makes the workflow asynchronous, and `async fn` hooks, implement `AsyncReporter` for an asynchronous reporter and list it with `async_reporters = [...]`, or keep a synchronous one under `reporters = [...]`, and run on `AsyncLocalExecutor`, awaiting its `run`.

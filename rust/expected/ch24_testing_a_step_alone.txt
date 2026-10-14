@@ -1,0 +1,11 @@
+ok: a charge the bank takes succeeds
+ok: it gives back the bank's receipt
+ok: a charge the bank declines fails with card-expired
+ok: it gives back no receipt
+ok: a charge lets the error of a bank that is down escape
+ok: renewing an expired card succeeds
+ok: it gives back the card that replaced it
+ok: a failure that isn't an expired card is not repairable
+ok: a parcel of 2 kg ships
+ok: the shipping says the parcel left with its receipt
+ok: a parcel of 90 kg fails with over-parcel-limit, before the carrier is called

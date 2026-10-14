@@ -42,18 +42,21 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 
 22. [Running many journeys](22-running-many-journeys.md)
 23. [Reading the result](23-reading-the-result.md)
+24. [Testing a step alone](24-testing-a-step-alone.md)
+25. [Testing a hook or an adapter alone](25-testing-a-hook-or-an-adapter-alone.md)
+26. [Testing the flow with scripted steps](26-testing-the-flow-with-scripted-steps.md)
+27. [Testing a whole journey](27-testing-a-whole-journey.md)
 
-24) [Testing your workflows](24-testing-your-workflows.md)
 - [Without Itinera](part-5-without-itinera.md)
 
 ## Part 5: Designing with Itinera
 
-25. [Step, rescue step or policy?](25-step-rescue-step-or-policy.md)
-26. [From tangled code to a workflow](26-from-tangled-code-to-a-workflow.md)
-27. [Mistakes caught before a journey](27-mistakes-caught-before-a-journey.md)
-28. [Declaring by hand](28-declaring-by-hand.md)
-29. [Using a step in another workflow](29-using-a-step-in-another-workflow.md)
-30. [Working with agents](30-working-with-agents.md)
+28. [Step, rescue step or policy?](28-step-rescue-step-or-policy.md)
+29. [From tangled code to a workflow](29-from-tangled-code-to-a-workflow.md)
+30. [Mistakes caught before a journey](30-mistakes-caught-before-a-journey.md)
+31. [Declaring by hand](31-declaring-by-hand.md)
+32. [Using a step in another workflow](32-using-a-step-in-another-workflow.md)
+33. [Working with agents](33-working-with-agents.md)
 
 ## Appendices
 
