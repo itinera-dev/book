@@ -32,7 +32,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A hook or an input adapter tested alone | called as a method, with the data it asks for and fakes of its roles | [25](25-testing-a-hook-or-an-adapter-alone.md) |
 | A scripted run | a journey in which a script says how the steps' attempts end, in place of running them | [26](26-testing-the-flow-with-scripted-steps.md) |
 | A fake provider and a journey's path | a function in place of a workflow's provider, and the journey's outcomes and decisions as lines a test compares | [27](27-testing-a-whole-journey.md) |
-| The asynchronous execution mode | steps, hooks and services that wait without holding the thread, so journeys run at the same time | [28](28-running-journeys-while-others-wait.md) |
+| The asynchronous execution mode | steps, hooks and services that wait without holding the thread, so journeys run at the same time | [28](28-running-async-journeys-while-others-wait.md) |
 | A workflow declared by hand | the long form of everything above | [32](32-declaring-by-hand.md) |
 | A lifecycle | what a hook returns to end the journey early: `FailWorkflow` or `FinishWorkflow` | [17](17-giving-up-a-step-early.md), [Ending a journey early](16-ending-a-journey-early.md) |
 

@@ -46,7 +46,7 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 25. [Testing a hook or an adapter alone](25-testing-a-hook-or-an-adapter-alone.md)
 26. [Testing the flow with scripted steps](26-testing-the-flow-with-scripted-steps.md)
 27. [Testing a whole journey](27-testing-a-whole-journey.md)
-28. [Running journeys while others wait](28-running-journeys-while-others-wait.md)
+28. [Running async journeys while others wait](28-running-async-journeys-while-others-wait.md)
 
 - [Without Itinera](part-5-without-itinera.md)
 
