@@ -100,3 +100,21 @@ log orders A-9 #16 journey_succeeded
 the journey succeeded, with receipt R-A-9 and tracking none
 audit: charge took 25, receipt R-A-9
 message: Order A-9 is paid: your gift card's code is G-A-9.
+Lee's order:
+log orders A-10 #1 journey_started card, gift_card, order, price, weight
+log orders A-10 #2 attempt_started charge, attempt 1
+log orders A-10 #3 service_provided charge gets payments from bank, a ch17_doing_something_when_the_journey_ends::Bank
+the bank declines card lee-2019: it has expired
+log orders A-10 #4 step_failed charge: card-expired, not retriable
+log orders A-10 #5 step_rescuing charge: failure, rescued by charge_rescue
+log orders A-10 #6 attempt_started charge_rescue, attempt 1
+the bank says nothing replaced card lee-2019
+log orders A-10 #7 step_failed charge_rescue: not-replaced, not retriable
+log orders A-10 #8 step_given_up charge_rescue: failure
+log orders A-10 #9 hook_called notify: on workflow failure
+log orders A-10 #10 contribution_committed message
+log orders A-10 #11 journey_failed charge_rescue
+desk: order A-10 failed at charge_rescue
+the journey failed, with receipt none and tracking none
+audit: none
+message: Sorry, order A-10 could not be completed.

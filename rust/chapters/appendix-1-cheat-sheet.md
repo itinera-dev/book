@@ -22,7 +22,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A rescue step | a step that repairs the cause of a failure before the step runs once more | [14](14-repairing-then-trying-once-more.md) |
 | A step policy and its hooks | reacts to a step's outcome, such as `on step success` | [15](15-reacting-to-what-a-step-did.md) |
 | What a hook requests | data from the step or the workflow, the step's name, a role, a contributor | [15](15-reacting-to-what-a-step-did.md), [17](17-doing-something-when-the-journey-ends.md), [18](18-letting-policies-act-on-the-outside-world.md) |
-| A workflow policy and its hooks | reacts to how the journey ended, such as `on workflow success` | [17](17-doing-something-when-the-journey-ends.md) |
+| A workflow policy and its hooks | reacts to how the journey ended: `on workflow success`, `on workflow failure` | [17](17-doing-something-when-the-journey-ends.md) |
 | A role | operations the workflow provides to policies | [18](18-letting-policies-act-on-the-outside-world.md) |
 | An input adapter | decides where a step's inputs come from | [20](20-deciding-where-a-steps-data-comes-from.md) |
 | A policy that may fail while it is built | a policy built by a function of your own, which may fail; a workflow policy that fails is a refusal | [21](21-running-many-journeys.md) |
@@ -52,7 +52,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A rescue step | `#[derive(RescueStep)]` on its struct, and `#[rescue_step]` on the block holding `fn run(self, ...) -> Result<RescueOutcome, Error>`, which may request `#[reason]`; attached with `rescue = RenewCard` on the step's `#[with_step]` line | 14 |
 | A step policy and its hooks | `#[step_policy(name = "audit")]` on its block, and a method marked with its hook, such as `#[on_step_success]`; attached with `policies = [Audit]` on a `#[with_step]` line | 15 |
 | What a hook requests | parameters marked `#[from_step]`, `#[from_workflow]`, `#[step_name]`, `#[role]` or `#[contributor]` | 15, 17, 18 |
-| A workflow policy and its hooks | `#[workflow_policy(name = "notify")]` on its block, and a method marked with its hook, such as `#[on_workflow_success]`; attached with `policies = [Notify]` on `#[workflow(...)]` | 17 |
+| A workflow policy and its hooks | `#[workflow_policy(name = "notify")]` on its block, and a method marked `#[on_workflow_success]` or `#[on_workflow_failure]`; attached with `policies = [Notify]` on `#[workflow(...)]` | 17 |
 | A role | a trait, and `#[role]` on the workflow's implementation of it; a hook requests it as `#[role] messages: &dyn Messages` | 18 |
 | An input adapter | a method of the workflow's `#[workflow] impl` block, marked `#[input_adapter(steps = ["charge"])]`, returning `Result<Option<AnyValue>, Error>`, made with `Self::supply(value)` or `Self::from_data_bag()` | 20 |
 | A policy that may fail while it is built | a function of its block marked `#[factory]`, returning `Result<Self, Error>` | 21 |

@@ -27,7 +27,7 @@ name: ch20_deciding_where_a_steps_data_comes_from
 region: supplied
 ```
 
-The rest is [chapter 19](19-an-optional-input.md)'s shop, and it runs the same four orders. It prints:
+The rest is [chapter 19](19-an-optional-input.md)'s shop, and it runs the same five orders. It prints:
 
 ```output
 name: ch20_deciding_where_a_steps_data_comes_from

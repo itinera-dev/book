@@ -13,7 +13,7 @@ name: ch18_letting_policies_act_on_the_outside_world
 region: role
 ```
 
-The notify policy now asks for it, as a parameter marked `#[role]`, and for the customer's name from the data bag, and tells the customer instead of contributing the message:
+The notify policy's two hooks now ask for it, as a parameter marked `#[role]`, and for the customer's name from the data bag, and tell the customer instead of contributing the message:
 
 ```example
 name: ch18_letting_policies_act_on_the_outside_world
@@ -34,7 +34,7 @@ name: ch18_letting_policies_act_on_the_outside_world
 region: create
 ```
 
-The rest is [chapter 17](17-doing-something-when-the-journey-ends.md)'s shop, and it runs the same four orders. It prints:
+The rest is [chapter 17](17-doing-something-when-the-journey-ends.md)'s shop, and it runs the same five orders. It prints:
 
 ```output
 name: ch18_letting_policies_act_on_the_outside_world

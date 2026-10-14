@@ -46,8 +46,13 @@ impl Payments for Bank {
         Some(format!("R-{order}"))
     }
 
-    /// A card that has expired was replaced by its holder's card that expires in three years.
+    /// A card that expired in the last three years was replaced by its holder's card that expires
+    /// in three years. An older one was not.
     fn replacement(&self, card: &str) -> Option<String> {
+        if expiry(card)? + 3 < self.this_year {
+            println!("the bank says nothing replaced card {card}");
+            return None;
+        }
         let (holder, _) = card.rsplit_once('-')?;
         let replacement = format!("{holder}-{}", self.this_year + 3);
         println!("the bank says card {card} was replaced by {replacement}");
@@ -179,7 +184,7 @@ trait Messages {
     fn tell(&self, customer: &str, message: &str);
 }
 
-/// Tells the customer how their order went, once its journey has succeeded.
+/// Tells the customer how their order went, once its journey has ended.
 #[derive(Default)]
 struct Notify;
 
@@ -202,6 +207,20 @@ impl Notify {
             (None, None) => format!("Order {order} is complete."),
         };
         messages.tell(&customer, &message);
+        Ok(())
+    }
+
+    #[on_workflow_failure]
+    fn failed(
+        &self,
+        #[from_workflow] customer: String,
+        #[from_workflow] order: String,
+        #[role] messages: &dyn Messages,
+    ) -> Result<(), Error> {
+        messages.tell(
+            &customer,
+            &format!("Sorry, order {order} could not be completed."),
+        );
         Ok(())
     }
 }
@@ -358,7 +377,7 @@ impl Reporter for Desk {
 }
 
 /// The shop's workflow: it charges, repairing a charge that fails and auditing one that succeeds,
-/// then ships, and shipping may be tried once more. Once a journey has succeeded, the customer is
+/// then ships, and shipping may be tried once more. Once a journey has ended, the customer is
 /// told, through the channel the shop configures.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
@@ -443,6 +462,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("A-7", "Gil", 45, None, 60, "gil-2027", false),
         ("A-8", "Jo", 30, None, 1, "jo-2024", false),
         ("A-9", "Kim", 25, None, 0, "kim-2027", true),
+        ("A-10", "Lee", 35, None, 3, "lee-2019", false),
     ];
     for (order, customer, price, discount, weight, card, gift_card) in orders {
         println!("{customer}'s order:");

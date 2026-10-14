@@ -1,5 +1,5 @@
 //! Doing something when the journey ends: a workflow policy writes the customer's message once
-//! each journey has succeeded, whichever step it ended on.
+//! each journey has ended, whichever step it ended on, and whether it succeeded or failed.
 
 use std::num::NonZeroU32;
 
@@ -45,8 +45,13 @@ impl Payments for Bank {
         Some(format!("R-{order}"))
     }
 
-    /// A card that has expired was replaced by its holder's card that expires in three years.
+    /// A card that expired in the last three years was replaced by its holder's card that expires
+    /// in three years. An older one was not.
     fn replacement(&self, card: &str) -> Option<String> {
+        if expiry(card)? + 3 < self.this_year {
+            println!("the bank says nothing replaced card {card}");
+            return None;
+        }
         let (holder, _) = card.rsplit_once('-')?;
         let replacement = format!("{holder}-{}", self.this_year + 3);
         println!("the bank says card {card} was replaced by {replacement}");
@@ -172,7 +177,7 @@ impl Audit {
 
 // ANCHOR: policy
 /// Writes the message that tells the customer how their order went, once its journey has
-/// succeeded.
+/// ended.
 #[derive(Default)]
 struct Notify;
 
@@ -194,6 +199,19 @@ impl Notify {
             (None, None) => format!("Order {order} is complete."),
         };
         contributor.contribute("message", message);
+        Ok(())
+    }
+
+    #[on_workflow_failure]
+    fn failed(
+        &self,
+        #[from_workflow] order: String,
+        #[contributor] mut contributor: Contributor<'_>,
+    ) -> Result<(), Error> {
+        contributor.contribute(
+            "message",
+            format!("Sorry, order {order} could not be completed."),
+        );
         Ok(())
     }
 }
@@ -349,7 +367,7 @@ impl Reporter for Desk {
 
 // ANCHOR: workflow
 /// The shop's workflow: it charges, repairing a charge that fails and auditing one that succeeds,
-/// then ships, and shipping may be tried once more. Once a journey has succeeded, the customer's
+/// then ships, and shipping may be tried once more. Once a journey has ended, the customer's
 /// message is written.
 #[workflow(name = "orders", reporters = [Log, Desk], policies = [Notify])]
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
@@ -408,6 +426,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("A-7", "Gil", 45, 60, "gil-2027", false),
         ("A-8", "Jo", 30, 1, "jo-2024", false),
         ("A-9", "Kim", 25, 0, "kim-2027", true),
+        ("A-10", "Lee", 35, 3, "lee-2019", false),
     ];
     for (order, customer, price, weight, card, gift_card) in orders {
         println!("{customer}'s order:");
