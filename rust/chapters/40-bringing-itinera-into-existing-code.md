@@ -11,6 +11,7 @@ The program is [chapter 1](01-but-why-itinera.md)'s checkout. Its payment, which
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: payments
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 The charge becomes a step, and the renewal its rescue step. The charge no longer renews anything: it says why it failed.
@@ -18,6 +19,7 @@ The charge becomes a step, and the renewal its rescue step. The charge no longer
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: steps
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 The audit becomes a policy, which writes to the audit trail with the function the checkout already used:
@@ -25,6 +27,7 @@ The audit becomes a policy, which writes to the audit trail with the function th
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: audit
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 The log line the payment wrote becomes a reporter, which writes with the shop's existing `log::info`:
@@ -32,6 +35,7 @@ The log line the payment wrote becomes a reporter, which writes with the shop's 
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: log
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 The workflow has one step, and its provider makes the bank's client as the checkout did:
@@ -39,6 +43,7 @@ The workflow has one step, and its provider makes the bank's client as the check
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: workflow
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 The rest of the checkout is unchanged, except the line that took the payment, which now calls `pay`. It runs the workflow, and turns how the journey ended back into the checkout's own errors:
@@ -46,12 +51,14 @@ The rest of the checkout is unchanged, except the line that took the payment, wh
 ```example
 name: ch40_bringing_itinera_into_existing_code
 region: pay
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
-Chapter 1's checkout is synchronous, so its workflow is too, and this chapter has no asynchronous form. `main` is chapter 1's, with the same four orders, and prints:
+The asynchronous form starts from a checkout that was already asynchronous, its bank's client, `checkout` and `main` awaiting as they go. `Payments` and the client's implementation of it take `#[async_trait]`, the implementation awaiting the client, the steps' `run` and the audit's hook are `async fn`, and `pay` awaits the journey where the checkout awaited the payment. `main` is chapter 1's, with the same four orders, and both forms print:
 
 ```output
 name: ch40_bringing_itinera_into_existing_code
+asynchronous: ch40_bringing_itinera_into_existing_code_async
 ```
 
 ## How it works
