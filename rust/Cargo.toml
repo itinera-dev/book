@@ -63,31 +63,31 @@ path = "compile-errors/ch24_instance_run_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_duplicate_step_name"
-path = "compile-errors/ch33_duplicate_step_name.rs"
+name = "ch34_duplicate_step_name"
+path = "compile-errors/ch34_duplicate_step_name.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_hook_defined_twice"
-path = "compile-errors/ch33_hook_defined_twice.rs"
+name = "ch34_hook_defined_twice"
+path = "compile-errors/ch34_hook_defined_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_invalid_lifecycle"
-path = "compile-errors/ch33_invalid_lifecycle.rs"
+name = "ch34_invalid_lifecycle"
+path = "compile-errors/ch34_invalid_lifecycle.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_mode_not_accepted"
-path = "compile-errors/ch33_mode_not_accepted.rs"
+name = "ch34_mode_not_accepted"
+path = "compile-errors/ch34_mode_not_accepted.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_not_a_value"
-path = "compile-errors/ch33_not_a_value.rs"
+name = "ch34_not_a_value"
+path = "compile-errors/ch34_not_a_value.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch33_role_not_provided"
-path = "compile-errors/ch33_role_not_provided.rs"
+name = "ch34_role_not_provided"
+path = "compile-errors/ch34_role_not_provided.rs"
 required-features = ["compile-errors"]

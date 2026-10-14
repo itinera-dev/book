@@ -36,7 +36,7 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/7d5fec366c5ba6f4fe3f4a4977407885ed292f97/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.13`, and lists every proposal of specification 0.1 as passing.
 
-A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 33](33-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
+A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 34](34-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
 1. a lifecycle a hook may not return (`invalid-lifecycle`);
 2. a policy needing a role the workflow doesn't provide (`role-not-provided`);

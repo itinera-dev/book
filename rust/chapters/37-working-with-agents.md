@@ -14,28 +14,28 @@ An Itinera codebase splits every change into one of two kinds, and each kind liv
 The shop makes the second kind visible with a few tests that pin its **paths**: for a given order, the outcomes and decisions its journey goes through, in order. A person approves each path once, and writes it down:
 
 ```example
-name: ch36_approved_paths
+name: ch37_approved_paths
 region: paths
 ```
 
 `RecordingReporter`, from [chapter 30](30-testing-a-whole-journey.md), keeps a journey's events, and `on_the_path` keeps the ones on its path: each outcome of a step, each decision about one, and how the journey ended. Everything else, such as which data was committed, is left out, because it belongs to the steps.
 
 ```example
-name: ch36_approved_paths
+name: ch37_approved_paths
 region: recorder
 ```
 
 Each check runs one order with faked services and compares the path its journey went through with the approved one.
 
 ```example
-name: ch36_approved_paths
+name: ch37_approved_paths
 region: checks
 ```
 
 It prints:
 
 ```output
-name: ch36_approved_paths
+name: ch37_approved_paths
 ```
 
 A change to a business rule, such as charging the price less a discount, leaves both paths as they are, so both checks still pass: the steps changed, the paths did not. A retry budget of 0 for `ship` in the workflow's declaration changes the second path: `ship` is given up after its first failure and the journey fails, so the second check fails and prints that path instead. The flow changed, and the test says so.
@@ -45,7 +45,7 @@ A change to a business rule, such as charging the price less a discount, leaves 
 1. **What an agent needs to change a step is the step.** A step names its inputs and services by key, and reports an outcome. It never calls another step and never decides what happens next, so an agent changing it reads the step, and the step's own tests check it alone, as [chapter 27](27-testing-a-step-alone.md) shows.
 2. **What an agent needs to change the flow is one workflow.** Every flow decision is in the workflow's declaration, its policies and its providers, or is a default that applies because the declaration says nothing. Its listing, which [chapter 2](02-the-big-picture.md) prints, shows the steps in order, their step policies, their services and providers, and their rescue steps, without running anything; retry budgets and workflow policies are read in the declaration.
 3. **Neither change needs the other.** A business rule changes without touching the workflow, and the flow changes without touching a step. When a change touches both, it is two changes, and a reviewer can ask for them separately.
-4. **One rule to check on every change: a step decides nothing about the flow.** A step that tries its work again inside itself, calls a second carrier when the first fails, or decides which step comes next has taken a flow decision. A reviewer, a person or an agent, looks for those in every change to a step. [Chapter 31](31-step-rescue-step-or-policy.md) lists what belongs where.
+4. **One rule to check on every change: a step decides nothing about the flow.** A step that tries its work again inside itself, calls a second carrier when the first fails, or decides which step comes next has taken a flow decision. A reviewer, a person or an agent, looks for those in every change to a step. [Chapter 32](32-step-rescue-step-or-policy.md) lists what belongs where.
 5. **Paths make flow changes hard to miss.** A path test fails when a flow change alters the path of an order it runs, and passes for a change to a business rule that keeps the steps' outcomes. It sees only the orders it runs: the retry budget of `ship` raised from 1 to 2 leaves both paths above unchanged, so pin a path for every case that matters to the business. A failing path test is not a broken test to fix: it is a flow change waiting for a person to approve the new path.
 6. **With the default dispatcher, every reporter receives the same events, in order.** The path is read from events the executor sends, so the test needs nothing from the steps: no logging, no counters, no mocks that know how the code is built.
 

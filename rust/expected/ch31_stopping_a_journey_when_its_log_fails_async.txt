@@ -1,0 +1,44 @@
+log orders A-15 #1 journey_started card, customer, gift_card, order, parcel, price
+log orders A-1 #1 journey_started card, customer, discount, gift_card, order, parcel, price
+log orders A-1 #2 attempt_started lookup, attempt 1
+log orders A-15 #2 attempt_started lookup, attempt 1
+log orders A-15 #3 service_provided lookup gets order_book from ledger, a ch31_stopping_a_journey_when_its_log_fails_async::Ledger
+the order book has no order A-15 yet
+log orders A-1 #3 service_provided lookup gets order_book from ledger, a ch31_stopping_a_journey_when_its_log_fails_async::Ledger
+the order book has no order A-1 yet
+log orders A-1 #4 step_succeeded lookup
+log orders A-15 #4 step_succeeded lookup
+log orders A-15 #5 contribution_committed completed
+log orders A-1 #5 contribution_committed completed
+log orders A-1 #6 hook_called already_completed: on step success of lookup
+log orders A-15 #6 hook_called already_completed: on step success of lookup
+log orders A-15 #7 attempt_started price, attempt 1
+log orders A-1 #7 attempt_started price, attempt 1
+log orders A-1 #8 step_succeeded price
+log orders A-15 #8 optional_input_absent discount
+log orders A-15 #9 step_succeeded price
+log orders A-1 #9 contribution_committed amount
+log orders A-1 #10 attempt_started charge, attempt 1
+log orders A-15 #10 contribution_committed amount
+log orders A-15 #11 attempt_started charge, attempt 1
+log orders A-1 #11 service_provided charge gets payments from bank, a ch31_stopping_a_journey_when_its_log_fails_async::Bank
+the bank charges 30 for order A-1
+log orders A-15 #12 service_provided charge gets payments from bank, a ch31_stopping_a_journey_when_its_log_fails_async::Bank
+the bank charges 50 for order A-15
+log orders A-1 #12 step_succeeded charge
+log orders A-1 #13 contribution_committed receipt
+log orders A-1 #14 hook_called audit: on step success of charge
+log orders A-1 #15 contribution_committed audit
+log orders A-1 #16 attempt_started ship, attempt 1
+log orders A-1 #17 input_adapter_supplied ship gets weight from parcels
+log orders A-1 #18 service_provided ship gets carrier from carriers, a ch31_stopping_a_journey_when_its_log_fails_async::MainCarrier
+the main carrier books order A-1
+log orders A-1 #19 step_info ship: the parcel leaves with receipt R-A-1
+log orders A-1 #20 step_succeeded ship
+log orders A-1 #21 contribution_committed tracking
+log orders A-1 #22 optional_input_absent code
+email to Ann: Order A-1 is on its way, tracking T-A-1.
+log orders A-1 #23 hook_called notify: on workflow success
+log orders A-1 #24 journey_succeeded
+order A-1 succeeded
+order A-15 aborted
