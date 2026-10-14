@@ -2,7 +2,7 @@ name: Pages
 
 # Builds the book's web pages from site/ and runs their verify gate on every
 # pull request. On main, the pages that passed the gate are published to GitHub
-# Pages, at https://itinera-dev.github.io/book/.
+# Pages, at https://itinera-dev.org/book/.
 
 on:
   pull_request:

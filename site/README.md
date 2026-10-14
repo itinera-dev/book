@@ -16,7 +16,7 @@ Then open <http://localhost:4321/book/rust/>.
 
 ## What this is
 
-An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.github.io/book/>, with one edition per programming language under it: `/book/rust/` for Rust. Nothing of the book is copied here. At build time the pages read each language's book from its directory, such as `../rust/`: the chapters from `../rust/chapters/`, the order of the book from `../rust/chapters/README.md`, and the code and output the directives name, as [FORMAT.md](../FORMAT.md) lays them out.
+An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.org/book/>, with one edition per programming language under it: `/book/rust/` for Rust. Nothing of the book is copied here. At build time the pages read each language's book from its directory, such as `../rust/`: the chapters from `../rust/chapters/`, the order of the book from `../rust/chapters/README.md`, and the code and output the directives name, as [FORMAT.md](../FORMAT.md) lays them out.
 
 - `book.config.mjs` holds the list of editions and says which one a build renders. Every link, the edition switcher and the contents derive from it. Adding a language is one entry in its list.
 - `src/lib/` renders the Markdown: `contents.ts` reads the contents, `directives.ts` replaces each directive with the code or output it names, `links.ts` turns links between chapters into links between pages, `rehype.ts` names code blocks and puts diagrams and tables in their boxes, and `render.ts` puts the pipeline together.

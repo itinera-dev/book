@@ -17,7 +17,7 @@ In Rust, steps, workflows and policies are ordinary code of yours, declared with
 
 Itinera is also more than this crate. Its behaviour is defined once, in a [specification](https://github.com/itinera-dev/spec) that names no programming language, and every language's implementation is checked against the same conformance suite. A workflow means the same thing in every language, and every language's book tells the same story: this one tells it in Rust.
 
-The site explains why we think this matters, especially now that agents write so much of our code, on [Why Itinera](https://itinera-dev.github.io/why/). The book's first chapter shows it in code.
+The site explains why we think this matters, especially now that agents write so much of our code, on [Why Itinera](https://itinera-dev.org/why/). The book's first chapter shows it in code.
 
 ## Where the name comes from
 

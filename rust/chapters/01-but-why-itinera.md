@@ -60,7 +60,7 @@ The code mixes two kinds of decision. **Business rules** decide what the shop do
 
 That is the answer to "why Itinera?": the hardest part of understanding a system like this is knowing what is going on. Answering one question means reading every module, and a decision is easy to miss: the audit tucked into the payment function, the backup carrier's error dropped, the second refusal that travels up without a word. Changing a decision is harder still, because you first have to find every place that makes it.
 
-The shop is small, and you can still read all of it. A system that has grown for years, across teams and repositories, has the same problem with no one left who has read everything, and agents changing it faster than anyone can follow. The Itinera site tells that larger story on [Why Itinera](https://itinera-dev.github.io/why/).
+The shop is small, and you can still read all of it. A system that has grown for years, across teams and repositories, has the same problem with no one left who has read everything, and agents changing it faster than anyone can follow. The Itinera site tells that larger story on [Why Itinera](https://itinera-dev.org/why/).
 
 The next chapter writes the same checkout with Itinera, where every flow decision has one place to live, and answers each of these questions by reading one declaration.
 

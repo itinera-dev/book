@@ -34,7 +34,7 @@ export const editions = [
 export const editionDirectories = ['chapters', 'examples', 'expected', 'tested', 'compile-errors', 'pending'];
 
 /** The site's origin, and the path the whole book is served under. */
-export const site = 'https://itinera-dev.github.io';
+export const site = 'https://itinera-dev.org';
 export const base = '/book';
 
 /** The repository on GitHub, for links to files that are not pages of the book. */
