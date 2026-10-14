@@ -790,6 +790,7 @@ mod tests {
     use std::cell::RefCell;
 
     use itinera::journey::{Contributions, Read};
+    use itinera::policy::ReturnedLifecycle;
     use itinera::step::step_name;
 
     use super::*;
@@ -826,8 +827,10 @@ mod tests {
 
     // ANCHOR: failed_shipping
     /// What `before_retrying` decides for Ned's shipping, which failed with this reason after he
-    /// paid 50: the reason it gave the shipping up with, if it did, and the refunds it asked for.
-    fn before_retrying(reason: Option<Reason>) -> Result<(Option<String>, Vec<String>), Error> {
+    /// paid 50, and the refunds it asked for.
+    fn before_retrying(
+        reason: Option<Reason>,
+    ) -> Result<(Option<FailWorkflow>, Vec<String>), Error> {
         let refunds = TestRefunds::default();
         let mut contributions = Contributions::default();
         let decision = FailedShipping.before_retrying(
@@ -837,38 +840,35 @@ mod tests {
             &refunds,
             contributions.contributor(),
         )?;
-        let given_up_with = decision
-            .map(Reason::from)
-            .map(|reason| reason.code().to_owned());
-        Ok((given_up_with, refunds.given.into_inner()))
+        Ok((decision, refunds.given.into_inner()))
     }
 
     #[test]
     fn failed_shipping_refunds_and_gives_up_a_shipping_that_failed_with_over_parcel_limit()
     -> Result<(), Error> {
+        let (decision, refunds) = before_retrying(Some(Reason::from("over-parcel-limit")))?;
         assert_eq!(
-            before_retrying(Some(Reason::from("over-parcel-limit")))?,
-            (
-                Some("no-carrier-can-take-it".to_owned()),
-                vec!["50 back on R-A-12".to_owned()]
-            )
+            decision.fails_workflow().map(Reason::code),
+            Some("no-carrier-can-take-it")
         );
+        assert_eq!(refunds, ["50 back on R-A-12"]);
         Ok(())
     }
 
     #[test]
     fn failed_shipping_lets_a_shipping_that_failed_with_too_heavy_be_retried() -> Result<(), Error>
     {
-        assert_eq!(
-            before_retrying(Some(Reason::from("too-heavy")))?,
-            (None, vec![])
-        );
+        let (decision, refunds) = before_retrying(Some(Reason::from("too-heavy")))?;
+        assert!(decision.keeps_default());
+        assert!(refunds.is_empty());
         Ok(())
     }
 
     #[test]
     fn failed_shipping_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<(), Error> {
-        assert_eq!(before_retrying(None)?, (None, vec![]));
+        let (decision, refunds) = before_retrying(None)?;
+        assert!(decision.keeps_default());
+        assert!(refunds.is_empty());
         Ok(())
     }
 
@@ -883,7 +883,7 @@ mod tests {
             &refunds,
             contributions.contributor(),
         )?;
-        assert!(decision.is_none());
+        assert!(decision.keeps_default());
         assert_eq!(refunds.given.into_inner(), ["20 back on R-A-14"]);
         assert_eq!(
             contributions.read::<String>("refund"),
