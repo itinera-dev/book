@@ -12,7 +12,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A workflow and its steps | the plan: the steps in order, each under its name | [5](05-a-first-journey.md), [6](06-passing-data-on.md) |
 | A workflow instance and its initial data | one journey's starting point | [5](05-a-first-journey.md), [22](22-running-many-journeys.md) |
 | An executor, and running an instance | runs one journey at a time and returns its result, or refuses it, keeping nothing between journeys | [5](05-a-first-journey.md), [22](22-running-many-journeys.md) |
-| Reading the result and its output | how the journey ended and what explains it, and the data bag it left, unless it was aborted | [5](05-a-first-journey.md), [6](06-passing-data-on.md), [23](23-reading-the-result.md) |
+| Reading the result and its output | how the journey ended and what explains it, and its output, read typed, unless it was aborted | [5](05-a-first-journey.md), [6](06-passing-data-on.md), [23](23-reading-the-result.md) |
 | A contributor | how a step adds data to the data bag | [6](06-passing-data-on.md) |
 | A service and its provider | a tool a step asks for by a key, and the part of the workflow that supplies it, per journey or per attempt | [7](07-giving-a-step-the-tools-it-needs.md), [13](13-a-carrier-for-each-attempt.md) |
 | A reporter | receives every event of a journey | [8](08-seeing-what-happened.md), [10](10-more-than-one-reporter.md) |
