@@ -3,9 +3,9 @@
 //!
 //! Each program is an example that only the `compile-errors` feature builds, so the test builds
 //! them one at a time and keeps the compiler's errors, without Cargo's progress lines. The path of
-//! `itinera`, whether in Cargo's checkouts or in a local checkout that replaces it, is written as a
-//! path inside its repository, as the recorded messages write it. Nothing else is rewritten: the
-//! message is compared exactly.
+//! `itinera`'s crates, whether from the registry, a git checkout or a local checkout that replaces
+//! them, is written as a path inside its repository, as the recorded messages write it. Nothing
+//! else is rewritten: the message is compared exactly.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -40,7 +40,7 @@ fn errors(name: &str, checkout: &Regex) -> String {
         .filter_map(rendered)
         .collect();
     checkout
-        .replace_all(&rendered, "itinera-rs/$crates")
+        .replace_all(&rendered, "itinera-rs/crates/${crate}/src/")
         .into_owned()
 }
 
@@ -54,7 +54,9 @@ fn rendered(message: Value) -> Option<String> {
 
 #[test]
 fn every_compile_error_gives_its_recorded_message() {
-    let checkout = Regex::new(r"/\S*?/(?<crates>crates/itinera[a-z-]*/src/)").unwrap();
+    let checkout =
+        Regex::new(r"/\S*?/(?:crates/)?(?<crate>itinera(?:-core|-macros)?)(?:-[0-9][^/]*)?/src/")
+            .unwrap();
     let exactly = Assert::new().normalize_paths(false);
     let mut programs: Vec<PathBuf> = fs::read_dir(compile_errors())
         .unwrap()

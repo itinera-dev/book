@@ -22,11 +22,11 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The version of `itinera` this book covers
 
-`itinera` isn't on crates.io yet. This book follows its [repository](https://github.com/itinera-dev/itinera-rs) at the commit that the book's own `Cargo.toml` pins, on the way to its first release, the beta `0.1.0-beta.1`. When that release comes out, the book moves to it and is tagged with it, and every example you read here compiles and runs against it.
+This book covers `itinera` `0.1.0-beta.1`, its first release, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.1`. The book's own `Cargo.toml` asks for exactly that release, and every example you read here compiles and runs against it.
 
 ## Services, rescue steps and global metadata
 
-[Services](07-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and global metadata, the last features added to tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against the commit it pins.
+[Services](07-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and global metadata, the last features added to tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against that release.
 
 ## Capabilities
 
@@ -34,7 +34,7 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/7156f7fe1ef754a53f7ce8295a112f8a250474ba/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book pins, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.1/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.1`, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 

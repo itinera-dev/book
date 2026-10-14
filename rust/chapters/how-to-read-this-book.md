@@ -43,4 +43,4 @@ A diagram is always followed by text that says everything it shows. If you read 
 
 ## Going further
 
-The book teaches; it doesn't list every detail. The [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and the API documentation of `itinera` documents every item the crate offers. The crate isn't on crates.io yet, so its documentation lives with its source, in [itinera-rs](https://github.com/itinera-dev/itinera-rs); once `itinera` is a dependency of your project, `cargo doc --open` builds it for the version you use.
+The book teaches; it doesn't list every detail. The [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and the API documentation of `itinera` documents every item the crate offers. Once `itinera` is a dependency of your project, `cargo doc --open` builds that documentation for the version you use, and its source is in [itinera-rs](https://github.com/itinera-dev/itinera-rs).
