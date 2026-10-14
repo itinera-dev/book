@@ -183,21 +183,23 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 
 ## How the examples are checked
 
-1. Each language's directory in this repository depends on a pinned version of that language's Itinera package, and this repository's CI compiles every example, runs it and compares its output with the recorded one, in one job per language. A program whose tests a chapter shows is built as it would ship, without what is only for tests, and its tests are run and their report compared with the recorded one, so code a chapter shows outside a test never relies on test support.
-2. Each language's own repository pins a commit of this repository and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
-3. A change that breaks the book on purpose comes as a pair of pull requests, one here and one in the language's repository. The book's pull request updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request, and both go green together. Until the next release, the book stays pinned to that commit rather than to a released version.
-4. After a language's release, its edition moves to the released version and is tagged, for example `rust-0.1.0-beta.1`. The site quotes only from such tags, so each published edition matches a published package.
+1. The repository has two long-lived branches. `main` follows the latest release of each language's Itinera package: its dependency names that release exactly, from the language's package registry, and `main` is the edition published as the latest release. `next` follows each language's repository ahead of any release: its dependency names a commit of that repository, so the book can follow changes not released yet. Until a language's first release, its directory on `main` names a commit too, as on `next`.
+2. This repository's CI compiles every example, runs it and compares its output with the recorded one, in one job per language, on every push to either branch and on every pull request. A program whose tests a chapter shows is built as it would ship, without what is only for tests, and its tests are run and their report compared with the recorded one, so code a chapter shows outside a test never relies on test support.
+3. Each language's own repository pins a commit of `next` and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
+4. A change that breaks the book on purpose comes as a pair of changes, one to `next` here and one in the language's repository. The book's change updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request to `next`, and both go green together.
+5. After a language's release, `next` is merged into `main`. `main` keeps naming the package by its released version, raised to the new release, and its edition is tagged, for example `rust-0.1.0-beta.1`. The frozen edition of a release is built from its tag, so it matches a published package, and the latest release's address is built from `main`, whose dependency names the same release.
 
 ## Where editions are published
 
 1. Each language's editions are published at three kinds of address:
    1. the latest release at `/book/LANGUAGE/`, such as `/book/rust/`;
    2. every release, frozen, at `/book/LANGUAGE/VERSION/`, such as `/book/rust/0.1.0-beta.1/`, so a link to it never changes;
-   3. the main branch, ahead of any release, at `/book/LANGUAGE/next/`.
+   3. the `next` branch, ahead of any release, at `/book/LANGUAGE/next/`.
 
-   Until a language's first release, its main branch is published at `/book/LANGUAGE/`, so links to the book work from the start.
+   The latest release's address is built from the book's `main` branch, which, before a language's first release, shows that language's book as it stands, so links to the book work from the start.
 2. From a language's first release, a published page keeps its address in every later edition: a new chapter goes where it renumbers no published page, and a page that is moved or renamed leaves a redirect at its old address. Before the first release, pages may be renumbered and renamed freely.
 
 ## Open points
 
 1. **Where the prose lives:** with the examples, in each language's directory of this repository, so one pull request changes both.
+2. **Branches with more than one language:** `next` is merged into `main` after a release, but a release is one language's. Once a second language has a book, how its unreleased directory on `next` stays out of `main` is still to be decided.
