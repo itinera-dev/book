@@ -1,5 +1,0 @@
-error[E0080]: evaluation panicked: hook defined twice on step charge: `on step success`, which two of its policies define
-  --> compile-errors/ch31_hook_defined_twice.rs:50:57
-   |
-50 | #[with_step(Charge, name = "charge", policies = [Audit, Receipts])]
-   |                                                         ^^^^^^^^ evaluation of `_::_` failed here

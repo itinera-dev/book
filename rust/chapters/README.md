@@ -36,28 +36,28 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 
 ## Part 3: Controlling the flow
 
-- [Ending a journey early](16-ending-a-journey-early.md)
+22. [Finishing a journey early](22-finishing-a-journey-early.md)
 
 ## Part 4: Running it for real
 
-22. [Running many journeys](22-running-many-journeys.md)
-23. [Reading the result](23-reading-the-result.md)
-24. [Testing a step alone](24-testing-a-step-alone.md)
-25. [Testing a hook or an adapter alone](25-testing-a-hook-or-an-adapter-alone.md)
-26. [Testing the flow with scripted steps](26-testing-the-flow-with-scripted-steps.md)
-27. [Testing a whole journey](27-testing-a-whole-journey.md)
-28. [Running async journeys while others wait](28-running-async-journeys-while-others-wait.md)
+23. [Running many journeys](23-running-many-journeys.md)
+24. [Reading the result](24-reading-the-result.md)
+25. [Testing a step alone](25-testing-a-step-alone.md)
+26. [Testing a hook or an adapter alone](26-testing-a-hook-or-an-adapter-alone.md)
+27. [Testing the flow with scripted steps](27-testing-the-flow-with-scripted-steps.md)
+28. [Testing a whole journey](28-testing-a-whole-journey.md)
+29. [Running async journeys while others wait](29-running-async-journeys-while-others-wait.md)
 
 - [Without Itinera](part-5-without-itinera.md)
 
 ## Part 5: Designing with Itinera
 
-29. [Step, rescue step or policy?](29-step-rescue-step-or-policy.md)
-30. [From tangled code to a workflow](30-from-tangled-code-to-a-workflow.md)
-31. [Mistakes caught before a journey](31-mistakes-caught-before-a-journey.md)
-32. [Declaring by hand](32-declaring-by-hand.md)
-33. [Using a step in another workflow](33-using-a-step-in-another-workflow.md)
-34. [Working with agents](34-working-with-agents.md)
+30. [Step, rescue step or policy?](30-step-rescue-step-or-policy.md)
+31. [From tangled code to a workflow](31-from-tangled-code-to-a-workflow.md)
+32. [Mistakes caught before a journey](32-mistakes-caught-before-a-journey.md)
+33. [Declaring by hand](33-declaring-by-hand.md)
+34. [Using a step in another workflow](34-using-a-step-in-another-workflow.md)
+35. [Working with agents](35-working-with-agents.md)
 
 ## Appendices
 

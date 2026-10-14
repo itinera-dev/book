@@ -49,7 +49,7 @@ name: ch21_deciding_where_a_steps_data_comes_from
 5. **It adapts the data's form, never the business.** Taking one field out of a value is one of its uses. Others are converting a value to the type a step asks for, and fetching data from somewhere else, because it is expensive to get or is kept elsewhere, only when a step needs it. Working out what an order costs is a rule of the business, so it stays in the pricing, a step of its own.
 6. **It reads, and never writes.** An adapter contributes nothing: what it supplies goes to the step being built, never to the data bag. What it supplies is recorded as an `input_adapter_supplied` event, naming the step, the key and the adapter, without the value itself.
 
-The shop now charges, repairs, ships, audits and tells its customers, each in the place where it belongs. But look at how `main` runs the orders: it makes a new executor for each one, and waits for each journey to end before it starts the next.
+The shop now charges, repairs, ships, audits and tells its customers, each in the place where it belongs. But now and then the website sends an order a second time, and the shop would charge it again, and book another parcel.
 
 ## Outcomes
 

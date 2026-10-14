@@ -13,7 +13,7 @@ serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
-# The same commit as above, with the `testing` feature that chapters 24 to 27 use: bump both together.
+# The same commit as above, with the `testing` feature that chapters 25 to 28 use: bump both together.
 itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "788c6f2f0aa9bcdd5450292903fe58a9af6feae6", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
@@ -26,52 +26,52 @@ serde_json = "1"
 compile-errors = []
 
 [[bin]]
-name = "ch24_testing_a_step_alone"
-path = "tested/ch24_testing_a_step_alone.rs"
+name = "ch25_testing_a_step_alone"
+path = "tested/ch25_testing_a_step_alone.rs"
 
 [[bin]]
-name = "ch25_testing_a_hook_or_an_adapter_alone"
-path = "tested/ch25_testing_a_hook_or_an_adapter_alone.rs"
+name = "ch26_testing_a_hook_or_an_adapter_alone"
+path = "tested/ch26_testing_a_hook_or_an_adapter_alone.rs"
 
 [[bin]]
-name = "ch26_testing_the_flow_with_scripted_steps"
-path = "tested/ch26_testing_the_flow_with_scripted_steps.rs"
+name = "ch27_testing_the_flow_with_scripted_steps"
+path = "tested/ch27_testing_the_flow_with_scripted_steps.rs"
 
 [[bin]]
-name = "ch27_testing_a_whole_journey"
-path = "tested/ch27_testing_a_whole_journey.rs"
+name = "ch28_testing_a_whole_journey"
+path = "tested/ch28_testing_a_whole_journey.rs"
 
 [[example]]
-name = "ch22_instance_run_twice"
-path = "compile-errors/ch22_instance_run_twice.rs"
+name = "ch23_instance_run_twice"
+path = "compile-errors/ch23_instance_run_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_duplicate_step_name"
-path = "compile-errors/ch31_duplicate_step_name.rs"
+name = "ch32_duplicate_step_name"
+path = "compile-errors/ch32_duplicate_step_name.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_hook_defined_twice"
-path = "compile-errors/ch31_hook_defined_twice.rs"
+name = "ch32_hook_defined_twice"
+path = "compile-errors/ch32_hook_defined_twice.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_invalid_lifecycle"
-path = "compile-errors/ch31_invalid_lifecycle.rs"
+name = "ch32_invalid_lifecycle"
+path = "compile-errors/ch32_invalid_lifecycle.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_mode_not_accepted"
-path = "compile-errors/ch31_mode_not_accepted.rs"
+name = "ch32_mode_not_accepted"
+path = "compile-errors/ch32_mode_not_accepted.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_not_a_value"
-path = "compile-errors/ch31_not_a_value.rs"
+name = "ch32_not_a_value"
+path = "compile-errors/ch32_not_a_value.rs"
 required-features = ["compile-errors"]
 
 [[example]]
-name = "ch31_role_not_provided"
-path = "compile-errors/ch31_role_not_provided.rs"
+name = "ch32_role_not_provided"
+path = "compile-errors/ch32_role_not_provided.rs"
 required-features = ["compile-errors"]
