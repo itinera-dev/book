@@ -6,9 +6,10 @@ use std::num::NonZeroU32;
 
 use itinera::error::Error;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
-use itinera::executor::AsyncLocalExecutor;
-use itinera::journey::{Contributor, DataBag, InitialData};
-use itinera::mode::async_trait;
+use itinera::executor::{AsyncLocalExecutor, Refusal};
+use itinera::instance::Instance;
+use itinera::journey::{Contributor, DataBag, InitialData, JourneyResult};
+use itinera::mode::{Asynchronous, async_trait};
 use itinera::policy::{FailWorkflow, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
@@ -19,7 +20,6 @@ use itinera::step::{
 use itinera::value::AnyValue;
 use itinera::workflow::{role, workflow};
 use serde::{Deserialize, Serialize};
-use tokio::task::JoinSet;
 
 // ANCHOR: services
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
@@ -592,34 +592,73 @@ struct Parcel {
     size: [i64; 3],
 }
 
+/// An instance of the shop's workflow for an order paid with this card.
+fn order(
+    order: &str,
+    customer: &str,
+    price: i64,
+    discount: Option<i64>,
+    parcel: Parcel,
+    card: &str,
+) -> Result<Instance<Orders, Asynchronous>, Box<dyn std::error::Error>> {
+    Ok(Orders::builder()
+        .channel("email")
+        .initial_data(NewOrder {
+            order: order.to_owned(),
+            customer: customer.to_owned(),
+            price,
+            discount,
+            parcel,
+            card: Some(card.to_owned()),
+            gift_card: false,
+        })
+        .create()?)
+}
+
 // ANCHOR: run
-#[tokio::main(flavor = "current_thread")]
+/// Runs an order's journey with an executor of its own.
+async fn journey(instance: Instance<Orders, Asynchronous>) -> Result<JourneyResult, Refusal> {
+    AsyncLocalExecutor::new().run(instance).await
+}
+
+#[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // The order, the customer, the price, the discount, the parcel's weight in kg and its size in
-    // cm, and the card.
-    let orders = [
-        ("A-1", "Ann", 40, Some(10), 2, [30, 20, 10], "ann-2028"),
-        ("A-7", "Gil", 45, None, 60, [120, 80, 60], "gil-2027"),
-        ("A-8", "Jo", 30, None, 1, [20, 15, 5], "jo-2024"),
-    ];
-    let mut journeys = JoinSet::new();
-    for (order, customer, price, discount, weight, size, card) in orders {
-        let instance = Orders::builder()
-            .channel("email")
-            .initial_data(NewOrder {
-                order: order.to_owned(),
-                customer: customer.to_owned(),
-                price,
-                discount,
-                parcel: Parcel { weight, size },
-                card: Some(card.to_owned()),
-                gift_card: false,
-            })
-            .create()?;
-        journeys.spawn(async move { AsyncLocalExecutor::new().run(instance).await });
-    }
-    while let Some(ended) = journeys.join_next().await {
-        let result = ended??;
+    let (ann, gil, jo) = tokio::join!(
+        journey(order(
+            "A-1",
+            "Ann",
+            40,
+            Some(10),
+            Parcel {
+                weight: 2,
+                size: [30, 20, 10],
+            },
+            "ann-2028",
+        )?),
+        journey(order(
+            "A-7",
+            "Gil",
+            45,
+            None,
+            Parcel {
+                weight: 60,
+                size: [120, 80, 60],
+            },
+            "gil-2027",
+        )?),
+        journey(order(
+            "A-8",
+            "Jo",
+            30,
+            None,
+            Parcel {
+                weight: 1,
+                size: [20, 15, 5],
+            },
+            "jo-2024",
+        )?),
+    );
+    for result in [ann?, gil?, jo?] {
         println!("order {} {}", result.journey_id, result.status.kind());
     }
     Ok(())
