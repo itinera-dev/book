@@ -670,7 +670,7 @@ fn the_approved_paths() -> Result<(), Error> {
                 "ship retrying",
                 "ship attempt 2 failed: too-heavy",
                 "ship given up: retries exhausted",
-                "journey failed at ship: retries exhausted",
+                "journey failed at ship: too-heavy",
             ],
     )?;
     Ok(())
