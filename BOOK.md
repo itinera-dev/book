@@ -144,6 +144,8 @@ The part makes one argument: the hardest part of understanding a system that mix
 29. **Testing the flow with scripted steps.** Three of Ann's orders run with a script saying how the steps' attempts end, for a rescued charge, a shipping given up or retried by reason, and a charge ending in an error: a script replacing only a step's `run`, every step still built for real, unscripted steps running for real, rescue steps scripted by their own names, the script checked before the journey for what it leaves out, the record of each step's attempts and their inputs, and an asynchronous workflow's scripted run awaited. The chapter ends on the one test still missing: a whole journey with the shop's real steps and its services faked.
 30. **Testing a whole journey.** Ann's orders run through the shop's real steps and policies, with a fake bank and carrier in place of the workflow's providers, and each journey's path is compared with the one the shop approved: a reporter added to one journey's instance, a fake provider replacing only a provider's function and keeping its key and scope, everything else real, a path as the lines of a journey's flow, each a plain sentence, an approved path as a decision of the flow written down, and an asynchronous journey run by its test in the same way. The chapter ends on the shop's log, which is about to write to a service over the network too, where a write can fail.
 31. **Stopping a journey when its log fails.** The shop's log writes each line to a logging service, faked to go down just as Pat's charge succeeds, a new customer's order: a reporter that fails aborting the journey with `reporter failed`, the abort recorded at once so that nothing after it runs, what the journey did before it staying done, Pat's money taken with no shipping, no message and no refund, the result's abort carrying the reporter's error, reporters written so that they never fail, and the asynchronous form as an asynchronous reporter whose write awaits the network. The chapter ends on what no reporter recorded: Pat's charge succeeding, and the abort.
+32. **Seeing every event of a journey.** The shop adds `DebugReporter`, a reporter that comes with Itinera and prints every event, first among its reporters, and runs Pat's order again: a ready-made reporter for trying out and debugging, an event's `Debug` with its sequence number, timestamp, journey ID, workflow and body, a reporter that never fails, reporters receiving each event in the order the workflow lists them, the event the log failed on reaching the reporters before it, and `journey_aborted` reaching every reporter but the one that failed, naming the step and the error. The chapter ends on what no line holds: the customer's name, and the receipt the shop needs to refund Pat.
+33. **Giving every reporter what it needs.** Each journey's reporters receive the customer's name from its instance, and the charge's receipt as soon as the bank gives it, which the log writes on every line: global metadata as entries every reporter receives, the journey ID first, then the instance's entries, before the first event, a reporter keeping them itself, doing nothing with them unless it says so, a step setting one while it runs, every reporter receiving it before the call returns, `global_metadata_set` naming the key and who set it but not the value, an entry standing whatever happens after, and the journey ID's key, which belongs to the executor. The chapter ends on the audit's line, which a hook writes: it says neither which journey nor which attempt took the money.
 
 ### The chapters to come
 
@@ -152,12 +154,11 @@ They are written one at a time, as "How the chapters follow one another" says, a
 1. the package's options other than the defaults;
 2. steps: an input or a service asked for under another key;
 3. what can refuse a journey before it starts;
-4. a ready-made reporter that prints every event, and global metadata;
-5. what else a hook may request: the attempt number, the journey ID and the error;
-6. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
-7. the listing, violations, refusals, and the mistakes the language refuses to compile;
-8. declaring by hand, without the language's shorthand;
-9. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
+4. what else a hook may request: the attempt number, the journey ID and the error;
+5. a provider for some steps only, data a provider supplies with a service, a service a provider gets already boxed, and what may be attached to a rescue step's name;
+6. the listing, violations, refusals, and the mistakes the language refuses to compile;
+7. declaring by hand, without the language's shorthand;
+8. deciding where a decision belongs, where Itinera fits and where it does not, adopting Itinera in existing code, using a step in another workflow, and working with agents.
 
 ### Appendices
 
