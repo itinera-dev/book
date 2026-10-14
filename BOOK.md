@@ -188,6 +188,7 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 3. Each language's own repository pins a commit of `next` and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
 4. A change that breaks the book on purpose comes as a pair of changes, one to `next` here and one in the language's repository. The book's change updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request to `next`, and both go green together.
 5. After a language's release, `next` is merged into `main`. `main` keeps naming the package by its released version, raised to the new release, and its edition is tagged, for example `rust-0.1.0-beta.1`. The frozen edition of a release is built from its tag, so it matches a published package, and the latest release's address is built from `main`, whose dependency names the same release.
+6. A change that relies on nothing unreleased, such as a correction to a chapter's prose, lands on `main`, so the latest release's edition carries it at once. `main` is then merged into `next`, which keeps naming the commit of the language's repository that it already names.
 
 ## Where editions are published
 
