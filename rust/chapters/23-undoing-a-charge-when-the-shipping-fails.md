@@ -34,6 +34,8 @@ name: ch23_undoing_a_charge_when_the_shipping_fails
 region: workflow
 ```
 
+The other steps, policies and reporters it names are as earlier chapters show them: the lookup, `already_completed` and the log in [chapter 22](22-finishing-a-journey-early.md), the pricing, the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping and `outage` in [chapter 17](17-giving-up-a-step-early.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+
 `main` runs three orders: Gil's, whose parcel the backup carrier takes, Ned's, and the order of a new customer, Oli. The warehouse weighed Oli's parcel as 0 kg by mistake, and the faked carriers' booking systems fail on a parcel that weighs nothing. `main` also prints the refund the journey recorded:
 
 ```example
@@ -41,7 +43,7 @@ name: ch23_undoing_a_charge_when_the_shipping_fails
 region: run
 ```
 
-It prints:
+`NewOrder` and `Parcel` are as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) shows them. It prints:
 
 ```output
 name: ch23_undoing_a_charge_when_the_shipping_fails

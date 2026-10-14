@@ -13,7 +13,9 @@ name: ch16_skipping_a_step
 region: ship
 ```
 
-The log names the reason a step gave for skipping, and the step whose contributions were thrown away:
+The trait `Carrier` it asks for is [chapter 12](12-trying-again.md)'s.
+
+The log is [chapter 15](15-reacting-to-what-a-step-did.md)'s, and now also names the reason a step gave for skipping, and the step whose contributions were thrown away:
 
 ```example
 name: ch16_skipping_a_step

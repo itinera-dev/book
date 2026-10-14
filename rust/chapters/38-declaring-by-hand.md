@@ -8,7 +8,7 @@ The attributes have written the shop's workflow for you since the first chapters
 
 ### The shop by hand
 
-The shop is [chapter 36](36-orders-refused-before-they-start.md)'s, declared in the **long form**: without the attributes, for its pricing step, its audit and its workflow. The pricing is two things: the step, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`, says what the step needs and builds it from what was resolved. Each input is named once, by a constant holding its key and its type, such as `Input<i64>` or `OptionalInput<i64>`, which both `needs` and `build` use, and `Resolved` hands over what was resolved for the attempt:
+The shop is the one [chapter 36](36-orders-refused-before-they-start.md) runs, declared in the **long form**: without the attributes, for its pricing step, its audit and its workflow. The pricing is two things: the step, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`, says what the step needs and builds it from what was resolved. Each input is named once, by a constant holding its key and its type, such as `Input<i64>` or `OptionalInput<i64>`, which both `needs` and `build` use, and `Resolved` hands over what was resolved for the attempt:
 
 ```example
 name: ch38_declaring_by_hand
@@ -32,6 +32,8 @@ region: parts
 asynchronous: ch38_declaring_by_hand_async
 ```
 
+`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, `OrderBook` is [chapter 22](22-finishing-a-journey-early.md)'s, `Payments` and `Carrier` are [chapter 12](12-trying-again.md)'s, and `Cards` and `card_registry` are [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s.
+
 And the workflow is put together by its builder, part by part, each service under a constant holding its key and its trait. The other steps and policies are still declared with the attributes, and go into the builder through their `descriptor`, and the rescue step through `rescued_by`:
 
 ```example
@@ -39,6 +41,8 @@ name: ch38_declaring_by_hand
 region: workflow
 asynchronous: ch38_declaring_by_hand_async
 ```
+
+The rest is as earlier chapters show it: the lookup and `already_completed` in [chapter 22](22-finishing-a-journey-early.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), `RenewCard` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), the shipping in [chapter 17](17-giving-up-a-step-early.md), `outage` in [chapter 34](34-saying-which-attempt-took-the-money.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
 
 In the asynchronous form, the pricing implements `AsyncStep` and `AsyncStepFactory`, the audit `AsyncOnStepSuccess`, and every descriptor is made with its asynchronous constructor, such as `WorkflowDescriptor::async_builder`. `main` calls `orders()` once, before any journey, makes each order's instance with `orders.instance(Orders { channel: "email" })`, runs Ann's order and Jo's, and prints:
 

@@ -34,7 +34,7 @@ name: ch12_trying_again
 region: workflow
 ```
 
-The log is [chapter 11](11-naming-a-journey.md)'s, and now also names the error that ended an attempt, and why a step was given up:
+The log and the desk are [chapter 11](11-naming-a-journey.md)'s, and the log now also names the error that ended an attempt, and why a step was given up:
 
 ```example
 name: ch12_trying_again

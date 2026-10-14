@@ -14,6 +14,8 @@ region: reporters
 asynchronous: ch32_seeing_every_event_of_a_journey_async
 ```
 
+The log is [chapter 31](31-stopping-a-journey-when-its-log-fails.md)'s, the desk is [chapter 11](11-naming-a-journey.md)'s and `notify` is [chapter 19](19-letting-policies-act-on-the-outside-world.md)'s.
+
 In the asynchronous form, `DebugReporter` stays under `reporters` too, since printing waits for nothing, and the reporters under `reporters` receive each event before those under `async_reporters`. `main` runs Pat's order alone, and prints:
 
 ```output

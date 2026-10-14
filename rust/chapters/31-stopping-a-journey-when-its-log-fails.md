@@ -14,6 +14,8 @@ region: log
 asynchronous: ch31_stopping_a_journey_when_its_log_fails_async
 ```
 
+`detail` is the function the log has had since [chapter 22](22-finishing-a-journey-early.md).
+
 In the asynchronous form, the service's `write` awaits the network, so the log implements `AsyncReporter`, whose `report` is an `async fn`, and the workflow names it under `async_reporters` in place of `reporters`, where the desk stays:
 
 ```example
@@ -22,7 +24,9 @@ region: reporters
 asynchronous: ch31_stopping_a_journey_when_its_log_fails_async
 ```
 
-`what_went_wrong`, from chapter 25, now also names the error of a reporter that failed:
+The desk is [chapter 11](11-naming-a-journey.md)'s, and `notify` is [chapter 19](19-letting-policies-act-on-the-outside-world.md)'s.
+
+`what_went_wrong`, from [chapter 25](25-reading-the-result.md), now also names the error of a reporter that failed:
 
 ```example
 name: ch31_stopping_a_journey_when_its_log_fails
@@ -37,7 +41,7 @@ region: orders
 asynchronous: ch31_stopping_a_journey_when_its_log_fails_async
 ```
 
-It prints:
+In the asynchronous form, `network`, which the logging service awaits, and `journey` are [chapter 26](26-running-async-journeys-while-others-wait.md)'s. It prints:
 
 ```output
 name: ch31_stopping_a_journey_when_its_log_fails
@@ -48,7 +52,7 @@ asynchronous: ch31_stopping_a_journey_when_its_log_fails_async
 
 1. **A reporter that fails aborts the journey.** The log's `report` returned an error on Pat's `step_succeeded`, so the executor aborted the journey, with the reason `reporter failed`. A reporter can't report an error and carry on, and a journey with no record of what it did is not one the shop can trust, so it doesn't go on.
 2. **The abort is recorded at once.** Nothing after it runs: the shipping never starts, so no carrier books Pat's parcel, and no workflow hook runs, so Pat is not told, as [chapter 25](25-reading-the-result.md) showed of an aborted journey.
-3. **What the journey did stays done.** The bank took Pat's 50 before the abort. No hook of `failed_shipping` is called, since no shipping was given up, so nothing gives the money back. An abort is a fault to fix, as chapter 25 said: here, the shop finds Pat's payment with the bank, and refunds it before running the order again, since a new journey would charge Pat again.
+3. **What the journey did stays done.** The bank took Pat's 50 before the abort. No hook of `failed_shipping`, from [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), is called, since no shipping was given up, so nothing gives the money back. An abort is a fault to fix, as [chapter 25](25-reading-the-result.md) said: here, the shop finds Pat's payment with the bank, and refunds it before running the order again, since a new journey would charge Pat again.
 4. **The abort carries the reporter's error.** `Abort::ReporterFailed` holds the error the log returned, which is how `what_went_wrong` prints the service's own words.
 5. **Reporters should be written so that they never fail.** A reporter's failure costs the whole journey, at whatever point it happens. A log that can lose its service should keep its lines, and send them once the service is back, rather than return the error.
 

@@ -13,6 +13,8 @@ name: ch09_saying_what_only_a_step_knows
 region: ship
 ```
 
+The trait `Carrier` it asks for is unchanged since [chapter 7](07-giving-a-step-the-tools-it-needs.md) showed it.
+
 The log is [chapter 8](08-seeing-what-happened.md)'s, with one more arm in its `match`, for the step's message:
 
 ```example

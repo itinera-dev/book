@@ -14,6 +14,8 @@ region: log
 asynchronous: ch36_orders_refused_before_they_start_async
 ```
 
+The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s.
+
 `main` creates each order's instance, then runs it, and says why an order went no further at either point:
 
 ```example
@@ -22,7 +24,7 @@ region: run
 asynchronous: ch36_orders_refused_before_they_start_async
 ```
 
-In the asynchronous form, `order` creates the instance and `journey` runs it, awaited. It prints:
+`Orders` is the workflow [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declares, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s provider for `cards`, and `Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s. In the asynchronous form, `order` creates the instance, as in [chapter 33](33-giving-every-reporter-what-it-needs.md), and `journey` runs it, awaited, as in [chapter 26](26-running-async-journeys-while-others-wait.md). It prints:
 
 ```output
 name: ch36_orders_refused_before_they_start

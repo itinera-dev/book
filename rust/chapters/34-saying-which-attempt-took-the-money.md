@@ -22,7 +22,7 @@ region: outage
 asynchronous: ch34_saying_which_attempt_took_the_money_async
 ```
 
-In the asynchronous form, both hooks are `async fn`, and ask for the same things. `main` runs Ann's order, Jo's, whose expired card is renewed by the rescue step, and Cat's, of 120, on which the bank's network fails. It prints each journey's audit line, even for a journey that failed:
+In the asynchronous form, both hooks are `async fn`, as hooks became in [chapter 26](26-running-async-journeys-while-others-wait.md), and ask for the same things. `main` runs Ann's order, Jo's, whose expired card is renewed by the rescue step, and Cat's, of 120, on which the bank's network fails. It prints each journey's audit line, even for a journey that failed:
 
 ```output
 name: ch34_saying_which_attempt_took_the_money

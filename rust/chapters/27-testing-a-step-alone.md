@@ -68,7 +68,7 @@ asynchronous: ch27_testing_a_step_alone_async
 5. **Fakes come from the test, not from the workflow.** In a journey, the workflow's providers make the bank and the carriers. Here, the test passes a fake where `run` asks for the service, so the step never knows which payment client it got. The fakes are as simple as the tests need: one answer for each case the step has to handle.
 6. **Test support stays in the tests.** `Contributions` and `StepEventReporter` exist only with the `testing` feature, which only a test build has. So everything that uses them sits inside `#[cfg(test)]`, and the shop you ship compiles without them. The book builds this program both ways: as it would ship, and with its tests.
 
-So each rule of the shop's steps is checked without running an order. But some rules live in the shop's policies and its workflow: `failed_shipping` deciding that no retry can help and refunding the charge, or the adapter taking the weight out of the parcel. These tests never reach them.
+So each rule of the shop's steps is checked without running an order. But some rules live in the shop's policies and its workflow: `failed_shipping`, shown in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), deciding that no retry can help and refunding the charge, or the adapter of [chapter 21](21-deciding-where-a-steps-data-comes-from.md) taking the weight out of the parcel. These tests never reach them.
 
 ## Outcomes
 

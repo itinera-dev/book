@@ -22,6 +22,8 @@ region: path
 asynchronous: ch30_testing_a_whole_journey_async
 ```
 
+`NewOrder` is as [chapter 25](25-reading-the-result.md) shows it, and `Parcel` as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) does.
+
 The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Each test compares a journey's path with the approved one:
 
 ```example

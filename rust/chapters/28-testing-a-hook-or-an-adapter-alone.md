@@ -6,7 +6,7 @@ Some of the shop's rules live outside its steps: `failed_shipping` deciding that
 
 ## The code
 
-The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). The `notify` policy tells customers through the role `Messages`, and `failed_shipping` gives money back through the role `Refunds`, so the tests bring messages and refunds of their own, which keep what they are asked to do:
+The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). The `notify` policy tells customers through the role `Messages`, shown in [chapter 19](19-letting-policies-act-on-the-outside-world.md), and `failed_shipping` gives money back through the role `Refunds`, shown in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), so the tests bring messages and refunds of their own, which keep what they are asked to do:
 
 ```example
 name: ch28_testing_a_hook_or_an_adapter_alone

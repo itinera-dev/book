@@ -20,7 +20,7 @@ name: ch10_more_than_one_reporter
 region: workflow
 ```
 
-The log and the rest of the shop are [chapter 9](09-saying-what-only-a-step-knows.md)'s, and the shop runs Ann's and Gil's orders again. It prints:
+The log and the shipping are [chapter 9](09-saying-what-only-a-step-knows.md)'s, the charge is [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s, and the shop runs Ann's and Gil's orders again. It prints:
 
 ```output
 name: ch10_more_than_one_reporter

@@ -13,6 +13,8 @@ name: ch17_giving_up_a_step_early
 region: ship
 ```
 
+The trait `Carrier` it asks for is [chapter 12](12-trying-again.md)'s.
+
 Then the shop gets two new step policies. The first, `heavy_parcels`, defines the hook `on step retry`. It asks for the reason the shipping's attempt failed with, and gives the shipping up when that reason is `over-parcel-limit`, since the limit is the same on every attempt.
 
 ```example
@@ -34,7 +36,9 @@ name: ch17_giving_up_a_step_early
 region: workflow
 ```
 
-The log now says which policy gave a step up, and why:
+The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s.
+
+The log is [chapter 16](16-skipping-a-step.md)'s, and now also says which policy gave a step up, and why:
 
 ```example
 name: ch17_giving_up_a_step_early

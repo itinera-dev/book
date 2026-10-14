@@ -14,6 +14,8 @@ region: order
 asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
+`NewOrder` is as [chapter 25](25-reading-the-result.md) shows it, and `Parcel` as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) does.
+
 The first test runs the instance with a script. `scripted()`, a method of every workflow instance that comes with the `testing` feature, starts it. `step` names a step, and what follows says what its attempts do in place of running it: what they contribute, and how they end. `on_attempt` moves on to another attempt of the same step, `and_step` to another step, and `run` runs the journey:
 
 ```example

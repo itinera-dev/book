@@ -13,6 +13,8 @@ name: ch25_reading_the_result
 region: data
 ```
 
+`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s.
+
 `main` hands each journey's result to `follow_up`, which looks at how the journey ended before it reads anything else, with a `match` on its status:
 
 ```example

@@ -27,14 +27,16 @@ name: ch14_repairing_then_trying_once_more
 region: workflow
 ```
 
-The log says what the two new decisions are about, and names the data a contribution replaced:
+The charge and the shipping are [chapter 12](12-trying-again.md)'s, and the desk is [chapter 11](11-naming-a-journey.md)'s.
+
+The log is [chapter 12](12-trying-again.md)'s, and now also says what the two new decisions are about, and names the data a contribution replaced:
 
 ```example
 name: ch14_repairing_then_trying_once_more
 region: rescue_events
 ```
 
-Everything else is [chapter 13](13-a-carrier-for-each-attempt.md)'s shop. It runs Ann's, Gil's and Jo's orders again, and prints:
+The carriers' provider, one carrier for each attempt, is [chapter 13](13-a-carrier-for-each-attempt.md)'s. The shop runs Ann's, Gil's and Jo's orders again, and prints:
 
 ```output
 name: ch14_repairing_then_trying_once_more

@@ -8,7 +8,7 @@ The shop's workflow is now put together from many parts: steps and their names, 
 
 ### How the workflow is put together
 
-The workflow is [chapter 36](36-orders-refused-before-they-start.md)'s. `main` prints its **listing**, read from the workflow's declaration, one line for each step, with `Workflow` from `itinera::workflow` in scope:
+The shop is the one [chapter 36](36-orders-refused-before-they-start.md) runs; its workflow is the one [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declares, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s provider for `cards`. `main` prints its **listing**, read from the workflow's declaration, one line for each step, with `Workflow` from `itinera::workflow` in scope:
 
 ```example
 name: ch37_listing

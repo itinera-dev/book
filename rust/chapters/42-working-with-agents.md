@@ -14,13 +14,15 @@ region: price
 asynchronous: ch42_working_with_agents_async
 ```
 
-Another agent proposes a change to the flow: a parcel the carrier won't collect should be given up at once, rather than tried again with the backup carrier. Before it replaces the workflow, the shop declares the proposal in its tests, beside the approved workflow, with `ship` and no retry budget:
+Another agent proposes a change to the flow: a parcel the carrier won't collect should be given up at once, rather than tried again with the backup carrier. Before it replaces the workflow, the shop declares the proposal in its tests, beside the approved workflow of [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), with `ship` and no retry budget:
 
 ```example
 name: ch42_working_with_agents
 region: proposed
 asynchronous: ch42_working_with_agents_async
 ```
+
+What it names is as earlier chapters show it: the lookup, `already_completed` and the log in [chapter 22](22-finishing-a-journey-early.md), the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping and `outage` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
 
 A test runs each approved order through both, and says which paths the proposal keeps, and what it makes of the others:
 

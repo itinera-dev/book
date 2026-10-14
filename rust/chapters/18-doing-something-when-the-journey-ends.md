@@ -20,7 +20,9 @@ name: ch18_doing_something_when_the_journey_ends
 region: workflow
 ```
 
-The log names a workflow hook by its policy and its hook, since it is about no step, and names the key of a request that found nothing:
+The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s.
+
+The log is [chapter 17](17-giving-up-a-step-early.md)'s, and now also names a workflow hook by its policy and its hook, since it is about no step, and names the key of a request that found nothing:
 
 ```example
 name: ch18_doing_something_when_the_journey_ends

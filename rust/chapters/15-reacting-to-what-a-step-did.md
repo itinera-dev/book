@@ -20,7 +20,9 @@ name: ch15_reacting_to_what_a_step_did
 region: workflow
 ```
 
-The log says which policy's hook was called, and after which step:
+The rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping is [chapter 12](12-trying-again.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s.
+
+The log is [chapter 14](14-repairing-then-trying-once-more.md)'s, and now also says which policy's hook was called, and after which step:
 
 ```example
 name: ch15_reacting_to_what_a_step_did
@@ -33,6 +35,8 @@ A new customer, Kim, buys a gift card, which the shop sends by email. The charge
 name: ch15_reacting_to_what_a_step_did
 region: charge
 ```
+
+The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`.
 
 The shop runs Ann's, Gil's and Jo's orders, then Kim's, reads back the audit line, and prints it:
 

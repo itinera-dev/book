@@ -41,7 +41,9 @@ name: ch22_finishing_a_journey_early
 region: workflow
 ```
 
-The log now says which policy finished a journey:
+The other steps, policies and reporters it names are as earlier chapters show them: the pricing, the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `outage` and `heavy_parcels` in [chapter 17](17-giving-up-a-step-early.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+
+The log is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, and now also says which policy finished a journey:
 
 ```example
 name: ch22_finishing_a_journey_early

@@ -14,6 +14,8 @@ region: instance
 asynchronous: ch33_giving_every_reporter_what_it_needs_async
 ```
 
+`Orders` is the workflow [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declares, `NewOrder` is as [chapter 25](25-reading-the-result.md) shows it and `Parcel` as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) does.
+
 The charge asks for its step reporter, and sets the receipt as an entry as soon as the bank gives it, before contributing it:
 
 ```example
@@ -21,6 +23,8 @@ name: ch33_giving_every_reporter_what_it_needs
 region: charge
 asynchronous: ch33_giving_every_reporter_what_it_needs_async
 ```
+
+The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`, and its asynchronous form [chapter 26](26-running-async-journeys-while-others-wait.md)'s.
 
 In the asynchronous form, the charge's step reporter is an `AsyncStepReporter`, and `set_global_metadata` is awaited.
 
@@ -31,6 +35,8 @@ name: ch33_giving_every_reporter_what_it_needs
 region: log
 asynchronous: ch33_giving_every_reporter_what_it_needs_async
 ```
+
+`detail` is the function the log has had since [chapter 22](22-finishing-a-journey-early.md), with one more arm, which names the key of `global_metadata_set`.
 
 `set_global_metadata` stays synchronous on an `AsyncReporter` too: it only keeps the entry for the events that follow. `main` runs Ann's and Pat's orders, and prints:
 

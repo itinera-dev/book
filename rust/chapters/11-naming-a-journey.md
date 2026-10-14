@@ -6,7 +6,7 @@ Every event says who decided what, and when, and which journey it belongs to, by
 
 ## The code
 
-The workflow names each journey with a method of its `#[workflow]` block marked `#[id_generator]`. It reads the order's number from the journey's data, and returns it as the journey's ID. The providers are [chapter 8](08-seeing-what-happened.md)'s.
+The workflow names each journey with a method of its `#[workflow]` block marked `#[id_generator]`. It reads the order's number from the journey's data, and returns it as the journey's ID. The providers are [chapter 8](08-seeing-what-happened.md)'s, and `Payments` and `Carrier` are the traits [chapter 7](07-giving-a-step-the-tools-it-needs.md) shows.
 
 ```example
 name: ch11_naming_a_journey
@@ -20,6 +20,8 @@ name: ch11_naming_a_journey
 region: log
 ```
 
+`detail` is the function [chapter 8](08-seeing-what-happened.md) shows, with the arm for the step's message that [chapter 9](09-saying-what-only-a-step-knows.md) added.
+
 And the desk says which order failed:
 
 ```example
@@ -27,7 +29,7 @@ name: ch11_naming_a_journey
 region: desk
 ```
 
-The rest of the shop is [chapter 10](10-more-than-one-reporter.md)'s, and it runs Ann's and Gil's orders again. It prints:
+The rest of the workflow is [chapter 10](10-more-than-one-reporter.md)'s, the shipping is [chapter 9](09-saying-what-only-a-step-knows.md)'s and the charge [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s, and the shop runs Ann's and Gil's orders again. It prints:
 
 ```output
 name: ch11_naming_a_journey

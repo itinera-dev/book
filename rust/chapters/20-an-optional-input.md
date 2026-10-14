@@ -20,12 +20,16 @@ name: ch20_an_optional_input
 region: charge
 ```
 
+The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`.
+
 The workflow lists the pricing first, under the name `price`, so the charge reads the amount it gave back:
 
 ```example
 name: ch20_an_optional_input
 region: workflow
 ```
+
+The other steps, policies and reporters it names are as earlier chapters show them: `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `outage` and `heavy_parcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
 
 The audit of [chapter 15](15-reacting-to-what-a-step-did.md) wrote down the order's price, which is no longer what was charged. It now asks for the amount, from the data bag:
 

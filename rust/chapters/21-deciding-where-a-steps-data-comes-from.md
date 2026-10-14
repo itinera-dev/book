@@ -20,14 +20,14 @@ name: ch21_deciding_where_a_steps_data_comes_from
 region: data
 ```
 
-The shipping doesn't change at all. The workflow gives it the weight with an **input adapter**: a method of its `#[workflow]` block marked `#[input_adapter(steps = ["ship"])]`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one with its parameter marked `#[key]`. It returns `Ok` of an `Option<AnyValue>`, where `AnyValue` holds a value of any type. For `weight`, it reads the parcel from the data bag and supplies its weight with `Self::supply(...)`, which is `Some` of it. For any other input, it returns `Self::from_data_bag()`, which is `None`, and that input is read from the data bag as before.
+The shipping doesn't change at all: it is still [chapter 17](17-giving-up-a-step-early.md)'s. The workflow gives it the weight with an **input adapter**: a method of its `#[workflow]` block marked `#[input_adapter(steps = ["ship"])]`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one with its parameter marked `#[key]`. It returns `Ok` of an `Option<AnyValue>`, where `AnyValue` holds a value of any type. For `weight`, it reads the parcel from the data bag and supplies its weight with `Self::supply(...)`, which is `Some` of it. For any other input, it returns `Self::from_data_bag()`, which is `None`, and that input is read from the data bag as before.
 
 ```example
 name: ch21_deciding_where_a_steps_data_comes_from
 region: adapter
 ```
 
-The log says which input an adapter supplied, to which step:
+The log is [chapter 18](18-doing-something-when-the-journey-ends.md)'s, and now also says which input an adapter supplied, to which step:
 
 ```example
 name: ch21_deciding_where_a_steps_data_comes_from
