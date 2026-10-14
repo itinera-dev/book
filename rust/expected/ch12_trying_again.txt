@@ -23,11 +23,11 @@ log orders A-7 #5 contribution_committed receipt
 log orders A-7 #6 attempt_started ship, attempt 1
 log orders A-7 #7 service_provided ship gets carrier from main_carrier, a ch12_trying_again::MainCarrier
 the carrier books order A-7
-log orders A-7 #8 step_failed ship: too-heavy, retriable
+log orders A-7 #8 step_failed ship: too-heavy
 log orders A-7 #9 step_retrying ship
 log orders A-7 #10 attempt_started ship, attempt 2
 the carrier books order A-7
-log orders A-7 #11 step_failed ship: too-heavy, retriable
+log orders A-7 #11 step_failed ship: too-heavy
 log orders A-7 #12 step_given_up ship: retries exhausted
 log orders A-7 #13 journey_failed ship
 desk: order A-7 failed at ship
@@ -37,8 +37,41 @@ log orders A-8 #1 journey_started card, order, price, weight
 log orders A-8 #2 attempt_started charge, attempt 1
 log orders A-8 #3 service_provided charge gets payments from bank, a ch12_trying_again::Bank
 the bank declines card jo-2024: it has expired
-log orders A-8 #4 step_failed charge: card-expired, not retriable
-log orders A-8 #5 step_given_up charge: failure
-log orders A-8 #6 journey_failed charge
+log orders A-8 #4 step_failed charge: card-expired
+log orders A-8 #5 step_retrying charge
+log orders A-8 #6 attempt_started charge, attempt 2
+the bank declines card jo-2024: it has expired
+log orders A-8 #7 step_failed charge: card-expired
+log orders A-8 #8 step_given_up charge: retries exhausted
+log orders A-8 #9 journey_failed charge
 desk: order A-8 failed at charge
 the journey failed, with receipt none and tracking none
+Cat's order:
+log orders A-3 #1 journey_started card, order, price, weight
+log orders A-3 #2 attempt_started charge, attempt 1
+log orders A-3 #3 service_provided charge gets payments from bank, a ch12_trying_again::Bank
+the bank's network fails while charging order A-3
+log orders A-3 #4 step_abnormal_termination charge: the payment network is down
+log orders A-3 #5 step_given_up charge: abnormal termination
+log orders A-3 #6 journey_failed charge
+desk: order A-3 failed at charge
+the journey failed, with receipt none and tracking none
+Dan's order:
+log orders A-4 #1 journey_started card, order, price, weight
+log orders A-4 #2 attempt_started charge, attempt 1
+log orders A-4 #3 service_provided charge gets payments from bank, a ch12_trying_again::Bank
+the bank charges 50 for order A-4
+log orders A-4 #4 step_succeeded charge
+log orders A-4 #5 contribution_committed receipt
+log orders A-4 #6 attempt_started ship, attempt 1
+log orders A-4 #7 service_provided ship gets carrier from main_carrier, a ch12_trying_again::MainCarrier
+the carrier's booking system fails on order A-4
+log orders A-4 #8 step_abnormal_termination ship: the booking system failed
+log orders A-4 #9 step_retrying ship
+log orders A-4 #10 attempt_started ship, attempt 2
+the carrier's booking system fails on order A-4
+log orders A-4 #11 step_abnormal_termination ship: the booking system failed
+log orders A-4 #12 step_given_up ship: retries exhausted
+log orders A-4 #13 journey_failed ship
+desk: order A-4 failed at ship
+the journey failed, with receipt R-A-4 and tracking none

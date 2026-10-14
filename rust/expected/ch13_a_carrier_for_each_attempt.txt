@@ -23,7 +23,7 @@ log orders A-7 #5 contribution_committed receipt
 log orders A-7 #6 attempt_started ship, attempt 1
 log orders A-7 #7 service_provided ship gets carrier from carriers, a ch13_a_carrier_for_each_attempt::MainCarrier
 the main carrier books order A-7
-log orders A-7 #8 step_failed ship: too-heavy, retriable
+log orders A-7 #8 step_failed ship: too-heavy
 log orders A-7 #9 step_retrying ship
 log orders A-7 #10 attempt_started ship, attempt 2
 log orders A-7 #11 service_provided ship gets carrier from carriers, a ch13_a_carrier_for_each_attempt::BackupCarrier
@@ -38,8 +38,12 @@ log orders A-8 #1 journey_started card, order, price, weight
 log orders A-8 #2 attempt_started charge, attempt 1
 log orders A-8 #3 service_provided charge gets payments from bank, a ch13_a_carrier_for_each_attempt::Bank
 the bank declines card jo-2024: it has expired
-log orders A-8 #4 step_failed charge: card-expired, not retriable
-log orders A-8 #5 step_given_up charge: failure
-log orders A-8 #6 journey_failed charge
+log orders A-8 #4 step_failed charge: card-expired
+log orders A-8 #5 step_retrying charge
+log orders A-8 #6 attempt_started charge, attempt 2
+the bank declines card jo-2024: it has expired
+log orders A-8 #7 step_failed charge: card-expired
+log orders A-8 #8 step_given_up charge: retries exhausted
+log orders A-8 #9 journey_failed charge
 desk: order A-8 failed at charge
 the journey failed, with receipt none and tracking none

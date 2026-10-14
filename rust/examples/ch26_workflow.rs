@@ -141,7 +141,7 @@ impl Ship {
                 contributor.contribute("tracking", tracking);
                 Self::succeed()
             }
-            None => Self::fail_retriably("parcel-refused"),
+            None => Self::fail("parcel-refused"),
         }
     }
 }

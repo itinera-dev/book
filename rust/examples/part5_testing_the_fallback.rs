@@ -53,7 +53,7 @@ impl Ship {
                 contributor.contribute("tracking", tracking);
                 Self::succeed()
             }
-            None => Self::fail_retriably("carrier-down"),
+            None => Self::fail("carrier-down"),
         }
     }
 }
@@ -142,7 +142,7 @@ fn the_ship_step_alone() -> Result<(), Error> {
     )?;
     check(
         "a carrier that is down is a failure worth trying again",
-        down.is_retriable() && down.reason().map(Reason::code) == Some("carrier-down"),
+        down.reason().map(Reason::code) == Some("carrier-down"),
     )?;
     Ok(())
 }

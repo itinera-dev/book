@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-Jo's card has expired, so charging it again is pointless, but her bank knows the card that replaced it. When the charge fails, you want the shop to ask the bank for the new card, then charge once more, without the charge knowing anything about renewing cards.
+Jo's card has expired, so charging it again is pointless, but Jo's bank knows the card that replaced it. When the charge fails, you want the shop to ask the bank for the new card, then charge once more, without the charge knowing anything about renewing cards.
 
 ## The code
 
@@ -20,7 +20,7 @@ name: ch14_repairing_then_trying_once_more
 region: rescue
 ```
 
-The workflow names it on the charge's line, with `rescue = RenewCard`:
+The workflow names it on the charge's line, with `rescue = RenewCard`, in place of the charge's retry budget and `no_retry_on_abnormal_termination`: a step with a rescue step has no retry budget, and is rescued after a failed attempt whatever that setting says.
 
 ```example
 name: ch14_repairing_then_trying_once_more

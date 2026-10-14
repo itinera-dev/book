@@ -1,6 +1,7 @@
 //! An optional input: the pricing, a step of its own, takes the order's discount when it has one,
 //! and the charge charges the amount it works out.
 
+use std::fmt;
 use std::num::NonZeroU32;
 
 use itinera::error::Error;
@@ -16,33 +17,63 @@ use itinera::step::{
 use itinera::workflow::{role, workflow};
 
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
-/// when the card has expired; and it says which card replaced one, if any did.
+/// when the card has expired, or the error of a network that failed; and it says which card
+/// replaced one, if any did.
 trait Payments: Send + Sync {
-    fn charge(&self, order: &str, card: &str, amount: i64) -> Option<String>;
+    fn charge(&self, order: &str, card: &str, amount: i64) -> Result<Option<String>, NetworkDown>;
     fn replacement(&self, card: &str) -> Option<String>;
 }
 
-/// A carrier: it books a parcel and gives back its tracking number, then says whether it
-/// collects a parcel of this weight in kg.
+/// A carrier: it books a parcel of this weight in kg and gives back its tracking number, or the
+/// error of a booking system that failed, then says whether it collects the parcel.
 trait Carrier: Send + Sync {
-    fn book(&self, order: &str) -> String;
+    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed>;
     fn collects(&self, weight: i64) -> bool;
 }
 
+/// The error of the bank's network when it fails.
+#[derive(Debug)]
+struct NetworkDown;
+
+impl fmt::Display for NetworkDown {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("the payment network is down")
+    }
+}
+
+impl std::error::Error for NetworkDown {}
+
+/// The error of the carrier's booking system when it fails.
+#[derive(Debug)]
+struct BookingFailed;
+
+impl fmt::Display for BookingFailed {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("the booking system failed")
+    }
+}
+
+impl std::error::Error for BookingFailed {}
+
 /// The shop's bank, faked: a card is its holder's name and the year it expires, and the bank
-/// declines a card that expired before this year. It prints what it does.
+/// declines a card that expired before this year. Its network fails on any amount over 100. It
+/// prints what it does.
 struct Bank {
     this_year: u32,
 }
 
 impl Payments for Bank {
-    fn charge(&self, order: &str, card: &str, amount: i64) -> Option<String> {
+    fn charge(&self, order: &str, card: &str, amount: i64) -> Result<Option<String>, NetworkDown> {
+        if amount > 100 {
+            println!("the bank's network fails while charging order {order}");
+            return Err(NetworkDown);
+        }
         if expiry(card).is_some_and(|year| year < self.this_year) {
             println!("the bank declines card {card}: it has expired");
-            return None;
+            return Ok(None);
         }
         println!("the bank charges {amount} for order {order}");
-        Some(format!("R-{order}"))
+        Ok(Some(format!("R-{order}")))
     }
 
     /// A card that expired in the last three years was replaced by its holder's card that expires
@@ -64,13 +95,18 @@ fn expiry(card: &str) -> Option<u32> {
     card.rsplit_once('-')?.1.parse().ok()
 }
 
-/// The shop's main carrier, faked: it books any parcel, and collects one only up to 20 kg.
+/// The shop's main carrier, faked: its booking system fails on a parcel over 100 kg, and it
+/// collects a parcel only up to 20 kg.
 struct MainCarrier;
 
 impl Carrier for MainCarrier {
-    fn book(&self, order: &str) -> String {
+    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+        if weight > 100 {
+            println!("the main carrier's booking system fails on order {order}");
+            return Err(BookingFailed);
+        }
         println!("the main carrier books order {order}");
-        format!("T-{order}")
+        Ok(format!("T-{order}"))
     }
 
     fn collects(&self, weight: i64) -> bool {
@@ -78,13 +114,18 @@ impl Carrier for MainCarrier {
     }
 }
 
-/// The shop's backup carrier, faked: it books any parcel, and collects one only up to 80 kg.
+/// The shop's backup carrier, faked: its booking system fails on a parcel over 100 kg, and it
+/// collects a parcel only up to 80 kg.
 struct BackupCarrier;
 
 impl Carrier for BackupCarrier {
-    fn book(&self, order: &str) -> String {
+    fn book(&self, order: &str, weight: i64) -> Result<String, BookingFailed> {
+        if weight > 100 {
+            println!("the backup carrier's booking system fails on order {order}");
+            return Err(BookingFailed);
+        }
         println!("the backup carrier books order {order}");
-        format!("B-{order}")
+        Ok(format!("B-{order}"))
     }
 
     fn collects(&self, weight: i64) -> bool {
@@ -137,7 +178,7 @@ impl Charge {
         if self.amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
-        let Some(receipt) = payments.charge(&self.order, &self.card, self.amount) else {
+        let Some(receipt) = payments.charge(&self.order, &self.card, self.amount)? else {
             return Self::fail("card-expired");
         };
         contributor.contribute("receipt", receipt);
@@ -271,10 +312,10 @@ impl Ship {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
         }
-        let tracking = carrier.book(&self.order);
+        let tracking = carrier.book(&self.order, self.weight)?;
         contributor.contribute("tracking", tracking);
         if !carrier.collects(self.weight) {
-            return Self::fail_retriably("too-heavy");
+            return Self::fail("too-heavy");
         }
         reporter.info(format!("the parcel leaves with receipt {}", self.receipt))?;
         Self::succeed()
@@ -329,27 +370,18 @@ fn detail(body: &EventBody) -> Option<String> {
             "{} gets {key} from {provider}, a {implementation}",
             step.step
         )),
-        EventBody::StepFailed {
-            step,
-            retriable,
-            reason,
-            ..
-        } => Some(format!(
-            "{}: {}, {}",
-            step.step,
-            reason.code(),
-            if *retriable {
-                "retriable"
-            } else {
-                "not retriable"
-            }
-        )),
+        EventBody::StepFailed { step, reason, .. } => {
+            Some(format!("{}: {}", step.step, reason.code()))
+        }
         EventBody::StepSkipped {
             step,
             reason: Some(reason),
             ..
         } => Some(format!("{}: {}", step.step, reason.code())),
         EventBody::ContributionsDiscarded { step, .. } => Some(step.step.to_string()),
+        EventBody::StepAbnormalTermination { step, message, .. } => {
+            Some(format!("{}: {message}", step.step))
+        }
         EventBody::StepGivenUp { step, cause, .. } => Some(format!("{}: {cause}", step.step)),
         EventBody::StepRescuing {
             step,

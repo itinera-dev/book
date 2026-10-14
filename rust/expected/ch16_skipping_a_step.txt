@@ -28,7 +28,7 @@ log orders A-7 #7 contribution_committed audit
 log orders A-7 #8 attempt_started ship, attempt 1
 log orders A-7 #9 service_provided ship gets carrier from carriers, a ch16_skipping_a_step::MainCarrier
 the main carrier books order A-7
-log orders A-7 #10 step_failed ship: too-heavy, retriable
+log orders A-7 #10 step_failed ship: too-heavy
 log orders A-7 #11 step_retrying ship
 log orders A-7 #12 attempt_started ship, attempt 2
 log orders A-7 #13 service_provided ship gets carrier from carriers, a ch16_skipping_a_step::BackupCarrier
@@ -44,7 +44,7 @@ log orders A-8 #1 journey_started card, gift_card, order, price, weight
 log orders A-8 #2 attempt_started charge, attempt 1
 log orders A-8 #3 service_provided charge gets payments from bank, a ch16_skipping_a_step::Bank
 the bank declines card jo-2024: it has expired
-log orders A-8 #4 step_failed charge: card-expired, not retriable
+log orders A-8 #4 step_failed charge: card-expired
 log orders A-8 #5 step_rescuing charge: failure, rescued by charge_rescue
 log orders A-8 #6 attempt_started charge_rescue, attempt 1
 the bank says card jo-2024 was replaced by jo-2029

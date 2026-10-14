@@ -131,7 +131,7 @@ What each answer gives you:
 
 A few counter-examples, each with its place:
 
-1. **A step that retries itself in a loop.** The retries are invisible from outside and have their own limit, hidden in the code. Report a failure that might work next time, and give the step a retry budget in the workflow.
+1. **A step that retries itself in a loop.** The retries are invisible from outside and have their own limit, hidden in the code. Report a failure, and give the step a retry budget in the workflow.
 2. **A step that repairs, then tries again inside itself,** as above. The repair leaves no trace in the events, and the step now holds two business rules. Move the repair to a rescue step.
 3. **A step that tells the customer.** It mixes a business rule with a reaction to it. Let a policy react, through a role.
 4. **A hook that works out the price, or decides whether a card is good enough.** Those are business decisions. Put them in a step. An input adapter only changes the form of a step's data, never the business.

@@ -6,7 +6,7 @@ When the main carrier won't collect a parcel, the shop has a backup carrier that
 
 ## The code
 
-The two carriers are faked, like the main one before: each books any parcel, prints what it does, and collects a parcel only up to its weight limit, 20 kg for the main carrier and 80 kg for the backup.
+The two carriers are faked, like the main one before: each books a parcel, prints what it does, and collects a parcel only up to its weight limit, 20 kg for the main carrier and 80 kg for the backup.
 
 ```example
 name: ch13_a_carrier_for_each_attempt
@@ -20,7 +20,7 @@ name: ch13_a_carrier_for_each_attempt
 region: provider
 ```
 
-Everything else is [chapter 12](12-trying-again.md)'s shop, unchanged, including the shipping, which still asks for a `&dyn Carrier` and fails retriably when it won't be collected, and its retry budget of 1. It runs Ann's, Gil's and Jo's orders again, and prints:
+Everything else is [chapter 12](12-trying-again.md)'s shop, unchanged, including the shipping, which still asks for a `&dyn Carrier` and fails when the parcel won't be collected, and both steps' retry budgets of 1. It runs Ann's, Gil's and Jo's orders again, and prints:
 
 ```output
 name: ch13_a_carrier_for_each_attempt
@@ -33,7 +33,7 @@ name: ch13_a_carrier_for_each_attempt
 3. **The log shows which carrier served which attempt.** Gil's journey now records `service_provided` before each attempt of the shipping: the `MainCarrier` for attempt 1, which wouldn't collect 60 kg, and the `BackupCarrier` for attempt 2, which did. The journey succeeds, and the tracking number committed is the backup carrier's, `B-A-7`, since only the attempt that succeeded commits what it contributed. Ann's parcel of 2 kg goes with the main carrier on attempt 1, and never meets the backup.
 4. **The shipping is unchanged.** It still uses whatever carrier it is lent, and says only whether the parcel was collected. Choosing the backup carrier for a retry is the workflow's decision, made in its provider, as choosing the main carrier was.
 
-Jo's order still fails at the charge. Her card expired in 2024, and no attempt with that card would ever be charged. But a bank usually knows which card replaced one that expired, and the charge has no way to ask for it: it charges the card it was given, and nothing more.
+Jo's order still fails at the charge, tried twice in vain: the card expired in 2024, and no attempt with that card would ever be charged. But a bank usually knows which card replaced one that expired, and the charge has no way to ask for it: it charges the card it was given, and nothing more.
 
 ## Outcomes
 

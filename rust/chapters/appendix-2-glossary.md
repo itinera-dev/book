@@ -20,9 +20,9 @@ Defined in [1.2, Workflows and steps](https://github.com/itinera-dev/spec/blob/m
 - **Policy descriptor:** the description of one policy: its name, the hooks it defines, and how to build an instance of it.
 - **Outcome:** what a step reports when it runs to the end, in Rust an `Outcome` returned in an `Ok`. It says what happened, never what to do next. It is one of:
   - **Success:** the step did its work.
-  - **Failure:** the step could not do its work. A failure carries a **reason**, made of a code such as `expired-card`, an optional message and optional details, and a **retriable** flag: whether the step believes trying again might help.
+  - **Failure:** the step could not do its work. A failure carries a **reason**, made of a code such as `expired-card`, an optional message and optional details. Whether the step is tried again is never its own decision: its retry budget, and the policies attached to it, decide.
   - **Skipped:** the step decided, from what it knows of its domain, not to do its work, as the ship step can for a digital order. A skipped step leaves the flow.
-- **Abnormal termination:** a recoverable failure that escapes a running step, instead of an outcome the step chose. In Rust, an `Err` returned from the step's `run`, often through `?`. It ends the attempt as a failure; whether it is tried again is the step descriptor's choice.
+- **Abnormal termination:** a recoverable failure that escapes a running step, instead of an outcome the step chose. In Rust, an `Err` returned from the step's `run`, often through `?`. It ends the attempt as a failure, and spends the retry budget as a failure does, unless the step descriptor turns that off.
 - **Attempt:** one execution of a step. The first is attempt 1.
 - **Retry:** any attempt after the first, except the attempt that follows a rescue step.
 - **Retry budget:** how many retries a step allows. Shipping with a retry budget of 1 is tried at most twice.
@@ -51,7 +51,7 @@ Defined in [1.4, Policies, hooks and lifecycles](https://github.com/itinera-dev/
 - **Policy:** a reusable object that defines one or more hooks. A **step policy** defines only step hooks and is attached to steps, such as `audit` on the charge. A **workflow policy** defines only workflow hooks and is attached to workflows, such as `notify`. In Rust, a block marked `#[step_policy(...)]` or `#[workflow_policy(...)]`, with a method marked for each hook it defines.
 - **Hook:** a function of a policy that the executor calls. **Step hooks** (`on step success`, `on step failure`, `on step retry`, `on step abnormal termination`) are called in response to a step's outcome. **Workflow hooks** (`on workflow success`, `on workflow failure`) are called when the journey ends. A hook that no attached policy defines keeps its default behaviour.
 - **Lifecycle:** what a hook may return to tell the executor to do something other than the default. In tier 1 there are two: `FailWorkflow`, which fails the journey at once, and `FinishWorkflow`, which ends it at once as succeeded. In Rust, each hook's return type admits only the lifecycles that hook may return.
-- **Cause:** why the failure hook or the retry hook was called, or why a step was given up, retried or rescued: `failure`, `retriable failure`, `abnormal termination` or `retries exhausted`, and, for a step given up by a hook, `FailWorkflow`.
+- **Cause:** why the failure hook or the retry hook was called, or why a step was given up, retried or rescued: `failure`, `abnormal termination` or `retries exhausted`, and, for a step given up by a hook, `FailWorkflow`.
 - **Workflow role:** an interface of operations that a workflow implements and offers to policies, such as telling the customer something. A hook asks for the roles it needs. Roles carry operations, never data. In Rust, a trait, implemented by the workflow in a `#[role]` block.
 
 ## Running

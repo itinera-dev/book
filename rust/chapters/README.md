@@ -33,15 +33,11 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 19. [An optional input](19-an-optional-input.md)
 20. [Deciding where a step's data comes from](20-deciding-where-a-steps-data-comes-from.md)
 
-## Part 3: Writing steps
-
-- [When something goes wrong inside a step](11-when-something-goes-wrong-inside-a-step.md)
-
-## Part 4: Controlling the flow
+## Part 3: Controlling the flow
 
 - [Ending a journey early](16-ending-a-journey-early.md)
 
-## Part 5: Running it for real
+## Part 4: Running it for real
 
 21. [Running many journeys](21-running-many-journeys.md)
 22. [Reading the result](22-reading-the-result.md)
@@ -49,7 +45,7 @@ The Itinera book for Rust, in reading order. It follows the plan that every lang
 24) [Testing your workflows](24-testing-your-workflows.md)
 - [Without Itinera](part-5-without-itinera.md)
 
-## Part 6: Designing with Itinera
+## Part 5: Designing with Itinera
 
 25. [Step, rescue step or policy?](25-step-rescue-step-or-policy.md)
 26. [From tangled code to a workflow](26-from-tangled-code-to-a-workflow.md)

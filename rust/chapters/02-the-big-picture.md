@@ -41,7 +41,7 @@ name: ch02_big_picture
 region: list
 ```
 
-Then it runs seven orders. Ann, Ben, Cat and Dan come from chapter 1, with the same data. Three more customers take the paths none of them takes: Eve's goods are out of stock, Fin's card is valid but his order is above the bank's limit of 1,000, and Gil's parcel weighs 60 kg, too heavy for both carriers.
+Then it runs seven orders. Ann, Ben, Cat and Dan come from chapter 1, with the same data. Three more customers take the paths none of them takes: Eve's goods are out of stock, Fin's card is valid but the order is above the bank's limit of 1,000, and Gil's parcel weighs 60 kg, too heavy for both carriers.
 
 ```example
 name: ch02_big_picture
@@ -73,7 +73,7 @@ flowchart TD
   again -- failure --> told_failed
   audit --> ship[ship, attempt 1, main carrier]
   ship -- success --> told_shipped[notify tells the customer the order is on its way]
-  ship -- failure that might work next time --> ship2[ship, attempt 2, backup carrier]
+  ship -- failure, retry budget left --> ship2[ship, attempt 2, backup carrier]
   ship2 -- success --> told_shipped
   ship2 -- failure --> told_failed
   told_shipped --> succeeded([The journey succeeded])
@@ -87,7 +87,7 @@ The diagram shows:
 3. When the charge fails, the rescue step, which the listing names `charge_rescue`, runs and asks the bank for the new card. If the rescue fails, as Fin's does, the journey goes to its end as failed.
 4. When the rescue succeeds, the charge runs once more. If it succeeds, as Ben's does, `audit` logs it; if it fails, as Dan's does, the journey goes to its end as failed.
 5. After the audit, `ship` makes its first attempt, with the main carrier. If it succeeds, as Ann's does, the journey goes to its end as succeeded.
-6. If the first attempt fails in a way that might work next time, `ship` makes a second attempt, with the backup carrier. If that succeeds, as Cat's does, the journey goes to its end as succeeded; if it fails, as Gil's does, the journey goes to its end as failed.
+6. If the first attempt fails, `ship` has a retry left, so it makes a second attempt, with the backup carrier. If that succeeds, as Cat's does, the journey goes to its end as succeeded; if it fails, as Gil's does, the journey goes to its end as failed.
 7. At a successful end, `notify` tells the customer the order is on its way, and the journey succeeded.
 8. At a failed end, `notify` tells the customer the order could not be completed, and the journey failed.
 

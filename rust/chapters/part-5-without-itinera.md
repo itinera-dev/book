@@ -1,6 +1,6 @@
 # Without Itinera
 
-Part 5 ran the shop for real: many journeys, their results, their events and their tests. This section shows two things that are usually hard without Itinera, written the usual way in plain Rust, then with Itinera beside them. Both usual programs are real Rust, compiled and run like every other example, so what they print is what they really do.
+Part 4 ran the shop for real: many journeys, their results, their events and their tests. This section shows two things that are usually hard without Itinera, written the usual way in plain Rust, then with Itinera beside them. Both usual programs are real Rust, compiled and run like every other example, so what they print is what they really do.
 
 ## Logging that depends on who wrote the code
 

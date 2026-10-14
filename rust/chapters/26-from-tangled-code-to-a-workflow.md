@@ -35,7 +35,7 @@ name: ch01_checkout
 region: payment
 ```
 
-As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure that might work next time, `Self::fail_retriably("parcel-refused")`, and doesn't call another carrier.
+As steps, the business rules keep only the business. The charge works out the amount and calls the bank. When the bank refuses, it doesn't renew the card, log or give up: it reports a failure with a reason, `Self::fail("expired-card")` or `Self::fail("declined")`. The ship step does the same with the carrier: when the carrier can't take the parcel, it reports a failure, `Self::fail("parcel-refused")`, and doesn't call another carrier: the workflow's retry budget decides whether it is tried again.
 
 For now the steps still reach the faked bank, warehouse and carrier by themselves, through constants such as `BANK`, as the tangled code did. Move 7 takes those away.
 
@@ -138,7 +138,7 @@ region: workflow
 
 Move 7 uses the services and providers of [chapter 7](07-giving-a-step-the-tools-it-needs.md), with the per-attempt provider of [chapter 13](13-a-carrier-for-each-attempt.md), and move 8 the rescue step of [chapter 14](14-repairing-then-trying-once-more.md).
 
-When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets his new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses his new card, because his order of 1,200 is above its limit, so the charge's attempt 2 fails and so does the journey. Every successful charge, Ben's after the rescue included, shows up as an audit line. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
+When it runs, the orders go as they did in [chapter 1](01-but-why-itinera.md). Ben's charge fails with `expired-card`, `charge_rescue` gets Ben's new card, and the charge's attempt 2 succeeds. Cat's parcel goes with the backup carrier on the second attempt of `ship`. Dan's charge is rescued too, but the bank refuses Dan's new card, because the order of 1,200 is above its limit, so the charge's attempt 2 fails and so does the journey. Every successful charge, Ben's after the rescue included, shows up as an audit line. Each of those decisions is now in the events, and each has one place in the declaration. The listing printed first shows the steps, the rescue step and the providers; the retry budget of `ship` is read in the declaration:
 
 ```output
 name: ch02_big_picture
@@ -155,7 +155,7 @@ The rewrite follows one rule: every decision goes where its kind belongs.
 5. **Choices about the outside world go into providers.** Which carrier ships the second attempt is a decision of the workflow, not of the ship step, so the ship step never knows there are two carriers.
 6. **Repairs become rescue steps.** The renewal is no longer hidden in a branch of the charge; it is a step of its own, and the events say when a rescue happened and how it went.
 7. **Reactions become policies.** Auditing and telling the customer react to outcomes, so they are hooks, attached where they apply, and they reach the outside world through roles.
-8. **Observation becomes a reporter.** As the section of [part 5](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports its events the same way, whoever wrote each module, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
+8. **Observation becomes a reporter.** As the section of [part 4](part-5-without-itinera.md) showed, logging written by hand depends on who wrote each module. Every journey now reports its events the same way, whoever wrote each module, and a reporter decides where they go. That same stream lets you test the journey by its events, and each step and policy alone, without mocking carriers or counting calls.
 
 Do the rewrite in moves, as this chapter did. After each move the program runs, and the events of a journey show plainly what is still missing.
 

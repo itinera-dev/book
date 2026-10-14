@@ -233,7 +233,7 @@ impl Ship {
         #[contributor] mut contributor: Contributor<'_>,
     ) -> Result<Outcome, Error> {
         let Some(tracking) = carrier.send(&self.order, self.weight) else {
-            return Self::fail_retriably("parcel-refused");
+            return Self::fail("parcel-refused");
         };
         stock.hand_over(&self.order);
         contributor.contribute("tracking", tracking);
