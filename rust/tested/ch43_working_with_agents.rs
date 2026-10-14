@@ -831,6 +831,7 @@ mod tests {
         }
     }
 
+    // ANCHOR: paths
     /// What the shop knows about an order of 30 with a parcel of this weight.
     fn order_of(order: &str, weight: i64) -> NewOrder {
         NewOrder {
@@ -868,6 +869,25 @@ mod tests {
         Ok(recorder.path())
     }
 
+    /// Runs the same order as `path_of`, through the proposed workflow.
+    fn proposed_path_of(
+        order: &str,
+        weight: i64,
+        bank: TestBank,
+        carrier: TestCarrier,
+    ) -> Result<Vec<String>, Error> {
+        let recorder = RecordingReporter::default();
+        let instance = Proposed::builder()
+            .initial_data(order_of(order, weight))
+            .reporter(recorder.clone())
+            .fake_provider::<dyn Payments>("bank", move || Ok(provide!(bank)))
+            .fake_provider::<dyn Carrier>("carriers", move || Ok(provide!(carrier)))
+            .create()?;
+        local_executor_for!(Proposed).run(instance)?;
+        Ok(recorder.path())
+    }
+    // ANCHOR_END: paths
+
     // ANCHOR: proposed
     /// The shop's workflow as an agent proposes to change it: a parcel the carrier won't collect
     /// is given up at once, without trying the backup carrier.
@@ -877,7 +897,6 @@ mod tests {
     #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit, Outage])]
     #[with_step(Ship, name = "ship", policies = [FailedShipping])]
     struct Proposed;
-    // ANCHOR_END: proposed
 
     #[role]
     impl Refunds for Proposed {
@@ -934,24 +953,7 @@ mod tests {
             Ok(provide!(MainCarrier))
         }
     }
-
-    /// Runs the same order as `path_of`, through the proposed workflow.
-    fn proposed_path_of(
-        order: &str,
-        weight: i64,
-        bank: TestBank,
-        carrier: TestCarrier,
-    ) -> Result<Vec<String>, Error> {
-        let recorder = RecordingReporter::default();
-        let instance = Proposed::builder()
-            .initial_data(order_of(order, weight))
-            .reporter(recorder.clone())
-            .fake_provider::<dyn Payments>("bank", move || Ok(provide!(bank)))
-            .fake_provider::<dyn Carrier>("carriers", move || Ok(provide!(carrier)))
-            .create()?;
-        local_executor_for!(Proposed).run(instance)?;
-        Ok(recorder.path())
-    }
+    // ANCHOR_END: proposed
 
     // ANCHOR: compared
     #[test]
@@ -992,7 +994,6 @@ mod tests {
     }
     // ANCHOR_END: compared
 
-    // ANCHOR: approved
     #[test]
     fn an_order_the_bank_charges_and_the_carrier_takes_is_shipped() -> Result<(), Error> {
         assert_eq!(

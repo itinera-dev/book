@@ -493,6 +493,7 @@ impl Orders {
     }
 }
 
+// ANCHOR: data
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
@@ -511,6 +512,7 @@ struct Order {
     tracking: Option<String>,
     audit: Option<String>,
 }
+// ANCHOR_END: data
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The order, the customer, the price, the parcel's weight in kg, the card, and whether the

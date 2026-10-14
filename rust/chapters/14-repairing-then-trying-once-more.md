@@ -6,7 +6,7 @@ Jo's card has expired, so charging it again is pointless, but Jo's bank knows th
 
 ## The code
 
-The payment client can now also say which card replaced one. The faked bank says that an expired card was replaced by its holder's card that expires in three years, and prints it.
+The payment client can now also say which card replaced one. The faked bank says that an expired card was replaced by its holder's card that expires in three years, and prints it. Its error, `NetworkDown`, is [chapter 12](12-trying-again.md)'s.
 
 ```example
 name: ch14_repairing_then_trying_once_more
@@ -36,7 +36,7 @@ name: ch14_repairing_then_trying_once_more
 region: rescue_events
 ```
 
-The carriers' provider, one carrier for each attempt, is [chapter 13](13-a-carrier-for-each-attempt.md)'s. The shop runs Ann's, Gil's and Jo's orders again, and prints:
+The bank's provider is [chapter 12](12-trying-again.md)'s, and the carriers' provider, one carrier for each attempt, [chapter 13](13-a-carrier-for-each-attempt.md)'s. The shop runs Ann's, Gil's and Jo's orders again, and prints:
 
 ```output
 name: ch14_repairing_then_trying_once_more

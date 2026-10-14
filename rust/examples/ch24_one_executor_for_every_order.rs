@@ -660,6 +660,7 @@ struct Parcel {
     size: [i64; 3],
 }
 
+// ANCHOR: output
 /// What the shop reads back once the journey has ended.
 #[derive(Output)]
 struct Order {
@@ -667,6 +668,7 @@ struct Order {
     tracking: Option<String>,
     audit: Option<String>,
 }
+// ANCHOR_END: output
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {

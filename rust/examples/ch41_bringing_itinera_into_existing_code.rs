@@ -316,6 +316,7 @@ mod checkout {
     use crate::payment::{Due, Paid, Payment};
     use crate::{log, shipping};
 
+    // ANCHOR: checkout
     /// An order, as the shop's website hands it over.
     pub struct Order {
         pub order: &'static str,
@@ -345,6 +346,11 @@ mod checkout {
                 Self::PaymentNotRun(why) => write!(f, "the payment did not run: {why}"),
             }
         }
+    }
+
+    /// Why the payment workflow could not say how the payment went.
+    fn not_run(error: impl fmt::Display) -> CheckoutError {
+        CheckoutError::PaymentNotRun(error.to_string())
     }
 
     impl From<Declined> for CheckoutError {
@@ -391,6 +397,7 @@ mod checkout {
             shipping::ship(&self.main, &self.backup, order.order, order.weight)
                 .ok_or(CheckoutError::NotShipped)
         }
+        // ANCHOR_END: checkout
 
         // ANCHOR: pay
         /// Charges an order's card through the payment workflow, and gives back the receipt.
@@ -422,11 +429,6 @@ mod checkout {
             }
         }
         // ANCHOR_END: pay
-    }
-
-    /// Why the payment workflow could not say how the payment went.
-    fn not_run(error: impl fmt::Display) -> CheckoutError {
-        CheckoutError::PaymentNotRun(error.to_string())
     }
 }
 

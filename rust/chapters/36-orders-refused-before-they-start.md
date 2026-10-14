@@ -6,7 +6,17 @@ The website now sends orders before they are finished: Quin's arrives without an
 
 ## The code
 
-The shop is [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s, with the order's number now optional in its initial data, since the website may leave it out. When the log receives the customer's name, it asks the logging service to file the journey's lines under it, and fails if the service refuses:
+The shop is [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s, with the order's number now optional in its initial data, since the website may leave it out:
+
+```example
+name: ch36_orders_refused_before_they_start
+region: data
+asynchronous: ch36_orders_refused_before_they_start_async
+```
+
+In the asynchronous form, `order` takes the number as an `Option` too.
+
+When the log receives the customer's name, it asks the logging service to file the journey's lines under it, and fails if the service refuses:
 
 ```example
 name: ch36_orders_refused_before_they_start
@@ -14,7 +24,7 @@ region: log
 asynchronous: ch36_orders_refused_before_they_start_async
 ```
 
-The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s.
+The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s `detail`.
 
 `main` creates each order's instance, then runs it, and says why an order went no further at either point:
 
@@ -24,7 +34,7 @@ region: run
 asynchronous: ch36_orders_refused_before_they_start_async
 ```
 
-`Orders` is the workflow [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declares, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s provider for `cards`, and `Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s. In the asynchronous form, `order` creates the instance, as in [chapter 33](33-giving-every-reporter-what-it-needs.md), and `journey` runs it, awaited, as in [chapter 26](26-running-async-journeys-while-others-wait.md). It prints:
+`Orders` is the workflow [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declares, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s provider for `cards`, `Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s and `follow_up` [chapter 34](34-saying-which-attempt-took-the-money.md)'s. In the asynchronous form, `order` creates the instance, and `journey` runs it, awaited, as in [chapter 26](26-running-async-journeys-while-others-wait.md). It prints:
 
 ```output
 name: ch36_orders_refused_before_they_start

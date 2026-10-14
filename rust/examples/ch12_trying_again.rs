@@ -27,6 +27,7 @@ trait Carrier: Send + Sync {
 }
 // ANCHOR_END: services
 
+// ANCHOR: errors
 /// The error of the bank's network when it fails.
 #[derive(Debug)]
 struct NetworkDown;
@@ -50,6 +51,7 @@ impl fmt::Display for BookingFailed {
 }
 
 impl std::error::Error for BookingFailed {}
+// ANCHOR_END: errors
 
 /// The shop's bank, faked: a card is its holder's name and the year it expires, and the bank
 /// declines a card that expired before this year. Its network fails on any amount over 100. It
@@ -262,11 +264,13 @@ impl Orders {
         Ok(data.required("order")?)
     }
 
+    // ANCHOR: bank
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
     fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
         Ok(provide!(Bank { this_year: 2026 }))
     }
+    // ANCHOR_END: bank
 
     /// The main carrier, as the carrier of the journey.
     #[provider(key = "carrier")]
@@ -275,6 +279,7 @@ impl Orders {
     }
 }
 
+// ANCHOR: data
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]
 struct NewOrder {
@@ -290,6 +295,7 @@ struct Order {
     receipt: Option<String>,
     tracking: Option<String>,
 }
+// ANCHOR_END: data
 
 // ANCHOR: run
 fn main() -> Result<(), Box<dyn std::error::Error>> {

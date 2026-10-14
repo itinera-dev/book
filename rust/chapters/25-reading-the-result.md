@@ -13,7 +13,7 @@ name: ch25_reading_the_result
 region: data
 ```
 
-`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s.
+`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, and `Order`, the output that `follow_up` reads, [chapter 24](24-running-many-journeys.md)'s.
 
 `main` hands each journey's result to `follow_up`, which looks at how the journey ended before it reads anything else, with a `match` on its status:
 

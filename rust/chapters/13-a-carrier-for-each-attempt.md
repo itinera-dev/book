@@ -6,7 +6,7 @@ When the main carrier won't collect a parcel, the shop has a backup carrier that
 
 ## The code
 
-The two carriers are faked, like the main one before: each books a parcel, prints what it does, and collects a parcel only up to its weight limit, 20 kg for the main carrier and 80 kg for the backup.
+The two carriers are faked, like the main one before: each books a parcel, prints what it does, and collects a parcel only up to its weight limit, 20 kg for the main carrier and 80 kg for the backup. Their error, `BookingFailed`, is [chapter 12](12-trying-again.md)'s.
 
 ```example
 name: ch13_a_carrier_for_each_attempt

@@ -13,14 +13,14 @@ name: ch08_seeing_what_happened
 region: log
 ```
 
-The workflow lists the log in `#[workflow(...)]`, with `reporters = [Log]`:
+The workflow lists the log in `#[workflow(...)]`, with `reporters = [Log]`. Its providers no longer print, since the log now says so, and the carrier's is now called `main_carrier`, with `key = "carrier"`:
 
 ```example
 name: ch08_seeing_what_happened
 region: workflow
 ```
 
-Everything else is [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s shop, run for Ann's and Gil's orders, with two changes: the providers no longer print, since the log now says so, and the carrier's provider is now called `main_carrier`, with `key = "carrier"`. The faked bank and carrier still print what they do. It prints:
+Everything else is [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s shop, run for Ann's and Gil's orders. The faked bank and carrier still print what they do. It prints:
 
 ```output
 name: ch08_seeing_what_happened

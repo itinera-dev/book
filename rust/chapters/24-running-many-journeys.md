@@ -6,14 +6,21 @@ Orders come in all day, and the shop shouldn't make a new executor for each one.
 
 ## The code
 
-The shop is [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md)'s, unchanged. Only `main` changes: it makes one executor before the loop, and hands it each order's instance in turn.
+The shop is [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md)'s, except that its output no longer holds the refund, which `main` no longer prints:
+
+```example
+name: ch24_one_executor_for_every_order
+region: output
+```
+
+`main` now makes one executor before the loop, and hands it each order's instance in turn:
 
 ```example
 name: ch24_one_executor_for_every_order
 region: run
 ```
 
-It runs [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s five orders, none of which the order book has completed, and prints:
+`NewOrder` and `Parcel` are as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) shows them, and `main` runs that chapter's five orders, none of which the order book has completed, and prints:
 
 ```output
 name: ch24_one_executor_for_every_order

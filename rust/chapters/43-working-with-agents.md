@@ -14,7 +14,7 @@ region: price
 asynchronous: ch43_working_with_agents_async
 ```
 
-Another agent proposes a change to the flow: a parcel the carrier won't collect should be given up at once, rather than tried again with the backup carrier. Before it replaces the workflow, the shop declares the proposal in its tests, beside the approved workflow of [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), with `ship` and no retry budget:
+Another agent proposes a change to the flow: a parcel the carrier won't collect should be given up at once, rather than tried again with the backup carrier. Before it replaces the workflow, the shop declares the proposal in its tests, beside the approved workflow of [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), with `ship` and no retry budget, and only the main carrier:
 
 ```example
 name: ch43_working_with_agents
@@ -22,7 +22,15 @@ region: proposed
 asynchronous: ch43_working_with_agents_async
 ```
 
-What it names is as earlier chapters show it: the lookup, `already_completed` and the log in [chapter 22](22-finishing-a-journey-early.md), the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping and `outage` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+What it names is as earlier chapters show it: the lookup, `already_completed`, `OrderBook` and the log in [chapter 22](22-finishing-a-journey-early.md), `Payments` in [chapter 14](14-repairing-then-trying-once-more.md), `Carrier` in [chapter 12](12-trying-again.md), the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping and `outage` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` and `Refunds` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` and `Messages` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+
+[Chapter 30](30-testing-a-whole-journey.md)'s `path_of` now makes its order with `order_of`, and `proposed_path_of` runs the same order through the proposal. `NewOrder` is as [chapter 25](25-reading-the-result.md) shows it, and `Parcel` as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) does:
+
+```example
+name: ch43_working_with_agents
+region: paths
+asynchronous: ch43_working_with_agents_async
+```
 
 A test runs each approved order through both, and says which paths the proposal keeps, and what it makes of the others:
 
@@ -32,7 +40,7 @@ region: compared
 asynchronous: ch43_working_with_agents_async
 ```
 
-In the asynchronous form, the pricing's `run` is an `async fn`, and the test is an `async fn` marked `#[tokio::test]`, which awaits each path. The tests print:
+In the asynchronous form, the pricing's `run` is an `async fn`, the proposal's roles take `#[async_trait]`, as in [chapter 26](26-running-async-journeys-while-others-wait.md), `path_of` and `proposed_path_of` are `async fn` that await the journey, and the test is an `async fn` marked `#[tokio::test]`, which awaits each path. The tests print:
 
 ```test-run
 name: ch43_working_with_agents

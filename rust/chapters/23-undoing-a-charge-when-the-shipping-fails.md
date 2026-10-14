@@ -43,7 +43,14 @@ name: ch23_undoing_a_charge_when_the_shipping_fails
 region: run
 ```
 
-`NewOrder` and `Parcel` are as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) shows them. It prints:
+`NewOrder` and `Parcel` are as [chapter 21](21-deciding-where-a-steps-data-comes-from.md) shows them, and the output now holds the refund:
+
+```example
+name: ch23_undoing_a_charge_when_the_shipping_fails
+region: output
+```
+
+It prints:
 
 ```output
 name: ch23_undoing_a_charge_when_the_shipping_fails

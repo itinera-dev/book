@@ -9,6 +9,7 @@ use itinera::value::AnyValue;
 use itinera::workflow::{InputAdapterDescriptor, WorkflowDescriptor};
 use serde::{Deserialize, Serialize};
 
+// ANCHOR: shop
 /// Charges an order's price.
 #[derive(Step)]
 struct Charge {
@@ -105,6 +106,7 @@ fn parcels_for(step: StepName) -> InputAdapterDescriptor<Orders> {
     InputAdapterDescriptor::new("parcels", step, parcels)
         .needing(HookNeeds::new().from_workflow(&PARCEL))
 }
+// ANCHOR_END: shop
 
 fn main() {
     // ANCHOR: wrong

@@ -36,7 +36,12 @@ region: log
 asynchronous: ch33_giving_every_reporter_what_it_needs_async
 ```
 
-`detail` is the function the log has had since [chapter 22](22-finishing-a-journey-early.md), with one more arm, which names the key of `global_metadata_set`.
+`detail` is the function the log has had since [chapter 22](22-finishing-a-journey-early.md), with one more arm, which names the key of `global_metadata_set`:
+
+```example
+name: ch33_giving_every_reporter_what_it_needs
+region: metadata_set
+```
 
 `set_global_metadata` stays synchronous on an `AsyncReporter` too: it only keeps the entry for the events that follow. `main` runs Ann's and Pat's orders, and prints:
 

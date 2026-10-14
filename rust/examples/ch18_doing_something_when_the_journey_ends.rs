@@ -488,6 +488,7 @@ struct NewOrder {
     gift_card: bool,
 }
 
+// ANCHOR: output
 /// What the shop reads back once the journey has ended.
 #[derive(Output)]
 struct Order {
@@ -496,6 +497,7 @@ struct Order {
     audit: Option<String>,
     message: Option<String>,
 }
+// ANCHOR_END: output
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // The order, the customer, the price, the parcel's weight in kg, the card, and whether the

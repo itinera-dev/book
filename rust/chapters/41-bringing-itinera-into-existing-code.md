@@ -46,7 +46,15 @@ region: workflow
 asynchronous: ch41_bringing_itinera_into_existing_code_async
 ```
 
-The rest of the checkout is unchanged, except the line that took the payment, which now calls `pay`. It runs the workflow, and turns how the journey ended back into the checkout's own errors:
+The rest of the checkout is chapter 1's, with three changes: `Shop` no longer holds the bank; `CheckoutError` gains a variant for a payment that did not run, which `not_run` makes from any error; and the line that took the payment now calls `pay`:
+
+```example
+name: ch41_bringing_itinera_into_existing_code
+region: checkout
+asynchronous: ch41_bringing_itinera_into_existing_code_async
+```
+
+`pay` runs the workflow, and turns how the journey ended back into the checkout's own errors:
 
 ```example
 name: ch41_bringing_itinera_into_existing_code

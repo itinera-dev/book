@@ -818,6 +818,7 @@ async fn journey(instance: Instance<Orders, Asynchronous>) -> Result<JourneyResu
     local_executor_for!(Orders).run(instance).await
 }
 
+// ANCHOR: read_back
 /// What the shop reads back once the journey has ended: the audit's line.
 #[derive(Output)]
 struct Audited {
@@ -868,3 +869,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+// ANCHOR_END: read_back

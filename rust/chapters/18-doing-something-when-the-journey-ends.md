@@ -29,6 +29,13 @@ name: ch18_doing_something_when_the_journey_ends
 region: workflow_hook
 ```
 
+The output now holds the message:
+
+```example
+name: ch18_doing_something_when_the_journey_ends
+region: output
+```
+
 The rest is [chapter 17](17-giving-up-a-step-early.md)'s shop, which now also reads back the message and prints it. It runs Ann's, Gil's, Jo's and Kim's orders again, then a new customer's: Lee's card expired in 2019, and the faked bank now has no replacement for a card that expired more than three years ago. It prints:
 
 ```output

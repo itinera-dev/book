@@ -29,7 +29,14 @@ region: workflow
 
 The steps, policies and reporters it names are as earlier chapters show them: the charge and the audit in [chapter 15](15-reacting-to-what-a-step-did.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `outage` and `heavy_parcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md) and the desk in [chapter 11](11-naming-a-journey.md).
 
-Each order now starts with its customer's name, and each instance is created with the channel, `email`:
+Each order's data now holds its customer's name, and the output no longer holds a message:
+
+```example
+name: ch19_letting_policies_act_on_the_outside_world
+region: data
+```
+
+Each instance is created with the channel, `email`:
 
 ```example
 name: ch19_letting_policies_act_on_the_outside_world

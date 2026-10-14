@@ -642,8 +642,6 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
@@ -651,6 +649,8 @@ fn supplied(data: Option<&AnyValue>) -> String {
         .unwrap_or_default()
 }
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),
@@ -745,6 +745,7 @@ impl Reporter for Desk {
     }
 }
 
+// ANCHOR: parts
 /// The shop's workflow, whose own value is the channel the shop tells its customers through.
 struct Orders {
     channel: &'static str,
@@ -774,7 +775,6 @@ impl Provides<dyn Messages> for Orders {
     }
 }
 
-// ANCHOR: parts
 const PARCEL: Input<Parcel> = Input::new("parcel");
 
 impl Orders {
@@ -1005,6 +1005,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
     for (order, customer, price, discount, weight, size, card, gift_card) in placed {
         println!("{}:", heading(order, customer));
+        // ANCHOR: instance
         let created = orders
             .instance(Orders { channel: "email" })
             .reporters_global_metadata("customer", customer.to_owned())
@@ -1018,6 +1019,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 gift_card,
             })
             .create();
+        // ANCHOR_END: instance
         let instance = match created {
             Ok(instance) => instance,
             Err(error) => {

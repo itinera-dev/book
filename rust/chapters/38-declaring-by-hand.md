@@ -24,7 +24,7 @@ region: audit
 asynchronous: ch38_declaring_by_hand_async
 ```
 
-The ID generator, the input adapter and the providers are plain methods of `Orders`, each reading what it requested from its own `Requested`, such as `Provider<PerAttempt>`, which carries the attempt:
+`Orders` implements each role's trait, and `Provides` for it. The ID generator, the input adapter and the providers are its plain methods, each reading what it requested from its own `Requested`, such as `Provider<PerAttempt>`, which carries the attempt:
 
 ```example
 name: ch38_declaring_by_hand
@@ -32,7 +32,7 @@ region: parts
 asynchronous: ch38_declaring_by_hand_async
 ```
 
-`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, `OrderBook` is [chapter 22](22-finishing-a-journey-early.md)'s, `Payments` and `Carrier` are [chapter 12](12-trying-again.md)'s, and `Cards` and `card_registry` are [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s.
+`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, `OrderBook` is [chapter 22](22-finishing-a-journey-early.md)'s, `Payments` and `Carrier` are [chapter 12](12-trying-again.md)'s, `Messages` [chapter 19](19-letting-policies-act-on-the-outside-world.md)'s, `Refunds` [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md)'s, and `Cards` and `card_registry` are [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s.
 
 And the workflow is put together by its builder, part by part, each service under a constant holding its key and its trait. The other steps and policies are still declared with the attributes, and go into the builder through their `descriptor`, and the rescue step through `rescued_by`:
 
@@ -42,9 +42,19 @@ region: workflow
 asynchronous: ch38_declaring_by_hand_async
 ```
 
-The rest is as earlier chapters show it: the lookup and `already_completed` in [chapter 22](22-finishing-a-journey-early.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), `RenewCard` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), the shipping in [chapter 17](17-giving-up-a-step-early.md), `outage` in [chapter 34](34-saying-which-attempt-took-the-money.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
+The rest is as earlier chapters show it: the lookup and `already_completed` in [chapter 22](22-finishing-a-journey-early.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), `RenewCard` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), the shipping in [chapter 17](17-giving-up-a-step-early.md), `outage` in [chapter 34](34-saying-which-attempt-took-the-money.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md), [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
 
-In the asynchronous form, the pricing implements `AsyncStep` and `AsyncStepFactory`, the audit `AsyncOnStepSuccess`, and every descriptor is made with its asynchronous constructor, such as `WorkflowDescriptor::async_builder`. `main` calls `orders()` once, before any journey, makes each order's instance with `orders.instance(Orders { channel: "email" })`, runs Ann's order and Jo's, and prints:
+In the asynchronous form, the pricing implements `AsyncStep` and `AsyncStepFactory`, the audit `AsyncOnStepSuccess`, the roles take `#[async_trait]`, and every descriptor is made with its asynchronous constructor, such as `WorkflowDescriptor::async_builder`.
+
+`main` calls `orders()` once, before any journey, and makes each order's instance with `orders.instance(Orders { channel: "email" })`:
+
+```example
+name: ch38_declaring_by_hand
+region: instance
+asynchronous: ch38_declaring_by_hand_async
+```
+
+In the asynchronous form, `order` makes the instance that way, `journey` runs it with `AsyncLocalExecutor::new()`, and `main` reads back only the audit line, as `Audited`, from [chapter 34](34-saying-which-attempt-took-the-money.md). `main` runs Ann's order and Jo's, and prints:
 
 ```output
 name: ch38_declaring_by_hand
@@ -53,7 +63,14 @@ asynchronous: ch38_declaring_by_hand_async
 
 ### A workflow put together wrongly
 
-This small shop is declared by hand with three mistakes: `ship` listed twice, two policies of the charge that both define `on step success`, and the parcels adapter attached to `shipping`, a step the workflow doesn't have:
+This small shop has steps and policies of its own, and `parcels_for` declares its adapter:
+
+```example
+name: ch38_violations
+region: shop
+```
+
+It is declared by hand with three mistakes: `ship` listed twice, two policies of the charge that both define `on step success`, and the parcels adapter attached to `shipping`, a step the workflow doesn't have:
 
 ```example
 name: ch38_violations
@@ -83,7 +100,7 @@ name: ch38_violations
 ## How it works
 
 1. **Both forms make the same descriptors.** A workflow is a **workflow descriptor**: its name, a step descriptor for each step in order, its policies, reporters, ID generator, input adapters and providers. The attributes write them from your types, and the long form writes them by hand. The executor runs either the same way.
-2. **Each attribute stands for a trait or a builder.** `#[step]` makes the step's `StepDescriptor`, through `descriptor(name)`, from what `#[derive(Step)]` says the step needs. `#[step_policy]` implements a trait for each hook and makes a `StepPolicyDescriptor`. `#[provider]` makes a `ServiceProviderDescriptor`, and `#[role]` implements `Provides<dyn Messages>` for the workflow. `#[workflow(...)]` builds the `WorkflowDescriptor` with `WorkflowDescriptor::builder`, once. And `local_executor_for!(Orders)` stands for `LocalExecutor::new()`, or `AsyncLocalExecutor::new()` for an asynchronous workflow, which this `main` uses.
+2. **Each attribute stands for a trait or a builder.** `#[step]` makes the step's `StepDescriptor`, through `descriptor(name)`, from what `#[derive(Step)]` says the step needs. `#[step_policy]` implements a trait for each hook and makes a `StepPolicyDescriptor`. `#[provider]` makes a `ServiceProviderDescriptor`, and `#[role]` implements `Provides` for the workflow. `#[workflow(...)]` builds the `WorkflowDescriptor` with `WorkflowDescriptor::builder`, once. And `local_executor_for!(Orders)` stands for `LocalExecutor::new()`, or `AsyncLocalExecutor::new()` for an asynchronous workflow.
 3. **A step is built afresh for every attempt.** The factory builds `Price` from what was resolved for that attempt, which is why `Price<'a>` borrows its contributor: it lives for one attempt. Nothing carries over to the next.
 4. **`build` checks the declaration, as admission.** It returns `Result<WorkflowDescriptor<Orders>, Violations>`: the workflow, or every violation found, each displayed as the specification names it. The attributes run the same checks while the program compiles, as [chapter 37](37-mistakes-caught-before-a-journey.md) showed; the long form runs them when the program starts.
 5. **The two forms mix.** Most of the shop here is still declared with the attributes. Write by hand only the part that needs it.

@@ -687,8 +687,6 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
@@ -696,6 +694,8 @@ fn supplied(data: Option<&AnyValue>) -> String {
         .unwrap_or_default()
 }
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),
@@ -790,6 +790,7 @@ impl Reporter for Desk {
     }
 }
 
+// ANCHOR: parts
 /// The shop's workflow, whose own value is the channel the shop tells its customers through.
 struct Orders {
     channel: &'static str,
@@ -823,7 +824,6 @@ impl Provides<dyn Messages> for Orders {
     }
 }
 
-// ANCHOR: parts
 const PARCEL: Input<Parcel> = Input::new("parcel");
 
 impl Orders {
@@ -961,6 +961,7 @@ struct Parcel {
     size: [i64; 3],
 }
 
+// ANCHOR: instance
 /// An instance of the shop's workflow for an order paid with this card.
 fn order(
     orders: &WorkflowDescriptor<Orders, Asynchronous>,
@@ -990,6 +991,7 @@ fn order(
 async fn journey(instance: Instance<Orders, Asynchronous>) -> Result<JourneyResult, Refusal> {
     AsyncLocalExecutor::new().run(instance).await
 }
+// ANCHOR_END: instance
 
 /// What the shop reads back once the journey has ended: the audit's line.
 #[derive(Output)]

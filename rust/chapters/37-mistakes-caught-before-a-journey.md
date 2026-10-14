@@ -15,6 +15,13 @@ name: ch37_listing
 region: listing
 ```
 
+`entry` writes each step's line from what the listing says about it, and `services`, with `service` for each one, writes the services of a step or of its rescue step:
+
+```example
+name: ch37_listing
+region: entry
+```
+
 It prints:
 
 ```output

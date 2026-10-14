@@ -150,7 +150,6 @@ fn detail(body: &EventBody) -> Option<String> {
 #[with_step(Charge, name = "charge")]
 #[with_step(Ship, name = "ship")]
 struct Orders;
-// ANCHOR_END: workflow
 
 #[workflow]
 impl Orders {
@@ -166,6 +165,7 @@ impl Orders {
         Ok(provide!(MainCarrier { max_weight: 20 }))
     }
 }
+// ANCHOR_END: workflow
 
 /// What the shop knows about an order when its journey starts.
 #[derive(InitialData)]

@@ -674,8 +674,6 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
@@ -683,6 +681,8 @@ fn supplied(data: Option<&AnyValue>) -> String {
         .unwrap_or_default()
 }
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),
@@ -948,6 +948,7 @@ fn entry(listed: &ListedStep) -> String {
     entry
 }
 
+// ANCHOR: follow_up
 /// What the counter reads back once the journey has ended.
 #[derive(Output)]
 struct Collected {
@@ -977,6 +978,7 @@ fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
 async fn journey(instance: Instance<Counter, Asynchronous>) -> Result<JourneyResult, Refusal> {
     local_executor_for!(Counter).run(instance).await
 }
+// ANCHOR_END: follow_up
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

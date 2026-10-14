@@ -41,7 +41,7 @@ region: orders
 asynchronous: ch31_stopping_a_journey_when_its_log_fails_async
 ```
 
-In the asynchronous form, `network`, which the logging service awaits, and `journey` are [chapter 26](26-running-async-journeys-while-others-wait.md)'s. It prints:
+In the asynchronous form, `network`, which the logging service awaits, `order` and `journey` are [chapter 26](26-running-async-journeys-while-others-wait.md)'s. It prints:
 
 ```output
 name: ch31_stopping_a_journey_when_its_log_fails

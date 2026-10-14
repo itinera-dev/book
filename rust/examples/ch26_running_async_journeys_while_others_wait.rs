@@ -635,6 +635,7 @@ struct Orders {
     channel: &'static str,
 }
 
+// ANCHOR: role_impls
 #[role]
 #[async_trait]
 impl Refunds for Orders {
@@ -652,6 +653,7 @@ impl Messages for Orders {
         println!("{} to {customer}: {message}", self.channel);
     }
 }
+// ANCHOR_END: role_impls
 
 #[workflow]
 impl Orders {
@@ -720,6 +722,7 @@ struct Parcel {
     size: [i64; 3],
 }
 
+// ANCHOR: run
 /// An instance of the shop's workflow for an order paid with this card.
 fn order(
     order: &str,
@@ -743,7 +746,6 @@ fn order(
         .create()?)
 }
 
-// ANCHOR: run
 /// Runs an order's journey with an executor of its own.
 async fn journey(instance: Instance<Orders, Asynchronous>) -> Result<JourneyResult, Refusal> {
     local_executor_for!(Orders).run(instance).await

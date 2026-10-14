@@ -604,7 +604,9 @@ fn detail(body: &EventBody) -> Option<String> {
             Some(key.clone())
         }
         EventBody::StepInfo { step, message, .. } => Some(format!("{}: {message}", step.step)),
+        // ANCHOR: metadata_set
         EventBody::GlobalMetadataSet { key, .. } => Some(key.clone()),
+        // ANCHOR_END: metadata_set
         EventBody::JourneyFailed { step, .. } => Some(step.to_string()),
         EventBody::JourneySucceeded {
             decided_by: Some(policy),

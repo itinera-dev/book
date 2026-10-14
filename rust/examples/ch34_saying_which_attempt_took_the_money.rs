@@ -751,6 +751,7 @@ struct Order {
     audit: Option<String>,
 }
 
+// ANCHOR: follow_up
 /// Says how an order's journey ended, and what explains it.
 fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
     match &result.status {
@@ -777,6 +778,7 @@ fn follow_up(result: &JourneyResult) -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+// ANCHOR_END: follow_up
 
 /// The cause of a failure, with the reason a step gave for it when it gave one.
 fn why(failure: &Failure) -> String {

@@ -6,14 +6,14 @@ The shop will keep gaining rules, and for each new one you want to know where it
 
 ## The code
 
-Every decision the shop has made so far has its place. The workflow's declaration, as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) shows it, names the steps, their policies, the rescue step and the retry budget; the ID generator, the providers and the input adapter are the workflow's methods, shown in [chapter 11](11-naming-a-journey.md), [chapter 13](13-a-carrier-for-each-attempt.md), [chapter 21](21-deciding-where-a-steps-data-comes-from.md), [chapter 22](22-finishing-a-journey-early.md) and [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md):
+Every decision the shop has made so far has its place. The workflow's declaration, as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) shows it, names the steps, their policies, the rescue step and the retry budget; the ID generator, the providers and the input adapter are the workflow's methods, shown in [chapter 11](11-naming-a-journey.md), [chapter 12](12-trying-again.md), [chapter 13](13-a-carrier-for-each-attempt.md), [chapter 21](21-deciding-where-a-steps-data-comes-from.md), [chapter 22](22-finishing-a-journey-early.md) and [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md):
 
 ```example
 name: ch37_listing
 region: workflow
 ```
 
-The rest is as earlier chapters show it: `lookup` and `already_completed` in [chapter 22](22-finishing-a-journey-early.md), `price` in [chapter 20](20-an-optional-input.md), `charge` in [chapter 33](33-giving-every-reporter-what-it-needs.md), `charge_rescue` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), `outage` and `audit` in [chapter 34](34-saying-which-attempt-took-the-money.md), `ship` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
+The rest is as earlier chapters show it: `lookup` and `already_completed` in [chapter 22](22-finishing-a-journey-early.md), `price` in [chapter 20](20-an-optional-input.md), `charge` in [chapter 33](33-giving-every-reporter-what-it-needs.md), `charge_rescue` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), `outage` and `audit` in [chapter 34](34-saying-which-attempt-took-the-money.md), `ship` in [chapter 17](17-giving-up-a-step-early.md), `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md), [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
 
 | Decision | Where it lives | Why there |
 |---|---|---|

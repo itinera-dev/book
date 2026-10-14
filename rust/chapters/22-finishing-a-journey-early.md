@@ -50,7 +50,7 @@ name: ch22_finishing_a_journey_early
 region: decided
 ```
 
-The rest is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s shop. `main` runs two orders, Ann's and Mia's:
+The rest is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s shop, and `Order`, the output, is [chapter 19](19-letting-policies-act-on-the-outside-world.md)'s. `main` runs two orders, Ann's and Mia's:
 
 ```example
 name: ch22_finishing_a_journey_early

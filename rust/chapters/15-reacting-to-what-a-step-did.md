@@ -38,6 +38,13 @@ region: charge
 
 The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`.
 
+The order's data now says whether it is a gift card, and the output holds the audit line:
+
+```example
+name: ch15_reacting_to_what_a_step_did
+region: data
+```
+
 The shop runs Ann's, Gil's and Jo's orders, then Kim's, reads back the audit line, and prints it:
 
 ```example

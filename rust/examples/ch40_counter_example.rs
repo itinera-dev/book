@@ -587,8 +587,6 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
@@ -596,6 +594,8 @@ fn supplied(data: Option<&AnyValue>) -> String {
         .unwrap_or_default()
 }
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),

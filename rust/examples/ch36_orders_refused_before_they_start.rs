@@ -602,8 +602,6 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
@@ -611,6 +609,8 @@ fn supplied(data: Option<&AnyValue>) -> String {
         .unwrap_or_default()
 }
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),
@@ -785,6 +785,7 @@ impl Orders {
     }
 }
 
+// ANCHOR: data
 /// What the shop knows about an order when its journey starts. An order with no card leaves it
 /// out.
 #[derive(InitialData)]
@@ -797,6 +798,7 @@ struct NewOrder {
     card: Option<String>,
     gift_card: bool,
 }
+// ANCHOR_END: data
 
 /// How the warehouse describes an order's parcel: its weight in kg, and its length, width and
 /// height in cm.

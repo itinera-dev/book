@@ -580,15 +580,17 @@ impl Log {
     }
 }
 
-/// What the log says after an event's kind, for the kinds it says more about: the step the event
-/// is about, and what it names.
+// ANCHOR: supplied
 /// The data a provider supplied with a service, when it is text.
 fn supplied(data: Option<&AnyValue>) -> String {
     data.and_then(|data| data.downcast_ref::<String>())
         .map(|data| format!(", with {data}"))
         .unwrap_or_default()
 }
+// ANCHOR_END: supplied
 
+/// What the log says after an event's kind, for the kinds it says more about: the step the event
+/// is about, and what it names.
 fn detail(body: &EventBody) -> Option<String> {
     match body {
         EventBody::JourneyStarted { initial_keys, .. } => Some(initial_keys.join(", ")),
@@ -598,6 +600,7 @@ fn detail(body: &EventBody) -> Option<String> {
         EventBody::StepSucceeded { step, .. } | EventBody::StepRetrying { step, .. } => {
             Some(step.step.to_string())
         }
+        // ANCHOR: service_provided
         EventBody::ServiceProvided {
             step,
             key,
@@ -610,6 +613,7 @@ fn detail(body: &EventBody) -> Option<String> {
             step.step,
             supplied(data.as_ref())
         )),
+        // ANCHOR_END: service_provided
         EventBody::StepFailed { step, reason, .. } => {
             Some(format!("{}: {}", step.step, reason.code()))
         }

@@ -8,7 +8,7 @@ The shop's bank and carriers answer over the network, and while one order waits 
 
 The shop is [chapter 25](25-reading-the-result.md)'s, written in Itinera's other execution mode: asynchronous. The asynchronous mode needs the `async` feature of `itinera`, which you turn on in `Cargo.toml` with `features = ["async"]`, and an async runtime to run the program's futures. The shop uses tokio, a crate you add to `Cargo.toml` too; Itinera works with any runtime.
 
-The payment client and the carrier now answer asynchronously, so their methods are `async fn`. The order book answers from the shop's own records without waiting, so it stays as it was. In Rust, a trait with `async fn` methods can't be used as `&dyn Payments`, the way a step asks for a service, unless it is marked `#[async_trait]`, from `itinera::mode`, and so is each implementation of it:
+The payment client and the carrier now answer asynchronously, so their methods are `async fn`, with [chapter 12](12-trying-again.md)'s errors. The order book answers from the shop's own records without waiting, so it stays as it was. In Rust, a trait with `async fn` methods can't be used as `&dyn Payments`, the way a step asks for a service, unless it is marked `#[async_trait]`, from `itinera::mode`, and so is each implementation of it:
 
 ```example
 name: ch26_running_async_journeys_while_others_wait
@@ -43,6 +43,13 @@ name: ch26_running_async_journeys_while_others_wait
 region: roles
 ```
 
+The workflow's implementations await `network` before they answer:
+
+```example
+name: ch26_running_async_journeys_while_others_wait
+region: role_impls
+```
+
 Each hook becomes an `async fn` as well, and awaits the roles it calls, and so does `refund`, which calls one:
 
 ```example
@@ -50,7 +57,7 @@ name: ch26_running_async_journeys_while_others_wait
 region: failed_shipping
 ```
 
-`main` runs three of the day's orders, Ann's, Gil's and Jo's, at the same time. `order`, not shown, makes each one's instance as chapter 25's `main` did, and `journey` runs it with an executor of its own, from `local_executor_for!`, as before. `#[tokio::main]` starts tokio's runtime and runs `main` on it, and `tokio::join!` awaits the three journeys together in `main`'s own task, so they take turns on the one thread that runs it, and the output is the same on every run. The runtime has several threads by default; with one, as `#[tokio::main(flavor = "current_thread")]` asks, the shop runs just the same.
+`main` runs three of the day's orders, Ann's, Gil's and Jo's, at the same time. `order` makes each one's instance as chapter 25's `main` did, and `journey` runs it with an executor of its own, from `local_executor_for!`, as before. `Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s. `#[tokio::main]` starts tokio's runtime and runs `main` on it, and `tokio::join!` awaits the three journeys together in `main`'s own task, so they take turns on the one thread that runs it, and the output is the same on every run. The runtime has several threads by default; with one, as `#[tokio::main(flavor = "current_thread")]` asks, the shop runs just the same.
 
 ```example
 name: ch26_running_async_journeys_while_others_wait
