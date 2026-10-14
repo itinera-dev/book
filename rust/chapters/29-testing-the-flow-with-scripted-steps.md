@@ -6,7 +6,7 @@ You want to check the shop's flow: that a declined card is rescued, that a parce
 
 ## The code
 
-The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders:
+The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). Each test makes an instance of the shop's workflow for one of Ann's orders. The workflow is declared as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) shows it, with the policy `outage` from [chapter 17](17-giving-up-a-step-early.md):
 
 ```example
 name: ch29_testing_the_flow_with_scripted_steps

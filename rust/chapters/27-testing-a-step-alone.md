@@ -16,7 +16,9 @@ region: module
 asynchronous: ch27_testing_a_step_alone_async
 ```
 
-A step meets the outside world only through its services, so the tests give it fakes of their own, inside the module. These two answer as the test chooses:
+The steps are the shop's own, unchanged since they were shown: the charge in [chapter 20](20-an-optional-input.md), its rescue step in [chapter 14](14-repairing-then-trying-once-more.md) and the shipping in [chapter 17](17-giving-up-a-step-early.md). This chapter shows only their tests.
+
+A step meets the outside world only through its services, so the tests give it fakes of their own, inside the module, implementing the services `Payments` and `Carrier` as [chapter 14](14-repairing-then-trying-once-more.md) and [chapter 12](12-trying-again.md) declared them. These two answer as the test chooses:
 
 ```example
 name: ch27_testing_a_step_alone

@@ -14,7 +14,7 @@ region: fakes
 asynchronous: ch28_testing_a_hook_or_an_adapter_alone_async
 ```
 
-`failed_shipping`'s hook `before_retrying` is called for Ned's shipping, with the reason each test chooses, and the tests read the decision it returns and the refunds it asked for. Its hook `given_up` is called with the cause `retries exhausted`, as for Oli's shipping, and the test also reads the refund it contributed:
+The policies and the adapter are the shop's own, unchanged since they were shown: the audit in [chapter 20](20-an-optional-input.md), `notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md), the adapter in [chapter 21](21-deciding-where-a-steps-data-comes-from.md) and `failed_shipping` in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md). This chapter shows only their tests. `failed_shipping`'s hook `before_retrying` is called for Ned's shipping, with the reason each test chooses, and the tests read the decision it returns and the refunds it asked for. Its hook `given_up` is called with the cause `retries exhausted`, as for Oli's shipping, and the test also reads the refund it contributed:
 
 ```example
 name: ch28_testing_a_hook_or_an_adapter_alone

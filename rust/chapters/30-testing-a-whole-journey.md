@@ -6,7 +6,7 @@ You want to run one order through the shop's real steps and policies, from start
 
 ## The code
 
-The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). The tests bring their own bank, which charges or is down, and their own carrier, which collects every parcel or none:
+The program is [chapter 25](25-reading-the-result.md)'s shop, with its tests in a module that only a test build compiles, as in [chapter 27](27-testing-a-step-alone.md). The tests bring their own bank, which charges or is down, and their own carrier, which collects every parcel or none, implementing `Payments` and `Carrier` as [chapter 14](14-repairing-then-trying-once-more.md) and [chapter 12](12-trying-again.md) declared them:
 
 ```example
 name: ch30_testing_a_whole_journey
@@ -14,7 +14,7 @@ region: fakes
 asynchronous: ch30_testing_a_whole_journey_async
 ```
 
-Each test runs an order through `path_of`, which makes an instance of the shop's workflow, as `main` does, with two more calls on its builder: `fake_provider`, which comes with the `testing` feature, and `reporter`, which any journey's builder has. `fake_provider` names one of the workflow's providers, `bank` or `carriers`, and gives a function the executor calls in its place; the type in `::<...>` is the service it provides. `reporter` adds a `RecordingReporter`, from `itinera::report`, which also comes with the `testing` feature, to the journey's reporters. It keeps every event, and its clones share what they keep, so the test reads the events from the clone it kept. Its `path` gives the journey's path:
+Each test runs an order through `path_of`, which makes an instance of the shop's workflow, as `main` does, with two more calls on its builder: `fake_provider`, which comes with the `testing` feature, and `reporter`, which any journey's builder has. `fake_provider` names one of the workflow's providers, `bank`, from [chapter 7](07-giving-a-step-the-tools-it-needs.md), or `carriers`, from [chapter 13](13-a-carrier-for-each-attempt.md), and gives a function the executor calls in its place; the type in `::<...>` is the service it provides. `reporter` adds a `RecordingReporter`, from `itinera::report`, which also comes with the `testing` feature, to the journey's reporters. It keeps every event, and its clones share what they keep, so the test reads the events from the clone it kept. Its `path` gives the journey's path:
 
 ```example
 name: ch30_testing_a_whole_journey
@@ -22,7 +22,7 @@ region: path
 asynchronous: ch30_testing_a_whole_journey_async
 ```
 
-The shop approves the path of each kind of order once, and writes it down. Each test compares a journey's path with the approved one:
+The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Each test compares a journey's path with the approved one:
 
 ```example
 name: ch30_testing_a_whole_journey
