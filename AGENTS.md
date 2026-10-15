@@ -32,9 +32,15 @@ Use the words defined in chapter 1 of the specification, [01-concepts.md](https:
 
 ## Commits and pull requests
 
-- Work on a branch; never push to `main` directly.
+- Work on a branch; never push to `main` directly, except for a release, as the next item says.
+- Only a release's changes go straight to `main`, with no pull request, and its merge back into `next` goes straight to `next`. They are:
+  1. merging `next` into `main` at the new version, as item 5 of "How the examples are checked" in BOOK.md says;
+  2. updating, on `main`, the pages that name the version;
+  3. merging `main` back into `next`, which keeps naming the commit of the language's repository that it already names, as item 6 says.
+
+  They are pushed once three checks pass: the language's examples, such as `cargo test --locked` in `rust/`; the site, with `npm run verify` in `site/`; and a separate reviewer agent. The maintainer then tags the last of these commits on `main`.
 - Commit messages and pull request descriptions say what changed and why, in plain prose.
-- Every change an agent makes is reviewed by a separate reviewer agent before its pull request is opened. The reviewer checks it against this manual, BOOK.md and FORMAT.md, starting with "Each idea in its own chapter" in BOOK.md.
+- Every change an agent makes is reviewed by a separate reviewer agent before its pull request is opened, or, for a release, before it is pushed. The reviewer checks it against this manual, BOOK.md and FORMAT.md, starting with "Each idea in its own chapter" in BOOK.md.
 
 ## Working with the maintainer
 
