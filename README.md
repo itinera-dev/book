@@ -4,7 +4,7 @@ A book about [Itinera](https://github.com/itinera-dev/spec), a workflow framewor
 
 ## Status
 
-Not published yet. The first book is for Rust, in [rust/](rust/), with [itinera-rs](https://github.com/itinera-dev/itinera-rs). Once published, the book will be at <https://itinera-dev.org/book/>, built by [the site](site/README.md).
+Published at <https://itinera-dev.org/book/>, built by [the site](site/README.md). The first book is for Rust, in [rust/](rust/), with [itinera-rs](https://github.com/itinera-dev/itinera-rs): the book for its latest release is at <https://itinera-dev.org/book/rust/>, the book ahead of the next release at <https://itinera-dev.org/book/rust/next/>, and each release's book, frozen, at `/book/rust/VERSION/` once the release is tagged, as [BOOK.md](BOOK.md#where-editions-are-published) says.
 
 ## Who it is for
 
