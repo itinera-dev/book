@@ -1,12 +1,11 @@
 //! Declaring by hand: a workflow put together wrongly is refused with every violation, before any
 //! journey.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::journey::Contributor;
-use itinera::policy::{HookNeeds, InputAdapter, OnSuccess, Requested, StepPolicy, step_policy};
+use itinera::policy::{HookNeeds, OnSuccess, Requested, StepPolicy, step_policy};
 use itinera::step::{DescribedStep, Input, Outcome, Step, StepName, step, step_name};
-use itinera::value::AnyValue;
-use itinera::workflow::{InputAdapterDescriptor, WorkflowDescriptor};
+use itinera::workflow::{InputAdapter, InputAdapterDescriptor, Supplied, WorkflowDescriptor};
 use serde::{Deserialize, Serialize};
 
 // ANCHOR: shop
@@ -19,7 +18,7 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -38,7 +37,7 @@ struct Ship {
 
 #[step]
 impl Ship {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         Self::succeed()
     }
 }
@@ -53,10 +52,10 @@ impl Audit {
     fn audited(
         &self,
         #[from_step] charged: i64,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnSuccess> {
         contributor.contribute("audit", format!("charged {charged}"));
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -70,10 +69,10 @@ impl Receipts {
     fn written(
         &self,
         #[from_step] charged: i64,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnSuccess> {
         contributor.contribute("receipt", format!("R-{charged}"));
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -91,14 +90,11 @@ const PARCEL: Input<Parcel> = Input::new("parcel");
 
 /// Gives the shipping the weight of the order's parcel. Every other input is read from the data
 /// bag.
-fn parcels(
-    _: &Orders,
-    mut got: Requested<'_, Orders, InputAdapter>,
-) -> Result<Option<AnyValue>, Error> {
+fn parcels(_: &Orders, mut got: Requested<'_, Orders, InputAdapter>) -> Result<Supplied> {
     if got.key() != "weight" {
-        return Ok(None);
+        return Ok(Supplied::FromDataBag);
     }
-    Ok(Some(AnyValue::new(got.from_workflow(&PARCEL)?.weight)))
+    Ok(Supplied::value(got.from_workflow(&PARCEL)?.weight))
 }
 
 /// Declares the parcels adapter, attached to the step of this name.

@@ -3,7 +3,7 @@
 
 use std::fmt;
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody};
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
@@ -118,8 +118,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -151,9 +151,9 @@ impl Ship {
     fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+        mut reporter: StepReporter,
+    ) -> Result<Outcome> {
         let tracking = carrier.book(&self.order, self.weight)?;
         contributor.contribute("tracking", tracking);
         if !carrier.collects(self.weight) {
@@ -171,7 +171,7 @@ impl Ship {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match detail(&event.body) {
             Some(detail) => println!(
                 "log {} {} #{} {} {detail}",
@@ -234,7 +234,7 @@ fn detail(body: &EventBody) -> Option<String> {
 struct Desk;
 
 impl Reporter for Desk {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         if let EventBody::JourneyFailed { step, .. } = &event.body {
             println!("desk: order {} failed at {step}", event.journey_id);
         }
@@ -260,21 +260,21 @@ struct Orders;
 impl Orders {
     /// Names each journey after its order.
     #[id_generator]
-    fn order_number(&self, data: &DataBag) -> Result<String, Error> {
+    fn order_number(&self, data: &DataBag) -> Result<String> {
         Ok(data.required("order")?)
     }
 
     // ANCHOR: bank
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(Bank { this_year: 2026 }))
     }
     // ANCHOR_END: bank
 
     /// The main carrier, as the carrier of the journey.
     #[provider(key = "carrier")]
-    fn main_carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
+    fn main_carrier(&self) -> Result<Provided<dyn Carrier>> {
         Ok(provide!(MainCarrier { max_weight: 20 }))
     }
 }

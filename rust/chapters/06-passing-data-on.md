@@ -6,7 +6,7 @@ When the bank charges an order, it gives a receipt. You want the charge to give 
 
 ## The code
 
-The charge now asks for the order's number as well as its price. The bank, still faked, gives a receipt, and the charge hands it on through a **contributor**, a parameter of `run` marked `#[contributor]`.
+The charge now asks for the order's number as well as its price. The bank, still faked, gives a receipt, and the charge hands it on through a **contributor**, a parameter of `run` of type `&mut Contributor`.
 
 ```example
 name: ch06_passing_data_on
@@ -56,7 +56,7 @@ name: ch06_passing_data_on
 
 ## How it works
 
-1. **A step gives back what it did by contributing it.** The contributor's `contribute` method takes a name and a value: here the receipt, under `receipt`. What a step gives this way is a **contribution**, and its names need no declaring in advance. A step's `Contributor<'_>` belongs to one **attempt**, one run of the step: the `'_` ties the contributor to that attempt, and it serves no other.
+1. **A step gives back what it did by contributing it.** The contributor's `contribute` method takes a name and a value: here the receipt, under `receipt`. What a step gives this way is a **contribution**, and its names need no declaring in advance. A step's contributor belongs to one **attempt**, one run of the step: `run` borrows it for that attempt only, and it serves no other.
 2. **The journey's data is its data bag.** A journey holds its data in its **data bag**: values under names. It starts as the initial data, and a step's contributions are committed to it when its attempt succeeds. Only values go in: data that could be serialized, such as numbers, strings, and structs that derive `Clone` and Serde's `Serialize` and `Deserialize`.
 3. **A later step reads a contribution as an ordinary input.** The shipping asks for `receipt` with an `#[input]` field, just as it asks for the order's number, which came from the initial data. It doesn't know the charge made the receipt, and the charge doesn't know anyone reads it. **A step never calls another step: it reads what an earlier one contributed, by name.**
 4. **The steps run in the order the workflow lists them.** The charge's line comes first, so the charge runs first, and once it has succeeded, the shipping runs. Nothing reorders them: to read what the shop does with an order, you read the workflow's list, top to bottom.

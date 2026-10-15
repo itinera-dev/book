@@ -1,8 +1,8 @@
 //! A hook that returns a lifecycle it may not return: finishing the journey after a failure.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
-use itinera::policy::{FailWorkflow, step_policy};
+use itinera::policy::{OnFailure, step_policy};
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
 
@@ -12,7 +12,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         Self::fail("nothing-to-charge")
     }
 }
@@ -24,7 +24,7 @@ struct Forgive;
 #[step_policy(name = "forgive")]
 impl Forgive {
     #[on_step_failure]
-    fn forgiven(&self) -> Result<Option<FailWorkflow>, Error> {
+    fn forgiven(&self) -> Result<OnFailure> {
         Self::finish_workflow()
     }
 }

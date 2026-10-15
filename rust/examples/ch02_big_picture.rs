@@ -2,16 +2,14 @@
 //! with the backup carrier on the second attempt, the audit and notify policies, and the services
 //! the steps use.
 
-use std::num::NonZeroU32;
-
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody, HookSource};
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, Failure, InitialData, JourneyStatus, LastFailure};
 use itinera::policy::{HookReporter, OnSuccess, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
-use itinera::step::{Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
+use itinera::step::{Attempt, Outcome, Reason, RescueOutcome, RescueStep, Step, rescue_step, step};
 use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 
 // ANCHOR: workflow
@@ -139,7 +137,7 @@ struct Reserve {
 
 #[step]
 impl Reserve {
-    fn run(self, #[service] stock: &dyn StockStore) -> Result<Outcome, Error> {
+    fn run(self, #[service] stock: &dyn StockStore) -> Result<Outcome> {
         if !stock.reserve(&self.order) {
             return Self::fail("out-of-stock");
         }
@@ -165,8 +163,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         let amount = self.price - self.discount.unwrap_or(0);
         match payments.charge(&self.card, amount) {
             Ok(receipt) => {
@@ -189,7 +187,6 @@ impl Charge {
 struct RenewCard {
     #[input]
     card: String,
-    #[reason]
     reason: Option<Reason>,
 }
 
@@ -198,8 +195,8 @@ impl RenewCard {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<RescueOutcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<RescueOutcome> {
         if self.reason.as_ref().map(Reason::code) != Some("expired-card") {
             return Self::fail("nothing-to-renew");
         }
@@ -230,8 +227,8 @@ impl Ship {
         self,
         #[service] carrier: &dyn Carrier,
         #[service] stock: &dyn StockStore,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         let Some(tracking) = carrier.send(&self.order, self.weight) else {
             return Self::fail("parcel-refused");
         };
@@ -255,10 +252,10 @@ impl Audit {
         &self,
         #[from_step] charged: i64,
         #[from_step] receipt: String,
-        #[reporter] mut reporter: HookReporter<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        mut reporter: HookReporter,
+    ) -> Result<OnSuccess> {
         reporter.info(format!("charged {charged}, receipt {receipt}"))?;
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -280,7 +277,7 @@ impl Notify {
         #[from_workflow] order: String,
         #[from_workflow] tracking: String,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         messages.tell(
             &customer,
             &format!("order {order} is on its way: {tracking}"),
@@ -294,7 +291,7 @@ impl Notify {
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         messages.tell(&customer, &format!("order {order} could not be completed"));
         Ok(())
     }
@@ -308,7 +305,7 @@ impl Notify {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match &event.body {
             EventBody::StepFailed { step, reason, .. } => {
                 let code = reason.code();
@@ -338,20 +335,20 @@ impl Reporter for Log {
 impl Orders {
     /// One payment client for the journey, used by the charge and its rescue step.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(BANK))
     }
 
     /// One stock store for the journey, shared by reserve and ship.
     #[provider(key = "stock")]
-    fn warehouse(&self) -> Result<Provided<dyn StockStore>, Error> {
+    fn warehouse(&self) -> Result<Provided<dyn StockStore>> {
         Ok(provide!(WAREHOUSE))
     }
 
     /// A carrier for every attempt: the main carrier first, the backup carrier after.
     #[provider(per_attempt)]
-    fn carrier(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
-        if attempt.get() == 1 {
+    fn carrier(&self, attempt: Attempt) -> Result<Provided<dyn Carrier>> {
+        if attempt.is_first() {
             Ok(provide!(MAIN_CARRIER))
         } else {
             Ok(provide!(BACKUP_CARRIER))

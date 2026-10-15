@@ -34,7 +34,7 @@ region: charge
 asynchronous: ch27_testing_a_step_alone_async
 ```
 
-The rescue step is built the same way, with the reason the test chooses in its `#[reason]` field:
+The rescue step is built the same way, with the reason the test chooses in its `reason` field:
 
 ```example
 name: ch27_testing_a_step_alone
@@ -61,7 +61,7 @@ asynchronous: ch27_testing_a_step_alone_async
 
 ## How it works
 
-1. **A step is a value with a method.** The test builds it by naming its inputs, and calls `run` with what its parameters ask for: a service, a contributor, a reporter. The attributes on those parameters tell the executor what to give them in a journey; in a test, you give them yourself. The steps are the shop's own, unchanged.
+1. **A step is a value with a method.** The test builds it by naming its inputs, and calls `run` with what its parameters ask for: a service, a contributor, a reporter. Their types, and the service's `#[service]`, tell the executor what to give them in a journey; in a test, you give them yourself. The steps are the shop's own, unchanged.
 2. **A step is tested through its outcome.** `run` returns the outcome, and `is_success` and `reason` read it. A declined card fails the charge with `card-expired`, and a parcel of 90 kg fails the shipping with `over-parcel-limit`. That fake carrier's booking system is down, so the shipping would have returned the carrier's error had it booked anything: it refused the parcel before calling the carrier.
 3. **An error escapes as it would in a journey.** When the bank is down, the charge's `run` returns an `Err`, which the executor would record as an abnormal termination, as [chapter 12](12-trying-again.md) showed. The test checks that the error escapes; what happens next is the workflow's decision, not the step's.
 4. **Recorders lend what the executor would.** In a journey, the executor makes a step's contributor and step reporter for each attempt. In a test, `Contributions` and `StepEventReporter` lend them and keep what they receive. A recorder only keeps what it is given: committing a successful attempt's contributions is the executor's work.

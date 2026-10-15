@@ -1,7 +1,7 @@
 //! Giving a step the tools it needs: the workflow provides the bank and the carrier, and the
 //! steps use them without knowing which ones they got.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::service::{Provided, provide};
@@ -63,8 +63,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -91,8 +91,8 @@ impl Ship {
     fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         let tracking = carrier.book(&self.order);
         contributor.contribute("tracking", tracking);
         if !carrier.collects(self.weight) {
@@ -115,14 +115,14 @@ struct Orders;
 impl Orders {
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         println!("the shop connects to the bank");
         Ok(provide!(Bank))
     }
 
     /// The main carrier, for the journey.
     #[provider]
-    fn carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
+    fn carrier(&self) -> Result<Provided<dyn Carrier>> {
         println!("the shop calls the carrier");
         Ok(provide!(MainCarrier { max_weight: 20 }))
     }

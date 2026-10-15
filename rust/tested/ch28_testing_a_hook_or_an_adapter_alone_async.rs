@@ -2,23 +2,21 @@
 //! policies' hooks and its workflow's adapter outside any journey.
 
 use std::fmt;
-use std::num::NonZeroU32;
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::{Refusal, local_executor_for};
 use itinera::instance::Instance;
 use itinera::journey::{Contributor, DataBag, InitialData, JourneyResult};
 use itinera::mode::{Asynchronous, async_trait};
-use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
+use itinera::policy::{OnFailure, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
-    AsyncStepReporter, Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, rescue_step,
-    step,
+    AsyncStepReporter, Attempt, Outcome, Reason, RescueOutcome, RescueStep, Step, StepName,
+    rescue_step, step,
 };
-use itinera::value::AnyValue;
-use itinera::workflow::{role, workflow};
+use itinera::workflow::{Supplied, role, workflow};
 use serde::{Deserialize, Serialize};
 
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
@@ -200,8 +198,8 @@ impl Lookup {
     async fn run(
         self,
         #[service] order_book: &dyn OrderBook,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         contributor.contribute("completed", order_book.completed(&self.order));
         Self::succeed()
     }
@@ -215,11 +213,11 @@ struct AlreadyCompleted;
 #[step_policy(name = "already_completed")]
 impl AlreadyCompleted {
     #[on_step_success]
-    async fn looked_up(&self, #[from_step] completed: bool) -> Result<Option<OnSuccess>, Error> {
+    async fn looked_up(&self, #[from_step] completed: bool) -> Result<OnSuccess> {
         if completed {
             return Self::finish_workflow();
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -235,7 +233,7 @@ struct Price {
 
 #[step]
 impl Price {
-    async fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    async fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         contributor.contribute("amount", self.price - self.discount.unwrap_or(0));
         Self::succeed()
     }
@@ -260,8 +258,8 @@ impl Charge {
     async fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -285,7 +283,6 @@ impl Charge {
 struct RenewCard {
     #[input]
     card: String,
-    #[reason]
     reason: Reason,
 }
 
@@ -294,8 +291,8 @@ impl RenewCard {
     async fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<RescueOutcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<RescueOutcome> {
         if self.reason.code() != "card-expired" {
             return Self::fail("not-repairable");
         }
@@ -317,13 +314,13 @@ impl Audit {
     #[on_step_success]
     async fn charged(
         &self,
-        #[step_name] step: StepName,
+        step: StepName,
         #[from_workflow] amount: i64,
         #[from_step] receipt: String,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnSuccess> {
         contributor.contribute("audit", format!("{step} took {amount}, receipt {receipt}"));
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -353,7 +350,7 @@ impl Notify {
         #[from_workflow] tracking: Option<String>,
         #[from_workflow] code: Option<String>,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         let message = match (tracking, code) {
             (Some(tracking), _) => format!("Order {order} is on its way, tracking {tracking}."),
             (None, Some(code)) => {
@@ -371,7 +368,7 @@ impl Notify {
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         messages
             .tell(
                 &customer,
@@ -390,7 +387,7 @@ struct Outage;
 #[step_policy(name = "outage")]
 impl Outage {
     #[on_step_abnormal_termination]
-    async fn ended_in_error(&self) -> Result<Option<FailWorkflow>, Error> {
+    async fn ended_in_error(&self) -> Result<OnFailure> {
         Self::fail_workflow("payment-network-down")
     }
 }
@@ -406,39 +403,39 @@ impl FailedShipping {
     #[on_step_retry]
     async fn before_retrying(
         &self,
-        #[reason] reason: Option<Reason>,
+        reason: Option<Reason>,
         #[from_workflow] receipt: String,
         #[from_workflow] amount: i64,
         #[role] refunds: &dyn Refunds,
-        #[contributor] contributor: Contributor<'_>,
-    ) -> Result<Option<FailWorkflow>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnFailure> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
             self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit")
                 .await;
             return Self::fail_workflow("no-carrier-can-take-it");
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 
     #[on_step_failure]
     async fn given_up(
         &self,
-        #[cause] cause: StepFailureCause,
+        cause: StepFailureCause,
         #[from_workflow] receipt: String,
         #[from_workflow] amount: i64,
         #[role] refunds: &dyn Refunds,
-        #[contributor] contributor: Contributor<'_>,
-    ) -> Result<Option<FailWorkflow>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnFailure> {
         self.refund(refunds, contributor, &receipt, amount, &cause.to_string())
             .await;
-        Self::carry_on()
+        Self::keep_default()
     }
 
     /// Gives the order's money back, and records why.
     async fn refund(
         &self,
         refunds: &dyn Refunds,
-        mut contributor: Contributor<'_>,
+        contributor: &mut Contributor,
         receipt: &str,
         amount: i64,
         why: &str,
@@ -468,9 +465,9 @@ impl Ship {
     async fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: AsyncStepReporter<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+        mut reporter: AsyncStepReporter<'_>,
+    ) -> Result<Outcome> {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
         }
@@ -495,7 +492,7 @@ impl Ship {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match detail(&event.body) {
             Some(detail) => println!(
                 "log {} {} #{} {} {detail}",
@@ -601,7 +598,7 @@ fn detail(body: &EventBody) -> Option<String> {
 struct Desk;
 
 impl Reporter for Desk {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         if let EventBody::JourneyFailed { step, .. } = &event.body {
             println!("desk: order {} failed at {step}", event.journey_id);
         }
@@ -645,18 +642,14 @@ impl Messages for Orders {
 impl Orders {
     /// Names each journey after its order.
     #[id_generator]
-    fn order_number(&self, data: &DataBag) -> Result<String, Error> {
+    fn order_number(&self, data: &DataBag) -> Result<String> {
         Ok(data.required("order")?)
     }
 
     /// Gives the shipping the weight of the order's parcel, as the warehouse describes it. Every
     /// other input of the shipping is read from the data bag.
     #[input_adapter(steps = ["ship"])]
-    fn parcels(
-        &self,
-        #[key] key: &str,
-        #[from_workflow] parcel: Parcel,
-    ) -> Result<Option<AnyValue>, Error> {
+    fn parcels(&self, #[key] key: &str, #[from_workflow] parcel: Parcel) -> Result<Supplied> {
         if key != "weight" {
             return Self::from_data_bag();
         }
@@ -665,7 +658,7 @@ impl Orders {
 
     /// The order book, which has the orders completed before today.
     #[provider(key = "order_book")]
-    fn ledger(&self) -> Result<Provided<dyn OrderBook>, Error> {
+    fn ledger(&self) -> Result<Provided<dyn OrderBook>> {
         Ok(provide!(Ledger {
             completed: vec!["A-13"],
         }))
@@ -673,14 +666,14 @@ impl Orders {
 
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(Bank { this_year: 2026 }))
     }
 
     /// A carrier for every attempt of a step: the main carrier first, the backup carrier after.
     #[provider(key = "carrier", per_attempt)]
-    fn carriers(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
-        if attempt == NonZeroU32::MIN {
+    fn carriers(&self, attempt: Attempt) -> Result<Provided<dyn Carrier>> {
+        if attempt.is_first() {
             return Ok(provide!(MainCarrier));
         }
         Ok(provide!(BackupCarrier))
@@ -784,7 +777,6 @@ mod tests {
     use std::sync::Mutex;
 
     use itinera::journey::{Contributions, Read};
-    use itinera::policy::ReturnedLifecycle;
     use itinera::step::step_name;
 
     use super::*;
@@ -824,9 +816,7 @@ mod tests {
     // ANCHOR: failed_shipping
     /// What `before_retrying` decides for Ned's shipping, which failed with this reason after he
     /// paid 50, and the refunds it asked for.
-    async fn before_retrying(
-        reason: Option<Reason>,
-    ) -> Result<(Option<FailWorkflow>, Vec<String>), Error> {
+    async fn before_retrying(reason: Option<Reason>) -> Result<(OnFailure, Vec<String>)> {
         let refunds = TestRefunds::default();
         let mut contributions = Contributions::default();
         let decision = FailedShipping
@@ -843,7 +833,7 @@ mod tests {
 
     #[tokio::test]
     async fn failed_shipping_refunds_and_gives_up_a_shipping_that_failed_with_over_parcel_limit()
-    -> Result<(), Error> {
+    -> Result<()> {
         let (decision, refunds) = before_retrying(Some(Reason::from("over-parcel-limit"))).await?;
         assert_eq!(
             decision.fails_workflow().map(Reason::code),
@@ -854,8 +844,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn failed_shipping_lets_a_shipping_that_failed_with_too_heavy_be_retried()
-    -> Result<(), Error> {
+    async fn failed_shipping_lets_a_shipping_that_failed_with_too_heavy_be_retried() -> Result<()> {
         let (decision, refunds) = before_retrying(Some(Reason::from("too-heavy"))).await?;
         assert!(decision.keeps_default());
         assert!(refunds.is_empty());
@@ -863,8 +852,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn failed_shipping_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<(), Error>
-    {
+    async fn failed_shipping_lets_a_shipping_that_ended_in_an_error_be_retried() -> Result<()> {
         let (decision, refunds) = before_retrying(None).await?;
         assert!(decision.keeps_default());
         assert!(refunds.is_empty());
@@ -872,7 +860,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn failed_shipping_refunds_a_shipping_the_executor_gave_up() -> Result<(), Error> {
+    async fn failed_shipping_refunds_a_shipping_the_executor_gave_up() -> Result<()> {
         let refunds = TestRefunds::default();
         let mut contributions = Contributions::default();
         let decision = FailedShipping
@@ -896,7 +884,7 @@ mod tests {
 
     // ANCHOR: audit
     #[tokio::test]
-    async fn audit_writes_the_step_the_amount_and_the_receipt() -> Result<(), Error> {
+    async fn audit_writes_the_step_the_amount_and_the_receipt() -> Result<()> {
         let mut contributions = Contributions::default();
         Audit
             .charged(
@@ -916,8 +904,7 @@ mod tests {
 
     // ANCHOR: notify
     #[tokio::test]
-    async fn notify_gives_a_gift_cards_code_and_says_sorry_for_a_failed_order() -> Result<(), Error>
-    {
+    async fn notify_gives_a_gift_cards_code_and_says_sorry_for_a_failed_order() -> Result<()> {
         let messages = TestMessages::default();
         Notify
             .succeeded(
@@ -952,21 +939,16 @@ mod tests {
     }
 
     #[test]
-    fn parcels_gives_the_shipping_the_parcels_weight() -> Result<(), Error> {
+    fn parcels_gives_the_shipping_the_parcels_weight() -> Result<()> {
         let weight = Orders { channel: "email" }.parcels("weight", gils_parcel())?;
-        assert_eq!(
-            weight
-                .as_ref()
-                .and_then(|value| value.downcast_ref::<i64>()),
-            Some(&60)
-        );
+        assert_eq!(weight.downcast_ref::<i64>(), Some(&60));
         Ok(())
     }
 
     #[test]
-    fn parcels_leaves_every_other_input_to_the_data_bag() -> Result<(), Error> {
+    fn parcels_leaves_every_other_input_to_the_data_bag() -> Result<()> {
         let receipt = Orders { channel: "email" }.parcels("receipt", gils_parcel())?;
-        assert!(receipt.is_none());
+        assert!(matches!(receipt, Supplied::FromDataBag));
         Ok(())
     }
     // ANCHOR_END: adapter

@@ -3,23 +3,22 @@
 //! approved.
 
 use std::fmt;
-use std::num::NonZeroU32;
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::local_executor_for;
 use itinera::journey::{
     Abort, Contributor, DataBag, Failure, InitialData, JourneyResult, JourneyStatus, MissingData,
     Output,
 };
-use itinera::policy::{FailWorkflow, OnSuccess, StepFailureCause, step_policy, workflow_policy};
+use itinera::policy::{OnFailure, OnSuccess, StepFailureCause, step_policy, workflow_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
-    Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step, step,
+    Attempt, Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step,
+    step,
 };
-use itinera::value::AnyValue;
-use itinera::workflow::{role, workflow};
+use itinera::workflow::{Supplied, role, workflow};
 use serde::{Deserialize, Serialize};
 
 /// A payment client: it charges an order's amount to a card, and gives back a receipt, or nothing
@@ -173,8 +172,8 @@ impl Lookup {
     fn run(
         self,
         #[service] order_book: &dyn OrderBook,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         contributor.contribute("completed", order_book.completed(&self.order));
         Self::succeed()
     }
@@ -188,11 +187,11 @@ struct AlreadyCompleted;
 #[step_policy(name = "already_completed")]
 impl AlreadyCompleted {
     #[on_step_success]
-    fn looked_up(&self, #[from_step] completed: bool) -> Result<Option<OnSuccess>, Error> {
+    fn looked_up(&self, #[from_step] completed: bool) -> Result<OnSuccess> {
         if completed {
             return Self::finish_workflow();
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -208,7 +207,7 @@ struct Price {
 
 #[step]
 impl Price {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         contributor.contribute("amount", self.price - self.discount.unwrap_or(0));
         Self::succeed()
     }
@@ -233,8 +232,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.amount <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -255,7 +254,6 @@ impl Charge {
 struct RenewCard {
     #[input]
     card: String,
-    #[reason]
     reason: Reason,
 }
 
@@ -264,8 +262,8 @@ impl RenewCard {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<RescueOutcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<RescueOutcome> {
         if self.reason.code() != "card-expired" {
             return Self::fail("not-repairable");
         }
@@ -287,13 +285,13 @@ impl Audit {
     #[on_step_success]
     fn charged(
         &self,
-        #[step_name] step: StepName,
+        step: StepName,
         #[from_workflow] amount: i64,
         #[from_step] receipt: String,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnSuccess> {
         contributor.contribute("audit", format!("{step} took {amount}, receipt {receipt}"));
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -321,7 +319,7 @@ impl Notify {
         #[from_workflow] tracking: Option<String>,
         #[from_workflow] code: Option<String>,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         let message = match (tracking, code) {
             (Some(tracking), _) => format!("Order {order} is on its way, tracking {tracking}."),
             (None, Some(code)) => {
@@ -339,7 +337,7 @@ impl Notify {
         #[from_workflow] customer: String,
         #[from_workflow] order: String,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         messages.tell(
             &customer,
             &format!("Sorry, order {order} could not be completed."),
@@ -356,7 +354,7 @@ struct Outage;
 #[step_policy(name = "outage")]
 impl Outage {
     #[on_step_abnormal_termination]
-    fn ended_in_error(&self) -> Result<Option<FailWorkflow>, Error> {
+    fn ended_in_error(&self) -> Result<OnFailure> {
         Self::fail_workflow("payment-network-down")
     }
 }
@@ -372,37 +370,37 @@ impl FailedShipping {
     #[on_step_retry]
     fn before_retrying(
         &self,
-        #[reason] reason: Option<Reason>,
+        reason: Option<Reason>,
         #[from_workflow] receipt: String,
         #[from_workflow] amount: i64,
         #[role] refunds: &dyn Refunds,
-        #[contributor] contributor: Contributor<'_>,
-    ) -> Result<Option<FailWorkflow>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnFailure> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
             self.refund(refunds, contributor, &receipt, amount, "over-parcel-limit");
             return Self::fail_workflow("no-carrier-can-take-it");
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 
     #[on_step_failure]
     fn given_up(
         &self,
-        #[cause] cause: StepFailureCause,
+        cause: StepFailureCause,
         #[from_workflow] receipt: String,
         #[from_workflow] amount: i64,
         #[role] refunds: &dyn Refunds,
-        #[contributor] contributor: Contributor<'_>,
-    ) -> Result<Option<FailWorkflow>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnFailure> {
         self.refund(refunds, contributor, &receipt, amount, &cause.to_string());
-        Self::carry_on()
+        Self::keep_default()
     }
 
     /// Gives the order's money back, and records why.
     fn refund(
         &self,
         refunds: &dyn Refunds,
-        mut contributor: Contributor<'_>,
+        contributor: &mut Contributor,
         receipt: &str,
         amount: i64,
         why: &str,
@@ -432,9 +430,9 @@ impl Ship {
     fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+        mut reporter: StepReporter,
+    ) -> Result<Outcome> {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
         }
@@ -457,7 +455,7 @@ impl Ship {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match detail(&event.body) {
             Some(detail) => println!(
                 "log {} {} #{} {} {detail}",
@@ -563,7 +561,7 @@ fn detail(body: &EventBody) -> Option<String> {
 struct Desk;
 
 impl Reporter for Desk {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         if let EventBody::JourneyFailed { step, .. } = &event.body {
             println!("desk: order {} failed at {step}", event.journey_id);
         }
@@ -603,18 +601,14 @@ impl Messages for Orders {
 impl Orders {
     /// Names each journey after its order.
     #[id_generator]
-    fn order_number(&self, data: &DataBag) -> Result<String, Error> {
+    fn order_number(&self, data: &DataBag) -> Result<String> {
         Ok(data.required("order")?)
     }
 
     /// Gives the shipping the weight of the order's parcel, as the warehouse describes it. Every
     /// other input of the shipping is read from the data bag.
     #[input_adapter(steps = ["ship"])]
-    fn parcels(
-        &self,
-        #[key] key: &str,
-        #[from_workflow] parcel: Parcel,
-    ) -> Result<Option<AnyValue>, Error> {
+    fn parcels(&self, #[key] key: &str, #[from_workflow] parcel: Parcel) -> Result<Supplied> {
         if key != "weight" {
             return Self::from_data_bag();
         }
@@ -623,7 +617,7 @@ impl Orders {
 
     /// The order book, which has the orders completed before today.
     #[provider(key = "order_book")]
-    fn ledger(&self) -> Result<Provided<dyn OrderBook>, Error> {
+    fn ledger(&self) -> Result<Provided<dyn OrderBook>> {
         Ok(provide!(Ledger {
             completed: vec!["A-13"],
         }))
@@ -631,14 +625,14 @@ impl Orders {
 
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(Bank { this_year: 2026 }))
     }
 
     /// A carrier for every attempt of a step: the main carrier first, the backup carrier after.
     #[provider(key = "carrier", per_attempt)]
-    fn carriers(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
-        if attempt == NonZeroU32::MIN {
+    fn carriers(&self, attempt: Attempt) -> Result<Provided<dyn Carrier>> {
+        if attempt.is_first() {
             return Ok(provide!(MainCarrier));
         }
         Ok(provide!(BackupCarrier))
@@ -840,7 +834,7 @@ mod tests {
         weight: i64,
         bank: TestBank,
         carrier: TestCarrier,
-    ) -> Result<Vec<String>, Error> {
+    ) -> Result<Vec<String>> {
         let recorder = RecordingReporter::default();
         let instance = Orders::builder()
             .channel("email")
@@ -867,7 +861,7 @@ mod tests {
 
     // ANCHOR: approved
     #[test]
-    fn an_order_the_bank_charges_and_the_carrier_takes_is_shipped() -> Result<(), Error> {
+    fn an_order_the_bank_charges_and_the_carrier_takes_is_shipped() -> Result<()> {
         assert_eq!(
             path_of("A-1", 2, TestBank::Charges, TestCarrier::CollectsAll)?,
             [
@@ -882,7 +876,7 @@ mod tests {
     }
 
     #[test]
-    fn a_parcel_over_the_limit_is_given_up_after_its_first_attempt() -> Result<(), Error> {
+    fn a_parcel_over_the_limit_is_given_up_after_its_first_attempt() -> Result<()> {
         assert_eq!(
             path_of("A-2", 90, TestBank::Charges, TestCarrier::CollectsAll)?,
             [
@@ -898,7 +892,7 @@ mod tests {
     }
 
     #[test]
-    fn a_charge_whose_bank_is_down_is_given_up_and_never_rescued() -> Result<(), Error> {
+    fn a_charge_whose_bank_is_down_is_given_up_and_never_rescued() -> Result<()> {
         assert_eq!(
             path_of("A-3", 2, TestBank::IsDown, TestCarrier::CollectsAll)?,
             [
@@ -913,7 +907,7 @@ mod tests {
     }
 
     #[test]
-    fn a_parcel_no_carrier_collects_is_tried_once_more_then_given_up() -> Result<(), Error> {
+    fn a_parcel_no_carrier_collects_is_tried_once_more_then_given_up() -> Result<()> {
         assert_eq!(
             path_of("A-4", 60, TestBank::Charges, TestCarrier::CollectsNone)?,
             [

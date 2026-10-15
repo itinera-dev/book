@@ -1,6 +1,6 @@
 //! Two policies of one step that both define `on step success`.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::journey::Contributor;
 use itinera::policy::{OnSuccess, step_policy};
@@ -13,7 +13,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         contributor.contribute("charged", 40);
         Self::succeed()
     }
@@ -26,9 +26,9 @@ struct Audit;
 #[step_policy(name = "audit")]
 impl Audit {
     #[on_step_success]
-    fn audited(&self, #[from_step] charged: i64) -> Result<Option<OnSuccess>, Error> {
+    fn audited(&self, #[from_step] charged: i64) -> Result<OnSuccess> {
         println!("audit: charged {charged}");
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -39,9 +39,9 @@ struct Receipts;
 #[step_policy(name = "receipts")]
 impl Receipts {
     #[on_step_success]
-    fn written(&self, #[from_step] charged: i64) -> Result<Option<OnSuccess>, Error> {
+    fn written(&self, #[from_step] charged: i64) -> Result<OnSuccess> {
         println!("receipt: R-{charged}");
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
