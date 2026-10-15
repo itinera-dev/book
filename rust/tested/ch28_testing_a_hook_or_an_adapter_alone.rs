@@ -936,9 +936,7 @@ mod tests {
     #[test]
     fn parcels_gives_the_shipping_the_parcels_weight() -> Result<()> {
         let weight = Orders { channel: "email" }.parcels("weight", gils_parcel())?;
-        assert!(
-            matches!(weight, Supplied::Value(value) if value.downcast_ref::<i64>() == Some(&60))
-        );
+        assert_eq!(weight.downcast_ref::<i64>(), Some(&60));
         Ok(())
     }
 
