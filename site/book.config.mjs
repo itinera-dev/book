@@ -1,12 +1,13 @@
 // @ts-check
 // What this build renders, read in one place.
 //
-// The book has one edition per programming language. A build renders one
-// edition, at a path made of the edition's language and an optional version
-// segment: /book/rust/ by default, /book/rust/next/ or /book/rust/0.1.0/ when
-// BOOK_VERSION says so. Every link, the edition switcher and the contents derive
+// Each language has several editions: its latest release, `next`, and every
+// release frozen at its own address. A build renders one edition, at a path
+// made of the edition's language and an optional version segment: /book/rust/
+// by default, /book/rust/next/ or /book/rust/0.1.0/ when BOOK_VERSION says so. Every link, the edition switcher and the contents derive
 // from the values exported here, so nothing else in the site builds a path by
-// hand.
+// hand. scripts/editions.mjs builds every published edition, one build each,
+// and puts them together.
 //
 // Adding a language is one entry in `editions`.
 
@@ -42,6 +43,9 @@ export const repository = 'https://github.com/itinera-dev/book';
 
 /** The checkout of this repository: the directory holding each language's directory. */
 export const root = resolve(process.env.BOOK_ROOT ?? resolve(process.cwd(), '..'));
+
+/** The directory a build writes the site into, and the checks read it from. */
+export const dist = resolve(process.env.BOOK_DIST ?? resolve(process.cwd(), 'dist'));
 
 const SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
 
@@ -94,6 +98,24 @@ export const chapters = `${build.edition.directory}/chapters`;
 export function pageHref(page) {
 	return page ? `${base}/${build.segment}/${page}/` : `${base}/${build.segment}/`;
 }
+
+/** The URL of the contents of this build's language at its latest release. */
+export const latestHref = `${base}/${build.edition.language}/`;
+
+/**
+ * What every page of this build says about its edition, in its web page and
+ * its Markdown copy, since a reader can arrive from a link or a search without
+ * having chosen it. The latest release's edition says nothing.
+ */
+export const editionNotice =
+	build.version === ''
+		? undefined
+		: build.release
+			? `This edition is the book for release ${build.version} of Itinera for ${build.edition.name}, and its chapters stay as they were at that release.`
+			: `This edition follows Itinera for ${build.edition.name} ahead of its next release, so it may teach what no release does yet.`;
+
+/** The link every edition's notice ends with. */
+export const latestLinkText = 'Read the book for the latest release';
 
 /**
  * The URL of a page's Markdown copy, for agents and other readers of plain text.

@@ -49,7 +49,7 @@ const CHECKS = [
 	['skip link', 'accent-strong', 'paper', AA_TEXT],
 	['focus ring against the page', 'accent-strong', 'paper', AA_NON_TEXT],
 	['focus ring against a code block', 'accent-strong', 'code-paper', AA_NON_TEXT],
-	['edition switcher border against the page', 'rule-strong', 'paper', AA_NON_TEXT],
+	['edition switcher and edition notice borders against the page', 'rule-strong', 'paper', AA_NON_TEXT],
 	['border of code that does not run, against the page', 'caution-ink', 'paper', AA_NON_TEXT],
 ];
 

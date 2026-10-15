@@ -13,7 +13,7 @@ import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import { VFile } from 'vfile';
 
-import { build, markdownHref, pageHref, root, site } from '../../book.config.mjs';
+import { build, editionNotice, latestHref, latestLinkText, markdownHref, pageHref, root, site } from '../../book.config.mjs';
 import { type Page, pageSlugs } from './contents.ts';
 import remarkBookDirectives from './directives.ts';
 import { rewriteLinks } from './links.ts';
@@ -53,7 +53,12 @@ export async function markdownCopy(repositoryPath: string): Promise<string> {
 		.use(remarkMarkdownCopy, { from: repositoryPath })
 		.use(remarkBookDirectives, { edition: build.edition, markdown: true })
 		.use(remarkStringify, { bullet: '-', fences: true, rule: '-' });
-	return String(await processor.process(file));
+	return `${noticeMarkdown()}${String(await processor.process(file))}`;
+}
+
+/** The edition's notice as a quotation, before the rest of a Markdown copy, or nothing for the latest release. */
+export function noticeMarkdown(): string {
+	return editionNotice ? `> ${editionNotice} [${latestLinkText}](${site}${latestHref}).\n\n` : '';
 }
 
 /** The Markdown copy of one page of the book. */

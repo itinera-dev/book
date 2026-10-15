@@ -5,7 +5,7 @@
 
 import '../styles/global.css';
 
-import { base, build, markdownHref, pageHref, repository, site, sourceHref } from '../../book.config.mjs';
+import { base, build, editionNotice, latestHref, latestLinkText, markdownHref, pageHref, repository, site, sourceHref } from '../../book.config.mjs';
 import EditionSwitcher from '../components/EditionSwitcher.astro';
 import Mark from '../components/Mark.astro';
 
@@ -18,11 +18,12 @@ interface Props {
 }
 
 const { title, description, edition } = Astro.props;
-const book = edition ? `The Itinera book in ${build.edition.name}` : 'The Itinera book';
+const book = edition ? `The Itinera book in ${build.edition.name}${build.version && `, ${build.version}`}` : 'The Itinera book';
 const fullTitle = title ? `${title} · ${book}` : book;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const markdown = edition && markdownHref(edition.page || undefined);
 const llms = `${base}/${build.segment}/llms.txt`;
+const notice = edition && editionNotice;
 ---
 
 <!doctype html>
@@ -75,6 +76,13 @@ const llms = `${base}/${build.segment}/llms.txt`;
 			</div>
 		</header>
 		<main id="main" tabindex="-1" class="page">
+			{
+				notice && (
+					<p class="edition-notice">
+						{notice} <a href={latestHref}>{latestLinkText}</a>.
+					</p>
+				)
+			}
 			<slot />
 		</main>
 		<footer class="site-footer">

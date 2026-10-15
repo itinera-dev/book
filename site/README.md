@@ -16,7 +16,7 @@ Then open <http://localhost:4321/book/rust/>.
 
 ## What this is
 
-An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.org/book/>, with one edition per programming language under it: `/book/rust/` for Rust. Nothing of the book is copied here. At build time the pages read each language's book from its directory, such as `../rust/`: the chapters from `../rust/chapters/`, the order of the book from `../rust/chapters/README.md`, and the code and output the directives name, as [FORMAT.md](../FORMAT.md) lays them out.
+An [Astro](https://astro.build) site that renders the book for the web, published by GitHub Pages at <https://itinera-dev.org/book/>, with each language's editions under it: for Rust, the latest release at `/book/rust/`, `next` at `/book/rust/next/` and each release at `/book/rust/VERSION/`. Nothing of the book is copied here. At build time the pages read each language's book from its directory, such as `../rust/`: the chapters from `../rust/chapters/`, the order of the book from `../rust/chapters/README.md`, and the code and output the directives name, as [FORMAT.md](../FORMAT.md) lays them out.
 
 - `book.config.mjs` holds the list of editions and says which one a build renders. Every link, the edition switcher and the contents derive from it. Adding a language is one entry in its list.
 - `src/lib/` renders the Markdown: `contents.ts` reads the contents, `directives.ts` replaces each directive with the code or output it names, `links.ts` turns links between chapters into links between pages, `rehype.ts` names code blocks and puts diagrams and tables in their boxes, and `render.ts` puts the pipeline together.
@@ -32,15 +32,22 @@ An [Astro](https://astro.build) site that renders the book for the web, publishe
 A build renders one edition. These environment variables, read only in `book.config.mjs`, say which, and from where:
 
 - `BOOK_LANGUAGE`: the edition's language, such as `rust`. Without it, the first edition in the list.
-- `BOOK_VERSION`: a version segment, such as `next` or `0.1.0`, which puts the edition at `/book/rust/VERSION/` instead of `/book/rust/`. BOOK.md says which edition is published at which address: the latest release at `/book/rust/`, each release at `/book/rust/VERSION/`, and the `next` branch at `/book/rust/next/`. For now the Pages workflow publishes `main` at `/book/rust/` only; publishing `next` and each release at its own address comes later. A version other than `next` is a released edition, and a released edition has no pending examples: a directive that names one fails the build.
+- `BOOK_VERSION`: a version segment, such as `next` or `0.1.0`, which puts the edition at `/book/rust/VERSION/` instead of `/book/rust/`. BOOK.md says which edition is published at which address: the latest release at `/book/rust/`, each release at `/book/rust/VERSION/`, and the `next` branch at `/book/rust/next/`. A version other than `next` is a released edition, and a released edition has no pending examples: a directive that names one fails the build. Every edition but the latest release's says at the top of each page which edition it is, with a link to the latest release, and only the latest release's edition is in the sitemap.
 - `BOOK_SOURCE_REF`: the git branch, tag or commit that links to files of this repository point at on GitHub, such as the program under each example. Without it, `main`.
 - `BOOK_ROOT`: the checkout of this repository that the book is read from. Without it, the directory above `site/`. It lets the site render another checkout, such as a tag being prepared for release.
+- `BOOK_DIST`: the directory the build writes the site into, and the checks read it from. Without it, `dist/`.
+
+## Building every edition
+
+`npm run editions`, run in a checkout with every branch and tag fetched, builds the whole site as GitHub Pages publishes it into `dist/`: for each language, the latest release from this checkout, the `next` branch, and every release tagged `LANGUAGE-VERSION`, such as `rust-0.1.0-beta.1`. The site's code in that checkout, which is `main` when publishing, renders every edition, each from the book's files at its own branch or tag, so a fix to the site reaches every edition while each keeps its own chapters, examples and recorded output. Each edition is a strict build of its own, and then `npm run pages` checks every edition's pages in the whole site.
+
+After every push to `main` or `next` and every tag of a release that passes the gate below, the Pages workflow runs it on `main` and publishes the result. It also runs on every pull request, so a change to the site that cannot render `next` or an older release fails there. Publishing after a push to `next` or a tag needs the repository's `github-pages` environment to allow deploying from `next` and from tags matching `*-[0-9]*`, under Settings, Environments, "Deployment branches and tags".
 
 A directive that names a file which does not exist, a region missing from its program, or a link to a chapter that is not in the contents fails the build, with a message naming the chapter and the file.
 
 ## Verifying
 
-`npm run verify` is the gate the Pages workflow runs on every pull request and before every deployment. It runs, in order, and stops at the first failure:
+`npm run verify` is the gate the Pages workflow runs on every pull request, and on every push before it builds every edition. It runs, in order, and stops at the first failure:
 
 1. `npm run check`: Astro's type check of the site's code.
 2. `npm run brand`: that the book's copies of the org site's colours, `src/styles/tokens.css`, logo, `src/lib/logo.mjs` and `src/components/Mark.astro`, and icon, `public/favicon.svg`, are the ones taken from the site at the commit `brand.json` pins. The site owns Itinera's design; to follow it, take the files again from a newer commit of itinera-dev/itinera-dev.github.io, the colours and the logo from the same paths in it, and the icon from the `/favicon.svg` it builds, and pin that commit. The book keeps the site's one meaning for amber, what the reader cannot take as it is shown: here, code that does not compile yet and a recorded compiler message.

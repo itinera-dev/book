@@ -1,20 +1,25 @@
 name: Pages
 
 # Builds the book's web pages from site/ and runs their verify gate on every
-# pull request and every push to main or next. Only on main are the pages that
-# passed the gate published to GitHub Pages, at https://itinera-dev.org/book/.
+# pull request, every push to main or next and every tag of a release, such as
+# rust-0.1.0-beta.1. A pull request also builds every edition with its own
+# site. Once a push passes the gate, every published edition is built from main,
+# as site/scripts/editions.mjs says, and published to GitHub Pages at
+# https://itinera-dev.org/book/. Deploying after a push to next or a tag needs
+# the github-pages environment to allow next and tags matching *-[0-9]*.
 
 on:
   pull_request:
   push:
     branches: [main, next]
+    tags: ['*-[0-9]*']
 
 permissions:
   contents: read
 
-# A new push to a pull request cancels the run it supersedes. A run on main is
-# never cancelled once it has started, so a deployment always finishes; a newer
-# push to main only replaces a run that is still waiting.
+# A new push to a pull request cancels the run it supersedes. A run after a push
+# is never cancelled once it has started, so a deployment always finishes; a
+# newer push to the same branch only replaces a run that is still waiting.
 concurrency:
   group: pages-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -30,6 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -39,15 +45,44 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run verify
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - if: github.event_name == 'pull_request'
+        run: npm run editions
+
+  editions:
+    name: build every edition
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # One build of every edition at a time, so a deployment never replaces a
+    # newer snapshot of the branches and tags with an older one.
+    concurrency:
+      group: pages-editions
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm run editions
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site/dist
 
   deploy:
     name: deploy
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
+    if: github.event_name == 'push'
+    needs: editions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

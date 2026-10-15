@@ -5,7 +5,7 @@ import { join, normalize, sep } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
-import { base, chapters, editionDirectories, editions, root, site } from './book.config.mjs';
+import { base, build, chapters, dist, editionDirectories, editions, root, site } from './book.config.mjs';
 
 /**
  * Reloads the dev server's pages when the book changes.
@@ -62,12 +62,16 @@ function watchTheBook() {
 // The chapters are not an Astro content collection: they live outside this
 // directory, in each language's chapters/, and each edition renders its own,
 // with its language's code. src/lib/render.ts does that, and the pages call it.
+//
+// Only the latest release's edition is in the sitemap, so a search engine sends
+// readers to it rather than to `next` or to a frozen release.
 export default defineConfig({
 	site,
 	base,
+	outDir: dist,
 	trailingSlash: 'always',
 	build: { format: 'directory' },
-	integrations: [sitemap({ filter: (page) => !page.endsWith('/404/') })],
+	integrations: build.version === '' ? [sitemap({ filter: (page) => !page.endsWith('/404/') })] : [],
 	vite: {
 		plugins: [watchTheBook()],
 		// Mermaid is large, and is fetched only by a page that has a diagram.
