@@ -60,7 +60,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A contributor | a parameter of `run` of type `&mut Contributor`, then `contributor.contribute("key", value)` | 6 |
 | A service and its provider | a parameter of `run` marked `#[service]`, of type `&dyn Trait`; a method of the workflow's `#[workflow] impl` block marked `#[provider]`, or `#[provider(key = "...", per_attempt)]` for a new instance for each attempt, returning `Result<Provided<dyn Trait>>`, made with `provide!(...)`; a per-attempt provider may request `attempt: Attempt` | 7, 13 |
 | A reporter | `impl Reporter for Log`, listed with `reporters = [Log, Desk]` on `#[workflow(...)]` | 8, 10 |
-| A step's own events | a parameter of `run` of type `StepReporter<'_>`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)` | 9 |
+| A step's own events | a parameter of `run` of type `StepReporter`, then `reporter.info("...")?`, `.warning(...)` or `.error(...)` | 9 |
 | A journey ID generator | a method of the same block marked `#[id_generator]`, returning `Result<String>` | 11 |
 | A retry budget | `retry_budget = 1` on the step's `#[with_step]` line | 12 |
 | An abnormal termination | `run` returns `Err(error)`, often through `?`; `no_retry_on_abnormal_termination` on the step's `#[with_step]` line keeps it from spending the retry budget | 12 |
@@ -81,7 +81,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A fake provider and a journey's path | with the `testing` feature under `[dev-dependencies]`, and only inside `#[cfg(test)] mod tests`, `.fake_provider::<dyn Payments>("bank", fake)` on the builder, where `fake` returns `Ok(provide!(...))`, and `.reporter(recorder.clone())` with a `RecordingReporter`, then `recorder.path()` | 30 |
 | A reporter that fails | `report` returning `Err`, which aborts the journey; the result's `Abort::ReporterFailed(error)` holds the error | 31 |
 | A reporter that prints every event | `DebugReporter`, from `itinera::report`, in `reporters = [DebugReporter, ...]` | 32 |
-| Global metadata | `.reporters_global_metadata("customer", value)` on the instance builder, or `reporter.set_global_metadata("receipt", value)?` in a step with `mut reporter: StepReporter<'_>`, received by `Reporter::set_global_metadata(&mut self, key, value)` | 33 |
+| Global metadata | `.reporters_global_metadata("customer", value)` on the instance builder, or `reporter.set_global_metadata("receipt", value)?` in a step with `mut reporter: StepReporter`, received by `Reporter::set_global_metadata(&mut self, key, value)` | 33 |
 | What only a hook can know | parameters `journey: &JourneyId`, `attempt: Attempt` and `error: &Error` on `on step abnormal termination`, or `Option<&Error>` on `on step retry` and `on step failure` | 34 |
 | A key of its own, and a provider for some steps | `#[input("card")] expired: String` or `#[service("cards")] registry: &dyn Cards`; `#[provider(steps = ["charge_rescue"])]`, returning `Provided::from_box(boxed).with_data(value)` | 35 |
 | An order stopped before its journey | `create()` returning `Err` when the ID generator fails; `run` returning `Err(refusal)` when a reporter's `set_global_metadata` returns `Err` | 36 |

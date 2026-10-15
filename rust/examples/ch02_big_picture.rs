@@ -252,7 +252,7 @@ impl Audit {
         &self,
         #[from_step] charged: i64,
         #[from_step] receipt: String,
-        mut reporter: HookReporter<'_>,
+        mut reporter: HookReporter,
     ) -> Result<OnSuccess> {
         reporter.info(format!("charged {charged}, receipt {receipt}"))?;
         Self::keep_default()

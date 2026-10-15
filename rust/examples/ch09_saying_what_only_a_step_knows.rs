@@ -92,7 +92,7 @@ impl Ship {
         self,
         #[service] carrier: &dyn Carrier,
         contributor: &mut Contributor,
-        mut reporter: StepReporter<'_>,
+        mut reporter: StepReporter,
     ) -> Result<Outcome> {
         let tracking = carrier.book(&self.order);
         contributor.contribute("tracking", tracking);

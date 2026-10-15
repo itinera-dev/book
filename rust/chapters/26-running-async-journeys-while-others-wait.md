@@ -29,7 +29,7 @@ name: ch26_running_async_journeys_while_others_wait
 region: price
 ```
 
-A step awaits the services it calls. The shipping's step reporter is now an `AsyncStepReporter`, whose `info` is awaited too:
+A step awaits the services it calls. The shipping's step reporter is now an `AsyncStepReporter`, whose `info` is awaited too. Rust asks an `async fn` to write the borrow it takes, so the parameter is `AsyncStepReporter<'_>`, where a synchronous `run` writes only `StepReporter`:
 
 ```example
 name: ch26_running_async_journeys_while_others_wait
