@@ -22,7 +22,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The version of `itinera` this book covers
 
-This book covers `itinera` `0.1.0-beta.1`, its first release, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.1`, and every example you read here compiles and runs against it.
+This book covers `itinera` `0.1.0-beta.2`, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.2`, and every example you read here compiles and runs against it.
 
 ## Services, rescue steps and global metadata
 
@@ -34,7 +34,7 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.1/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.1`, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.2/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.2`, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
