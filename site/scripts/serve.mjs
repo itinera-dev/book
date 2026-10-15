@@ -10,9 +10,9 @@ import { readFile, readdir } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, relative } from 'node:path';
 
-import { base } from '../book.config.mjs';
+import { base, dist } from '../book.config.mjs';
 
-export const DIST = join(process.cwd(), 'dist');
+export const DIST = dist;
 
 const TYPES = {
 	'.html': 'text/html; charset=utf-8',

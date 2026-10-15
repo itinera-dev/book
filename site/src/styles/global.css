@@ -230,6 +230,15 @@ a:hover {
 	padding: 2.5rem var(--gutter) 4rem;
 }
 
+/* Which edition this is, on every page of `next` and of a frozen release. */
+.edition-notice {
+	margin: 0 0 2rem;
+	padding: 0.5rem 0 0.5rem 1rem;
+	border-left: 3px solid var(--rule-strong);
+	font-family: var(--font-ui);
+	font-size: var(--step--1);
+}
+
 .eyebrow {
 	margin: 0 0 0.5rem;
 	color: var(--ink-muted);

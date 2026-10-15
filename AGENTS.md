@@ -8,7 +8,7 @@ The Itinera book, written once for each language. A reader picks a language and 
 
 - [BOOK.md](BOOK.md) says what the book contains and how it is written, for every language. It is to the books what the specification is to the implementations.
 - Each language has a directory of its own, for example `rust/`, holding that language's book, its examples as complete programs, and their recorded output. Languages are directories, never branches.
-- [site/](site/) builds the web pages from each language's directory; the latest release's edition is built from `main`, and each release's frozen edition from its tag, such as `rust-0.1.0-beta.1`.
+- [site/](site/) builds the web pages from each language's directory; every edition is rendered by the site on `main`: the latest release's from `main`, `next`'s from the `next` branch, and each release's frozen edition from the book's files at its tag, such as `rust-0.1.0-beta.1`.
 
 ## Where behaviour comes from
 
