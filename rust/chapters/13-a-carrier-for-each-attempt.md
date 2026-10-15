@@ -13,7 +13,7 @@ name: ch13_a_carrier_for_each_attempt
 region: carriers
 ```
 
-The workflow's provider for `carrier` is now marked `per_attempt`, and asks for the attempt with a parameter of type `Attempt`. It makes the main carrier for attempt 1, and the backup carrier for any attempt after it.
+The workflow's provider for `carrier` is now marked `per_attempt`, and asks for the attempt with a parameter of type `Attempt`, from `itinera::step`. It makes the main carrier for attempt 1, and the backup carrier for any attempt after it.
 
 ```example
 name: ch13_a_carrier_for_each_attempt

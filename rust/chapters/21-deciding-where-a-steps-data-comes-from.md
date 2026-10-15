@@ -20,7 +20,7 @@ name: ch21_deciding_where_a_steps_data_comes_from
 region: data
 ```
 
-The shipping doesn't change at all: it is still [chapter 17](17-giving-up-a-step-early.md)'s. The workflow gives it the weight with an **input adapter**: a method of its `#[workflow]` block marked `#[input_adapter(steps = ["ship"])]`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one with its parameter marked `#[key]`. It returns `Ok` of a `Supplied`, from `itinera::workflow`: `Supplied::Value`, holding a value of any type, or `Supplied::FromDataBag`. For `weight`, it reads the parcel from the data bag and supplies its weight with `Self::supply(...)`, which is `Supplied::Value` of it. For any other input, it returns `Self::from_data_bag()`, which is `Supplied::FromDataBag`, and that input is read from the data bag as before.
+The shipping doesn't change at all: it is still [chapter 17](17-giving-up-a-step-early.md)'s. The workflow gives it the weight with an **input adapter**: a method of its `#[workflow]` block marked `#[input_adapter(steps = ["ship"])]`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one with its parameter marked `#[key]`. It returns `Ok` of a `Supplied`, from `itinera::workflow`: `Supplied::Value`, holding an `AnyValue`, a value of any type, or `Supplied::FromDataBag`. For `weight`, it reads the parcel from the data bag and supplies its weight with `Self::supply(...)`, which is `Ok` of `Supplied::Value` holding it. For any other input, it returns `Self::from_data_bag()`, which is `Ok` of `Supplied::FromDataBag`, and that input is read from the data bag as before.
 
 ```example
 name: ch21_deciding_where_a_steps_data_comes_from

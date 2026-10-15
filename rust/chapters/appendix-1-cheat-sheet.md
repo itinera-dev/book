@@ -64,7 +64,7 @@ With the `macros` feature, which is on by default, each line of the table is wri
 | A journey ID generator | a method of the same block marked `#[id_generator]`, returning `Result<String>` | 11 |
 | A retry budget | `retry_budget = 1` on the step's `#[with_step]` line | 12 |
 | An abnormal termination | `run` returns `Err(error)`, often through `?`; `no_retry_on_abnormal_termination` on the step's `#[with_step]` line keeps it from spending the retry budget | 12 |
-| A rescue step | `#[derive(RescueStep)]` on its struct, and `#[rescue_step]` on the block holding `fn run(self, ...) -> Result<RescueOutcome>`, which may request `reason: Reason`; attached with `rescue = RenewCard` on the step's `#[with_step]` line | 14 |
+| A rescue step | `#[derive(RescueStep)]` on its struct, and `#[rescue_step]` on the block holding `fn run(self, ...) -> Result<RescueOutcome>`, whose struct may hold a field `reason: Reason`; attached with `rescue = RenewCard` on the step's `#[with_step]` line | 14 |
 | A step policy and its hooks | `#[step_policy(name = "audit")]` on its block, and a method marked with its hook, such as `#[on_step_success]`; attached with `policies = [Audit]` on a `#[with_step]` line | 15 |
 | Giving a step up early | a method marked `#[on_step_retry]` or `#[on_step_abnormal_termination]`, returning `Result<OnFailure>`, with `Self::fail_workflow("code")` or `Self::keep_default()` | 17 |
 | What a hook requests | parameters marked `#[from_step]`, `#[from_workflow]` or `#[role]`, and parameters of type `StepName`, `Option<Reason>` or `&mut Contributor` | 15, 17, 18, 19 |

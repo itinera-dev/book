@@ -49,7 +49,7 @@ asynchronous: ch34_saying_which_attempt_took_the_money_async
 
 ## How it works
 
-1. **A hook can ask for the journey ID and the attempt number.** A parameter of type `&JourneyId` gives the hook the journey's ID, and one of type `Attempt` gives it the attempt whose outcome it follows, counted from 1. Every step hook can ask for both, and every workflow hook for the journey ID.
+1. **A hook can ask for the journey ID and the attempt number.** A parameter of type `&JourneyId` gives the hook the journey's ID, and one of type `Attempt`, as in [chapter 13](13-a-carrier-for-each-attempt.md), gives it the attempt whose outcome it follows, counted from 1. Every step hook can ask for both, and every workflow hook for the journey ID.
 2. **The attempt is the one that took the money.** Jo's charge failed on its first attempt, the rescue step renewed the card, and the second attempt succeeded, so Jo's audit line says `attempt 2`. Ann's says `attempt 1`.
 3. **A hook called after an error can ask for the error.** A parameter of type `&Error` gives `on step abnormal termination` the error the step's `run` returned: for Cat's charge, `the payment network is down`, the message that `step_abnormal_termination`, event 13, carries. `on step retry` and `on step failure` are called after a failure as well as after an error, and a failure has no error, so they ask for it as an `Option<&Error>`.
 4. **The line is kept though the charge was given up.** The outage's line is a contribution, committed as event 15 though the charge was given up, as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) showed, so Cat's line is in the journey's output, telling the accountants to check whether the bank took 120.
