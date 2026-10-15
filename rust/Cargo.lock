@@ -146,9 +146,9 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 
 [[package]]
 name = "itinera"
-version = "0.1.0-beta.1"
+version = "0.1.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3038c2dbc3271574fb2fc294ab02c9eb9d44ce560549bbbd64833e92a8a538f"
+checksum = "405709ed0e7f5bcef59e4252c9307e585cbbd55849a56512eca17593dc7df551"
 dependencies = [
  "itinera-core",
 ]
@@ -167,9 +167,9 @@ dependencies = [
 
 [[package]]
 name = "itinera-core"
-version = "0.1.0-beta.1"
+version = "0.1.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04011a0caafdb55279ef4f37745510992609cfc13df7c8630383a4dbcda9d16d"
+checksum = "9b9619eeeb59d9e2415348fdf98c6b8529329b31ecb2eecebf4fafe4020c1a61"
 dependencies = [
  "async-trait",
  "derive_more",
@@ -183,9 +183,9 @@ dependencies = [
 
 [[package]]
 name = "itinera-macros"
-version = "0.1.0-beta.1"
+version = "0.1.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "784c4b2d5fca2a6c5bab9227c4b46cdd3d18ba63a31a420f300943d11189942b"
+checksum = "65208af7999100db7a523b7aaa15a25a3141bc684193495eb4d9638650ff67db"
 dependencies = [
  "derive_more",
  "proc-macro2",
