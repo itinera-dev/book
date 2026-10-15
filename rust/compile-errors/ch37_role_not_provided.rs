@@ -1,6 +1,6 @@
 //! A policy that needs a role the workflow does not provide.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::policy::workflow_policy;
 use itinera::step::{Outcome, Step, step};
@@ -12,7 +12,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         Self::succeed()
     }
 }
@@ -33,7 +33,7 @@ impl Notify {
         &self,
         #[from_workflow] customer: String,
         #[role] messages: &dyn Messages,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         messages.tell(&customer, "your order is complete");
         Ok(())
     }

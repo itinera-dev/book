@@ -8,13 +8,13 @@ description = "The Rust examples of the Itinera book."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "70d319a75ac4b21159452e5d5288badbe67d5eb6", features = ["async"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "1ef0ca0733f3958b239aefb4daaac454bdda8cbc", features = ["async"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 # The same commit as above, with the `testing` feature that chapters 27 to 30 use: bump both together.
-itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "70d319a75ac4b21159452e5d5288badbe67d5eb6", features = ["testing"] }
+itinera = { git = "https://github.com/itinera-dev/itinera-rs", rev = "1ef0ca0733f3958b239aefb4daaac454bdda8cbc", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
 serde_json = "1"

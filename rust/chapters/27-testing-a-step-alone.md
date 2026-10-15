@@ -34,7 +34,7 @@ region: charge
 asynchronous: ch27_testing_a_step_alone_async
 ```
 
-The rescue step is built the same way, with the reason the test chooses in its `#[reason]` field:
+The rescue step is built the same way, with the reason the test chooses in its `reason` field:
 
 ```example
 name: ch27_testing_a_step_alone

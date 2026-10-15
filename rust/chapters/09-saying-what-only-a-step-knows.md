@@ -6,7 +6,7 @@ The events say who decided what, and when, but one thing only the shipping knows
 
 ## The code
 
-The shipping asks for its **step reporter**, a parameter of `run` marked `#[reporter]`, of type `StepReporter<'_>`, next to its service and its contributor. Where it used to print, it now calls `info` with a message.
+The shipping asks for its **step reporter**, a parameter of `run` of type `StepReporter<'_>`, next to its service and its contributor. Where it used to print, it now calls `info` with a message.
 
 ```example
 name: ch09_saying_what_only_a_step_knows

@@ -1,6 +1,6 @@
 //! Running one instance twice: an instance runs one journey, so this does not compile.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::journey::InitialData;
 use itinera::step::{Outcome, Step, step};
@@ -15,7 +15,7 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }

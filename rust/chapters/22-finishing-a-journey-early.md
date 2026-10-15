@@ -27,7 +27,7 @@ name: ch22_finishing_a_journey_early
 region: lookup
 ```
 
-A step policy, `already_completed`, reads that answer. Its `on step success` asks for `completed` from the step, as the audit asks for the receipt in [chapter 15](15-reacting-to-what-a-step-did.md). For an order already completed, it returns `Self::finish_workflow()`, which is the lifecycle `FinishWorkflow`. Otherwise it carries on:
+A step policy, `already_completed`, reads that answer. Its `on step success` asks for `completed` from the step, as the audit asks for the receipt in [chapter 15](15-reacting-to-what-a-step-did.md). For an order already completed, it returns `Self::finish_workflow()`, which is the lifecycle `FinishWorkflow`. Otherwise it keeps the default:
 
 ```example
 name: ch22_finishing_a_journey_early
@@ -67,7 +67,7 @@ name: ch22_finishing_a_journey_early
 
 1. **`FinishWorkflow` ends the journey at once, as succeeded.** It is the second lifecycle, after `FailWorkflow` in [chapter 17](17-giving-up-a-step-early.md). Mia's lookup succeeded and contributed `completed`, so `already_completed` finished the journey. Her price, charge and shipping never ran: her log has no attempt of theirs, and the bank and the carriers were never asked, so Mia is charged only once.
 2. **The journey says who finished it.** `journey_succeeded` names the policy whose hook returned `FinishWorkflow`, and the log prints it: `FinishWorkflow from already_completed`. Ann's `journey_succeeded` names no policy, because her journey ended by default, after its last step.
-3. **Only `on step success` may finish a journey, and its type says so.** `Self::finish_workflow()` returns an `Option<OnSuccess>`, which is what `on step success` returns, and never an `Option<FailWorkflow>`, which is what `on step retry` and `on step abnormal termination` return. So a step that hasn't succeeded can never finish its journey.
+3. **Only `on step success` may finish a journey, and its type says so.** `Self::finish_workflow()` returns an `OnSuccess`, which is what `on step success` returns, and never an `OnFailure`, which is what `on step retry` and `on step abnormal termination` return. So a step that hasn't succeeded can never finish its journey.
 4. **What the step contributed is kept.** The hook runs after the lookup's contributions are committed, so `completed` is in Mia's data bag, as in Ann's.
 5. **The workflow's own hooks still run.** A journey finished early has succeeded, so `notify`'s `on workflow success` tells Mia. Her data bag holds no tracking number and no gift card's code, so she reads `Order A-13 is complete.` The receipt and the tracking of yesterday's journey belong to that journey, so `main` reads none of them in this one.
 6. **The step reports what it found, and the policy decides what follows.** The lookup only says whether the order was completed. Ending the journey there is a decision about the flow, so it lives in a policy. The price, the charge and the shipping could each skip an order already completed, but each of them would then need to know about the order book, and a step added later would need to know too. **A decision about the whole journey belongs in a policy, not in every step it would stop.**

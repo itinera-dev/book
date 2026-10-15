@@ -1,7 +1,7 @@
 //! Passing data on: the charge gives back a receipt that the shipping puts in the parcel, and a
 //! failed attempt's contributions never reach the data bag.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, InitialData, Output};
 use itinera::step::{Outcome, Step, step};
@@ -37,7 +37,7 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -62,7 +62,7 @@ struct Ship {
 
 #[step]
 impl Ship {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         let tracking = carrier_books(&self.order);
         contributor.contribute("tracking", tracking);
         if !carrier_collects(self.weight) {

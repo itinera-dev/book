@@ -13,7 +13,7 @@ name: ch13_a_carrier_for_each_attempt
 region: carriers
 ```
 
-The workflow's provider for `carrier` is now marked `per_attempt`, and asks for the attempt's number with a parameter marked `#[attempt]`. It makes the main carrier for attempt 1, and the backup carrier for any attempt after it.
+The workflow's provider for `carrier` is now marked `per_attempt`, and asks for the attempt with a parameter of type `Attempt`. It makes the main carrier for attempt 1, and the backup carrier for any attempt after it.
 
 ```example
 name: ch13_a_carrier_for_each_attempt
@@ -29,7 +29,7 @@ name: ch13_a_carrier_for_each_attempt
 ## How it works
 
 1. **A provider decides how long what it makes is kept.** A provider marked `#[provider]` alone, as in [chapter 7](07-giving-a-step-the-tools-it-needs.md), is called once for a journey, the first time a step asks, and every attempt that asks for its key gets the same instance. One marked `per_attempt` is called for every attempt that asks, and what it makes serves that attempt only, then is dropped. **How long a service lives is the provider's decision, never the step's.**
-2. **A provider for every attempt may ask which attempt it serves.** A parameter marked `#[attempt]`, a `NonZeroU32`, is the number of the attempt the provider is called for, so the provider can decide from it which carrier to make. `NonZeroU32::MIN` is 1, the first attempt.
+2. **A provider for every attempt may ask which attempt it serves.** A parameter of type `Attempt` is the attempt the provider is called for, counted from 1, so the provider can decide from it which carrier to make. `attempt.is_first()` says whether it is attempt 1.
 3. **The log shows which carrier served which attempt.** Gil's journey now records `service_provided` before each attempt of the shipping: the `MainCarrier` for attempt 1, which wouldn't collect 60 kg, and the `BackupCarrier` for attempt 2, which did. The journey succeeds, and the tracking number committed is the backup carrier's, `B-A-7`, since only the attempt that succeeded commits what it contributed. Ann's parcel of 2 kg goes with the main carrier on attempt 1, and never meets the backup.
 4. **The shipping is unchanged.** It still uses whatever carrier it is lent, and says only whether the parcel was collected. Choosing the backup carrier for a retry is the workflow's decision, made in its provider, as choosing the main carrier was.
 

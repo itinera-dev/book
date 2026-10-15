@@ -1,7 +1,7 @@
 //! Saying what only a step knows: the shipping reports that the parcel left, as an event of its
 //! own in the journey's stream.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody};
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, InitialData, Output};
@@ -62,8 +62,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -91,9 +91,9 @@ impl Ship {
     fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+        mut reporter: StepReporter<'_>,
+    ) -> Result<Outcome> {
         let tracking = carrier.book(&self.order);
         contributor.contribute("tracking", tracking);
         if !carrier.collects(self.weight) {
@@ -110,7 +110,7 @@ impl Ship {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match detail(&event.body) {
             Some(detail) => println!("log #{} {} {detail}", event.sequence, event.kind()),
             None => println!("log #{} {}", event.sequence, event.kind()),
@@ -159,13 +159,13 @@ struct Orders;
 impl Orders {
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(Bank))
     }
 
     /// The main carrier, as the carrier of the journey.
     #[provider(key = "carrier")]
-    fn main_carrier(&self) -> Result<Provided<dyn Carrier>, Error> {
+    fn main_carrier(&self) -> Result<Provided<dyn Carrier>> {
         Ok(provide!(MainCarrier { max_weight: 20 }))
     }
 }

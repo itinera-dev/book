@@ -8,7 +8,7 @@ The attributes have written the shop's workflow for you since the first chapters
 
 ### The shop by hand
 
-The shop is the one [chapter 36](36-orders-refused-before-they-start.md) runs, declared in the **long form**: without the attributes, for its pricing step, its audit and its workflow. The pricing is two things: the step, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`, says what the step needs and builds it from what was resolved. Each input is named once, by a constant holding its key and its type, such as `Input<i64>` or `OptionalInput<i64>`, which both `needs` and `build` use, and `Resolved` hands over what was resolved for the attempt:
+The shop is the one [chapter 36](36-orders-refused-before-they-start.md) runs, declared in the **long form**: without the attributes, for its pricing step, its audit and its workflow. The pricing is two things: the step, which runs once and implements `Step`, and what builds it for each attempt, which implements `StepFactory`, says what the step needs and builds it from what was resolved. Each input is named once, by a constant holding its key and its type, such as `Input<i64>` or `OptionalInput<i64>`, which both `needs` and `build` use, so that `input(&DISCOUNT)` asks for an optional input and gives an `Option<i64>`, and `Resolved` hands over what was resolved for the attempt:
 
 ```example
 name: ch38_declaring_by_hand

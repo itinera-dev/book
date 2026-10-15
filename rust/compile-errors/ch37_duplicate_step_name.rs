@@ -1,6 +1,6 @@
 //! Two steps of one workflow under the same name.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
@@ -11,7 +11,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         Self::succeed()
     }
 }
@@ -22,7 +22,7 @@ struct Ship;
 
 #[step]
 impl Ship {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         Self::succeed()
     }
 }

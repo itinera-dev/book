@@ -3,7 +3,7 @@
 
 #![allow(dead_code)]
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::step::{Outcome, Step, step};
 
 /// The shop's bank, faked: it prints what it charges.
@@ -21,7 +21,7 @@ struct Charge {
 
 #[step]
 impl Charge {
-    fn run(self) -> Result<Outcome, Error> {
+    fn run(self) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }

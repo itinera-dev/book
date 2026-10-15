@@ -113,7 +113,7 @@ mod audit {
 
 /// Taking the payment for an order, as a workflow.
 mod payment {
-    use itinera::error::Error;
+    use itinera::error::Result;
     use itinera::event::{Event, EventBody};
     use itinera::journey::{Contributor, DataBag, InitialData, Output};
     use itinera::policy::{OnSuccess, step_policy};
@@ -159,8 +159,8 @@ mod payment {
         fn run(
             self,
             #[service] payments: &dyn Payments,
-            #[contributor] mut contributor: Contributor<'_>,
-        ) -> Result<Outcome, Error> {
+            contributor: &mut Contributor,
+        ) -> Result<Outcome> {
             match payments.charge(&self.card, self.amount) {
                 Ok(receipt) => {
                     contributor.contribute("receipt", receipt);
@@ -177,7 +177,6 @@ mod payment {
     struct RenewCard {
         #[input]
         card: String,
-        #[reason]
         reason: Reason,
     }
 
@@ -186,8 +185,8 @@ mod payment {
         fn run(
             self,
             #[service] payments: &dyn Payments,
-            #[contributor] mut contributor: Contributor<'_>,
-        ) -> Result<RescueOutcome, Error> {
+            contributor: &mut Contributor,
+        ) -> Result<RescueOutcome> {
             if self.reason.code() != "card-expired" {
                 return Self::fail("not-repairable");
             }
@@ -212,9 +211,9 @@ mod payment {
             &self,
             #[from_workflow] amount: i64,
             #[from_step] receipt: String,
-        ) -> Result<Option<OnSuccess>, Error> {
+        ) -> Result<OnSuccess> {
             audit::record(&format!("charged {amount}, receipt {receipt}"));
-            Self::carry_on()
+            Self::keep_default()
         }
     }
     // ANCHOR_END: audit
@@ -225,7 +224,7 @@ mod payment {
     struct Log;
 
     impl Reporter for Log {
-        fn report(&mut self, event: &Event) -> Result<(), Error> {
+        fn report(&mut self, event: &Event) -> Result<()> {
             match &event.body {
                 EventBody::StepFailed { step, reason, .. } => log::info(&format!(
                     "payment {}: {} failed, {}",
@@ -254,13 +253,13 @@ mod payment {
     impl Payment {
         /// Names each journey after its order.
         #[id_generator]
-        fn order_number(&self, data: &DataBag) -> Result<String, Error> {
+        fn order_number(&self, data: &DataBag) -> Result<String> {
             Ok(data.required("order")?)
         }
 
         /// The bank, as it is configured today.
         #[provider(key = "payments")]
-        fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+        fn bank(&self) -> Result<Provided<dyn Payments>> {
             Ok(provide!(Bank {
                 this_year: 2026,
                 limit: 1000,

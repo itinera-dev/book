@@ -1,17 +1,17 @@
 //! Giving up a step early: the shop's policies give up a step that no retry or rescue can help.
 
 use std::fmt;
-use std::num::NonZeroU32;
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::event::{Event, EventBody, GiveUpCause, HookSource};
 use itinera::executor::local_executor_for;
 use itinera::journey::{Contributor, DataBag, InitialData, Output};
-use itinera::policy::{FailWorkflow, OnSuccess, step_policy};
+use itinera::policy::{OnFailure, OnSuccess, step_policy};
 use itinera::report::Reporter;
 use itinera::service::{Provided, provide};
 use itinera::step::{
-    Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step, step,
+    Attempt, Outcome, Reason, RescueOutcome, RescueStep, Step, StepName, StepReporter, rescue_step,
+    step,
 };
 use itinera::workflow::workflow;
 
@@ -146,8 +146,8 @@ impl Charge {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<Outcome> {
         if self.price <= 0 {
             return Self::fail("nothing-to-charge");
         }
@@ -168,7 +168,6 @@ impl Charge {
 struct RenewCard {
     #[input]
     card: String,
-    #[reason]
     reason: Reason,
 }
 
@@ -177,8 +176,8 @@ impl RenewCard {
     fn run(
         self,
         #[service] payments: &dyn Payments,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<RescueOutcome, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<RescueOutcome> {
         if self.reason.code() != "card-expired" {
             return Self::fail("not-repairable");
         }
@@ -200,13 +199,13 @@ impl Audit {
     #[on_step_success]
     fn charged(
         &self,
-        #[step_name] step: StepName,
+        step: StepName,
         #[from_workflow] price: i64,
         #[from_step] receipt: String,
-        #[contributor] mut contributor: Contributor<'_>,
-    ) -> Result<Option<OnSuccess>, Error> {
+        contributor: &mut Contributor,
+    ) -> Result<OnSuccess> {
         contributor.contribute("audit", format!("{step} took {price}, receipt {receipt}"));
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 
@@ -219,7 +218,7 @@ struct Outage;
 #[step_policy(name = "outage")]
 impl Outage {
     #[on_step_abnormal_termination]
-    fn ended_in_error(&self) -> Result<Option<FailWorkflow>, Error> {
+    fn ended_in_error(&self) -> Result<OnFailure> {
         Self::fail_workflow("payment-network-down")
     }
 }
@@ -234,14 +233,11 @@ struct HeavyParcels;
 #[step_policy(name = "heavy_parcels")]
 impl HeavyParcels {
     #[on_step_retry]
-    fn before_retrying(
-        &self,
-        #[reason] reason: Option<Reason>,
-    ) -> Result<Option<FailWorkflow>, Error> {
+    fn before_retrying(&self, reason: Option<Reason>) -> Result<OnFailure> {
         if reason.as_ref().map(Reason::code) == Some("over-parcel-limit") {
             return Self::fail_workflow("no-carrier-can-take-it");
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 // ANCHOR_END: heavy_parcels
@@ -267,9 +263,9 @@ impl Ship {
     fn run(
         self,
         #[service] carrier: &dyn Carrier,
-        #[contributor] mut contributor: Contributor<'_>,
-        #[reporter] mut reporter: StepReporter<'_>,
-    ) -> Result<Outcome, Error> {
+        contributor: &mut Contributor,
+        mut reporter: StepReporter<'_>,
+    ) -> Result<Outcome> {
         if self.gift_card {
             return Self::skip_because("nothing-to-ship");
         }
@@ -293,7 +289,7 @@ impl Ship {
 struct Log;
 
 impl Reporter for Log {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         match detail(&event.body) {
             Some(detail) => println!(
                 "log {} {} #{} {} {detail}",
@@ -389,7 +385,7 @@ fn detail(body: &EventBody) -> Option<String> {
 struct Desk;
 
 impl Reporter for Desk {
-    fn report(&mut self, event: &Event) -> Result<(), Error> {
+    fn report(&mut self, event: &Event) -> Result<()> {
         if let EventBody::JourneyFailed { step, .. } = &event.body {
             println!("desk: order {} failed at {step}", event.journey_id);
         }
@@ -410,20 +406,20 @@ struct Orders;
 impl Orders {
     /// Names each journey after its order.
     #[id_generator]
-    fn order_number(&self, data: &DataBag) -> Result<String, Error> {
+    fn order_number(&self, data: &DataBag) -> Result<String> {
         Ok(data.required("order")?)
     }
 
     /// The bank, as the payment client of the journey.
     #[provider(key = "payments")]
-    fn bank(&self) -> Result<Provided<dyn Payments>, Error> {
+    fn bank(&self) -> Result<Provided<dyn Payments>> {
         Ok(provide!(Bank { this_year: 2026 }))
     }
 
     /// A carrier for every attempt of a step: the main carrier first, the backup carrier after.
     #[provider(key = "carrier", per_attempt)]
-    fn carriers(&self, #[attempt] attempt: NonZeroU32) -> Result<Provided<dyn Carrier>, Error> {
-        if attempt == NonZeroU32::MIN {
+    fn carriers(&self, attempt: Attempt) -> Result<Provided<dyn Carrier>> {
+        if attempt.is_first() {
             return Ok(provide!(MainCarrier));
         }
         Ok(provide!(BackupCarrier))

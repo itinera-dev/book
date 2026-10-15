@@ -1,6 +1,6 @@
 //! An asynchronous workflow whose journey is run without awaiting it.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::step::{Outcome, Step, step};
 use itinera::workflow::workflow;
@@ -11,7 +11,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    async fn run(self) -> Result<Outcome, Error> {
+    async fn run(self) -> Result<Outcome> {
         Self::succeed()
     }
 }

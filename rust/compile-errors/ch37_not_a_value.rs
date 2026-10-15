@@ -1,6 +1,6 @@
 //! A step that contributes something that is not a value: its connection to the bank.
 
-use itinera::error::Error;
+use itinera::error::Result;
 use itinera::executor::local_executor_for;
 use itinera::journey::Contributor;
 use itinera::step::{Outcome, Step, step};
@@ -17,7 +17,7 @@ struct Charge;
 
 #[step]
 impl Charge {
-    fn run(self, #[contributor] mut contributor: Contributor<'_>) -> Result<Outcome, Error> {
+    fn run(self, contributor: &mut Contributor) -> Result<Outcome> {
         let connection = BankConnection {
             bank: "the customer's bank",
         };
