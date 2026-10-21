@@ -20,7 +20,7 @@ name: ch30_testing_a_whole_journey.test
 region: path
 ```
 
-The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Its steps and policies are as [chapter 26](26-running-async-journeys-while-others-wait.md) shows the charge, its rescue step, the shipping and `failedShipping`, [chapter 22](22-finishing-a-journey-early.md) the lookup and [chapter 20](20-an-optional-input.md) the pricing. Each test compares a journey's path with the approved one:
+The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Its pieces are as [chapter 26](26-running-async-journeys-while-others-wait.md) shows the charge, its rescue step, the shipping, `notify` and `failedShipping`, [chapter 22](22-finishing-a-journey-early.md) the lookup, `alreadyCompleted` and the log, [chapter 20](20-an-optional-input.md) the pricing and the audit, and [chapter 11](11-naming-a-journey.md) the desk. Each test compares a journey's path with the approved one:
 
 ```example
 name: ch30_testing_a_whole_journey.test
