@@ -731,6 +731,7 @@ interface Parcel {
 /** The type token of a parcel. */
 const PARCEL = objectOf({ weight: integer, size: listOf(integer) });
 
+// ANCHOR: workflow
 /**
  * The shop's workflow: it looks the order up, and finishes an order already
  * completed. Otherwise it works out what the order costs, then charges it,
@@ -810,6 +811,7 @@ class Orders extends Workflow implements Messages, Refunds {
     return this.provide(new Ledger(["A-13"]));
   }
 }
+// ANCHOR_END: workflow
 
 // ANCHOR: entry
 /** A service in the listing: its key, and the provider that serves it. */
