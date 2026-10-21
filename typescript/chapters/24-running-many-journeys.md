@@ -19,7 +19,7 @@ It runs [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s five orders
 name: ch24_one_executor_for_every_order
 ```
 
-An instance runs one journey and no more, and an executor runs one journey at a time. TypeScript can't see either mistake when it compiles the program, so the executor checks both when the program runs. The next program has [chapter 5](05-a-first-journey.md)'s shop, with [chapter 4](04-a-first-step.md)'s charge, which only charges. It hands one executor Ann's instance twice, then Cat's while Ben's journey is still running. `said` awaits each run, and says how its journey ended, or why the run was refused:
+An instance runs one journey and no more, and an executor runs one journey at a time. TypeScript can't see either mistake when it compiles the program, so the executor checks both when the program runs. The next program has [chapter 5](05-a-first-journey.md)'s shop, which only charges, with [chapter 4](04-a-first-step.md)'s charge. It hands one executor Ann's instance twice, then Cat's while Ben's journey is still running. `said` awaits each run, and says how its journey ended, or why the run was refused:
 
 ```example
 name: ch24_runs_refused
