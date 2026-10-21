@@ -8,6 +8,11 @@
 //   version starting with a digit, as the Pages workflow's tag filter says, at
 //   /book/LANGUAGE/VERSION/.
 //
+// A language with no release yet, as book.config.mjs marks it, has only its
+// `next` edition. An edition whose branch or tag does not hold the language's
+// directory yet, such as `next` before a new language's book reaches it, is
+// left out.
+//
 // This checkout's site renders all of them, each from the book's files at its
 // own branch or tag, read from a worktree. Each edition is a strict build of
 // its own; the latest release's build gives the site its front page, its 404
@@ -19,7 +24,7 @@
 // history.
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -36,14 +41,23 @@ function nextRef() {
 	return ['origin/next', 'next'].find((ref) => git('rev-parse', '--verify', '--quiet', `${ref}^{commit}`) !== undefined);
 }
 
+/** Whether the book at `ref`, or this checkout without one, holds the contents of a language's book. */
+function holds(directory, ref) {
+	const contents = `${directory}/chapters/README.md`;
+	return ref ? git('cat-file', '-e', `${ref}:${contents}`) !== undefined : existsSync(join(root, contents));
+}
+
 /** Every edition to publish for a language, the latest release first. */
-function editionsOf(language, next) {
+function editionsOf({ language, directory, released }, next) {
 	const tags = (git('tag', '--list', `${language}-[0-9]*`) ?? '').split('\n').filter(Boolean);
-	return [
-		{ language, version: '', ref: undefined, source: 'main' },
+	const planned = [
+		...(released ? [{ language, version: '', ref: undefined, source: 'main' }] : []),
 		...(next ? [{ language, version: 'next', ref: next, source: 'next' }] : []),
 		...tags.map((tag) => ({ language, version: tag.slice(language.length + 1), ref: tag, source: tag })),
 	];
+	const missing = planned.filter((edition) => !holds(directory, edition.ref));
+	for (const edition of missing) console.warn(`${edition.source} has no ${directory}/chapters/README.md, so its ${language} edition is not built.`);
+	return planned.filter((edition) => !missing.includes(edition));
 }
 
 /** Runs one of these scripts for an edition, and stops everything when it fails. */
@@ -64,7 +78,7 @@ function run(script, edition, checkout, output) {
 
 const next = nextRef();
 if (!next) console.warn('There is no `next` branch, so no edition is built from it.');
-const planned = editions.flatMap((edition) => editionsOf(edition.language, next));
+const planned = editions.flatMap((edition) => editionsOf(edition, next));
 
 const scratch = mkdtempSync(join(tmpdir(), 'itinera-book-editions-'));
 const worktrees = [];

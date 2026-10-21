@@ -62,7 +62,8 @@ const KEYS: Record<Kind, readonly string[]> = {
 
 const isKind = (lang: string | null | undefined): lang is Kind => lang != null && lang in KEYS;
 
-const NAME = /^[a-z0-9_]+$/;
+// A tested program's tests, in a file of their own, are named after it with `.test` added.
+const NAME = /^[a-z0-9_]+(?:\.test)?$/;
 
 interface Directive {
 	kind: Kind;
@@ -82,7 +83,7 @@ function parse(node: Code, kind: Kind, chapter: string): Directive {
 		if (!KEYS[kind].includes(key)) {
 			throw new Error(`${where}: a ${kind} directive has no key "${key}". It takes ${KEYS[kind].join(', ')}.`);
 		}
-		if (!NAME.test(value)) throw new Error(`${where}: "${value}" is not a name of lower-case letters, digits and underscores.`);
+		if (!NAME.test(value)) throw new Error(`${where}: "${value}" is not a name of lower-case letters, digits and underscores, with ".test" after it for the tests of a tested program.`);
 		fields.set(key, value);
 	}
 	const name = fields.get('name');

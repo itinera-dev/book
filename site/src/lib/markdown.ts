@@ -58,7 +58,9 @@ export async function markdownCopy(repositoryPath: string): Promise<string> {
 
 /** The edition's notice as a quotation, before the rest of a Markdown copy, or nothing for the latest release. */
 export function noticeMarkdown(): string {
-	return editionNotice ? `> ${editionNotice} [${latestLinkText}](${site}${latestHref}).\n\n` : '';
+	if (!editionNotice) return '';
+	const latest = latestHref ? ` [${latestLinkText}](${site}${latestHref}).` : '';
+	return `> ${editionNotice}${latest}\n\n`;
 }
 
 /** The Markdown copy of one page of the book. */
