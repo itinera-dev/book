@@ -44,4 +44,4 @@ A diagram is always followed by text that says everything it shows. If you read 
 
 ## Going further
 
-The book teaches; it doesn't list every detail. The [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and `itinera` documents every item it offers where the item is declared, each with an example, so your editor shows it as you write. Its source is in [itinera-ts](https://github.com/itinera-dev/itinera-ts).
+The book teaches; it doesn't list every detail. The [specification](https://github.com/itinera-dev/spec) defines what every Itinera must do, and `itinera` documents every item it offers where the item is declared, so your editor shows its documentation as you write. Its source, and the examples its documentation names, are in [itinera-ts](https://github.com/itinera-dev/itinera-ts).
