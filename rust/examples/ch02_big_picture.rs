@@ -21,7 +21,8 @@ use itinera::workflow::{ListedService, ListedStep, Workflow, role, workflow};
 // The charge runs at most twice: once, and once more after its rescue step succeeds.
 // Every successful charge is audited.
 #[with_step(Charge, name = "charge", rescue = RenewCard, policies = [Audit])]
-// Shipping may be tried once more after a failure, which, for a parcel the carrier refused, is worth trying again.
+// Shipping may be tried once more after a failure, which, for a parcel the
+// carrier refused, is worth trying again.
 #[with_step(Ship, name = "ship", retry_budget = 1)]
 struct Orders;
 // ANCHOR_END: workflow
