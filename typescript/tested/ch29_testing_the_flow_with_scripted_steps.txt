@@ -1,0 +1,13 @@
+✔ a declined card is renewed and the charge tried again with it (21.719486ms)
+✔ a shipping that fails with too-heavy is tried again (10.685514ms)
+✔ a shipping that fails with over-parcel-limit is given up after attempt 1 (5.916934ms)
+✔ a scripted shipping is still built with the weight the adapter supplies (6.214541ms)
+✔ a charge that ends in an error is given up and never rescued (8.398995ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 266.194403

@@ -1,0 +1,15 @@
+✔ a charge the bank takes gives back the bank's receipt (3.302012ms)
+✔ a charge the bank declines fails with card-expired and no receipt (0.408878ms)
+✔ a charge lets the error of a bank that is down escape (0.563254ms)
+✔ renewing an expired card gives back the card that replaced it (0.321217ms)
+✔ a failure that is not an expired card is not repairable (0.279718ms)
+✔ a parcel of 2 kg leaves with its receipt (1.136142ms)
+✔ a parcel of 90 kg fails with over-parcel-limit before the carrier is called (0.469212ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 225.501803
