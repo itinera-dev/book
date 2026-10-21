@@ -828,20 +828,20 @@ function services(listed: readonly ListedService[]): string {
  * step with its services.
  */
 function entry(listed: ListedStep): string {
-  let entry = `${String(listed.position)}. ${listed.step}`;
+  let line = `${String(listed.position)}. ${listed.step}`;
   if (listed.policies.length > 0) {
-    entry += `, with ${listed.policies.join(", ")}`;
+    line += `, with ${listed.policies.join(", ")}`;
   }
   if (listed.adapter !== undefined) {
-    entry += `; adapted by ${listed.adapter}`;
+    line += `; adapted by ${listed.adapter}`;
   }
   if (listed.services.length > 0) {
-    entry += `; services: ${services(listed.services)}`;
+    line += `; services: ${services(listed.services)}`;
   }
   if (listed.rescue !== undefined) {
-    entry += `; rescued by ${listed.rescue.step}, services: ${services(listed.rescue.services)}`;
+    line += `; rescued by ${listed.rescue.step}, services: ${services(listed.rescue.services)}`;
   }
-  return entry;
+  return line;
 }
 // ANCHOR_END: entry
 

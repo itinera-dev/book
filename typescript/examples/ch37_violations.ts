@@ -55,15 +55,14 @@ class Receipts extends StepPolicy {
 // ANCHOR: wrong
 /**
  * Defines the shop's workflow, with both policies attached to the charge and
- * the shipping listed twice, and gives it back.
+ * the shipping listed twice.
  */
-function defineOrders(): typeof Workflow {
+function defineOrders(): void {
   @workflow({ name: "orders" })
   @withStep(Charge, { name: "charge", policies: [Audit, Receipts] })
   @withStep(Ship, { name: "ship" })
   @withStep(Ship, { name: "ship", retryBudget: 1 })
   class Orders extends Workflow {}
-  return Orders;
 }
 // ANCHOR_END: wrong
 
