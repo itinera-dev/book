@@ -29,7 +29,11 @@ import Base from '../layouts/Base.astro';
 				<li>
 					<a href={editionHref(edition)}>
 						<span class="edition-list__name">{edition.name}</span>
-						<span class="edition-list__detail">The whole book, with its examples in {edition.name}</span>
+						<span class="edition-list__detail">
+							{edition.released
+								? `The whole book, with its examples in ${edition.name}`
+								: `The book as it is being written, ahead of the first release, with its examples in ${edition.name}`}
+						</span>
 					</a>
 				</li>
 			))

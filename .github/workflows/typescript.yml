@@ -1,0 +1,40 @@
+name: TypeScript book
+
+# Runs every example of the TypeScript book and checks that it prints what the book shows, that
+# every compile error gives the message the book shows, and that every tested program builds
+# without test support and its tests report what the book shows, with `npm test` in typescript/
+# (typescript/tests/). `npm run itinera` first prepares the itinera package that
+# typescript/itinera.json pins, a commit of itinera-ts, since itinera has no release yet.
+
+on:
+  pull_request:
+  push:
+    branches: [main, next]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: typescript-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  examples:
+    name: TypeScript examples print what the book shows
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: typescript
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: typescript/package-lock.json
+      - run: npm run itinera
+      - run: npm ci
+      - run: npm test
