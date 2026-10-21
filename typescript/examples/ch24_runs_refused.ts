@@ -26,7 +26,7 @@ class Charge extends Step {
   }
 }
 
-/** The shop's workflow: for now, it only charges. */
+/** The shop's workflow of chapter 5: it only charges. */
 @workflow({ name: "orders" })
 @withStep(Charge, { name: "charge" })
 class Orders extends Workflow {}
