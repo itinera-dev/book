@@ -6,7 +6,7 @@ The shop now works with coding agents, which change its steps and, sometimes, it
 
 ## The code
 
-The program is [chapter 30](30-testing-a-whole-journey.md)'s module, with its approved paths, so it has none of what chapters 31 to 35 added to the shop. An agent was asked to cap discounts, and changed the pricing step alone:
+The program is [chapter 30](30-testing-a-whole-journey.md)'s module, with its approved paths, so it has none of what chapters 31 to 36 added to the shop. An agent was asked to cap discounts, and changed the pricing step alone:
 
 ```example
 name: ch43_working_with_agents

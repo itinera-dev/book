@@ -86,5 +86,5 @@ We have shown how to bring Itinera into code that already works, one piece at a 
 
 | The usual way | With Itinera |
 |---|---|
-| Untangling a function often means rewriting it, and its callers, in one go. | One piece becomes a workflow behind a method the callers already call. |
+| Untangling a function often means rewriting it, and its callers, in one go. | One piece becomes a workflow behind a method the callers already call, now awaited. |
 | A client, a log or an audit trail written for the old code is often rewritten for the new. | Each stays, served to the steps through an interface it already matches, or called from a policy or a reporter. |
