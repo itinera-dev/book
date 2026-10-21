@@ -8,14 +8,14 @@ This is the TypeScript book of Itinera. Every program in it is TypeScript, every
 
 ## Meet the shop
 
-Every example belongs to the same small online shop. In the first chapter you meet its first four customers:
+Every example belongs to the same small online shop. In [chapter 1](01-but-why-itinera.md) you meet its first four customers:
 
 1. **Ann**, whose order goes through without trouble.
 2. **Ben**, whose card has expired, so the shop has to get his new one.
 3. **Cat**, whose parcel is too heavy for the main carrier, so it goes to the backup carrier.
 4. **Dan**, whose card has expired too, and whose bank refuses the new one, because his order is above its limit.
 
-Their orders are numbered A-1 to A-4. A chapter brings in a new customer when it needs an order none of them gives, and a customer keeps the same name and order number wherever they appear.
+Their orders are numbered A-1 to A-4. A chapter brings in a new customer when it needs an order none of them gives, as [chapter 2](02-the-big-picture.md) does, and a customer keeps the same name and order number wherever they appear.
 
 ## The shape of a chapter
 
