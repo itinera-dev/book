@@ -6,7 +6,7 @@ The warehouse now describes each order's parcel as one value, its weight and its
 
 ## The code
 
-The parcel is a plain object of the shop's own, described by an interface. Plain objects, lists and numbers are values, so the data bag can hold a parcel as it is. To read one back, the shop makes a type token for it with `objectOf` and `listOf`, from `itinera/value`, which check each property as the tokens they are given do:
+The parcel is a plain object of the shop's own, described by an interface. Plain objects, arrays and numbers are values, as [chapter 6](06-passing-data-on.md) says, so the data bag can hold a parcel as it is. To read one back, the shop makes a type token for it with `objectOf` and `listOf`, from `itinera/value`, which check each property as the tokens they are given do:
 
 ```example
 name: ch21_deciding_where_a_steps_data_comes_from
@@ -20,7 +20,7 @@ name: ch21_deciding_where_a_steps_data_comes_from
 region: data
 ```
 
-The shipping doesn't change at all: it is still [chapter 17](17-giving-up-a-step-early.md)'s. The workflow gives it the weight with an **input adapter**: a method of the workflow class marked `@inputAdapter({ steps: ["ship"] })`, from `itinera/workflow`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one through its parameter marked `@key()`, from `itinera/workflow` too. It returns a `Supplied`, from the same module, made by one of two methods it inherits from `Workflow`. For `weight`, it reads the parcel from the data bag and supplies its weight with `this.supply(...)`. For any other input, it returns `this.fromDataBag()`, and that input is read from the data bag as before.
+The shipping doesn't change at all: it is still [chapter 17](17-giving-up-a-step-early.md)'s. The workflow gives it the weight with an **input adapter**: a method of the workflow class marked `@inputAdapter({ steps: ["ship"] })`, from `itinera/workflow`. The executor asks it about each input of the shipping as the shipping is built, and tells it which one through its parameter marked `@key()`, from `itinera/workflow` too. It returns a `Supplied`, from the same module, made by one of two methods it inherits from `Workflow`. For `weight`, it reads the parcel from the data bag with `@fromWorkflow`, as the audit does in [chapter 15](15-reacting-to-what-a-step-did.md), and supplies its weight with `this.supply(...)`. For any other input, it returns `this.fromDataBag()`, and that input is read from the data bag as before.
 
 ```example
 name: ch21_deciding_where_a_steps_data_comes_from
