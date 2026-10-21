@@ -28,3 +28,8 @@ The Itinera book for TypeScript, in reading order. It follows the plan that ever
 14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
 15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
 16. [Skipping a step](16-skipping-a-step.md)
+17. [Giving up a step early](17-giving-up-a-step-early.md)
+18. [Doing something when the journey ends](18-doing-something-when-the-journey-ends.md)
+19. [Letting policies act on the outside world](19-letting-policies-act-on-the-outside-world.md)
+20. [An optional input](20-an-optional-input.md)
+21. [Deciding where a step's data comes from](21-deciding-where-a-steps-data-comes-from.md)
