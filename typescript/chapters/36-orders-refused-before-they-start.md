@@ -22,7 +22,7 @@ region: log
 
 The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s. Its `detail` is the function [chapter 12](12-trying-again.md) shows, with the cases later chapters added, the last in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md). The faked logging service refuses an empty name with its error, `NoCustomer`.
 
-For each order, the program first prints a heading, saying whose order it is and its number, or what it lacks:
+For each order, the program first prints a heading, saying what the order lacks:
 
 ```example
 name: ch36_orders_refused_before_they_start

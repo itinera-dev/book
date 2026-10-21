@@ -882,13 +882,12 @@ function whatWentWrong(abort: Abort): string {
 
 // ANCHOR: heading
 /**
- * What the program prints before an order: whose it is and its number, or
- * what it lacks.
+ * What the program prints before an order: what the order lacks, its number
+ * or its customer's name.
  */
 function heading(order: string | undefined, customer: string): string {
   if (order === undefined) return `${customer}'s order, without a number`;
-  if (customer === "") return `order ${order}, without a customer's name`;
-  return `${customer}'s order ${order}`;
+  return `order ${order}, without a customer's name`;
 }
 // ANCHOR_END: heading
 
