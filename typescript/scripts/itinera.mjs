@@ -93,6 +93,7 @@ if (
 }
 
 const source = local ? resolve(local) : fetched();
+mkdirSync(prepared, { recursive: true });
 const destination = mkdtempSync(join(tmpdir(), "itinera-pack-"));
 try {
   const [packed] = JSON.parse(

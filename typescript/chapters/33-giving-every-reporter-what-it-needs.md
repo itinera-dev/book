@@ -22,7 +22,7 @@ name: ch33_giving_every_reporter_what_it_needs
 region: charge
 ```
 
-The payment client it asks for is [chapter 26](26-running-async-journeys-while-others-wait.md)'s `Payments`. `setGlobalMetadata` returns a promise, like the step reporter's `info`, so the charge awaits it.
+The payment client it asks for is [chapter 26](26-running-async-journeys-while-others-wait.md)'s `Payments`, with [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s token `PAYMENTS`. `setGlobalMetadata` returns a promise, like the step reporter's `info`, so the charge awaits it.
 
 The log keeps each entry it receives in a `Map`, through `receiveGlobalMetadata`, a method a reporter may add beside `report`. A value comes as a `PlainValue`, from `itinera/value`: plain data, such as a string, a number or an object of them. The log starts each line with the customer's name and, once there is one, the receipt:
 

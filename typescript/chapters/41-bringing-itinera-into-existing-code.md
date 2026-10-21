@@ -43,7 +43,7 @@ name: ch41_bringing_itinera_into_existing_code
 region: workflow
 ```
 
-The rest of the checkout is chapter 1's, with four changes. `Shop` no longer holds the bank. A new error, `PaymentNotRun`, says that the payment's journey ended without saying how the payment went. The line that took the payment now awaits `pay`. And since `pay` returns a promise, as every journey's run does, `checkout` and the method it calls become `async`:
+The rest of the checkout is chapter 1's, with four changes. `Shop` no longer holds the bank. A new error, `PaymentNotRun`, covers the rest: a journey that ends neither succeeded nor failed becomes an error of the checkout. The line that took the payment now awaits `pay`. And since `pay` returns a promise, as every journey's run does, `checkout` and the method it calls become `async`:
 
 ```example
 name: ch41_bringing_itinera_into_existing_code
@@ -74,7 +74,7 @@ name: ch41_bringing_itinera_into_existing_code
 
 1. **The rest of the program hardly knows.** `checkout` gives the same tracking numbers and throws the same errors, the shipping and the messages are untouched, and each order ends as it did in chapter 1. Its callers now await it, the one change the move asks of them. `pay` is the only seam: it creates an instance, runs its journey and reads how it ended.
 2. **Existing code is kept, behind the workflow's parts.** The bank's client is a service through the interface it already matches, the audit trail is called from a policy, and the log from a reporter. What moves into the workflow is the decisions: when to renew a card, and when to audit. The code that talks to the outside world stays where it was.
-3. **The log now says what happened.** Chapter 1's payment logged that it was renewing a card, before it tried. Now the log follows the journey's events: Ben's charge failed with `card-expired`, the rescue step repaired it, and the charge succeeded. Dan's was repaired too, then failed again, `declined`, which chapter 1's log never said.
+3. **The log now says what happened.** Chapter 1's payment logged that it was renewing a card, before it tried. Now the log follows the journey's events: Ben's charge failed with `card-expired` and the rescue step repaired it, and the audit trail shows the charge then went through. Dan's was repaired too, then failed again, `declined`, which chapter 1's log never said.
 4. **One piece at a time.** The shipping, with its backup carrier, and the messages to the customer are still chapter 1's code, running beside the workflow. Each can move next: the shipping as a step with a retry budget and a provider for each attempt, the messages as a policy acting through a role. Move one piece, run the program, and compare what it prints with what it printed before.
 5. **Where Itinera fits, and where it doesn't.** It fits a piece of business with decisions around it: whether to try again, how to repair, what to record and whom to tell. A single call with nothing to decide around it, such as reserving the goods here, gains nothing from a workflow of its own. It stays a call, or becomes a step of a workflow that has decisions to make.
 

@@ -31,7 +31,7 @@ The book follows one small online shop from start to finish. It charges orders, 
 
 1. **Part 1, Why Itinera,** shows a checkout written the usual way, then the same checkout with Itinera, in one picture.
 2. **The chapters after it** start small, with a single step, and grow only when you need more: putting steps together into a journey, giving them what they need from the outside world, reacting to how they went, watching, testing and designing it all.
-3. **The appendices** hold a cheat sheet, a glossary and what this version supports.
+3. **The appendices** hold a [cheat sheet](appendix-1-cheat-sheet.md), a [glossary](appendix-2-glossary.md) and [what this version supports](appendix-3-what-this-version-supports.md).
 
 You can read the book from the start, or jump to the chapter you need: every example is a complete TypeScript program that runs on its own.
 

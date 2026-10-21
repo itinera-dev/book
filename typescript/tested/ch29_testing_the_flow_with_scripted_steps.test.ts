@@ -6,7 +6,7 @@ import { mock, test } from "node:test";
 import type { WorkflowInstance } from "itinera/instance";
 import type { JourneyResult } from "itinera/journey";
 import { Some } from "itinera/option";
-import { type ScriptedRun, scripted } from "itinera/testing";
+import { type ScriptedRun, TestMistake, scripted } from "itinera/testing";
 import { integer, string } from "itinera/value";
 import { Orders } from "./ch29_testing_the_flow_with_scripted_steps.js";
 
@@ -119,3 +119,18 @@ test("a charge that ends in an error is given up and never rescued", async () =>
   assert.equal(failedByAPolicy(run.result), "payment-network-down");
 });
 // ANCHOR_END: outage
+
+// ANCHOR: mistake
+test("a script that leaves out the shipping's attempt 2 is refused", async () => {
+  const script = scripted(order("A-4", "ann-2028", 1))
+    .step("ship")
+    .willFail("too-heavy")
+    .run();
+  await assert.rejects(
+    script,
+    (mistake) =>
+      mistake instanceof TestMistake &&
+      mistake.message === "the test is mistaken: attempt 2 of ship is left out",
+  );
+});
+// ANCHOR_END: mistake

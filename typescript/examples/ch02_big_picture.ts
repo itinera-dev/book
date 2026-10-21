@@ -325,7 +325,8 @@ class Log implements Reporter {
 // The charge runs at most twice: once, and once more after its rescue step
 // succeeds. Every successful charge is audited.
 @withStep(Charge, { name: "charge", rescue: RenewCard, policies: [Audit] })
-// Shipping may be tried once more, after a failure worth trying again.
+// Shipping may be tried once more after a failure, which, for a parcel the
+// carrier refused, is worth trying again.
 @withStep(Ship, { name: "ship", retryBudget: 1 })
 class Orders extends Workflow implements Messages {
   /** One payment client for the journey, used by the charge and its rescue. */

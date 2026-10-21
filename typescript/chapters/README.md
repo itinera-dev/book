@@ -64,3 +64,9 @@ The Itinera book for TypeScript, in reading order. It follows the plan that ever
 41. [Bringing Itinera into existing code](41-bringing-itinera-into-existing-code.md)
 42. [Using a step in another workflow](42-using-a-step-in-another-workflow.md)
 43. [Working with agents](43-working-with-agents.md)
+
+## Appendices
+
+- Appendix 1: [Cheat sheet](appendix-1-cheat-sheet.md)
+- Appendix 2: [Glossary](appendix-2-glossary.md)
+- Appendix 3: [What this version supports](appendix-3-what-this-version-supports.md)

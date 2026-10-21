@@ -20,7 +20,7 @@ name: ch20_an_optional_input
 region: charge
 ```
 
-The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`.
+The payment client it asks for is [chapter 14](14-repairing-then-trying-once-more.md)'s `Payments`, with [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s token `PAYMENTS`.
 
 The workflow lists the pricing first, under the name `price`, so the charge reads the amount it gave back:
 
@@ -29,7 +29,7 @@ name: ch20_an_optional_input
 region: workflow
 ```
 
-The other steps, policies and reporters it names are as earlier chapters show them: `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md), `Notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+The other steps, policies and reporters it names are as earlier chapters show them: `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md), `Notify` and the role `Messages` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md). The providers are [chapter 14](14-repairing-then-trying-once-more.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md); the interfaces `Payments` and `Carrier` are [chapter 14](14-repairing-then-trying-once-more.md)'s and [chapter 12](12-trying-again.md)'s.
 
 The audit of [chapter 15](15-reacting-to-what-a-step-did.md) wrote down the order's price, which is no longer what was charged. It now asks for the amount, from the data bag:
 

@@ -52,4 +52,4 @@ We have shown how a journey is aborted when one of its reporters fails, and what
 | The usual way | With Itinera |
 |---|---|
 | A log call that fails is often ignored, or crashes the request at whatever line made it. | A reporter that fails aborts the journey with `reporter failed`, at once, and the result carries its error. |
-| What a request did before it crashed is found by reading the code that ran. | The events before the abort say what the journey did, up to the charge, and the shipping never started. |
+| What a request did before it crashed is often found only by reading the code that ran. | The events before the abort say what the journey did, up to the charge, and the shipping never started. |

@@ -34,7 +34,7 @@ name: ch22_finishing_a_journey_early
 region: workflow
 ```
 
-The other steps, policies and reporters it names are as earlier chapters show them: the pricing, the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), `Notify` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md).
+The other steps, policies and reporters it names are as earlier chapters show them: the pricing, the charge and the audit in [chapter 20](20-an-optional-input.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), `Notify` and the role `Messages` in [chapter 19](19-letting-policies-act-on-the-outside-world.md) and the desk in [chapter 11](11-naming-a-journey.md). The bank's and the carriers' providers are [chapter 14](14-repairing-then-trying-once-more.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md), the interfaces `Payments` and `Carrier` [chapter 14](14-repairing-then-trying-once-more.md)'s and [chapter 12](12-trying-again.md)'s, and the adapter with `Parcel` and `PARCEL` [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s.
 
 The log is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, and now also says which policy finished a journey:
 

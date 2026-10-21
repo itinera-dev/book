@@ -66,7 +66,7 @@ flowchart TD
   reserve -- success --> charge[charge]
   reserve -- failure --> told_failed[notify tells the customer the order could not be completed]
   charge -- success --> audit[audit logs the charge]
-  charge -- failure --> rescue[charge_rescue asks the bank for the new card]
+  charge -- failure --> rescue[charge_rescue renews an expired card]
   rescue -- success --> again[charge runs once more]
   rescue -- failure --> told_failed
   again -- success --> audit
@@ -84,7 +84,7 @@ The diagram shows:
 
 1. The journey starts with the order's data and runs `reserve`. If reserving fails, as Eve's does, the journey goes to its end as failed.
 2. Then `charge` runs. When it succeeds, as Ann's does, the `audit` policy logs the charge.
-3. When the charge fails, the rescue step, which the listing names `charge_rescue`, runs and asks the bank for the new card. If the rescue fails, as Fin's does, the journey goes to its end as failed.
+3. When the charge fails, the rescue step, which the listing names `charge_rescue`, runs: for an expired card it asks the bank for the new card, and for any other reason it fails, as Fin's does, and the journey goes to its end as failed.
 4. When the rescue succeeds, the charge runs once more. If it succeeds, as Ben's does, `audit` logs it; if it fails, as Dan's does, the journey goes to its end as failed.
 5. After the audit, `ship` makes its first attempt, with the main carrier. If it succeeds, as Ann's does, the journey goes to its end as succeeded.
 6. If the first attempt fails, `ship` has a retry left, so it makes a second attempt, with the backup carrier. If that succeeds, as Cat's does, the journey goes to its end as succeeded; if it fails, as Gil's does, the journey goes to its end as failed.

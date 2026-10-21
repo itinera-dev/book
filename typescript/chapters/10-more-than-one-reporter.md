@@ -20,7 +20,7 @@ name: ch10_more_than_one_reporter
 region: workflow
 ```
 
-The log is [chapter 8](08-seeing-what-happened.md)'s, with the case for the step's message that [chapter 9](09-saying-what-only-a-step-knows.md) added. The shipping is chapter 9's, the charge is [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s, and the shop runs Ann's and Gil's orders again. It prints:
+The log is [chapter 8](08-seeing-what-happened.md)'s, with the case for the step's message that [chapter 9](09-saying-what-only-a-step-knows.md) added. The shipping is chapter 9's, the charge is [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s, `Payments`, `Carrier` and their tokens are those chapter 7 shows, and the shop runs Ann's and Gil's orders again. It prints:
 
 ```output
 name: ch10_more_than_one_reporter

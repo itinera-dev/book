@@ -13,7 +13,7 @@ name: ch37_listing
 region: workflow
 ```
 
-What it names is as earlier chapters show it: the lookup, `AlreadyCompleted`, `OrderBook`, `ORDER_BOOK` and `Ledger` in [chapter 22](22-finishing-a-journey-early.md), the pricing in [chapter 20](20-an-optional-input.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), `RenewCard`, `Payments`, `Cards`, `CARDS` and `cardRegistry` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), `Audit` and `Outage` in [chapter 34](34-saying-which-attempt-took-the-money.md), the shipping, `Notify`, `FailedShipping`, `Carrier`, `Messages`, `Refunds` and `network` in [chapter 26](26-running-async-journeys-while-others-wait.md), `Parcel` and `PARCEL` in [chapter 21](21-deciding-where-a-steps-data-comes-from.md), the tokens `PAYMENTS` and `CARRIER` in [chapter 7](07-giving-a-step-the-tools-it-needs.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md), [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md).
+What it names is as earlier chapters show it: the lookup, `AlreadyCompleted`, `OrderBook`, `ORDER_BOOK` and `Ledger` in [chapter 22](22-finishing-a-journey-early.md), the pricing in [chapter 20](20-an-optional-input.md), the charge in [chapter 33](33-giving-every-reporter-what-it-needs.md), `RenewCard`, `Payments`, `Cards`, `CARDS` and `cardRegistry` in [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md), `Audit` and `Outage` in [chapter 34](34-saying-which-attempt-took-the-money.md), the shipping, `Notify`, `FailedShipping`, `Carrier`, `Messages`, `Refunds` and `network` in [chapter 26](26-running-async-journeys-while-others-wait.md), `Parcel` and `PARCEL` in [chapter 21](21-deciding-where-a-steps-data-comes-from.md), the tokens `PAYMENTS` and `CARRIER` in [chapter 7](07-giving-a-step-the-tools-it-needs.md), the log in [chapter 33](33-giving-every-reporter-what-it-needs.md), [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md) and [chapter 36](36-orders-refused-before-they-start.md), and the desk in [chapter 11](11-naming-a-journey.md). Nothing runs in this chapter, so nothing is printed.
 
 | Decision | Where it lives | Why there |
 |---|---|---|
@@ -22,10 +22,11 @@ What it names is as earlier chapters show it: the lookup, `AlreadyCompleted`, `O
 | The amount, less any discount | the `price` step | it is a rule of the business |
 | Whether the card can be charged | the `charge` step | it is what the business does with the order |
 | Renewing an expired card | the rescue step, `charge_rescue` | it repairs why the charge failed, so the charge can run once more |
-| Giving up a charge that ended in the bank's error | the `outage` policy | it decides what happens after an outcome |
+| Giving up a charge that ended in the bank's error | the `outage` policy | it decides what happens after an error the charge didn't handle |
 | Writing every charge down | the `audit` policy | it reacts to an outcome, and changes nothing in the charge |
 | A gift card has nothing to ship | the `ship` step, which skips | only the step knows its domain well enough |
 | Shipping tried twice, with another carrier the second time | the workflow: a retry budget, and a provider for every attempt | how often to try, and with what, is the plan, not the rule |
+| A parcel over the shop's limit | the `ship` step fails it, and the `failedShipping` policy gives it up before a retry | the limit is the business's; giving up early is a decision after an outcome |
 | Refunding a shipping given up | the `failedShipping` policy, through a role | it reacts to a step given up, and acts on the outside world |
 | Telling the customer | the `notify` policy, through a role | it reacts to how the journey ended |
 | The weight out of the warehouse's parcel | the workflow's input adapter | it changes the form of a step's data, and decides nothing |
@@ -63,4 +64,4 @@ We have shown how to place a new decision of the shop.
 
 | The usual way | With Itinera |
 |---|---|
-| A business function often repairs, retries and notifies inside itself, because that is where the problem shows up. | A step does the business's work and says how it went; repairing, retrying and reacting each have a place of their own. |
+| Where a new rule goes is often decided by whoever writes it, next to the code they happen to be reading. | The workflow's declaration shows where each of the shop's decisions lives, one kind of decision to each place. |

@@ -29,7 +29,7 @@ name: ch38_declaring_by_hand
 region: parts
 ```
 
-`Parcel` is [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, `OrderBook` is [chapter 22](22-finishing-a-journey-early.md)'s, `Carrier`, `Messages` and `Refunds` are [chapter 26](26-running-async-journeys-while-others-wait.md)'s, and `Payments`, `Cards`, `CARDS` and `cardRegistry` are [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md) and `ORDER_BOOK` of [chapter 22](22-finishing-a-journey-early.md).
+`Parcel` and `PARCEL` are [chapter 21](21-deciding-where-a-steps-data-comes-from.md)'s, `OrderBook` is [chapter 22](22-finishing-a-journey-early.md)'s, `Carrier`, `Messages`, `Refunds` and `network` are [chapter 26](26-running-async-journeys-while-others-wait.md)'s, and `Payments`, `Cards`, `CARDS` and `cardRegistry` are [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md) and `ORDER_BOOK` of [chapter 22](22-finishing-a-journey-early.md).
 
 And `Orders.builder()` puts the workflow together, part by part. The other steps and policies keep their decorators: each goes in as its class, a step through its own builder, which reads its requests from them. A method of `Orders` is named, followed by its requests:
 

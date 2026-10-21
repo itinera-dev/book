@@ -619,7 +619,7 @@ const PARCEL = objectOf({ weight: integer, size: listOf(integer) });
   policies: [Audit, Outage],
 })
 @withStep(Ship, { name: "ship", retryBudget: 1, policies: [FailedShipping] })
-class Orders extends Workflow implements Messages, Refunds {
+export class Orders extends Workflow implements Messages, Refunds {
   constructor(private readonly channel: string) {
     super();
   }
