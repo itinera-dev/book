@@ -1,0 +1,6 @@
+the bank charges 40
+Ann's order: the journey succeeded
+Ann's order again: refused (instance ran): run refused an instance that already ran: make an instance for each journey
+Cat's order, while Ben's runs: refused (journey running): run refused an instance while the executor runs a journey: wait for it, or run on another executor
+the bank charges 25
+Ben's order: the journey succeeded
