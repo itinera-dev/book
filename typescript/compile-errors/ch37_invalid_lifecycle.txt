@@ -1,0 +1,4 @@
+compile-errors/ch37_invalid_lifecycle.ts(27,5): error TS2322: Type 'FinishWorkflow' is not assignable to type 'OnFailure'.
+  Type 'FinishWorkflow' is not assignable to type 'KeepDefault'.
+    Types of property 'kind' are incompatible.
+      Type '"FinishWorkflow"' is not assignable to type '"KeepDefault"'.

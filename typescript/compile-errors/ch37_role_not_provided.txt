@@ -1,0 +1,4 @@
+compile-errors/ch37_role_not_provided.ts(40,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Orders' is not assignable to parameter of type 'WorkflowClass<Messages>'.
+    Type 'Orders' is not assignable to type 'Workflow & Messages'.
+      Property 'tell' is missing in type 'Workflow' but required in type 'Messages'.

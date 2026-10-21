@@ -1,0 +1,6 @@
+compile-errors/ch37_provider_without_provide.ts(36,4): error TS1241: Unable to resolve signature of method decorator when called as an expression.
+  Argument of type 'TypedPropertyDescriptor<() => Payments>' is not assignable to parameter of type 'TypedPropertyDescriptor<(...requests: never[]) => Provided<Payments> | Promise<Provided<Payments>>>'.
+    Types of property 'value' are incompatible.
+      Type '(() => Payments) | undefined' is not assignable to type '((...requests: never[]) => Provided<Payments> | Promise<Provided<Payments>>) | undefined'.
+        Type '() => Payments' is not assignable to type '(...requests: never[]) => Provided<Payments> | Promise<Provided<Payments>>'.
+          Type 'Payments' is not assignable to type 'Provided<Payments> | Promise<Provided<Payments>>'.

@@ -1,0 +1,1 @@
+compile-errors/ch37_rescue_step_skips.ts(26,17): error TS2339: Property 'skipBecause' does not exist on type 'RenewCard'.
