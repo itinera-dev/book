@@ -1,0 +1,16 @@
+✔ failedShipping refunds and gives up a shipping that failed with over-parcel-limit (2.717242ms)
+✔ failedShipping lets a shipping that failed with too-heavy be retried (0.24186ms)
+✔ failedShipping lets a shipping that ended in an error be retried (0.346313ms)
+✔ failedShipping refunds a shipping the executor gave up (0.896002ms)
+✔ audit writes the step, the amount and the receipt (0.245451ms)
+✔ notify gives a gift card's code and says sorry for a failed order (0.252253ms)
+✔ parcels gives the shipping the parcel's weight (0.346728ms)
+✔ parcels leaves every other input to the data bag (0.127951ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 229.874108
