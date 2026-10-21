@@ -1,0 +1,1 @@
+compile-errors/ch37_result_not_awaited.ts(21,12): error TS2339: Property 'isSucceeded' does not exist on type 'Promise<JourneyResult>'.

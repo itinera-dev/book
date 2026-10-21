@@ -54,3 +54,5 @@ The Itinera book for TypeScript, in reading order. It follows the plan that ever
 34. [Saying which attempt took the money](34-saying-which-attempt-took-the-money.md)
 35. [Giving the rescue step a service of its own](35-giving-the-rescue-step-a-service-of-its-own.md)
 36. [Orders refused before they start](36-orders-refused-before-they-start.md)
+37. [Mistakes caught before a journey](37-mistakes-caught-before-a-journey.md)
+38. [Declaring by hand](38-declaring-by-hand.md)
