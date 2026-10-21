@@ -1,0 +1,30 @@
+Pat's order:
+{"kind":"journey_started","initialKeys":["order","customer","price","parcel","card","giftCard"],"sequence":1,"timestamp":"2026-10-21T05:55:58.260Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #1 journey_started order, customer, price, parcel, card, giftCard
+{"kind":"attempt_started","step":"lookup","attempt":1,"sequence":2,"timestamp":"2026-10-21T05:55:58.261Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #2 attempt_started lookup, attempt 1
+{"kind":"service_provided","step":"lookup","attempt":1,"key":"orderBook","provider":"ledger","implementation":"Ledger","sequence":3,"timestamp":"2026-10-21T05:55:58.262Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #3 service_provided lookup gets orderBook from ledger, a Ledger
+the order book has no order A-15 yet
+{"kind":"step_succeeded","step":"lookup","attempt":1,"sequence":4,"timestamp":"2026-10-21T05:55:58.263Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #4 step_succeeded lookup
+{"kind":"contribution_committed","key":"completed","source":{"kind":"step","step":"lookup","attempt":1},"sequence":5,"timestamp":"2026-10-21T05:55:58.264Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #5 contribution_committed completed
+{"kind":"hook_called","source":{"kind":"step hook","policy":"alreadyCompleted","hook":"on step success","step":"lookup","attempt":1},"sequence":6,"timestamp":"2026-10-21T05:55:58.265Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #6 hook_called alreadyCompleted: on step success of lookup
+{"kind":"attempt_started","step":"price","attempt":1,"sequence":7,"timestamp":"2026-10-21T05:55:58.265Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #7 attempt_started price, attempt 1
+{"kind":"optional_input_absent","key":"discount","requester":{"kind":"step","step":"price","attempt":1},"sequence":8,"timestamp":"2026-10-21T05:55:58.265Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #8 optional_input_absent discount
+{"kind":"step_succeeded","step":"price","attempt":1,"sequence":9,"timestamp":"2026-10-21T05:55:58.266Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #9 step_succeeded price
+{"kind":"contribution_committed","key":"amount","source":{"kind":"step","step":"price","attempt":1},"sequence":10,"timestamp":"2026-10-21T05:55:58.266Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #10 contribution_committed amount
+{"kind":"attempt_started","step":"charge","attempt":1,"sequence":11,"timestamp":"2026-10-21T05:55:58.266Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #11 attempt_started charge, attempt 1
+{"kind":"service_provided","step":"charge","attempt":1,"key":"payments","provider":"bank","implementation":"Bank","sequence":12,"timestamp":"2026-10-21T05:55:58.267Z","journeyId":"A-15","workflow":"orders"}
+log orders A-15 #12 service_provided charge gets payments from bank, a Bank
+the bank charges 50 for order A-15
+{"kind":"step_succeeded","step":"charge","attempt":1,"sequence":13,"timestamp":"2026-10-21T05:55:58.267Z","journeyId":"A-15","workflow":"orders"}
+{"kind":"journey_aborted","abort":{"reason":"reporter failed","step":"charge","errorMessage":"the logging service is down"},"sequence":14,"timestamp":"2026-10-21T05:55:58.267Z","journeyId":"A-15","workflow":"orders"}
+the journey was aborted (reporter failed: the logging service is down)
