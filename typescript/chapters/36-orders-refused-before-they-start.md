@@ -20,9 +20,16 @@ name: ch36_orders_refused_before_they_start
 region: log
 ```
 
-The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s, with [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md)'s `detail`. The faked logging service refuses an empty name with its error, `NoCustomer`.
+The rest of the log is [chapter 33](33-giving-every-reporter-what-it-needs.md)'s. Its `detail` is the function [chapter 12](12-trying-again.md) shows, with the cases later chapters added, the last in [chapter 33](33-giving-every-reporter-what-it-needs.md) and [chapter 35](35-giving-the-rescue-step-a-service-of-its-own.md). The faked logging service refuses an empty name with its error, `NoCustomer`.
 
-For each order, the program prints a heading, then creates the order's instance, then runs it, and says why the order went no further at either point:
+For each order, the program first prints a heading, saying whose order it is and its number, or what it lacks:
+
+```example
+name: ch36_orders_refused_before_they_start
+region: heading
+```
+
+Then it creates the order's instance, runs it, and says why the order went no further at either point:
 
 ```example
 name: ch36_orders_refused_before_they_start
@@ -38,7 +45,7 @@ name: ch36_orders_refused_before_they_start
 ## How it works
 
 1. **An instance isn't created without its journey ID.** The ID generator of [chapter 11](11-naming-a-journey.md) names each journey after its order's number, read from the initial data with `expect`. Quin's order has no number, so `expect` throws an `Error` with the message the generator gave it, `the order's number`, and `instance(...)` throws it in turn, as it was thrown. With no instance, there is nothing to run. The program checks that what it caught is an `Error` before it reads its `message`, as the outage policy does in [chapter 34](34-saying-which-attempt-took-the-money.md).
-2. **An executor can refuse an instance.** `run` rejects with a `Refusal` for a journey that can't start, as [chapter 24](24-running-many-journeys.md) showed. Before the first event, the executor gives every reporter the journey ID, then the instance's entries of global metadata, as [chapter 33](33-giving-every-reporter-what-it-needs.md) showed. The log failed on `customer`, so the executor refused the journey: the refusal's `refused.kind` is `global metadata not set`, its message ends with the message of the log's error, and `refused.error` holds the error itself.
+2. **An executor can refuse an instance.** `run` rejects with a `Refusal` for a journey that can't start, as [chapter 24](24-running-many-journeys.md) showed. Before the first event, the executor gives every reporter the journey ID, then the instance's entries of global metadata, as [chapter 33](33-giving-every-reporter-what-it-needs.md) showed. The log failed on `customer`, so the executor refused the journey: the refusal's `refused.kind` is `global metadata not set`, its message ends with the message of the log's error, and `refused.error` holds the error itself. The program catches only this refusal, and throws any other on, since those of [chapter 24](24-running-many-journeys.md) are mistakes in the program, not an order's.
 3. **A refused journey never started.** There is no `journey_started`, no step ran, and the bank was never called: unlike Pat's journey in [chapter 31](31-stopping-a-journey-when-its-log-fails.md), aborted after the money was taken, A-16's has nothing to undo. There is no `JourneyResult` either, since there was no journey to end.
 4. **The order is still the shop's to deal with.** The program learns why from what `instance(...)` threw and what `run` rejected with. Once the website sends what was missing, a new instance runs the order, as [chapter 24](24-running-many-journeys.md) said.
 

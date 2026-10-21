@@ -6,7 +6,14 @@ The bank now answers which card replaced an expired one from its card registry, 
 
 ## The code
 
-The shop is [chapter 34](34-saying-which-attempt-took-the-money.md)'s, and its payment client, `Payments`, no longer answers which card replaced one. The registry is a service with an interface of its own, `Cards`, and a token, `CARDS`, as [chapter 7](07-giving-a-step-the-tools-it-needs.md) showed for the bank. The bank's library makes its client for a region:
+The shop is [chapter 34](34-saying-which-attempt-took-the-money.md)'s. Its payment client no longer answers which card replaced one, so `Payments` keeps only `charge`:
+
+```example
+name: ch35_giving_the_rescue_step_a_service_of_its_own
+region: payments
+```
+
+The registry is a service with an interface of its own, `Cards`, and a token, `CARDS`, as [chapter 7](07-giving-a-step-the-tools-it-needs.md) showed for the bank. The bank's library makes its client for a region:
 
 ```example
 name: ch35_giving_the_rescue_step_a_service_of_its_own

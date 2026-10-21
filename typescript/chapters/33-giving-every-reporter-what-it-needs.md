@@ -48,7 +48,7 @@ name: ch33_giving_every_reporter_what_it_needs
 
 1. **Global metadata is for the reporters.** Each entry is a key and a value, which every reporter of the journey receives. Steps and hooks never read it, so it changes no decision.
 2. **The entries come before the first event.** The journey ID comes first, under the key `journey_id`, then the instance's entries, in the order they were given. So Pat's first line, `journey_started`, already names Pat. The key `journey_id` is the executor's own.
-3. **A reporter does what it wants with an entry.** A reporter without `receiveGlobalMetadata` accepts every entry and does nothing with it, which is why the desk is unchanged. The log keeps the entries, and reads them back from its `Map`, checking with `typeof` that a value is a string before it writes it.
+3. **A reporter does what it wants with an entry.** A reporter without `receiveGlobalMetadata` accepts every entry and does nothing with it, which is why [chapter 11](11-naming-a-journey.md)'s desk is unchanged. The log keeps the entries, and reads them back from its `Map`, checking with `typeof` that a value is a string before it writes it.
 4. **A step can set an entry while it runs.** Every reporter receives it, then the journey emits `global_metadata_set`, which names the key and who set it, but not the value, all before the promise `setGlobalMetadata` returns settles. The log wrote that line with the receipt in it, event 13, before it failed on the charge's success.
 5. **An entry stands whatever happens after.** Pat's receipt never reached the data bag, since the journey was aborted first, but the log had it. So the shop finds Pat's payment, `R-A-15`, in the log's last line, and can refund it.
 

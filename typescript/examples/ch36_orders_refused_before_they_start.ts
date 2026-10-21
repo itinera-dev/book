@@ -880,6 +880,7 @@ function whatWentWrong(abort: Abort): string {
   return abort.reason;
 }
 
+// ANCHOR: heading
 /**
  * What the program prints before an order: whose it is and its number, or
  * what it lacks.
@@ -889,6 +890,7 @@ function heading(order: string | undefined, customer: string): string {
   if (customer === "") return `order ${order}, without a customer's name`;
   return `${customer}'s order ${order}`;
 }
+// ANCHOR_END: heading
 
 const shop = Orders.build("email");
 const executor = new LocalExecutor();
@@ -930,7 +932,12 @@ for (const order of orders) {
   try {
     result = await executor.run(instance);
   } catch (error) {
-    if (!(error instanceof Refusal)) throw error;
+    if (
+      !(error instanceof Refusal) ||
+      error.refused.kind !== "global metadata not set"
+    ) {
+      throw error;
+    }
     console.log(`the journey was refused: ${error.message}`);
     continue;
   }

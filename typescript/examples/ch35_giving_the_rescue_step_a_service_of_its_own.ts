@@ -75,6 +75,7 @@ import {
   workflow,
 } from "itinera/workflow";
 
+// ANCHOR: payments
 /**
  * A payment client: it charges an order's amount to a card, and gives back a
  * receipt, or `undefined` when the card has expired. It rejects with
@@ -87,6 +88,7 @@ interface Payments {
     amount: number,
   ): Promise<string | undefined>;
 }
+// ANCHOR_END: payments
 
 // ANCHOR: cards
 /**
