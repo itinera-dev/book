@@ -6,21 +6,21 @@ You want to see [chapter 1](01-but-why-itinera.md)'s checkout written with Itine
 
 ## The code
 
-Start with the workflow. Its decorators tell you at once what happens to every order: which steps run, in what order, how many times, what repairs a failure and who reacts, without reading any of the code they name. Its methods supply what the steps use: the bank, the warehouse and a carrier for every attempt, and the way the shop tells a customer something.
+Start with the workflow. Its decorators tell you at once what happens to every order: which steps run, in what order, how many times, what repairs a failure and who reacts, without reading any of the code they name. Its methods supply what the steps and policies use: the bank, the warehouse and a carrier for every attempt, for the steps, and, for the notify policy, the way the shop tells a customer something.
 
 ```example
 name: ch02_big_picture
 region: workflow
 ```
 
-The steps reach the bank, the warehouse and the carriers through services: an interface saying what each one does, and a token naming it, so a step can ask for it.
+The steps reach the bank, the warehouse and the carriers through services: an interface saying what each one does, and a token that stands for the interface while the program runs, which a step names, with a key, to ask for it.
 
 ```example
 name: ch02_big_picture
 region: services
 ```
 
-The business rules the workflow lists are steps, one for each: reserve the goods, charge the card, renew an expired card, ship the parcel. Each is a class whose constructor takes the order's data it needs, and whose `run` does the work and says how it went.
+The business rules the workflow lists are steps, one for each: reserve the goods, charge the card, renew an expired card, ship the parcel. Each is a class whose constructor takes the data it needs, and whose `run` does the work and says how it went.
 
 ```example
 name: ch02_big_picture
