@@ -1,0 +1,13 @@
+✔ an order the bank charges and the carrier takes is shipped (24.939153ms)
+✔ a parcel over the limit is given up after its first attempt (12.127179ms)
+✔ a charge whose bank is down is given up and never rescued (4.468153ms)
+✔ a parcel no carrier collects is tried once more, then given up (9.698609ms)
+✔ the proposed flow keeps two approved paths and changes two (28.517247ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 341.112793
