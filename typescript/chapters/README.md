@@ -6,3 +6,8 @@ The Itinera book for TypeScript, in reading order. It follows the plan that ever
 
 - [Welcome to Itinera](welcome-to-itinera.md)
 - [How to read this book](how-to-read-this-book.md)
+
+## Part 1: Why Itinera
+
+1. [But why Itinera?](01-but-why-itinera.md)
+2. [The big picture](02-the-big-picture.md)
