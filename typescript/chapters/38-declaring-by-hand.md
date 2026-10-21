@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-The decorators have declared the shop's workflow since the first chapters, and checked it. You want to see what they stand for, and to write part of the shop without them: for a compiler that records no decorator metadata, or a declaration put together as the program starts, its mistakes reported where you choose.
+The decorators have declared the shop's workflow since the first chapters, and checked it. You want to see what they stand for, and to write part of the shop without them: for a compiler that records no decorator metadata, for a declaration put together as the program starts, or to have its mistakes reported where you choose.
 
 ## The code
 
