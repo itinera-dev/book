@@ -18,7 +18,10 @@ import {
 mock.method(console, "log", () => undefined);
 
 // ANCHOR: fakes
-/** A bank for tests: it charges every card, or its network is down. */
+/**
+ * A bank for tests: it charges every card, or its network is down, and has
+ * replaced no card.
+ */
 class TestBank implements Payments {
   constructor(private readonly answer: "charges" | "is down") {}
 

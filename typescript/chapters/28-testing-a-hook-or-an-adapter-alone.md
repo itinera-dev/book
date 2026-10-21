@@ -13,7 +13,7 @@ name: ch28_testing_a_hook_or_an_adapter_alone.test
 region: fakes
 ```
 
-The policies and the adapter are the shop's own, unchanged since they were shown: the audit in [chapter 20](20-an-optional-input.md), `notify` and `failedShipping` in [chapter 26](26-running-async-journeys-while-others-wait.md), and the adapter in [chapter 21](21-deciding-where-a-steps-data-comes-from.md). This chapter shows only their tests. `failedShipping`'s hook `beforeRetrying` is called for Ned's shipping, with the reason each test chooses, and the tests read the decision it returns and the refunds it asked for. Its hook `givenUp` is called with the cause `retries exhausted`, as for Oli's shipping, and the test also reads the refund it contributed:
+The policies and the adapter are the shop's own, unchanged since they were shown: the audit in [chapter 20](20-an-optional-input.md), `notify` and `failedShipping` in [chapter 26](26-running-async-journeys-while-others-wait.md), and the adapter in [chapter 21](21-deciding-where-a-steps-data-comes-from.md), which also shows `Parcel`, as the workflow class `Orders` still has it in [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md). This chapter shows only their tests. `failedShipping`'s hook `beforeRetrying` is called for Ned's shipping, with the reason each test chooses, and the tests read the decision it returns and the refunds it asked for. Its hook `givenUp` is called with the cause `retries exhausted`, as for Oli's shipping, and the test also reads the refund it contributed:
 
 ```example
 name: ch28_testing_a_hook_or_an_adapter_alone.test
@@ -34,7 +34,7 @@ name: ch28_testing_a_hook_or_an_adapter_alone.test
 region: notify
 ```
 
-The adapter is a method of the workflow, so the tests make the workflow object with its channel, as the shop does, and ask it for two of the shipping's inputs:
+The adapter is a method of the workflow, so the tests make the workflow object with its channel, as [chapter 19](19-letting-policies-act-on-the-outside-world.md) showed, and ask it for two of the shipping's inputs:
 
 ```example
 name: ch28_testing_a_hook_or_an_adapter_alone.test

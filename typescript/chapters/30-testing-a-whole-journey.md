@@ -6,7 +6,7 @@ You want to run one order through the shop's real steps and policies, from start
 
 ## The code
 
-The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop as a module, with its tests in a file beside it, as in [chapter 27](27-testing-a-step-alone.md), which quiets `console.log` as [chapter 29](29-testing-the-flow-with-scripted-steps.md)'s does. The tests bring their own bank, which charges or is down, and their own carrier, which collects every parcel or none, implementing `Payments` and `Carrier` as [chapter 26](26-running-async-journeys-while-others-wait.md) declared them, and throwing the error of [chapter 12](12-trying-again.md):
+The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop as a module, with its tests in a file beside it, as in [chapter 27](27-testing-a-step-alone.md), and the file quiets `console.log` as [chapter 29](29-testing-the-flow-with-scripted-steps.md)'s does. The tests bring their own bank, which charges or is down, and their own carrier, which collects every parcel or none, implementing `Payments` and `Carrier` as [chapter 26](26-running-async-journeys-while-others-wait.md) declared them, and throwing the error of [chapter 12](12-trying-again.md):
 
 ```example
 name: ch30_testing_a_whole_journey.test
@@ -20,7 +20,7 @@ name: ch30_testing_a_whole_journey.test
 region: path
 ```
 
-The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Each test compares a journey's path with the approved one:
+The shop approves the path of each kind of order once, and writes it down. The paths follow the workflow as [chapter 23](23-undoing-a-charge-when-the-shipping-fails.md) declared it, with `outage` from [chapter 17](17-giving-up-a-step-early.md). Its steps and policies are as [chapter 26](26-running-async-journeys-while-others-wait.md) shows the charge, its rescue step, the shipping and `failedShipping`, [chapter 22](22-finishing-a-journey-early.md) the lookup and [chapter 20](20-an-optional-input.md) the pricing. Each test compares a journey's path with the approved one:
 
 ```example
 name: ch30_testing_a_whole_journey.test
@@ -35,7 +35,7 @@ name: ch30_testing_a_whole_journey
 
 ## How it works
 
-1. **A fake provider replaces only the provider's function.** The workflow keeps its providers' keys and scopes. The steps still ask for `payments` and `carrier`, and `carriers` stays a provider called for every attempt. Only what the provider returns changes, and only for the journey of the instance `fakeProvider` was given. `fakeProvider` throws a `TestMistake` when the workflow has no provider of that name, or when it provides another service than the token says.
+1. **A fake provider replaces only the provider's function.** The workflow keeps its providers' keys and scopes. The steps still ask for `payments` and `carrier`, and `carriers` stays a provider called for every attempt. Only what the provider returns changes, and only for the journey of the instance `fakeProvider` was given.
 2. **Everything else is real.** The steps run their own rules: the shipping refuses the parcel of 90 kg itself, with `over-parcel-limit`, as [chapter 27](27-testing-a-step-alone.md)'s test showed. The policies decide, the adapter supplies the weight, and the result and the events are the ones a real order would give.
 3. **A path is the journey's flow, one line for each event of it.** `path` reads only the events that say how the flow went: each attempt's outcome, each decision about a step, and how the journey ended. Everything else, such as which provider served a step or which data was committed, is left out, so a path changes only when the flow does.
 4. **Each line is a plain sentence.** `charge attempt 1 terminated abnormally` names the step, its attempt and how it ended, with the reason or the error after a colon. `ship given up: FailWorkflow from failedShipping` names the cause, and the policy that decided it. `journey failed at ship: no-carrier-can-take-it` names the step where the journey ended, and the reason it ended with: after retries are exhausted, the last attempt's reason, `too-heavy` for the parcel no carrier collects.
