@@ -92,4 +92,3 @@ We have shown how the shop runs journeys at the same time, each going on while t
 | The usual way | With Itinera |
 |---|---|
 | Making code asynchronous often means changing every function between the request and the call that waits. | The services and roles that wait return promises, and the steps and hooks that await them become `async`; nothing between them and the executor changes, since it waits for whatever each returns. |
-| Code that runs requests at the same time often logs in a different order on every run, so two runs can't be compared line by line. | With nothing waiting on a clock, the three journeys take turns in the same order on every run, and each journey's own events keep their order whatever the others do. |

@@ -20,7 +20,7 @@ name: ch15_reacting_to_what_a_step_did
 region: workflow
 ```
 
-The rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping is [chapter 12](12-trying-again.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. The providers are those [chapter 14](14-repairing-then-trying-once-more.md) shows, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md).
+The rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping is [chapter 12](12-trying-again.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. The providers are those [chapter 14](14-repairing-then-trying-once-more.md) shows, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md), and the interface `Carrier` is [chapter 12](12-trying-again.md)'s.
 
 The log is [chapter 14](14-repairing-then-trying-once-more.md)'s, and now also says which policy's hook was called, and after which step:
 

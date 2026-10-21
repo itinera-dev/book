@@ -27,7 +27,7 @@ name: ch14_repairing_then_trying_once_more
 region: workflow
 ```
 
-The charge and the shipping are [chapter 12](12-trying-again.md)'s, and the desk is [chapter 11](11-naming-a-journey.md)'s.
+The charge, the shipping and the interface `Carrier` are [chapter 12](12-trying-again.md)'s, and the desk is [chapter 11](11-naming-a-journey.md)'s.
 
 The log is [chapter 11](11-naming-a-journey.md)'s, with the `detail` function [chapter 12](12-trying-again.md) shows, whose `switch` now also says what the two new decisions are about, and names the data a contribution replaced:
 

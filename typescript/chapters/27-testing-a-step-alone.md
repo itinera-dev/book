@@ -6,7 +6,7 @@ The shop's business rules live in its steps: what a charge does when the bank de
 
 ## The code
 
-The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, with `export` before each piece its tests use, and without its run of the day's orders, since importing a module runs its top-level code. Its tests sit beside it, in a file ending in `.test.ts`, as TypeScript projects usually keep them, and import the shop's pieces and the recorders of Itinera's test support, from `itinera/testing`. **Only tests import `itinera/testing`,** so the program you ship never uses it.
+The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, with `export` before its workflow and each piece its tests use, and without its run of the day's orders, since importing a module runs its top-level code. Its tests sit beside it, in a file ending in `.test.ts`, as TypeScript projects usually keep them, and import the shop's pieces and the recorders of Itinera's test support, from `itinera/testing`. **Only tests import `itinera/testing`,** so the program you ship never uses it.
 
 ```example
 name: ch27_testing_a_step_alone.test

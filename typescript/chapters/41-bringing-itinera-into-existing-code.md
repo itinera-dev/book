@@ -43,7 +43,7 @@ name: ch41_bringing_itinera_into_existing_code
 region: workflow
 ```
 
-The rest of the checkout is chapter 1's, with four changes. `Shop` no longer holds the bank. A new error, `PaymentNotRun`, keeps `pay` total: every journey that ends neither succeeded nor failed becomes an error of the checkout. The line that took the payment now awaits `pay`. And since `pay` returns a promise, as every journey's run does, `checkout` and the method it calls become `async`:
+The rest of the checkout is chapter 1's, with four changes. `Shop` no longer holds the bank. A new error, `PaymentNotRun`, covers the rest: a journey that ends neither succeeded nor failed becomes an error of the checkout. The line that took the payment now awaits `pay`. And since `pay` returns a promise, as every journey's run does, `checkout` and the method it calls become `async`:
 
 ```example
 name: ch41_bringing_itinera_into_existing_code

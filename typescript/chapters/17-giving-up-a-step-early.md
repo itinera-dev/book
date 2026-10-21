@@ -36,7 +36,7 @@ name: ch17_giving_up_a_step_early
 region: workflow
 ```
 
-The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` and the providers are [chapter 14](14-repairing-then-trying-once-more.md)'s, with [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s tokens, and the desk is [chapter 11](11-naming-a-journey.md)'s.
+The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard`, the providers and `Payments` are [chapter 14](14-repairing-then-trying-once-more.md)'s, with [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s tokens, and the desk is [chapter 11](11-naming-a-journey.md)'s.
 
 The log is [chapter 16](16-skipping-a-step.md)'s, and now also says which policy gave a step up, and why:
 

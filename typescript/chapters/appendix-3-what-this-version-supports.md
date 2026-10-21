@@ -4,7 +4,7 @@ What the `itinera` this book covers implements, how you can check it, and what c
 
 ## The specification
 
-This book follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1: a single workflow, with everything the book teaches in parts 2 to 5:
+This book follows specification 0.1, the first version of the [Itinera specification](https://github.com/itinera-dev/spec/tree/main/spec). It defines tier 1, a single workflow:
 
 1. steps, their inputs, their outcomes and their abnormal terminations;
 2. services, and the service providers that supply them to steps;
@@ -22,7 +22,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The `itinera` this book covers
 
-No version of `itinera` has been released yet. This edition of the book follows its [repository](https://github.com/itinera-dev/itinera-ts) ahead of the first release, at the commit [`00a8724`](https://github.com/itinera-dev/itinera-ts/tree/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f), and every example you read here compiles and runs against it. It implements all of tier 1, and test support. The first release will name its version here, and every later one the version the book covers.
+No version of `itinera` has been released yet. This edition of the book follows its [repository](https://github.com/itinera-dev/itinera-ts) ahead of the first release, at the commit [`00a8724`](https://github.com/itinera-dev/itinera-ts/tree/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f), and every example you read here compiles and runs against it. It passes every proposal of tier 1 whose cases are in the conformance cases it runs, and test support. The first release will name its version here, and every later one the version the book covers.
 
 ## Capabilities
 
@@ -33,7 +33,7 @@ A tier says what Itinera means; capabilities say what an executor accepts, and w
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book covers, it runs the conformance cases `v0.1.0-rc.15`, and lists 35 proposals as passing: the 34 that make up tier 1, and the proposal of test support.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book covers, it runs the conformance cases `v0.1.0-rc.15`, and lists 35 proposals as passing: 34 of tier 1, and the proposal of test support. Proposals of tier 1 accepted after those cases, such as the one refusing two input adapters of the same name, are listed once their cases are released.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in TypeScript. Instead, a type test of the package proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in TypeScript, each with the type test that proves it:
 
@@ -43,7 +43,7 @@ A rule the specification lets a language make impossible, such as a policy attac
 4. a rescue step that skips (`rescue-skip`);
 5. a service provider that returns no service (`no-instance`).
 
-The specification lets a language make a few more rules impossible, which TypeScript's types can't rule out in every case: something stored that is not a value, for one, since a type can't refuse every value that isn't one. `itinera` checks those while the program runs, and their cases run like any other.
+The specification lets a language make a few more rules impossible, which TypeScript's types can't rule out in every case: something stored that is not a value, for one, since a type can't refuse every value that isn't one. `itinera` checks those while the program runs, and their cases run like any other, except for an executor that refuses an execution mode, which doesn't arise, since `LocalExecutor` accepts both.
 
 ## What later tiers add
 

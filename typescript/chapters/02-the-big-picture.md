@@ -66,7 +66,7 @@ flowchart TD
   reserve -- success --> charge[charge]
   reserve -- failure --> told_failed[notify tells the customer the order could not be completed]
   charge -- success --> audit[audit logs the charge]
-  charge -- failure --> rescue[charge_rescue asks the bank for the new card]
+  charge -- failure --> rescue[charge_rescue renews an expired card]
   rescue -- success --> again[charge runs once more]
   rescue -- failure --> told_failed
   again -- success --> audit
