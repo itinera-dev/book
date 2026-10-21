@@ -179,6 +179,8 @@ For every chapter, each language's book provides:
 2. the chapter's example as a complete program, with marked regions the book quotes, and its recorded output;
 3. for the chapter on mistakes caught before a journey, compile-fail cases with their recorded compiler messages, where the language turns mistakes into compile errors.
 
+A chapter's entry in "Contents" is written once for every language, and some of its words name what one language has and another does not, such as a mistake the compiler refuses, a second execution mode, an option of the package turned on for tests, or a failure no code can catch. Each language's book teaches its own language's counterpart in that chapter, with the same story, the same orders and the same title: a mistake its compiler refuses, or one it refuses when the program runs; its one execution mode; its way of keeping test support out of shipped code; how its failures work. The chapter's prose says what its language does instead. A new topic, a chapter moved or one left out is not a counterpart, and changes this document first.
+
 A language that lacks a feature a chapter needs shows that chapter as a short section saying the feature is not in this language yet, with a link to its implementation issue.
 
 ## How the examples are checked
@@ -187,8 +189,8 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
 2. This repository's CI compiles every example, runs it and compares its output with the recorded one, in one job per language, on every push to either branch and on every pull request. A program whose tests a chapter shows is built as it would ship, without what is only for tests, and its tests are run and their report compared with the recorded one, so code a chapter shows outside a test never relies on test support.
 3. Each language's own repository pins a commit of `next` and runs its edition of the book on every pull request against its own code, as a required check. A change that breaks the book is caught where it is made.
 4. A change that breaks the book on purpose comes as a pair of changes, one to `next` here and one in the language's repository. The book's change updates the examples and pins the commit of the language's pull request; the language's pull request then pins the commit of the book's pull request to `next`, and both go green together.
-5. After a language's release, `next` is merged into `main`. `main` keeps naming the package by its released version, raised to the new release, and its edition is tagged, for example `rust-0.1.0-beta.1`. The frozen edition of a release is built from the book's files at its tag, so it matches a published package, and the latest release's address is built from `main`, whose dependency names the same release.
-6. A change that relies on nothing unreleased, such as a correction to a chapter's prose, lands on `main`, so the latest release's edition carries it at once. `main` is then merged into `next`, which keeps naming the commit of the language's repository that it already names.
+5. After a language's release, `next` is merged into `main`. `main` keeps naming the package by its released version, raised to the new release, and its edition is tagged, for example `rust-0.1.0-beta.1`. Every other language that has a release keeps its directory on `main` as it was, restored during the merge, since `next` may teach what that language has not released yet. A language with no release yet comes along with the merge, its directory still naming a commit, as item 1 says, and is not published from `main` (see "Where editions are published"). The frozen edition of a release is built from the book's files at its tag, so it matches a published package, and the latest release's address is built from `main`, whose dependency names the same release.
+6. A change that relies on nothing unreleased, such as a correction to a chapter's prose, lands on `main`, so the latest release's edition carries it at once. `main` is then merged into `next`, which keeps naming the commit of the language's repository that it already names. Merging `main` into `next` after a release keeps, in the same way, `next`'s own directory of every language whose directory `main` kept as it was, restored during the merge, since the merge would otherwise bring back `main`'s older copy.
 
 ## Where editions are published
 
@@ -197,10 +199,9 @@ A language that lacks a feature a chapter needs shows that chapter as a short se
    2. every release, frozen, at `/book/LANGUAGE/VERSION/`, such as `/book/rust/0.1.0-beta.1/`, so a link to it never changes;
    3. the `next` branch, ahead of any release, at `/book/LANGUAGE/next/`.
 
-   The latest release's address is built from the book's `main` branch, which, before a language's first release, shows that language's book as it stands, so links to the book work from the start.
+   The latest release's address is built from the book's `main` branch. A language with no release yet has no such address: no package a reader can install matches its book yet, so its book is published only from `next`, at `/book/LANGUAGE/next/`, and every link to the language, such as the language selector's, leads there. Its first release publishes its edition from `main` at `/book/LANGUAGE/`.
 2. From a language's first release, a published page keeps its address in every later edition: a new chapter goes where it renumbers no published page, and a page that is moved or renamed leaves a redirect at its old address. Before the first release, pages may be renumbered and renamed freely.
 
 ## Open points
 
 1. **Where the prose lives:** with the examples, in each language's directory of this repository, so one pull request changes both.
-2. **Branches with more than one language:** `next` is merged into `main` after a release, but a release is one language's. Once a second language has a book, how its unreleased directory on `next` stays out of `main` is still to be decided.
