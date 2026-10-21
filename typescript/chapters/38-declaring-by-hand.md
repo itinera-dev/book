@@ -2,7 +2,7 @@
 
 ## What you want to do
 
-The decorators have declared the shop's workflow since the first chapters, and checked it. You want to see what they stand for, and to write part of the shop without them: for a compiler that records no decorator metadata, or a declaration put together as the program starts.
+The decorators have declared the shop's workflow since the first chapters, and checked it. You want to see what they stand for, and to write part of the shop without them: for a compiler that records no decorator metadata, or a declaration put together as the program starts, its mistakes reported where you choose.
 
 ## The code
 
@@ -84,14 +84,13 @@ name: ch38_violations
 
 ## How it works
 
-1. **Both forms make the same declaration.** A workflow is a **workflow descriptor**: its name, a **step descriptor** for each step, in order, saying how to build it, its retry budget, policies and rescue step, then the workflow's policies, reporters, ID generator, input adapters and providers. The decorators record it from your classes, and the builder takes it part by part. The executor runs either the same way: Ann's order is charged and shipped, and Jo's card renewed.
-2. **Each decorator stands for a call of a builder.** A step's decorators stand for its builder's `needs` and `run`, and `@withStep` for the workflow builder's `step`, its name for the step builder's, and its options for `retryBudget`, `rescue` and `policy`. `@stepPolicy` and a hook's decorator stand for a policy's builder and its `onStepSuccess`, or its other hooks' methods. `@workflow` stands for `name`, `reporter` and `policy`, the workflow's own decorators for the methods of their names, and `Orders.build("email")` for `constructWith("email")` and `build()`.
+1. **Both forms make the same declaration.** A workflow is a **workflow descriptor**: its name, a **step descriptor** for each step, in order, giving its name, how to build it, its retry budget, policies and rescue step, then the workflow's policies, reporters, ID generator, input adapters and providers. The decorators record it from your classes, and the builder takes it part by part. The executor runs either the same way, and the two forms mix, as here: write by hand only what needs it.
+2. **Each decorator stands for a call of a builder.** A step's decorators stand for its builder's `needs` and `run`, and `@withStep` for the workflow builder's `step`, its name for the step builder's, and its options for `retryBudget`, `rescue` and `policy`. `@stepPolicy` and a hook's decorator stand for a policy's builder and its `onStepSuccess`, or its other hooks' methods. `@workflow` stands for `name`, `reporter` and `policy`, `@idGenerator()`, `@inputAdapter` and `@provider` for the methods of their names, and `Orders.build("email")` for `constructWith("email")` and `build()`.
 3. **TypeScript checks each request against its parameter.** A request missing, or for a parameter of another type, doesn't compile, and a step whose `needs` or `run` is never given throws an `Error` naming the parameter when the workflow's builder takes it.
 4. **`build()` checks the declaration, as admission.** It throws a `Violations` listing every violation, as `@workflow` does, but where the program calls it. `listing()` runs the same check without making the workflow object.
-5. **The two forms mix.** Most of the shop is still declared with the decorators: write by hand only what needs it.
-6. **When you need the long form.** With a compiler that records no decorator metadata, such as esbuild, tsx or Vite, declare every step, rescue step, policy and workflow with its `builder`; of [chapter 3](03-installing-itinera.md)'s compiler options, only `strict` is then needed. Or a declaration put together from configuration as the program starts. `itinera` has no options, as chapter 3 said, so nothing turns the decorators off: a program uses the form its compiler allows. Otherwise, the decorators say the same in fewer lines.
+5. **When you need the long form.** With a compiler that records no decorator metadata, such as esbuild, tsx or Vite, declare every step, rescue step, policy and workflow with its `builder`; of [chapter 3](03-installing-itinera.md)'s compiler options, only `strict` is then needed. It also suits a declaration put together from configuration as the program starts. `itinera` has no options, as chapter 3 said, so nothing turns the decorators off: a program uses the form its compiler allows.
 
-The shop can now declare every part of its workflow, in either form. What the book hasn't said is how to decide, for a new rule of the shop, which part it belongs in.
+What the book hasn't said is how to decide, for a new rule of the shop, which part it belongs in.
 
 ## Outcomes
 
@@ -100,4 +99,4 @@ We have shown what the decorators stand for, how to write it by hand, and when a
 | The usual way | With Itinera |
 |---|---|
 | Code wired by decorators often works only with the compilers that support them. | The builder takes the same declaration part by part, from classes without decorators. |
-| A wiring mistake often surfaces wherever the wiring code happens to run, such as in the first request that needs it. | `build()` throws every violation at the point the program chooses. |
+| Wiring checked at start-up usually runs wherever the framework decides, before the program has a say. | `build()` checks it at the point the program chooses, and throws every violation there. |
