@@ -88,4 +88,3 @@ We have shown how the shop runs in the asynchronous execution mode, with journey
 | The usual way | With Itinera |
 |---|---|
 | Making code asynchronous often means changing every function between the request and the call that waits. | The steps, the hooks, and the services and roles they await change, and the workflow takes its mode from its steps. |
-| The log lines of requests handled at the same time are often hard to tell apart. | Every event names its journey and counts within it, however the journeys interleave. |

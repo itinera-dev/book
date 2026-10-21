@@ -26,6 +26,7 @@ What it names is as earlier chapters show it: the lookup, `AlreadyCompleted`, `O
 | Writing every charge down | the `audit` policy | it reacts to an outcome, and changes nothing in the charge |
 | A gift card has nothing to ship | the `ship` step, which skips | only the step knows its domain well enough |
 | Shipping tried twice, with another carrier the second time | the workflow: a retry budget, and a provider for every attempt | how often to try, and with what, is the plan, not the rule |
+| A parcel over the shop's limit | the `ship` step fails it, and the `failedShipping` policy gives it up before a retry | the limit is the business's; giving up early is a decision after an outcome |
 | Refunding a shipping given up | the `failedShipping` policy, through a role | it reacts to a step given up, and acts on the outside world |
 | Telling the customer | the `notify` policy, through a role | it reacts to how the journey ended |
 | The weight out of the warehouse's parcel | the workflow's input adapter | it changes the form of a step's data, and decides nothing |
@@ -63,4 +64,4 @@ We have shown how to place a new decision of the shop.
 
 | The usual way | With Itinera |
 |---|---|
-| A business function often repairs, retries and notifies inside itself, because that is where the problem shows up. | A step does the business's work and says how it went; repairing, retrying and reacting each have a place of their own. |
+| Where a new rule goes is often decided by whoever writes it, next to the code they happen to be reading. | The workflow's declaration shows where each of the shop's decisions lives, one kind of decision to each place. |

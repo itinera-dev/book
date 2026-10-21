@@ -912,4 +912,18 @@ mod tests {
         Ok(())
     }
     // ANCHOR_END: outage
+
+    // ANCHOR: mistake
+    #[tokio::test]
+    #[should_panic(expected = "the script leaves out:\n- attempt 2 of ship")]
+    async fn a_script_that_leaves_out_the_shippings_attempt_2_is_refused() {
+        let _ = order("A-4", "ann-2028", 1)
+            .expect("an order of the shop")
+            .scripted()
+            .step("ship")
+            .will_fail("too-heavy")
+            .run()
+            .await;
+    }
+    // ANCHOR_END: mistake
 }

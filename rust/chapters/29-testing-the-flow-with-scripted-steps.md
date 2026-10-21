@@ -32,11 +32,19 @@ region: given_up
 asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
-The last test ends the charge's first attempt in an error, as the bank's would:
+The next ends the charge's first attempt in an error, as the bank's would:
 
 ```example
 name: ch29_testing_the_flow_with_scripted_steps
 region: outage
+asynchronous: ch29_testing_the_flow_with_scripted_steps_async
+```
+
+The scripts cover every attempt their steps can have. The last test leaves out the shipping's attempt 2, and checks with `#[should_panic]` that `run` refuses the script with a panic whose message names the attempt left out:
+
+```example
+name: ch29_testing_the_flow_with_scripted_steps
+region: mistake
 asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 ```
 
@@ -53,7 +61,7 @@ asynchronous: ch29_testing_the_flow_with_scripted_steps_async
 
 1. **The script replaces only a step's `run`.** Every step is still built for real, with its inputs and its services: the shipping's first attempt was built with the weight the adapter supplied, 60. A step the script doesn't name runs for real, as the lookup and the pricing do here. Everything else is the executor's, as in any journey: the hooks, the policies, the decisions, the events and the result.
 2. **A script names steps by their names in the workflow.** A rescue step is named by its own name, `charge_rescue`. `will_fail`, `will_terminate_abnormally` and `will_succeed` end an attempt, and `will_contribute` adds a contribution before it ends, which the executor commits only if the attempt succeeds. An attempt `on_attempt` doesn't name is attempt 1.
-3. **The script must cover what can happen.** `run` checks it before the journey starts, and panics, listing what is missing, if a scripted step leaves out an attempt it can have, after a retry or a rescue, or if a scripted step can fail on attempt 1 and its rescue step has no script. So the shipping's script says what its attempt 2 would do, and the script of the charge that ends in an error says what the rescue step and the charge's attempt 2 would do. The tests then show the workflow never got there.
+3. **The script must cover what can happen.** `run` checks it before the journey starts, and panics if a scripted step leaves out an attempt it can have, after a retry or a rescue, or can fail on attempt 1 while its rescue step has no script. So the other tests script attempts the workflow never reaches.
 4. **The run says what each step went through.** `run` returns a `ScriptedRun`: its `result` is the result an executor would have given, whose status's `is_succeeded()` says whether the journey succeeded, and `step` reads a step's attempts. `attempt(2)` of the charge holds the inputs it was built with, read with `input`: the card the rescue step contributed. Attempts that never ran aren't there, so the rescue step of the charge that ended in an error has none.
 5. **The same script tests one decision of the flow.** Two tests run the shipping's script with only the reason its first attempt gives changed. With `too-heavy`, the shipping is retried and the order succeeds. With `over-parcel-limit`, `failed_shipping` gives it up, and the result carries the cause `FailWorkflow` with the policy's reason, `Failure::FailWorkflow` in Rust.
 
