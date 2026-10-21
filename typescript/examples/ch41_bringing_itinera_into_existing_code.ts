@@ -1,6 +1,6 @@
 // Chapter 1's checkout with its payment moved into a workflow: the charge is a step, renewing an
 // expired card is its rescue step and the audit is a policy, while the bank's client, the audit
-// trail, the log and the rest of the checkout stay as they were.
+// trail and the log stay as they were, and the rest of the checkout awaits the payment.
 
 import type { Event } from "itinera/event";
 import { LocalExecutor } from "itinera/executor";

@@ -1,5 +1,5 @@
-// Saying which attempt took the money: the audit's hooks ask for the journey
-// ID, the attempt number and, after an error, the error itself.
+// Saying which attempt took the money: the hooks that write audit lines ask for
+// the journey ID, the attempt number and, after an error, the error itself.
 
 import { setImmediate } from "node:timers/promises";
 import type { Event } from "itinera/event";

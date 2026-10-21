@@ -6,7 +6,7 @@ The shop's business rules live in its steps: what a charge does when the bank de
 
 ## The code
 
-The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, with `export` before each piece its tests use, and without its run of the day's orders, since importing a module runs its top-level code. Its tests sit beside it, in a file ending in `.test.ts`, as TypeScript projects usually keep them, and import the shop's pieces and the recorders of Itinera's test support, from `itinera/testing`. **Only tests import `itinera/testing`,** so the program you ship never uses it. The book checks that by building every program once more with `itinera/testing` resolving to nothing.
+The program is [chapter 26](26-running-async-journeys-while-others-wait.md)'s shop, with `export` before each piece its tests use, and without its run of the day's orders, since importing a module runs its top-level code. Its tests sit beside it, in a file ending in `.test.ts`, as TypeScript projects usually keep them, and import the shop's pieces and the recorders of Itinera's test support, from `itinera/testing`. **Only tests import `itinera/testing`,** so the program you ship never uses it.
 
 ```example
 name: ch27_testing_a_step_alone.test
@@ -52,7 +52,7 @@ name: ch27_testing_a_step_alone
 ## How it works
 
 1. **A step is an object with a method.** The test builds it with `new`, giving its constructor the inputs in order, and calls `run` with what its parameters ask for: a service, a contributor, a reporter. Their decorators tell the executor what to give them in a journey; in a test, you give them yourself. The rescue step's `@failureReason()` gets a `Reason` from the test, an object with a `code`.
-2. **A step is tested through its outcome.** `run` resolves to the outcome, an object whose `kind` is `success`, `failure` or `skipped`, with its `reason` when it has one, which `assert.deepEqual` compares with the one expected. A declined card fails the charge with `card-expired`, and a parcel of 90 kg fails the shipping with `over-parcel-limit`. Its fake carrier is down, so the shipping refused the parcel before calling it.
+2. **A step is tested through its outcome.** `run` resolves to the outcome, an object whose `kind` is `success`, `failure` or `skipped`, with its `reason` when it has one, which `assert.deepEqual` compares with the one expected. A declined card fails the charge with `card-expired`, and a parcel of 90 kg fails the shipping with `over-parcel-limit`. Its fake carrier is down, so the test passing shows that the shipping refused the parcel without calling it.
 3. **What a step contributed is read like the data bag.** `Contributions`'s `read` works as the data bag's does in [chapter 11](11-naming-a-journey.md), and its `.option()` is compared with `Some` or `None`, from `itinera/option`, the two kinds of [chapter 6](06-passing-data-on.md)'s `Option`.
 4. **An error escapes as it would in a journey.** When the bank is down, the charge's `run` rejects with `NetworkDown`, which the executor would record as an abnormal termination, as [chapter 12](12-trying-again.md) showed. `assert.rejects` checks that the promise rejects with an error of that class; what happens next is the workflow's decision, not the step's.
 5. **The tests await the steps.** These steps are `async`, so each test is an `async` function that awaits `run`, and Node's test runner awaits the test. A synchronous step is tested the same way, without `await`.

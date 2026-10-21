@@ -27,7 +27,7 @@ name: ch19_letting_policies_act_on_the_outside_world
 region: workflow
 ```
 
-The steps, policies and reporters it names are as earlier chapters show them: the charge and the audit in [chapter 15](15-reacting-to-what-a-step-did.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md) and the desk in [chapter 11](11-naming-a-journey.md).
+The steps, policies and reporters it names are as earlier chapters show them: the charge and the audit in [chapter 15](15-reacting-to-what-a-step-did.md), `RenewCard` in [chapter 14](14-repairing-then-trying-once-more.md), the shipping, `Outage` and `HeavyParcels` in [chapter 17](17-giving-up-a-step-early.md), the log in [chapter 18](18-doing-something-when-the-journey-ends.md) and the desk in [chapter 11](11-naming-a-journey.md). The providers are [chapter 14](14-repairing-then-trying-once-more.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md).
 
 The workflow object is made with the channel, `Orders.build("email")`. Each order's initial data now holds its customer's name, so each order is given whole to its instance, and the output no longer holds a message:
 

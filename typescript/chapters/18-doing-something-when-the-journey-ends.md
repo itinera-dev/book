@@ -20,7 +20,7 @@ name: ch18_doing_something_when_the_journey_ends
 region: workflow
 ```
 
-The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping, `Outage` and `HeavyParcels` are [chapter 17](17-giving-up-a-step-early.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s.
+The charge and the audit are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping, `Outage` and `HeavyParcels` are [chapter 17](17-giving-up-a-step-early.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. The providers are [chapter 14](14-repairing-then-trying-once-more.md)'s, with the tokens `PAYMENTS` and `CARRIER` of [chapter 7](07-giving-a-step-the-tools-it-needs.md).
 
 The log is [chapter 17](17-giving-up-a-step-early.md)'s, and now also names a workflow hook by its policy and its hook, since it is about no step, and names the key of a request that found nothing:
 

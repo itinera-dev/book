@@ -13,7 +13,7 @@ name: ch16_skipping_a_step
 region: ship
 ```
 
-The interface `Carrier` it asks for is [chapter 12](12-trying-again.md)'s.
+The interface `Carrier` it asks for is [chapter 12](12-trying-again.md)'s, and its token `CARRIER` [chapter 7](07-giving-a-step-the-tools-it-needs.md)'s.
 
 The log is [chapter 15](15-reacting-to-what-a-step-did.md)'s, and now also names the reason a step gave for skipping, and the step whose contributions were thrown away:
 
@@ -22,7 +22,7 @@ name: ch16_skipping_a_step
 region: skipped
 ```
 
-The rest of the shop is [chapter 15](15-reacting-to-what-a-step-did.md)'s. It runs the same four orders, and one from a new customer, Ned, whose parcel weighs 90 kg. It prints:
+The charge, the audit and the workflow are [chapter 15](15-reacting-to-what-a-step-did.md)'s, the rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. It runs the same four orders, and one from a new customer, Ned, whose parcel weighs 90 kg. It prints:
 
 ```output
 name: ch16_skipping_a_step

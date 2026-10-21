@@ -28,7 +28,7 @@ name: ch32_seeing_every_event_of_a_journey
 3. **Reporters receive each event in the order the workflow lists them,** as [chapter 10](10-more-than-one-reporter.md) showed. `DebugReporter` comes first, so it printed event 13, the charge's `step_succeeded`, before the log failed on it.
 4. **`journey_aborted` reaches every reporter but the one that failed.** Event 14 reached `DebugReporter`, and the desk, which prints nothing for it, but not the log. Its `abort` names the abort's reason, `reporter failed`, the step the journey was in, `charge`, and the message of the log's error.
 
-Pat's journey is now on record to its end. But the shop still has to refund Pat, and no line holds the receipt the bank gave: the charge never got to commit it. Nor does any line name Pat: they name the journey, `A-15`.
+Pat's journey is now on record to its end. But the shop still has to refund Pat, and no line holds the receipt the bank gave: the charge never got to commit it. Nor does any event name Pat: each names the journey, `A-15`.
 
 ## Outcomes
 
