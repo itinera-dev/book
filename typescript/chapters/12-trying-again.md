@@ -61,15 +61,22 @@ It prints:
 name: ch12_trying_again
 ```
 
+A step can't count its attempts on its class, so this shipping step doesn't compile:
+
+```compile-error
+name: ch12_step_keeps_static_data
+```
+
 ## How it works
 
-1. **Attempts count from 1.** An attempt is one run of a step, as [chapter 6](06-passing-data-on.md) says, and every attempt after the first is a retry. Every event of an attempt, such as `step_retrying`, carries it as `event.attempt`, an `Attempt` from `itinera/step`. Each attempt builds the step afresh from the data bag, and what a failed attempt contributed is never committed, as [chapter 6](06-passing-data-on.md) showed, so Gil's journey ends with no tracking number.
+1. **Attempts count from 1.** An attempt is one run of a step, and every attempt after the first is a retry. Every event of an attempt, such as `step_retrying`, carries it as `event.attempt`, an `Attempt` from `itinera/step`. Each attempt builds the step afresh from the data bag, and what a failed attempt contributed is never committed, as [chapter 6](06-passing-data-on.md) showed, so Gil's journey ends with no tracking number.
 2. **An error that escapes is an abnormal termination.** A failure, such as `card-expired`, is an outcome the step chose. A throw out of `run`, or a promise from `run` that rejects, is an error the step didn't handle. It ends the attempt as a failure of another kind, an **abnormal termination**, recorded as `step_abnormal_termination` with the error's message, and never aborts the journey.
-3. **The retry budget alone decides whether a step is tried again.** It is the number of retries the workflow allows a step, declared on the step's `@withStep` line, and 0 unless the line says otherwise. While a retry is left, a step that failed is tried again, recorded as `step_retrying`: Gil's shipping and Jo's charge each get attempt 2. **A step reports what happened; the workflow decides whether it is tried again.**
+3. **The retry budget alone decides whether a step is tried again.** It is the number of retries the workflow allows a step, declared on its `@withStep` line, 0 by default. While a retry is left, a step that failed is tried again, recorded as `step_retrying`: Gil's shipping and Jo's charge each get attempt 2. **A step reports what happened; the workflow decides whether it is tried again.**
 4. **An abnormal termination spends the same budget.** Dan's booking failed with an error, so the shipping was retried just as Gil's was, and failed again with the same parcel.
 5. **The workflow can turn that off for a step.** `noRetryOnAbnormalTermination: true` on the charge's line says an error must never be retried there, since the bank may already have taken the money. Cat's charge ended in an error, and was given up at once with the cause `abnormal termination`, though a retry was left. Jo's failure, which is not an error, was retried.
 6. **When the budget is spent, the step is given up.** Gil's, Jo's and Dan's steps each failed again with no retry left, and were given up with the cause `retries exhausted`. The executor never waits between attempts.
-7. **Every throw is caught.** In JavaScript every failure is a throw, so Itinera catches whatever a step's `run` throws: a mistake in it, such as reading a property of `undefined`, is an abnormal termination just as the bank's error is. Return an outcome for anything an order can bring.
+7. **Every throw is caught.** JavaScript has no failure code can't catch, so Itinera catches them all: a mistake in `run`, such as reading a property of `undefined`, is an abnormal termination just as the bank's error is. Return an outcome for anything an order can bring.
+8. **A step keeps nothing on its class.** A static field holding data would be shared by every attempt of every journey, so Itinera refuses one: the step above doesn't compile, and a `private static` field is refused as the program loads. A static method is fine.
 
 Look at Gil's second attempt. There is no `service_provided` before it: the main carrier was made once for the journey, as [chapter 7](07-giving-a-step-the-tools-it-needs.md) showed, so the second attempt got the same carrier, which refused the same parcel again. The shop has a backup carrier, which collects parcels up to 80 kg, but no attempt is ever offered it.
 

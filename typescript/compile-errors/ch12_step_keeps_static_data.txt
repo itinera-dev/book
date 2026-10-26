@@ -1,0 +1,5 @@
+compile-errors/ch12_step_keeps_static_data.ts(8,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Ship' is not assignable to parameter of type 'WithoutStaticData<typeof Ship, typeof Step>'.
+    Type 'typeof Ship' is not assignable to type '{ readonly attempts: never; }'.
+      Types of property 'attempts' are incompatible.
+        Type 'number' is not assignable to type 'never'.
