@@ -19,11 +19,11 @@
 // history.
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { cpSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { dist, editions, root } from '../book.config.mjs';
+import { scratchDirectory } from './scratch.mjs';
 
 /** Runs git in this checkout and returns what it printed, or undefined when it failed. */
 function git(...args) {
@@ -66,7 +66,7 @@ const next = nextRef();
 if (!next) console.warn('There is no `next` branch, so no edition is built from it.');
 const planned = editions.flatMap((edition) => editionsOf(edition.language, next));
 
-const scratch = mkdtempSync(join(tmpdir(), 'itinera-book-editions-'));
+const scratch = scratchDirectory('itinera-book-editions-');
 const worktrees = [];
 
 /** A checkout of the book at an edition's ref, or this one for the latest release. */
