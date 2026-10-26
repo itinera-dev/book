@@ -10,15 +10,15 @@
 // fails stops everything.
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { editions, NEXT, root } from '../book.config.mjs';
+import { scratchDirectory } from './scratch.mjs';
 
 const CHECKS = ['scripts/build-strict.mjs', 'scripts/pages.mjs', 'scripts/a11y.mjs', 'scripts/layout.mjs'];
 
-const scratch = mkdtempSync(join(tmpdir(), 'itinera-book-languages-'));
+const scratch = scratchDirectory('itinera-book-languages-');
 try {
 	for (const { language, directory, released } of editions) {
 		if (!existsSync(join(root, directory, 'chapters', 'README.md'))) {
