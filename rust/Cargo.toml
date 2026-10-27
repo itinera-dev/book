@@ -8,13 +8,13 @@ description = "The Rust examples of the Itinera book."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-itinera = { version = "=0.1.0-beta.4", features = ["async"] }
+itinera = { version = "=0.1.0-beta.5", features = ["async"] }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [dev-dependencies]
 # The same version as above, with the `testing` feature that chapters 27 to 30 use: bump both together.
-itinera = { version = "=0.1.0-beta.4", features = ["testing"] }
+itinera = { version = "=0.1.0-beta.5", features = ["testing"] }
 snapbox = { version = "0.6", features = ["regex"] }
 regex = "1"
 serde_json = "1"
