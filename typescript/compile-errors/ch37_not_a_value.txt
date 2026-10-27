@@ -1,0 +1,4 @@
+compile-errors/ch37_not_a_value.ts(23,36): error TS2345: Argument of type 'BankConnection' is not assignable to parameter of type 'BankConnection & { readonly bank: string; readonly charge: never; }'.
+  Type 'BankConnection' is not assignable to type '{ readonly bank: string; readonly charge: never; }'.
+    Types of property 'charge' are incompatible.
+      Type '(amount: number) => string' is not assignable to type 'never'.

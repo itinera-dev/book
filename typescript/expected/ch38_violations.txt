@@ -1,0 +1,7 @@
+the workflow was refused:
+duplicate step name: ship
+hook defined twice: on step success on step charge
+input adapter for unknown step: parcels on shipping
+the fixed workflow is put together as:
+1. charge
+2. ship

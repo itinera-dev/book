@@ -1,9 +1,10 @@
-running 5 tests
+running 6 tests
 test tests::a_charge_that_ends_in_an_error_is_given_up_and_never_rescued ... ok
 test tests::a_declined_card_is_renewed_and_the_charge_tried_again_with_it ... ok
+test tests::a_script_that_leaves_out_the_shippings_attempt_2_is_refused - should panic ... ok
 test tests::a_scripted_shipping_is_still_built_with_the_weight_the_adapter_supplies ... ok
 test tests::a_shipping_that_fails_with_over_parcel_limit_is_given_up_after_attempt_1 ... ok
 test tests::a_shipping_that_fails_with_too_heavy_is_tried_again ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 

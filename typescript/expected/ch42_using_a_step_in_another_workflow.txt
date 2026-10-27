@@ -1,0 +1,50 @@
+orders:
+1. lookup, with alreadyCompleted; services: orderBook from ledger
+2. price
+3. charge, with audit, outage; services: payments from bank; rescued by charge_rescue, services: cards from cards
+4. ship, with failedShipping; adapted by parcels; services: carrier from carriers
+counter:
+1. lookup, with alreadyCompleted; services: orderBook from ledger
+2. price
+3. charge, with audit; services: payments from terminal
+Nia's order A-17, at the counter:
+log counter A-17 for Nia #1 journey_started order, price, discount, card, giftCard
+log counter A-17 for Nia #2 attempt_started lookup, attempt 1
+log counter A-17 for Nia #3 service_provided lookup gets orderBook from ledger, a Ledger
+the order book has no order A-17 yet
+log counter A-17 for Nia #4 step_succeeded lookup
+log counter A-17 for Nia #5 contribution_committed completed
+log counter A-17 for Nia #6 hook_called alreadyCompleted: on step success of lookup
+log counter A-17 for Nia #7 attempt_started price, attempt 1
+log counter A-17 for Nia #8 step_succeeded price
+log counter A-17 for Nia #9 contribution_committed amount
+log counter A-17 for Nia #10 attempt_started charge, attempt 1
+log counter A-17 for Nia #11 service_provided charge gets payments from terminal, a Terminal
+the counter's terminal charges 15 for order A-17
+log counter A-17 for Nia, receipt C-A-17 #12 global_metadata_set receipt
+log counter A-17 for Nia, receipt C-A-17 #13 step_succeeded charge
+log counter A-17 for Nia, receipt C-A-17 #14 contribution_committed receipt
+log counter A-17 for Nia, receipt C-A-17 #15 hook_called audit: on step success of charge
+log counter A-17 for Nia, receipt C-A-17 #16 contribution_committed audit
+log counter A-17 for Nia, receipt C-A-17 #17 journey_succeeded
+the journey succeeded, with receipt C-A-17
+audit: A-17: charge took 15 on attempt 1, receipt C-A-17
+Omar's order A-18, at the counter:
+log counter A-18 for Omar #1 journey_started order, price, card, giftCard
+log counter A-18 for Omar #2 attempt_started lookup, attempt 1
+log counter A-18 for Omar #3 service_provided lookup gets orderBook from ledger, a Ledger
+the order book has no order A-18 yet
+log counter A-18 for Omar #4 step_succeeded lookup
+log counter A-18 for Omar #5 contribution_committed completed
+log counter A-18 for Omar #6 hook_called alreadyCompleted: on step success of lookup
+log counter A-18 for Omar #7 attempt_started price, attempt 1
+log counter A-18 for Omar #8 optional_input_absent discount
+log counter A-18 for Omar #9 step_succeeded price
+log counter A-18 for Omar #10 contribution_committed amount
+log counter A-18 for Omar #11 attempt_started charge, attempt 1
+log counter A-18 for Omar #12 service_provided charge gets payments from terminal, a Terminal
+the counter's terminal declines card omar-2023: it has expired
+log counter A-18 for Omar #13 step_failed charge: card-expired
+log counter A-18 for Omar #14 step_given_up charge: failure
+log counter A-18 for Omar #15 journey_failed charge
+the journey failed: card-expired, hand the card back

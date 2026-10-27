@@ -21,14 +21,21 @@ import { resolve } from 'node:path';
  *   `examples/`, `expected/`, `tested/`, `notes/`, `compile-errors/` and `pending/`.
  * @property {string} extension The extension of its programs, without the dot.
  * @property {string} highlight The highlighter's name for the language.
- * @property {boolean} asynchronous Whether the language's executors have an
- *   asynchronous execution mode. Without one, every `asynchronous` key of a
- *   directive is ignored and only the synchronous form is shown.
+ * @property {boolean} asynchronous Whether the language has two execution
+ *   modes, so that an example may have an asynchronous form beside its
+ *   synchronous one. Without them, every `asynchronous` key of a directive is
+ *   ignored and only the one form is shown.
+ * @property {boolean} released Whether the language's Itinera package has a
+ *   release. Until it has, no package a reader can install matches its book, so
+ *   its book is published only from `next`, at /book/LANGUAGE/next/, and every
+ *   link to the language leads there; its first release publishes its edition
+ *   from `main` at /book/LANGUAGE/.
  */
 
 /** @type {readonly Edition[]} */
 export const editions = [
-	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust', asynchronous: true },
+	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust', asynchronous: true, released: true },
+	{ language: 'typescript', name: 'TypeScript', directory: 'typescript', extension: 'ts', highlight: 'typescript', asynchronous: false, released: false },
 ];
 
 /** The directories of a language's directory that the book reads. */
@@ -50,7 +57,7 @@ export const dist = resolve(process.env.BOOK_DIST ?? resolve(process.cwd(), 'dis
 const SEGMENT = /^[a-z0-9][a-z0-9.-]*$/;
 
 /** The version segment of the edition built from the `next` branch, ahead of any release. */
-const NEXT = 'next';
+export const NEXT = 'next';
 
 /**
  * The edition this build renders: its language, from BOOK_LANGUAGE, and an
@@ -99,8 +106,11 @@ export function pageHref(page) {
 	return page ? `${base}/${build.segment}/${page}/` : `${base}/${build.segment}/`;
 }
 
-/** The URL of the contents of this build's language at its latest release. */
-export const latestHref = `${base}/${build.edition.language}/`;
+/**
+ * The URL of the contents of this build's language at its latest release, or
+ * undefined for a language with no release yet.
+ */
+export const latestHref = build.edition.released ? `${base}/${build.edition.language}/` : undefined;
 
 /**
  * What every page of this build says about its edition, in its web page and
@@ -112,9 +122,11 @@ export const editionNotice =
 		? undefined
 		: build.release
 			? `This edition is the book for release ${build.version} of Itinera for ${build.edition.name}, and its chapters stay as they were at that release.`
-			: `This edition follows Itinera for ${build.edition.name} ahead of its next release, so it may teach what no release does yet.`;
+			: build.edition.released
+				? `This edition follows Itinera for ${build.edition.name} ahead of its next release, so it may teach what no release does yet.`
+				: `This edition follows Itinera for ${build.edition.name} ahead of its first release, so it teaches what no release has yet.`;
 
-/** The link every edition's notice ends with. */
+/** The link every edition's notice ends with, when its language has a release. */
 export const latestLinkText = 'Read the book for the latest release';
 
 /**
@@ -128,13 +140,16 @@ export function markdownHref(page) {
 
 /**
  * The URL of a page in another edition. Another language is linked at its own
- * latest path, since its versions are not this build's to know.
+ * latest path, since its versions are not this build's to know. A language with
+ * no release yet is linked at the contents of its `next` edition instead, since
+ * its book is still being written and may not have the page.
  *
  * @param {Edition} edition
  * @param {string} [page]
  */
 export function editionHref(edition, page) {
 	if (edition.language === build.edition.language) return pageHref(page);
+	if (!edition.released) return `${base}/${edition.language}/${NEXT}/`;
 	return page ? `${base}/${edition.language}/${page}/` : `${base}/${edition.language}/`;
 }
 

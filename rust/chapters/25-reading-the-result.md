@@ -53,4 +53,4 @@ We have shown how the shop reads from the result how each journey ended and what
 | The usual way | With Itinera |
 |---|---|
 | Why a request failed is often a message in a log, or an error type the caller has to guess at. | A failed journey's result carries its cause and the reason the step gave. |
-| A bug in the shop's own code and a refusal of the business often end the same way, as an error. | A journey that failed and a journey that was aborted are different statuses, and an aborted journey has no output. |
+| When a request stops on a bug, its caller often still reads whatever state it left behind, as if it were a result. | An aborted journey is a status of its own, apart from a failure, and its result offers no output, since its data bag may stand halfway through a change. |
