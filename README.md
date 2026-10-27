@@ -4,7 +4,7 @@ A book about [Itinera](https://github.com/itinera-dev/spec), a workflow framewor
 
 ## Status
 
-Published at <https://itinera-dev.org/book/>, built by [the site](site/README.md). The first book is for Rust, in [rust/](rust/), with [itinera-rs](https://github.com/itinera-dev/itinera-rs): the book for its latest release is at <https://itinera-dev.org/book/rust/>, the book ahead of the next release at <https://itinera-dev.org/book/rust/next/>, and each release's book, frozen, at `/book/rust/VERSION/` once the release is tagged, as [BOOK.md](BOOK.md#where-editions-are-published) says.
+Published at <https://itinera-dev.org/book/>, built by [the site](site/README.md). The first book is for Rust, in [rust/](rust/), with [itinera-rs](https://github.com/itinera-dev/itinera-rs): the book for its latest release is at <https://itinera-dev.org/book/rust/>, the book ahead of the next release at <https://itinera-dev.org/book/rust/next/>, and each release's book, frozen, at `/book/rust/VERSION/` once the release is tagged, as [BOOK.md](BOOK.md#where-editions-are-published) says. The TypeScript book, in [typescript/](typescript/), follows [itinera-ts](https://github.com/itinera-dev/itinera-ts) in the same way, at <https://itinera-dev.org/book/typescript/>, <https://itinera-dev.org/book/typescript/next/> and `/book/typescript/VERSION/`.
 
 ## Who it is for
 
@@ -14,6 +14,7 @@ People building software for others with Itinera, and the AI agents doing that w
 
 - [BOOK.md](BOOK.md): what the book contains and how it is written, the plan every language's book follows.
 - [rust/](rust/): the Rust book, its chapters in [rust/chapters/](rust/chapters/README.md) and its examples beside them.
+- [typescript/](typescript/): the TypeScript book, its chapters in [typescript/chapters/](typescript/chapters/README.md) and its examples beside them.
 - [FORMAT.md](FORMAT.md): how a book is stored, and how its chapters show compiled code.
 - [AGENTS.md](AGENTS.md): the working manual for anyone, human or agent, working in this repository.
 

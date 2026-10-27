@@ -35,7 +35,7 @@ import { resolve } from 'node:path';
 /** @type {readonly Edition[]} */
 export const editions = [
 	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust', asynchronous: true, released: true },
-	{ language: 'typescript', name: 'TypeScript', directory: 'typescript', extension: 'ts', highlight: 'typescript', asynchronous: false, released: false },
+	{ language: 'typescript', name: 'TypeScript', directory: 'typescript', extension: 'ts', highlight: 'typescript', asynchronous: false, released: true },
 ];
 
 /** The directories of a language's directory that the book reads. */

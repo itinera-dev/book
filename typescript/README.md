@@ -1,20 +1,20 @@
 # The TypeScript book
 
-The TypeScript book: its [chapters](chapters/README.md), and the examples and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` as [package.json](package.json) names it: until itinera's first release, on both `main` and `next`, a commit of [itinera-ts](https://github.com/itinera-dev/itinera-ts), the one [itinera.json](itinera.json) names, as [BOOK.md](../BOOK.md#how-the-examples-are-checked) explains. Until that first release, this book is published only at `/book/typescript/next/`.
+The TypeScript book: its [chapters](chapters/README.md), and the examples and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on `itinera` as [package.json](package.json) names it: on `main`, the latest release from npm, named exactly; on `next`, a commit of [itinera-ts](https://github.com/itinera-dev/itinera-ts), the one [itinera.json](https://github.com/itinera-dev/book/blob/next/typescript/itinera.json) names, as [BOOK.md](../BOOK.md#how-the-examples-are-checked) explains.
 
 ## Getting itinera
 
-npm cannot install one package out of a repository that holds several, as itinera-ts does, so `npm run itinera` prepares it first:
+On `main`, `npm ci` installs `itinera` from npm like any other dependency. On `next`, npm cannot install one package out of a repository that holds several, as itinera-ts does, so `npm run itinera` prepares it first:
 
-1. It fetches the commit that [itinera.json](itinera.json) names into `.itinera/source`, installs its dependencies, packs the `itinera` package as npm would publish it, and unpacks it into `.itinera/package`.
-2. [package.json](package.json) depends on `file:.itinera/package`, and [.npmrc](.npmrc) has npm install it as a package of its own, with its dependencies beside the book's.
-3. It does nothing when `.itinera/package` already comes from that commit, so run it once, and again whenever [itinera.json](itinera.json) changes, followed by `npm ci`, since npm copies the package into `node_modules`. When the new commit changes itinera's own dependencies, run `npm install` instead, which updates [package-lock.json](package-lock.json).
+1. It fetches the commit that `itinera.json` names into `.itinera/source`, installs its dependencies, packs the `itinera` package as npm would publish it, and unpacks it into `.itinera/package`.
+2. `package.json` depends on `file:.itinera/package`, and `.npmrc` has npm install it as a package of its own, with its dependencies beside the book's.
+3. It does nothing when `.itinera/package` already comes from that commit, so run it once, and again whenever `itinera.json` changes, followed by `npm ci`, since npm copies the package into `node_modules`. When the new commit changes itinera's own dependencies, run `npm install` instead, which updates [package-lock.json](package-lock.json).
 
 With `ITINERA_TS` set to a checkout of itinera-ts whose dependencies are installed, `npm run itinera` packs that checkout as it stands instead, so the book can run against code not pushed yet: `ITINERA_TS=../../itinera-ts npm run itinera`, then `npm install`.
 
 ## Running the examples
 
-From this directory, after `npm run itinera` and `npm ci`:
+From this directory, after `npm ci`, preceded on `next` by `npm run itinera`:
 
 - `npm run build` compiles every example, tested program and check into `build/`, with `tsc`, since the decorators need the metadata it records;
 - `node build/examples/NAME.js` runs one example, and what it prints must match `expected/NAME.txt`;
