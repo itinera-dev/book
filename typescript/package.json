@@ -9,12 +9,11 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "itinera": "node scripts/itinera.mjs",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test --test-reporter=spec \"build/tests/*.test.js\""
   },
   "dependencies": {
-    "itinera": "file:.itinera/package",
+    "itinera": "0.1.0-beta.5",
     "reflect-metadata": "0.2.2"
   },
   "devDependencies": {

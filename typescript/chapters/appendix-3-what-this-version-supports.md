@@ -22,18 +22,19 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The `itinera` this book covers
 
-No version of `itinera` has been released yet. This edition of the book follows its [repository](https://github.com/itinera-dev/itinera-ts) ahead of the first release, at the commit [`00a8724`](https://github.com/itinera-dev/itinera-ts/tree/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f), and every example you read here compiles and runs against it. It passes every proposal of tier 1 whose cases are in the conformance cases it runs, and test support. The first release will name its version here, and every later one the version the book covers.
+This book covers `itinera` `0.1.0-beta.5`, the first release, a beta, published on [npm](https://www.npmjs.com/package/itinera) under the tag `next` and built from its [repository](https://github.com/itinera-dev/itinera-ts) at the tag `v0.1.0-beta.5`, and every example you read here compiles and runs against it. It passes every proposal of tier 1, with the capabilities test support and value conversions.
 
 ## Capabilities
 
-A tier says what Itinera means; capabilities say what an executor accepts, and what else a language offers. `itinera` claims two:
+A tier says what Itinera means; capabilities say what an executor accepts, and what else a language offers. `itinera` claims three:
 
 1. **`async`:** its one executor, `LocalExecutor`, runs journeys asynchronously, so `run` always returns a promise. It accepts steps and hooks of either execution mode, and waits for whichever it gets, as [chapter 26](26-running-async-journeys-while-others-wait.md) shows, and reporters too, as [chapter 31](31-stopping-a-journey-when-its-log-fails.md) does. It doesn't claim `sync`, an executor that runs a journey without a promise, since JavaScript can't wait for a promise synchronously.
 2. **`testing`:** test support, from `itinera/testing`, as chapters [27](27-testing-a-step-alone.md) to [30](30-testing-a-whole-journey.md) show.
+3. **`value-conversions`:** an object of one of your own classes can be given wherever a value is, such as a contribution to the data bag. `itinera` calls the object's `toValue()` to turn it into a value, and the class's static `fromValue` to turn the value back into an object when it is read. A conversion that fails while a value is read makes it of the wrong type, and one that fails while a value is captured makes it not a value, as the specification says.
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/00a87240f4a44f7c6e69cdf1e1724c3c4cf3f59f/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. At the commit this book covers, it runs the conformance cases `v0.1.0-rc.15`, and lists 35 proposals as passing: 34 of tier 1, and the proposal of test support. Proposals of tier 1 accepted after those cases, such as the one refusing two input adapters of the same name, are listed once their cases are released.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/v0.1.0-beta.5/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.5`, it runs the conformance cases `v0.1.0-rc.16`, and lists all 38 proposals of tier 1 of specification 0.1 as passing, including those of test support and value conversions.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in TypeScript. Instead, a type test of the package proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in TypeScript, each with the type test that proves it:
 

@@ -3,8 +3,9 @@ name: TypeScript book
 # Runs every example of the TypeScript book and checks that it prints what the book shows, that
 # every compile error gives the message the book shows, and that every tested program builds
 # without test support and its tests report what the book shows, with `npm test` in typescript/
-# (typescript/tests/). `npm run itinera` first prepares the itinera package that
-# typescript/itinera.json pins, a commit of itinera-ts, since itinera has no release yet.
+# (typescript/tests/). On `main`, package.json names the latest release of itinera, from npm. On
+# `next`, it names the package that `npm run itinera` prepares first, from the commit of itinera-ts
+# that typescript/itinera.json pins; `main` has no such script, so the step does nothing there.
 
 on:
   pull_request:
@@ -35,6 +36,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: typescript/package-lock.json
-      - run: npm run itinera
+      - run: npm run itinera --if-present
       - run: npm ci
       - run: npm test
