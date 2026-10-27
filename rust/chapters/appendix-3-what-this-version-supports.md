@@ -22,19 +22,19 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The version of `itinera` this book covers
 
-This book covers `itinera` `0.1.0-beta.3`, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.3`, and every example you read here compiles and runs against it.
+This book covers `itinera` `0.1.0-beta.4`, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.4`, and every example you read here compiles and runs against it.
 
 ## Services, rescue steps and global metadata
 
-[Services](07-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and global metadata, the last features added to tier 1, are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against that release.
+[Services](07-giving-a-step-the-tools-it-needs.md), [rescue steps](14-repairing-then-trying-once-more.md) and global metadata are in `itinera`, together with the input adapters and service providers a rescue step may have of its own. Every program this book shows is compiled and run against that release.
 
 ## Capabilities
 
-A tier says what Itinera means; capabilities say what an executor accepts. In tier 1 the capabilities are the two execution modes, synchronous and asynchronous. `itinera` claims both: `LocalExecutor` runs synchronous workflows and, with the `async` feature, `AsyncLocalExecutor` runs asynchronous ones. Neither runs a workflow of the other mode: that's a compile error, not a refusal.
+A tier says what Itinera means; capabilities say what an executor accepts. In tier 1 the capabilities are the two execution modes, synchronous and asynchronous, test support (`testing`) and value conversions (`value-conversions`). `itinera` claims both modes: `LocalExecutor` runs synchronous workflows and, with the `async` feature, `AsyncLocalExecutor` runs asynchronous ones. Neither runs a workflow of the other mode: that's a compile error, not a refusal. With the `testing` feature, it claims test support, which [chapters 27 to 30](27-testing-a-step-alone.md) use. It doesn't claim `value-conversions`, which a language claims when it calls your own code to turn your objects into values, or values back into your types: Rust keeps each value as it is and reads it back by its exact type, so it calls no conversion.
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.3/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.3`, it runs the conformance cases `v0.1.0-rc.15`, and lists every proposal of specification 0.1 as passing.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.4/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.4`, it runs the conformance cases `v0.1.0-rc.16`, and lists every tier 1 proposal of specification 0.1 as passing except 0113, on value conversions, whose every case needs the capability `value-conversions`.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the test that proves it:
 
@@ -46,7 +46,9 @@ A rule the specification lets a language make impossible, such as a policy attac
 6. a write through an input adapter's access to the data bag (`bag-write`);
 7. a rescue step that skips (`rescue-skip`);
 8. a service provider of journey scope requesting the name of the step being built or the attempt number (`journey-scope-request`);
-9. a service provider that returns no service (`no-instance`).
+9. a service provider that returns no service (`no-instance`);
+10. a test's script naming a negative attempt (`attempt-negative`);
+11. a test's script naming a fraction of an attempt (`attempt-fraction`).
 
 ## What later tiers add
 
