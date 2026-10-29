@@ -11,3 +11,11 @@ The Itinera book for Kotlin, in reading order. It follows the plan that every la
 
 1. [But why Itinera?](01-but-why-itinera.md)
 2. [The big picture](02-the-big-picture.md)
+
+## Part 2: Getting started
+
+3. [Installing Itinera](03-installing-itinera.md)
+4. [A first step](04-a-first-step.md)
+5. [A first journey](05-a-first-journey.md)
+6. [Passing data on](06-passing-data-on.md)
+7. [Giving a step the tools it needs](07-giving-a-step-the-tools-it-needs.md)
