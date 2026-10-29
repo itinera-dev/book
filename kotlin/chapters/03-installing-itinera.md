@@ -32,7 +32,7 @@ There is no program in this chapter, so nothing is printed.
 
 ## Outcomes
 
-We have shown that Itinera is one dependency of your program, with nothing else to install or run.
+We have shown that Itinera is a library your build adds, with nothing else to install or run.
 
 | The usual way | With Itinera |
 |---|---|
