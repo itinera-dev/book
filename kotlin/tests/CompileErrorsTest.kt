@@ -4,7 +4,9 @@
 // Each program is compiled on its own, against itinera and the libraries the examples use, by the
 // Kotlin compiler that builds the examples, with itinera's checker running in KSP, as it runs on
 // every example. The message is every error the compiler and the checker give, one per line,
-// without warnings. The program's path in it is written as a reader of the book sees it,
+// without warnings, and without the line saying that KSP failed, which a build gives as the
+// closing notes of its failure. The program's path in it is written as a reader of the book sees
+// it,
 // `compile-errors/NAME.kt`, never as a path on the machine that compiled it. Each message is also
 // written to `build/compile-errors/NAME.txt`, from where it can be recorded.
 
@@ -67,6 +69,12 @@ class CompileErrorsTest {
 }
 
 /**
+ * What the compiler adds once KSP has reported an error, which a build shows as the closing notes
+ * of its failure rather than as an error of the program.
+ */
+private const val KSP_FAILED = "e: Error occurred in KSP, check log for detail"
+
+/**
  * The errors among the compiler's [messages], each as the book shows it. A message starts with its
  * severity, `e:` for an error, and may go on over several lines.
  */
@@ -74,6 +82,6 @@ private fun errorsOf(messages: String, name: String): List<String> {
     val path = Regex("""(?:file://)?\S*/${Regex.escape(name)}\.kt""")
     return messages
         .split(Regex("""\n(?=[ewiv]: )"""))
-        .filter { it.startsWith("e: ") }
+        .filter { it.startsWith("e: ") && it.trimEnd() != KSP_FAILED }
         .map { it.trimEnd().replace(path, "compile-errors/$name.kt") }
 }

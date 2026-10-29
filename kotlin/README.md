@@ -6,13 +6,13 @@ Everything here runs with Gradle, through the wrapper, `./gradlew`, which fetche
 
 ## Getting itinera
 
-On `main`, Gradle fetches itinera from Maven Central like any other dependency. On `next`, `./gradlew itinera` publishes it first:
+On `main`, once itinera has a release, Gradle fetches it from Maven Central like any other dependency; until then, [settings.gradle.kts](settings.gradle.kts) has Gradle look for itinera only where `./gradlew itinera` puts it, so the first release changes that file as well as the version in [build.gradle.kts](build.gradle.kts). On `next`, `./gradlew itinera` publishes it first:
 
 1. It fetches the commit that `itinera.json` names into `.itinera/source`, and has that checkout's own build publish every artifact, as Maven Central would receive them, at the version `next`. itinera-j's build needs a JDK 25, which Gradle downloads when none is installed.
 2. It copies them into `.itinera/repository`, where [settings.gradle.kts](settings.gradle.kts) has Gradle look for itinera, and only there.
-3. It does nothing when `.itinera/repository` already comes from that commit, so run it once, and again whenever `itinera.json` changes. On `main`, where there is no `itinera.json`, it does nothing at all.
+3. It does nothing when `.itinera/repository` already comes from that commit, so run it once, and again whenever `itinera.json` changes. When the new commit changes itinera's own dependencies, also run `./gradlew dependencies --write-locks`, which updates [gradle.lockfile](gradle.lockfile). On `main`, where there is no `itinera.json`, it does nothing at all.
 
-With `ITINERA_J` set to a checkout of itinera-j, `./gradlew itinera` publishes that checkout as it stands instead, every time it runs, so the book can run against code not pushed yet: `ITINERA_J=../../itinera-j ./gradlew itinera`.
+With `ITINERA_J` set to a checkout of itinera-j, `./gradlew itinera` publishes that checkout as it stands instead, every time it runs, so the book can run against code not pushed yet: `ITINERA_J=../../itinera-j ./gradlew itinera`, where a relative path is read from this directory.
 
 ## Running the examples
 
@@ -26,7 +26,7 @@ From this directory, after `./gradlew itinera`:
 
 1. every example prints its recorded output, run in a JVM of its own. An event's timestamp and a generated journey ID change from one run to the next, so they are compared as placeholders, and the recorded output keeps the values of the run that recorded it;
 2. the tests of every tested program, built with `itinera-testing`, print their recorded report. They run with JUnit's console launcher, each class's tests in the order of their names, and the time the run took is a placeholder;
-3. every program in `compile-errors/`, compiled on its own with KSP and itinera's checker, is refused with the message recorded next to it: every error, one to a line, with the program's path as `compile-errors/NAME.kt`. Compiler messages change between Kotlin releases, so [build.gradle.kts](build.gradle.kts) pins the compiler exactly; moving to a newer one means recording them again;
+3. every program in `compile-errors/`, compiled on its own with KSP and itinera's checker, is refused with the message recorded next to it: every error, one to a line, with the program's path as `compile-errors/NAME.kt`, and without the line saying that KSP failed, which a build gives as the closing notes of its failure. Compiler messages change between Kotlin releases, so [build.gradle.kts](build.gradle.kts) pins the compiler exactly; moving to a newer one means recording them again;
 4. every program and check is formatted as ktfmt's Kotlin style formats it, which `./gradlew spotlessApply` does.
 
 To record an example's output, run `./gradlew -q example -Pname=NAME > expected/NAME.txt`, and a tested program's report, `./gradlew -q tests -Pname=NAME > tested/NAME.txt`. A compile error's message is written to `build/compile-errors/NAME.txt` each time `./gradlew check` runs, from where it can be copied. When the build's dependencies change, `./gradlew dependencies --write-locks` writes [gradle.lockfile](gradle.lockfile) again.

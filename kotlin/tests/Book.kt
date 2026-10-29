@@ -41,17 +41,22 @@ class Ran(val status: Int, val stdout: String, val stderr: String)
  */
 fun java(vararg arguments: String): Ran {
     val java = Path(System.getProperty("java.home"), "bin", "java").toString()
+    val output = createTempFile("itinera-book-", ".txt")
     val errors = createTempFile("itinera-book-", ".txt")
     try {
         val process =
             ProcessBuilder(java, *arguments)
                 .directory(book.toFile())
+                .redirectOutput(output.toFile())
                 .redirectError(errors.toFile())
                 .start()
-        val stdout = process.inputStream.bufferedReader().use { it.readText() }
-        check(process.waitFor(5, TimeUnit.MINUTES)) { "java ${arguments.last()} took too long" }
-        return Ran(process.exitValue(), stdout, errors.readText())
+        if (!process.waitFor(5, TimeUnit.MINUTES)) {
+            process.destroyForcibly()
+            error("java ${arguments.last()} took more than five minutes")
+        }
+        return Ran(process.exitValue(), output.readText(), errors.readText())
     } finally {
+        output.deleteExisting()
         errors.deleteExisting()
     }
 }

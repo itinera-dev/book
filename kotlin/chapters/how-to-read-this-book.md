@@ -33,7 +33,7 @@ Every piece of code in the book is part of a complete program, built and run eve
 Every program is built with Gradle for JDK 17 and later, with every compiler warning an error. Some captions carry a mark:
 
 1. **The asynchronous form.** A step, a hook or a reporter can be a `suspend` function, run by `AsyncLocalExecutor` instead of `LocalExecutor`. Once the book has taught both forms, each chapter shows the synchronous form first, and where the asynchronous form differs, it follows right after.
-2. **Does not compile.** Some mistakes can't even be written: Kotlin's types refuse some of them, and itinera's checker, which runs while the compiler does, reports others as errors of the build. The caption says so, and what the compiler says follows, word for word.
+2. **Does not compile.** Some mistakes can't even be written: Kotlin's types refuse some of them, and itinera's checker, which runs as the program is built, reports others as errors of the build. The caption says so, and what the compiler says follows, word for word.
 
 ## Words with one meaning
 

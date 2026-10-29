@@ -66,7 +66,7 @@ dependencies {
 val kotlinVersion = getKotlinPluginVersion()
 
 configurations
-    .matching { it.name.startsWith("test") }
+    .matching { it.name.startsWith("test") && !it.name.startsWith("tested") }
     .configureEach {
         resolutionStrategy.eachDependency {
             if (requested.group == "org.jetbrains.kotlin") useVersion(kotlinVersion)
@@ -182,7 +182,7 @@ constructor(private val exec: ExecOperations, private val files: FileSystemOpera
     DefaultTask() {
     @get:Internal abstract val pin: RegularFileProperty
 
-    @get:Internal abstract val checkout: Property<String>
+    @get:Internal abstract val checkout: DirectoryProperty
 
     @get:Internal abstract val directory: DirectoryProperty
 
@@ -199,7 +199,7 @@ constructor(private val exec: ExecOperations, private val files: FileSystemOpera
         val published = repository.resolve("commit")
         val source =
             if (checkout.isPresent) {
-                File(checkout.get()).absoluteFile
+                checkout.get().asFile
             } else {
                 if (published.exists() && published.readText() == commit) {
                     logger.lifecycle("itinera is already published from $commit.")
@@ -243,7 +243,9 @@ constructor(private val exec: ExecOperations, private val files: FileSystemOpera
 tasks.register<PublishItinera>("itinera") {
     description = "Publishes the itinera that itinera.json names into .itinera/repository."
     pin = layout.projectDirectory.file("itinera.json")
-    checkout = providers.environmentVariable("ITINERA_J")
+    // A relative path is read from this directory, wherever Gradle runs.
+    val here = layout.projectDirectory
+    checkout = providers.environmentVariable("ITINERA_J").map { here.dir(it) }
     directory = layout.projectDirectory.dir(".itinera")
 }
 
