@@ -1,6 +1,5 @@
-// Saying what only a step knows: the shipping reports that the parcel left, as an event of its own
-// in
-// the journey's stream.
+// Saying what only a step knows: the shipping reports that the parcel left, as an event of its
+// own in the journey's stream.
 
 package ch09_saying_what_only_a_step_knows
 

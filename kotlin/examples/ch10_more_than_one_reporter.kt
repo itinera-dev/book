@@ -1,6 +1,5 @@
-// More than one reporter: the shop's log and the customer service desk each receive every event,
-// and
-// each keeps what it needs.
+// More than one reporter: the shop's log and the customer service desk each receive every
+// event, and each keeps what it needs.
 
 package ch10_more_than_one_reporter
 
