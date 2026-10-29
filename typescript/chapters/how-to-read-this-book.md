@@ -4,7 +4,7 @@ A few things work the same way on every page. Here they are, once.
 
 ## A book for TypeScript
 
-This is the TypeScript book of Itinera. Every program in it is TypeScript, every output is what that program printed, and every detail is about `itinera`, the npm package. Each language that has an Itinera gets a book of its own, with the same shop, the same chapters and the same words. On the web pages, the **programming language** selector at the top of every page takes you to the same page in another language's book.
+This is the TypeScript book of Itinera. Every program in it is TypeScript, every output is what that program printed, and every detail is about `itinera`, the npm package. Each language that has an Itinera gets a book of its own, with the same shop, the same chapters and the same words. On the web pages, the **programming language** selector at the top of every page takes you to the same page in another language's book, or, for a language whose book is still being written ahead of its first release, to that book's contents.
 
 ## Meet the shop
 
