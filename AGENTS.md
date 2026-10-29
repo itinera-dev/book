@@ -38,7 +38,7 @@ Use the words defined in chapter 1 of the specification, [01-concepts.md](https:
   2. updating, on `main`, the pages that name the version, and, at a language's first release, marking the language as released in `site/book.config.mjs`, which publishes its edition from `main`;
   3. merging `main` back into `next`, which keeps naming the commit of the language's repository that it already names, as item 6 says.
 
-  They are pushed once three checks pass: the examples of every language whose directory the merge changes, such as `cargo test --locked` in `rust/` and `npm test` in `typescript/`; the site, with `npm run verify` in `site/`; and a separate reviewer agent. The maintainer then tags the last of these commits on `main`.
+  They are pushed once three checks pass: the examples of every language whose directory the merge changes, such as `cargo test --locked` in `rust/`, `npm test` in `typescript/` and `./gradlew check` in `kotlin/`; the site, with `npm run verify` in `site/`; and a separate reviewer agent. The maintainer then tags the last of these commits on `main`.
 - Commit messages and pull request descriptions say what changed and why, in plain prose.
 - Every change an agent makes is reviewed by a separate reviewer agent before its pull request is opened, or, for a release, before it is pushed. The reviewer checks it against this manual, BOOK.md and FORMAT.md, starting with "Each idea in its own chapter" in BOOK.md.
 

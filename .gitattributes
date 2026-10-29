@@ -1,3 +1,7 @@
 # Every text file is checked out with LF line endings, on every system, so the
 # programs, their recorded output and the chapters read the same everywhere.
 * text=auto eol=lf
+
+# Gradle's wrapper: its script for Windows keeps Windows line endings, and its jar is binary.
+*.bat text eol=crlf
+*.jar binary

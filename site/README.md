@@ -14,6 +14,7 @@ Then open <http://localhost:4321/book/rust/>.
 - It needs Node 22.12 or later.
 - The dev server reloads the page when a chapter or a file of the book it renders changes: for the Rust book, anything in `../rust/chapters/`, `../rust/examples/`, `../rust/expected/`, `../rust/tested/`, `../rust/compile-errors/` or `../rust/pending/`. When the contents, `../rust/chapters/README.md`, changes, or a chapter file is added or removed, the server restarts on its own, which takes a few seconds.
 - `BOOK_LANGUAGE=typescript npm run dev` serves the TypeScript book instead, at <http://localhost:4321/book/typescript/>, reading `../typescript/` the same way.
+- `BOOK_LANGUAGE=kotlin BOOK_VERSION=next npm run dev` serves the Kotlin book, which has no release yet, at <http://localhost:4321/book/kotlin/next/>, reading `../kotlin/` the same way.
 
 ## What this is
 
