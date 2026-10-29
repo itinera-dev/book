@@ -19,3 +19,7 @@ The Itinera book for Kotlin, in reading order. It follows the plan that every la
 5. [A first journey](05-a-first-journey.md)
 6. [Passing data on](06-passing-data-on.md)
 7. [Giving a step the tools it needs](07-giving-a-step-the-tools-it-needs.md)
+8. [Seeing what happened](08-seeing-what-happened.md)
+9. [Saying what only a step knows](09-saying-what-only-a-step-knows.md)
+10. [More than one reporter](10-more-than-one-reporter.md)
+11. [Naming a journey](11-naming-a-journey.md)
