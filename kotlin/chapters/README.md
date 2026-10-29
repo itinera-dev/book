@@ -23,3 +23,8 @@ The Itinera book for Kotlin, in reading order. It follows the plan that every la
 9. [Saying what only a step knows](09-saying-what-only-a-step-knows.md)
 10. [More than one reporter](10-more-than-one-reporter.md)
 11. [Naming a journey](11-naming-a-journey.md)
+12. [Trying again](12-trying-again.md)
+13. [A carrier for each attempt](13-a-carrier-for-each-attempt.md)
+14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
+15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
+16. [Skipping a step](16-skipping-a-step.md)
