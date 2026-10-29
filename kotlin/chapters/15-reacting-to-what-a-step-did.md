@@ -20,9 +20,9 @@ name: ch15_reacting_to_what_a_step_did
 region: workflow
 ```
 
-The rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping is [chapter 12](12-trying-again.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. The bank's provider is [chapter 12](12-trying-again.md)'s, and the carriers' provider [chapter 13](13-a-carrier-for-each-attempt.md)'s.
+The rescue step `RenewCard` is [chapter 14](14-repairing-then-trying-once-more.md)'s, the shipping is [chapter 12](12-trying-again.md)'s and the desk is [chapter 11](11-naming-a-journey.md)'s. The bank's provider and the interface `Carrier` are [chapter 12](12-trying-again.md)'s, and the carriers' provider [chapter 13](13-a-carrier-for-each-attempt.md)'s.
 
-The log is [chapter 14](14-repairing-then-trying-once-more.md)'s, and its `detail` now also says which policy's hook was called, and after which step:
+The log is [chapter 11](11-naming-a-journey.md)'s, with the `detail` function [chapter 12](12-trying-again.md) shows and the branches [chapter 14](14-repairing-then-trying-once-more.md) added, whose `when` now also says which policy's hook was called, and after which step:
 
 ```example
 name: ch15_reacting_to_what_a_step_did

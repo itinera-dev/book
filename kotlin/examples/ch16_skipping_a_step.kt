@@ -306,8 +306,7 @@ data class Order(val receipt: String?, val tracking: String?, val audit: String?
 
 fun main() {
     // The customer, and their order: its number, its price, the parcel's weight in kg, the card,
-    // and
-    // whether it is a gift card.
+    // and whether it is a gift card.
     val orders =
         listOf(
             "Ann" to NewOrder("A-1", price = 40, weight = 2, card = "ann-2028"),
