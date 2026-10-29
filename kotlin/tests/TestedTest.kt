@@ -2,13 +2,11 @@
 // it.
 //
 // A tested program `NAME.kt` keeps its tests beside it, in `NAME.test.kt`, as a Kotlin project
-// keeps
-// its tests apart from the code it ships, and only they may use itinera-testing. Gradle builds
-// every
-// example and tested program first without their tests and without test support, so a program
-// that uses test support outside its tests does not compile. The tests run with JUnit's console
-// launcher, in a JVM of their own, one program at a time, each class's tests in the order of their
-// names, and how long the run took is the one placeholder of the report.
+// keeps its tests apart from the code it ships, and only they may use itinera-testing. Gradle
+// builds every example and tested program first without their tests and without test support, so a
+// program that uses test support outside its tests does not compile. The tests run with JUnit's
+// console launcher, in a JVM of their own, one program at a time, each class's tests in the order
+// of their names, and how long the run took is the one placeholder of the report.
 
 package book
 
