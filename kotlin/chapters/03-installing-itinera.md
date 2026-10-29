@@ -15,7 +15,7 @@ With Gradle's Kotlin DSL, that is two lines under `dependencies`: `implementatio
 
 `VERSION` is the release you install, and Itinera for Kotlin has none yet. From its first release, every artifact is on Maven Central, where Gradle and Maven find it as they find any other library. Until then, this book follows Itinera's code ahead of a release: its programs build against a commit of [itinera-j](https://github.com/itinera-dev/itinera-j), the repository Itinera for Kotlin lives in, as the [README of the book's `kotlin` directory](../README.md) says.
 
-It runs on JDK 17 and later.
+It needs JDK 17 or later, and Kotlin 2.3 or later.
 
 That is all you need to start. `itinera-kotlin` is all a Kotlin application needs, and when a chapter needs another artifact of the family, it says how to add it.
 
@@ -25,7 +25,7 @@ There is no program in this chapter, so nothing is printed.
 
 1. **It is a library, and nothing else.** Itinera runs inside your program. There is no server to start, no database to create and no background process to keep running.
 2. **The bill of materials keeps the family together.** You write the version once, on `itinera-bom`, and every artifact of the family you add takes the same one, so two of them can never come from different releases. When a release comes out, moving to it is one line.
-3. **A Kotlin application adds `itinera-kotlin`, never the core alone.** The core is what every application on the JVM shares, and `itinera-kotlin` is what reads your classes as Kotlin declares them, such as which of their values may be `null`, which plain Java can't tell. **Without `itinera-kotlin`, the core refuses the Kotlin classes you declare with Itinera**, so it is the one artifact you add besides the bill of materials, and the core comes along with it.
+3. **A Kotlin application adds `itinera-kotlin`, never the core alone.** The core is what every application on the JVM shares, and `itinera-kotlin` is what reads your classes as Kotlin declares them, such as which of their parameters and properties may be `null`, which plain Java can't tell. **Without `itinera-kotlin`, the core refuses the Kotlin classes you declare with Itinera**, so it is the one artifact you add besides the bill of materials, and the core comes along with it.
 4. **Each concept has a package of its own.** Everything Itinera offers is under the package `org.itineradev.itinera`, in a package of its own for each of Itinera's concepts, named after the concept. Each chapter's program shows its imports, so you always see which package a name comes from.
 5. **Each release says which specification it implements.** Itinera is defined once, by a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each release of Itinera for Kotlin will say which version of it the release implements. Until a first release, features may be added and the API may still change.
 6. **The book's programs are pinned.** Each of them is built against exactly the commit of itinera-j it was written for, so what you read is what that code does.
@@ -36,4 +36,4 @@ We have shown that Itinera is one dependency of your program, with nothing else 
 
 | The usual way | With Itinera |
 |---|---|
-| A workflow engine usually runs as a service of its own, with its own storage and workers to deploy, which lets work outlive a crash of the program that started it. | Itinera is a library inside your program: two lines of your build are the whole installation. |
+| A workflow engine usually runs as a service of its own, with its own storage and workers to deploy, which lets work outlive a crash of the program that started it. | Itinera is a library inside your program: two dependencies of your build are the whole installation. |

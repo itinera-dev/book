@@ -1,6 +1,5 @@
 // A first step: the shop's charge, declared as a step. Nothing builds or runs it yet, so the
-// program
-// prints nothing.
+// program prints nothing.
 
 package ch04_first_step
 
