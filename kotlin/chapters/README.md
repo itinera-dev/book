@@ -33,3 +33,14 @@ The Itinera book for Kotlin, in reading order. It follows the plan that every la
 19. [Letting policies act on the outside world](19-letting-policies-act-on-the-outside-world.md)
 20. [An optional input](20-an-optional-input.md)
 21. [Deciding where a step's data comes from](21-deciding-where-a-steps-data-comes-from.md)
+
+## Part 3: Controlling the flow
+
+22. [Finishing a journey early](22-finishing-a-journey-early.md)
+23. [Undoing a charge when the shipping fails](23-undoing-a-charge-when-the-shipping-fails.md)
+
+## Part 4: Running it for real
+
+24. [Running many journeys](24-running-many-journeys.md)
+25. [Reading the result](25-reading-the-result.md)
+26. [Running async journeys while others wait](26-running-async-journeys-while-others-wait.md)
