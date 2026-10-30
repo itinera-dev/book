@@ -1,0 +1,4 @@
+Quin's order, without a number:
+no instance: The ID generator threw while the instance was created: an order without a number
+order A-16, without a customer's name:
+the journey was refused: run refused an instance: the global metadata could not be set: the logging service files no line without a customer's name
