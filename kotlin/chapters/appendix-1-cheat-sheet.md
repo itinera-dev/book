@@ -50,7 +50,7 @@ With the annotations, each line of the table is written as follows. Each name is
 
 | What you declare | How you write it | Chapter |
 |---|---|---|
-| A step | a class marked `@Step` that implements `ItineraStep`, whose `run` returns an `Outcome` | 4, 9 |
+| A step | a class marked `@Step` that implements `ItineraStep`, whose `run` returns an `Outcome` | 4 |
 | A step's inputs | a constructor property marked `@Input`, such as `@Input private val price: Long`; with a nullable type, such as `Long?`, the input is optional, and `null` when it is absent | 4, 20 |
 | An outcome | `succeed()`, `fail("code")`, `skip()` or `skipBecause("code")`, which `ItineraStep` gives the class | 4, 16 |
 | A workflow and its steps | a class marked `@Workflow(name = "orders")`, then one `@WithStep(Charge::class, name = "charge")` line per step, in order, implementing `ItineraWorkflow` | 5, 6 |
@@ -74,7 +74,7 @@ With the annotations, each line of the table is written as follows. Each name is
 | A value of your own type | a data class, such as `data class Parcel(val weight: Long, val size: List<Long>)`, whose properties are values | 21 |
 | Finishing a journey early | `finishWorkflow()`, returned by a method marked `@OnStepSuccess` | 22 |
 | Undoing a step's work when it is given up | a method marked `@OnStepFailure`, returning an `OnFailure`, which may ask for `cause: FailureCause`; and a private method of the policy, without a mark, that its hooks call | 23 |
-| Steps and hooks that wait | a workflow class implementing `ItineraAsyncWorkflow`, whose steps, hooks, providers, adapters and roles are `suspend` functions, its reporters `AsyncReporter`s; one `AsyncLocalExecutor()` for each journey running at the same time, started with `async` inside `runBlocking` and gathered with `awaitAll()` | 26 |
+| Steps and hooks that wait | a workflow class implementing `ItineraAsyncWorkflow`, whose steps, hooks, providers and adapters are `suspend` functions, as are the methods of roles that wait, its reporters `AsyncReporter`s; one `AsyncLocalExecutor()` for each journey running at the same time, started with `async` inside `runBlocking` and gathered with `awaitAll()` | 26 |
 | A step tested alone | in a test file, `Charge(...).run(TestBank.CHARGES, contributions.contributor)`, with `Contributions` from `org.itineradev.itinera.journey.testing` and `StepEventReporter` from `org.itineradev.itinera.step.testing`, the outcome compared with `assertEquals`, and what it contributed read with `contributions.read("receipt", typeToken<String>()).orNull()` | 27 |
 | A hook or an input adapter tested alone | in a test file, `FailedShipping().beforeRetrying(...)`, whose lifecycle says what it decided, as `decision.failsWorkflow?.code`, or `Orders(channel = "email").parcels("weight", parcel)`, compared with `Supplied.Value(60L)` | 28 |
 | A scripted run | in a test file, `scripted(instance).step("charge").willFail("code").onAttempt(2).willSucceed().andStep("charge_rescue").willSucceed().run()`, with `scripted` from `org.itineradev.itinera.executor.testing`, which returns a `ScriptedRun` | 29 |

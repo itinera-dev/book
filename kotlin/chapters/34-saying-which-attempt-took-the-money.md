@@ -14,7 +14,7 @@ region: audit
 asynchronous: ch34_saying_which_attempt_took_the_money_async
 ```
 
-The outage policy, which gives up a charge that ended in an error, asks for the same two, the step's name, the amount, and the error itself, and writes an audit line of its own before giving the charge up:
+The outage policy, which gives up a charge that ended in an error, asks for the same two, as well as the step's name, the amount and the error itself, and writes an audit line of its own before giving the charge up:
 
 ```example
 name: ch34_saying_which_attempt_took_the_money
