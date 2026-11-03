@@ -96,10 +96,6 @@ interface Cards {
   Optional<String> replacement(String card);
 }
 
-/**
- * The bank's own library: it connects to the bank's card registry for a region, and hands back its
- * client.
- */
 // ANCHOR: terminal
 /**
  * The shop counter's card terminal, faked: it declines a card that expired before this year, and
@@ -125,6 +121,10 @@ final class Terminal implements Payments {
 
 // ANCHOR_END: terminal
 
+/**
+ * The bank's own library: it connects to the bank's card registry for a region, and hands back its
+ * client.
+ */
 final class BankLibrary {
   private BankLibrary() {}
 
