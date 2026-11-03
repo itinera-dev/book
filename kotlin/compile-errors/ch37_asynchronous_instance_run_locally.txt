@@ -1,0 +1,1 @@
+e: compile-errors/ch37_asynchronous_instance_run_locally.kt:25:38 Argument type mismatch: actual type is 'WorkflowInstance<Async>', but 'WorkflowInstance<Sync>' was expected.

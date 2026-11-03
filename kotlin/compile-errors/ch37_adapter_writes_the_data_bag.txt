@@ -1,0 +1,1 @@
+e: compile-errors/ch37_adapter_writes_the_data_bag.kt:38:14 Unresolved reference 'write' on receiver of type 'DataBagAccess'.

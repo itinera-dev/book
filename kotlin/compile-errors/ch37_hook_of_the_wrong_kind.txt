@@ -1,0 +1,1 @@
+e: [ksp] compile-errors/ch37_hook_of_the_wrong_kind.kt:26: ch37_hook_of_the_wrong_kind.Forgiving.declined returns OnSuccess, not OnFailure
