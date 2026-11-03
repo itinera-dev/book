@@ -492,12 +492,12 @@ final class LoggingService {
 
 // ANCHOR_END: service
 
+// ANCHOR: report
 /**
  * The shop's log: it writes a line for every event of a journey to the logging service, starting
  * with the workflow's name and the journey's ID. A line the service refuses fails the report.
  */
 final class Log implements Reporter {
-  // ANCHOR: report
   private final LoggingService service = new LoggingService();
 
   @Override

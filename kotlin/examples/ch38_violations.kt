@@ -97,14 +97,14 @@ fun main() {
             .inputAdapter(parcelsFor("shipping"))
             .build()
         // ANCHOR_END: wrong
-    } catch (refused: Violations) {
         // ANCHOR: report
+    } catch (refused: Violations) {
         println("the workflow was refused:")
         for (violation in refused.violations) {
             println("  ${detail(violation)}")
         }
-        // ANCHOR_END: report
     }
+    // ANCHOR_END: report
     // ANCHOR: fixed
     val fixed =
         shop()

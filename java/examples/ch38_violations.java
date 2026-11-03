@@ -128,14 +128,14 @@ final class Main {
           .inputAdapter(parcelsFor("shipping"))
           .build();
       // ANCHOR_END: wrong
-    } catch (Violations refused) {
       // ANCHOR: report
+    } catch (Violations refused) {
       System.out.println("the workflow was refused:");
       for (var violation : refused.getViolations()) {
         System.out.println("  " + detail(violation));
       }
-      // ANCHOR_END: report
     }
+    // ANCHOR_END: report
     // ANCHOR: fixed
     var fixed =
         shop()
