@@ -42,6 +42,7 @@ Everything you declare with Itinera, in the order the book teaches it, with the 
 | A key of its own, and a provider for some steps | an input or a service found under a key other than its field's or parameter's name; a provider attached to some steps only, handing over a client it didn't make, with data saying which it is | [35](35-giving-the-rescue-step-a-service-of-its-own.md) |
 | An order stopped before its journey | an instance not created when its journey ID can't be produced, and a journey refused when a reporter can't take its global metadata | [36](36-orders-refused-before-they-start.md) |
 | The listing, and the violations of admission | how a workflow is put together, read without running anything, and the mistakes caught before any journey | [37](37-mistakes-caught-before-a-journey.md) |
+| A workflow declared by hand | the long form of everything above, for a declaration put together when the program starts, and the violations `build()` throws | [38](38-declaring-by-hand.md) |
 
 ## In Kotlin
 
@@ -85,3 +86,4 @@ With the annotations, each line of the table is written as follows. Each name is
 | A key of its own, and a provider for some steps | `@Input("card") private val expired: String` or `@Service("cards") registry: Cards`; `@Provider(steps = ["charge_rescue"])`, returning `provide(client, "eu")` | 35 |
 | An order stopped before its journey | `create()` throwing an `IllegalStateException` when the ID generator throws; `run` throwing a `Refusal` whose `refused` is `Refused.GlobalMetadataNotSet` when a reporter's `setGlobalMetadata` throws | 36 |
 | The listing, and the violations of admission | `WorkflowDescriptor.of(Orders::class.java).listing()`, giving a `ListedStep` for each step; with itinera's checker, a violation is an error of the build; some mistakes don't compile at all | 37 |
+| A workflow declared by hand | `WorkflowDescriptor.builder(Orders::class.java, "orders").step(StepDescriptor.builder("ship", Ship::class.java).retryBudget(1).build()).role(Messages::class.java).build()`, which throws a `Violations`; a step without annotations is `StepDescriptor.builder("price") { got -> ... }` with a `request(...)` for each request made with `Requests` | 38 |

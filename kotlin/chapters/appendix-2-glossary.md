@@ -15,7 +15,7 @@ Defined in [1.2, Workflows and steps](https://github.com/itinera-dev/spec/blob/m
 
 - **Workflow:** the plan. The steps in the order they run, with the policies, input adapters, service providers, roles and reporters attached to it. Everything in it is fixed before anything runs, and it can be listed without running it. In the shop: look the order up, price it, charge it, then ship it. In Kotlin, a class marked `@Workflow(...)` that implements `ItineraWorkflow`, with a `@WithStep(...)` line for each step.
 - **Step:** one business unit, such as charging an order. It has a name, unique within its workflow, though the step itself never knows that name. It declares the data and services it needs, does its work, contributes data back and reports an outcome. It knows nothing of the workflow, the executor or the other steps. In Kotlin, a class marked `@Step` that implements `ItineraStep`, with its `run`.
-- **Workflow descriptor:** the workflow's declaration: its name, its step descriptors, its workflow policy descriptors, its input adapters and its service providers. It never changes once made, and every instance of the workflow shares it. In Kotlin, a `WorkflowDescriptor`, which Itinera reads from your classes' annotations.
+- **Workflow descriptor:** the workflow's declaration: its name, its step descriptors, its workflow policy descriptors, its input adapters and its service providers. It never changes once made, and every instance of the workflow shares it. In Kotlin, a `WorkflowDescriptor`, which Itinera reads from your classes' annotations, or which `WorkflowDescriptor.builder` takes part by part.
 - **Step descriptor:** what the workflow holds for one step: its name, how to build it, its retry budget, whether an abnormal termination may be retried, the step policies attached to it, its input adapter, if any, and its rescue step, if any. What it needs includes the keys and types of the services the step asks for.
 - **Policy descriptor:** the description of one policy: its name, the hooks it defines, and how to build an instance of it.
 - **Outcome:** what a step reports when it runs to the end, in Kotlin an `Outcome` that `run` returns. It says what happened, never what to do next. It is one of:
@@ -89,7 +89,7 @@ Defined in [1.6, Events](https://github.com/itinera-dev/spec/blob/main/spec/01-c
 Defined in [1.7, Configuration and admission](https://github.com/itinera-dev/spec/blob/main/spec/01-concepts.md#17-configuration-and-admission).
 
 - **Configuration error:** anything wrong with how a workflow is put together or supplied, which its author is responsible for.
-- **Violation:** one configuration error, by name, such as `duplicate step name`. In Kotlin, itinera's checker reports each violation it finds as an error of the build.
+- **Violation:** one configuration error, by name, such as `duplicate step name`. In Kotlin, itinera's checker reports each violation it finds as an error of the build, and a workflow declared by hand lists them all in the `Violations` its `build()` throws.
 - **Refusal:** what running an instance reports instead of a result when a journey can't start: the workflow was refused at admission, or your code called before the journey starts failed. A refusal has no journey and no events. In Kotlin, the `Refusal` that `run` throws.
 - **Admission:** checking how a workflow is put together before any journey: when the workflow is built, and, for what depends on the executor, when the instance is handed to it. A workflow refused at admission has no journey and no events.
 

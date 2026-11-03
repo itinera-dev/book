@@ -55,6 +55,7 @@ The Itinera book for Kotlin, in reading order. It follows the plan that every la
 35. [Giving the rescue step a service of its own](35-giving-the-rescue-step-a-service-of-its-own.md)
 36. [Orders refused before they start](36-orders-refused-before-they-start.md)
 37. [Mistakes caught before a journey](37-mistakes-caught-before-a-journey.md)
+38. [Declaring by hand](38-declaring-by-hand.md)
 
 ## Part 5: Designing with Itinera
 
