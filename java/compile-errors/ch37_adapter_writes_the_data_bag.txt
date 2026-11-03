@@ -1,0 +1,5 @@
+compile-errors/ch37_adapter_writes_the_data_bag.java:45: error: cannot find symbol
+    data.write("weight", parcel.weight());
+        ^
+  symbol:   method write(String,long)
+  location: variable data of type DataBagAccess

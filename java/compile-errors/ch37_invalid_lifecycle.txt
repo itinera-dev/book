@@ -1,0 +1,3 @@
+compile-errors/ch37_invalid_lifecycle.java:31: error: incompatible types: FinishWorkflow cannot be converted to OnFailure
+    return finishWorkflow();
+                         ^

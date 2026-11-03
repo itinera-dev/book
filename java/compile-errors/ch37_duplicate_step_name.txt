@@ -1,0 +1,3 @@
+compile-errors/ch37_duplicate_step_name.java:37: error: duplicate step name: two steps are named ship
+final class Orders implements ItineraWorkflow {}
+      ^

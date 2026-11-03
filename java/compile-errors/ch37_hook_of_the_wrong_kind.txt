@@ -1,0 +1,3 @@
+compile-errors/ch37_hook_of_the_wrong_kind.java:30: error: ch37_hook_of_the_wrong_kind.Forgiving.declined returns OnSuccess, not OnFailure
+  public OnSuccess declined() {
+                   ^
