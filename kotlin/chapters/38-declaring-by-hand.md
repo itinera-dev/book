@@ -77,7 +77,7 @@ name: ch38_violations
 region: wrong
 ```
 
-The program builds, since the checker reads only a class that implements `ItineraWorkflow`, and `Shop` is a plain class. `build()` throws a `Violations`, from `org.itineradev.itinera.workflow`, and `main` reads it:
+The program builds: the checker reads a workflow only in a class that implements `ItineraWorkflow`, and `Shop` is a plain class, while each step and policy is right on its own. `build()` throws a `Violations`, from `org.itineradev.itinera.workflow`, and `main` reads it:
 
 ```example
 name: ch38_violations
@@ -102,7 +102,7 @@ name: ch38_violations
 1. **Both forms make the same descriptors, and they mix.** A workflow is a **workflow descriptor**: its name, a step descriptor for each step in order, its policies, roles, reporters, ID generator, input adapters and providers. The annotations declare them, the long form writes them, and the executor runs either the same way, so write by hand only what needs it.
 2. **Each annotation stands for a builder's call.** `@WithStep` stands for `StepDescriptor.builder` and its `retryBudget`, `rescue` and `policy`, and each `@Input` of a step for a `request`. `@StepPolicy` and a hook's annotation stand for `StepPolicyDescriptor.builder` and its `onStepSuccess`, or another hook's method. `@Workflow` stands for `WorkflowDescriptor.builder`, `reporter` and `policy`, a role the workflow implements for `role`, and `@IdGenerator`, `@InputAdapter` and `@Provider` for the methods of their names. `ReporterFactory { Log() }` makes each journey's log, and `PolicyFactory(::Audit)` the audit for each attempt.
 3. **A step is built afresh for every attempt,** by the function `StepDescriptor.builder` takes, as in [chapter 12](12-trying-again.md).
-4. **`build()` checks the declaration, as admission.** It throws a `Violations` listing every violation, each a `Violation` named as the specification names it. The checker finds them in an annotated workflow as the program is built, as [chapter 37](37-mistakes-caught-before-a-journey.md) showed; it never sees a workflow declared by hand, nor the annotated parts added to it, which are checked as they're read.
+4. **`build()` checks the declaration, as admission.** It throws a `Violations` listing every violation, each a `Violation` named as the specification names it. The checker finds them in an annotated workflow as the program is built, as [chapter 37](37-mistakes-caught-before-a-journey.md) showed; it never sees a workflow declared by hand, and checks each annotated part that no annotated workflow names only on its own, so how the parts are put together is checked by `build()`.
 5. **When you need the long form.** A declaration put together from configuration when the program starts, such as a gift-wrapping step only in the shops that offer it; violations read as values; or a class you can't annotate, such as one from a library. No option of itinera turns the annotations off: a program uses whichever form it needs.
 
 What the book hasn't said is how to decide, for a new rule of the shop, which part it belongs in.
