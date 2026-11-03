@@ -75,6 +75,12 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.addAll(javacOptions)
 }
 
+// A tested program keeps all its classes in one file, as every program of the book does, so its
+// tests, in a file of their own, reach classes that javac calls auxiliary, and would warn about.
+tasks.named<JavaCompile>("compileTestedJava") {
+    options.compilerArgs.add("-Xlint:-auxiliaryclass")
+}
+
 spotless {
     java {
         target(

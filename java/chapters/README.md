@@ -38,3 +38,13 @@ The Itinera book for Java, in reading order. It follows the plan that every lang
 
 22. [Finishing a journey early](22-finishing-a-journey-early.md)
 23. [Undoing a charge when the shipping fails](23-undoing-a-charge-when-the-shipping-fails.md)
+
+## Part 4: Running it for real
+
+24. [Running many journeys](24-running-many-journeys.md)
+25. [Reading the result](25-reading-the-result.md)
+26. [Running async journeys while others wait](26-running-async-journeys-while-others-wait.md)
+27. [Testing a step alone](27-testing-a-step-alone.md)
+28. [Testing a hook or an adapter alone](28-testing-a-hook-or-an-adapter-alone.md)
+29. [Testing the flow with scripted steps](29-testing-the-flow-with-scripted-steps.md)
+30. [Testing a whole journey](30-testing-a-whole-journey.md)
