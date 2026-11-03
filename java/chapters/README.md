@@ -56,3 +56,17 @@ The Itinera book for Java, in reading order. It follows the plan that every lang
 36. [Orders refused before they start](36-orders-refused-before-they-start.md)
 37. [Mistakes caught before a journey](37-mistakes-caught-before-a-journey.md)
 38. [Declaring by hand](38-declaring-by-hand.md)
+
+## Part 5: Designing with Itinera
+
+39. [Deciding where a decision belongs](39-deciding-where-a-decision-belongs.md)
+40. [Recognising a decision in the wrong place](40-recognising-a-decision-in-the-wrong-place.md)
+41. [Bringing Itinera into existing code](41-bringing-itinera-into-existing-code.md)
+42. [Using a step in another workflow](42-using-a-step-in-another-workflow.md)
+43. [Working with agents](43-working-with-agents.md)
+
+## Appendices
+
+- Appendix 1: [Cheat sheet](appendix-1-cheat-sheet.md)
+- Appendix 2: [Glossary](appendix-2-glossary.md)
+- Appendix 3: [What this version supports](appendix-3-what-this-version-supports.md)
