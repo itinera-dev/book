@@ -2,7 +2,7 @@
 
 The Java book: its [chapters](chapters/README.md), and the examples, tested programs and compile errors they show, laid out as [FORMAT.md](../FORMAT.md) describes. They depend on Itinera's artifacts as [build.gradle.kts](build.gradle.kts) names them: on `main`, the latest release from Maven Central, named exactly; on `next`, a commit of [itinera-j](https://github.com/itinera-dev/itinera-j), the one [itinera.json](https://github.com/itinera-dev/book/blob/next/java/itinera.json) names, as [BOOK.md](../BOOK.md#how-the-examples-are-checked) explains. itinera-j also holds Itinera for Kotlin, whose book is in [kotlin/](../kotlin/README.md), and both books name the same commit.
 
-Everything here runs with Gradle, through the wrapper, `./gradlew`, which fetches Gradle and every library at the versions the build pins: the plugins in [build.gradle.kts](build.gradle.kts), the libraries in [gradle.lockfile](gradle.lockfile). Gradle needs a JDK 17 or later to start, and the checks need a JDK 25, as the last section says.
+Everything here runs with Gradle, through the wrapper, `./gradlew`, which fetches Gradle and every library at the versions the build pins: the plugins in [build.gradle.kts](build.gradle.kts), the libraries in [gradle.lockfile](gradle.lockfile). Gradle needs a JDK 21 or later to run the build, since google-java-format, which formats the programs, runs inside Gradle's own JVM, and the checks need a JDK 25, as the last section says.
 
 ## Getting itinera
 

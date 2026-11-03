@@ -83,7 +83,7 @@ spotless {
             "compile-errors/**/*.java",
             "tests/**/*.java",
         )
-        googleJavaFormat("1.28.0")
+        googleJavaFormat("1.36.1")
     }
     kotlinGradle {
         target("*.gradle.kts")
