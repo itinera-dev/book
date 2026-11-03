@@ -6,7 +6,6 @@ package ch10_more_than_one_reporter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.itineradev.itinera.event.AttemptStarted;
 import org.itineradev.itinera.event.ContributionCommitted;
 import org.itineradev.itinera.event.Event;
@@ -126,7 +125,7 @@ final class Ship implements ItineraStep {
 final class Log implements Reporter {
   @Override
   public void report(Event event) {
-    String more = detail(event).map(detail -> " " + detail).orElse("");
+    String more = detail(event).map(text -> " " + text).orElse("");
     System.out.println("log #" + event.getSequence() + " " + event.getKind() + more);
   }
 
@@ -136,7 +135,7 @@ final class Log implements Reporter {
    */
   static Optional<String> detail(Event event) {
     if (event instanceof JourneyStarted started) {
-      return Optional.of(started.initialKeys().stream().collect(Collectors.joining(", ")));
+      return Optional.of(String.join(", ", started.initialKeys()));
     }
     if (event instanceof AttemptStarted started) return Optional.of(started.step().toString());
     if (event instanceof ServiceProvided provided) {

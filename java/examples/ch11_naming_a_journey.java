@@ -6,7 +6,6 @@ package ch11_naming_a_journey;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.itineradev.itinera.event.AttemptStarted;
 import org.itineradev.itinera.event.ContributionCommitted;
 import org.itineradev.itinera.event.Event;
@@ -141,7 +140,7 @@ final class Log implements Reporter {
             + event.getSequence()
             + " "
             + event.getKind();
-    System.out.println(line + detail(event).map(detail -> " " + detail).orElse(""));
+    System.out.println(line + detail(event).map(text -> " " + text).orElse(""));
   }
 
   /**
@@ -150,7 +149,7 @@ final class Log implements Reporter {
    */
   static Optional<String> detail(Event event) {
     if (event instanceof JourneyStarted started) {
-      return Optional.of(started.initialKeys().stream().collect(Collectors.joining(", ")));
+      return Optional.of(String.join(", ", started.initialKeys()));
     }
     if (event instanceof AttemptStarted started) return Optional.of(started.step().toString());
     if (event instanceof ServiceProvided provided) {
