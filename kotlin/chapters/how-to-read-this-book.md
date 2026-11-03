@@ -37,7 +37,7 @@ Every program is built with Gradle for JDK 17 and later, with every compiler war
 
 ## Words with one meaning
 
-Itinera has a small vocabulary: step, workflow, policy, hook, executor, journey, data bag and a few more. Each word has exactly one meaning, defined by the specification, and the book never uses two of them as if they were the same. Where a chapter introduces a word, it is in **bold**, as is a rule you must not break. The glossary at the end of the book has them all, and the cheat sheet beside it has every declaration on one page.
+Itinera has a small vocabulary: step, workflow, policy, hook, executor, journey, data bag and a few more. Each word has exactly one meaning, defined by the specification, and the book never uses two of them as if they were the same. Where a chapter introduces a word, it is in **bold**, as is a rule you must not break. The [glossary](appendix-2-glossary.md) at the end of the book has them all, and the [cheat sheet](appendix-1-cheat-sheet.md) beside it has every declaration on one page.
 
 ## Diagrams, read aloud
 
