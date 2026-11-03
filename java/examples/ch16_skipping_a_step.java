@@ -240,7 +240,6 @@ final class Audit implements ItineraStepPolicy {
 }
 
 // ANCHOR: ship
-
 /**
  * Ships an order through the carrier, with its receipt in the parcel, gives back its tracking
  * number, and says when the parcel has left. A parcel the carrier won't collect may be taken on
