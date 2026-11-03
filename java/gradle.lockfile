@@ -1,0 +1,21 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+# To regenerate this file, run: ./gradlew :dependencies --write-locks
+org.apiguardian:apiguardian-api:1.1.2=testCompileClasspath,testedCompileClasspath
+org.jetbrains.kotlin:kotlin-stdlib:2.3.21=annotationProcessor,checkerPath,compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath,testedAnnotationProcessor,testedCompileClasspath,testedRuntimeClasspath
+org.jetbrains:annotations:13.0=annotationProcessor,checkerPath,compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath,testedAnnotationProcessor,testedCompileClasspath,testedRuntimeClasspath
+org.jspecify:jspecify:1.0.0=testCompileClasspath,testedCompileClasspath
+org.junit.jupiter:junit-jupiter-api:6.1.3=testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+org.junit.jupiter:junit-jupiter-engine:6.1.3=testRuntimeClasspath,testedRuntimeClasspath
+org.junit.jupiter:junit-jupiter-params:6.1.3=testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+org.junit.jupiter:junit-jupiter:6.1.3=testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+org.junit.platform:junit-platform-commons:6.1.3=launcher,testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+org.junit.platform:junit-platform-console:6.1.3=launcher
+org.junit.platform:junit-platform-engine:6.1.3=launcher,testRuntimeClasspath,testedRuntimeClasspath
+org.junit.platform:junit-platform-launcher:6.1.3=launcher,testRuntimeClasspath
+org.junit.platform:junit-platform-reporting:6.1.3=launcher
+org.junit:junit-bom:6.1.3=launcher,testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+org.opentest4j.reporting:open-test-reporting-tooling-spi:0.2.5=launcher
+org.opentest4j:opentest4j:1.3.0=launcher,testCompileClasspath,testRuntimeClasspath,testedCompileClasspath,testedRuntimeClasspath
+empty=testAnnotationProcessor
