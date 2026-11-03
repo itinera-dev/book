@@ -28,7 +28,7 @@ No version of Itinera for Java has been released yet. Itinera for Java is the Ja
 
 A tier says what Itinera means; capabilities say what an executor accepts, and what else a language offers. Itinera for Java claims two:
 
-1. **`sync`:** `LocalExecutor` runs a synchronous workflow's journey, and its `run` returns the result, as every chapter shows. Java writes synchronous workflows only, so it doesn't claim `async`; journeys run at the same time each on a thread of their own, as [chapter 26](26-running-async-journeys-while-others-wait.md) shows.
+1. **`sync`:** `LocalExecutor` runs a synchronous workflow's journey, and its `run` returns the result, as every chapter shows. Java writes synchronous workflows only, so it doesn't claim `async`; journeys that run at the same time each run on a thread of their own, as [chapter 26](26-running-async-journeys-while-others-wait.md) shows.
 2. **`testing`:** test support, from the artifact `itinera-testing`, as chapters [27](27-testing-a-step-alone.md) to [30](30-testing-a-whole-journey.md) show.
 
 It doesn't claim `value-conversions`, which a language claims when it calls your own code to turn your objects into values, or values back into your types. Itinera for Java keeps your own objects as values: it checks and copies each one, and reads it back by its type, so the only code of yours it calls is what copies an object, such as a record's constructor, and the specification says that copying is not a conversion.
@@ -46,7 +46,7 @@ A rule the specification lets a language make impossible, such as a hook that re
 5. an asynchronous step, input adapter or service provider in a synchronous workflow (`mode-not-accepted`), since Java has no way to write one;
 6. a test's script naming a fraction of an attempt (`attempt-fraction`).
 
-The specification lets a language make a few more rules impossible, which Java's types can't rule out in every case: your code returning what its call can't return, for one, and an ID generator returning something that isn't a string, since any method that returns an object can return `null`, which Kotlin's types rule out; something stored that is not a value, since a value's type is `Object`; and a policy needing a role the workflow doesn't provide, since an annotation can't tie its policy classes to the workflow's type. Itinera for Java checks those when the workflow's declaration is read or while the journey runs, and their cases run like any other. The checker reports some of them before that, as the program is built, as chapter 37 shows.
+The specification lets a language make a few more rules impossible, which Java's types can't rule out in every case: your code returning what its call can't return, for one, and an ID generator returning something that isn't a string, since any method that returns an object can return `null`, which Kotlin's types rule out; something stored that is not a value, since a value's type is `Object`; and a policy needing a role the workflow doesn't provide, since an annotation can't tie its policy classes to the workflow's type. Itinera for Java checks those when the workflow's declaration is read, when an instance is created, or while the journey runs, and their cases run like any other. The checker reports some of them before that, as the program is built, as chapter 37 shows.
 
 ## What later tiers add
 
