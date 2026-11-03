@@ -23,3 +23,18 @@ The Itinera book for Java, in reading order. It follows the plan that every lang
 9. [Saying what only a step knows](09-saying-what-only-a-step-knows.md)
 10. [More than one reporter](10-more-than-one-reporter.md)
 11. [Naming a journey](11-naming-a-journey.md)
+12. [Trying again](12-trying-again.md)
+13. [A carrier for each attempt](13-a-carrier-for-each-attempt.md)
+14. [Repairing, then trying once more](14-repairing-then-trying-once-more.md)
+15. [Reacting to what a step did](15-reacting-to-what-a-step-did.md)
+16. [Skipping a step](16-skipping-a-step.md)
+17. [Giving up a step early](17-giving-up-a-step-early.md)
+18. [Doing something when the journey ends](18-doing-something-when-the-journey-ends.md)
+19. [Letting policies act on the outside world](19-letting-policies-act-on-the-outside-world.md)
+20. [An optional input](20-an-optional-input.md)
+21. [Deciding where a step's data comes from](21-deciding-where-a-steps-data-comes-from.md)
+
+## Part 3: Controlling the flow
+
+22. [Finishing a journey early](22-finishing-a-journey-early.md)
+23. [Undoing a charge when the shipping fails](23-undoing-a-charge-when-the-shipping-fails.md)
