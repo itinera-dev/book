@@ -1,0 +1,333 @@
+// Chapter 1's checkout with its payment moved into a workflow, where the bank's client was already
+// asynchronous: the charge is a step, renewing an expired card is its rescue step and the audit is
+// a policy, while the bank's client, the audit trail, the log and the rest of the checkout stay as
+// they were.
+
+package ch41_bringing_itinera_into_existing_code_async
+
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
+import org.itineradev.itinera.event.Event
+import org.itineradev.itinera.event.StepFailed
+import org.itineradev.itinera.event.StepRescued
+import org.itineradev.itinera.executor.Refusal
+import org.itineradev.itinera.executor.async.AsyncLocalExecutor
+import org.itineradev.itinera.journey.Contributor
+import org.itineradev.itinera.journey.DataBag
+import org.itineradev.itinera.journey.JourneyStatus
+import org.itineradev.itinera.journey.kotlin.output
+import org.itineradev.itinera.journey.kotlin.read
+import org.itineradev.itinera.policy.FromStep
+import org.itineradev.itinera.policy.FromWorkflow
+import org.itineradev.itinera.policy.ItineraStepPolicy
+import org.itineradev.itinera.policy.OnStepSuccess
+import org.itineradev.itinera.policy.OnSuccess
+import org.itineradev.itinera.policy.StepPolicy
+import org.itineradev.itinera.report.async.AsyncReporter
+import org.itineradev.itinera.service.Provided
+import org.itineradev.itinera.service.Provider
+import org.itineradev.itinera.service.Service
+import org.itineradev.itinera.step.Input
+import org.itineradev.itinera.step.ItineraRescueStep
+import org.itineradev.itinera.step.ItineraStep
+import org.itineradev.itinera.step.Outcome
+import org.itineradev.itinera.step.Reason
+import org.itineradev.itinera.step.RescueOutcome
+import org.itineradev.itinera.step.RescueStep
+import org.itineradev.itinera.step.Step
+import org.itineradev.itinera.workflow.IdGenerator
+import org.itineradev.itinera.workflow.WithStep
+import org.itineradev.itinera.workflow.Workflow
+import org.itineradev.itinera.workflow.async.ItineraAsyncWorkflow
+
+// The outside world the shop talks to, faked so that every run is the same.
+
+/** Why the bank refused a charge. */
+enum class Why(val message: String) {
+    /** The card has expired; the bank may know the card that replaced it. */
+    EXPIRED_CARD("card expired"),
+    /** The bank refused the charge. */
+    REFUSED("payment declined"),
+}
+
+/** The bank refused a charge. */
+class Declined(val why: Why) : Exception(why.message)
+
+/**
+ * The customers' bank. A card ends with the year it expires, such as `ann-card-2028`; the bank
+ * refuses a card that expired before this year, and any charge above its limit.
+ */
+class Bank(private val thisYear: Int, private val limit: Long) {
+    /** Charges an amount to a card, and returns the receipt, once the bank has answered. */
+    suspend fun charge(card: String, amount: Long): String {
+        yield()
+        if (card.substringAfterLast('-').toInt() < thisYear) throw Declined(Why.EXPIRED_CARD)
+        if (amount > limit) throw Declined(Why.REFUSED)
+        return "R-$card-$amount"
+    }
+
+    /**
+     * The card that replaced an expired one: the same card, expiring three years from now, once the
+     * bank has answered.
+     */
+    suspend fun renewedCard(card: String): String {
+        yield()
+        return "${card.substringBeforeLast('-')}-${thisYear + 3}"
+    }
+}
+
+/** The warehouse, which holds the stock. */
+class Warehouse(private val outOfStock: List<String>) {
+    /** Sets the order's goods aside. */
+    fun reserve(order: String) {
+        check(order !in outOfStock) { "nothing left for $order" }
+    }
+}
+
+/** A carrier, which takes parcels up to a weight. */
+class Carrier(val name: String, private val trackingPrefix: String, private val maxWeight: Long) {
+    /** Takes the order's parcel, and returns its tracking number. */
+    fun ship(order: String, weight: Long): String {
+        check(weight <= maxWeight) { "$weight kg is over its $maxWeight kg limit" }
+        return "$trackingPrefix-$order"
+    }
+}
+
+/** Sends messages to customers. */
+class Messages {
+    /** Tells a customer something. */
+    fun tell(customer: String, message: String) {
+        println("to $customer: $message")
+    }
+}
+
+// The shop's logging, used here and there.
+
+object Log {
+    fun info(message: String) {
+        println("INFO $message")
+    }
+
+    fun warn(message: String) {
+        println("WARN $message")
+    }
+}
+
+// The shop's audit trail.
+
+object Audit {
+    fun record(entry: String) {
+        println("AUDIT $entry")
+    }
+}
+
+// Taking the payment for an order: a workflow of its own.
+
+// ANCHOR: payments
+/** What the payment's steps ask of the bank. */
+interface Payments {
+    suspend fun charge(card: String, amount: Long): String
+
+    suspend fun renewedCard(card: String): String
+}
+
+/** The bank's client, as it was, behind the steps' interface. */
+class BankPayments(private val bank: Bank) : Payments {
+    override suspend fun charge(card: String, amount: Long): String = bank.charge(card, amount)
+
+    override suspend fun renewedCard(card: String): String = bank.renewedCard(card)
+}
+
+// ANCHOR_END: payments
+
+// ANCHOR: steps
+/** Charges the amount to the card, and gives back the receipt. */
+@Step
+class Charge(@Input private val card: String, @Input private val amount: Long) : ItineraStep {
+    suspend fun run(@Service payments: Payments, contributor: Contributor): Outcome =
+        try {
+            contributor.contribute("receipt", payments.charge(card, amount))
+            succeed()
+        } catch (declined: Declined) {
+            when (declined.why) {
+                Why.EXPIRED_CARD -> fail("card-expired")
+                Why.REFUSED -> fail("declined")
+            }
+        }
+}
+
+/** Repairs a charge whose card had expired: it asks the bank for the card that replaced it. */
+@RescueStep
+class RenewCard(@Input private val card: String, private val reason: Reason) : ItineraRescueStep {
+    suspend fun run(@Service payments: Payments, contributor: Contributor): RescueOutcome {
+        if (reason.code != "card-expired") return fail("not-repairable")
+        contributor.contribute("card", payments.renewedCard(card))
+        return succeed()
+    }
+}
+
+// ANCHOR_END: steps
+
+// ANCHOR: audit
+/** Writes every successful charge to the shop's audit trail. */
+@StepPolicy(name = "audit")
+class AuditCharge : ItineraStepPolicy {
+    @OnStepSuccess
+    suspend fun charged(@FromWorkflow amount: Long, @FromStep receipt: String): OnSuccess {
+        Audit.record("charged $amount, receipt $receipt")
+        return keepDefault()
+    }
+}
+
+// ANCHOR_END: audit
+
+// ANCHOR: log
+/** Writes to the shop's log when a step fails, and when a rescue step repairs it. */
+class PaymentLog : AsyncReporter {
+    override suspend fun report(event: Event) {
+        when (event) {
+            is StepFailed ->
+                Log.info("payment ${event.journeyId}: ${event.step} failed, ${event.reason.code}")
+            is StepRescued ->
+                Log.info("payment ${event.journeyId}: ${event.step} repaired by ${event.rescue}")
+            else -> {}
+        }
+    }
+}
+
+// ANCHOR_END: log
+
+// ANCHOR: workflow
+/** Charges an order, renewing a card that has expired, and audits the charge. */
+@Workflow(name = "payment", reporters = [PaymentLog::class])
+@WithStep(
+    Charge::class,
+    name = "charge",
+    rescue = RenewCard::class,
+    policies = [AuditCharge::class],
+)
+class Payment : ItineraAsyncWorkflow {
+    /** Names each journey after its order. */
+    @IdGenerator
+    fun orderNumber(data: DataBag): String =
+        data.read<String>("order").orNull() ?: error("a payment without an order")
+
+    /** The bank, as it is configured today. */
+    @Provider(key = "payments")
+    suspend fun bank(): Provided<Payments> =
+        provide(BankPayments(Bank(thisYear = 2026, limit = 1000)))
+}
+
+/** What a payment starts with. */
+data class Due(val order: String, val card: String, val amount: Long)
+
+/** What a payment gives back. */
+data class Paid(val receipt: String)
+
+// ANCHOR_END: workflow
+
+// Shipping an order.
+
+/**
+ * Ships through the main carrier, or through the backup carrier when the main one cannot take the
+ * parcel. Returns the tracking number, or `null` when neither can take it.
+ */
+fun ship(main: Carrier, backup: Carrier, order: String, weight: Long): String? =
+    try {
+        main.ship(order, weight)
+    } catch (refused: IllegalStateException) {
+        Log.warn("${main.name} cannot take $order: ${refused.message}; trying ${backup.name}")
+        runCatching { backup.ship(order, weight) }.getOrNull()
+    }
+
+// The checkout: what happens to an order once the customer has paid.
+
+// ANCHOR: checkout
+/** An order, as the shop's website hands it over. */
+data class Order(
+    val order: String,
+    val customer: String,
+    val card: String,
+    val price: Long,
+    val discount: Long? = null,
+    val weight: Long,
+)
+
+/** The payment workflow could not say how the payment went. */
+class PaymentNotRun(why: String?) : Exception("the payment did not run: $why")
+
+/** The shop, with everything it talks to. */
+class Shop(
+    private val warehouse: Warehouse,
+    private val main: Carrier,
+    private val backup: Carrier,
+    private val messages: Messages,
+) {
+    /** Reserves, charges and ships an order, and tells the customer how it went. */
+    suspend fun checkout(order: Order): String {
+        Log.info("checkout ${order.order}")
+        try {
+            val tracking = reserveChargeAndShip(order)
+            messages.tell(order.customer, "order ${order.order} is on its way: $tracking")
+            return tracking
+        } catch (error: Exception) {
+            Log.warn("checkout ${order.order} failed: ${error.message}")
+            messages.tell(order.customer, "order ${order.order} could not be completed")
+            throw error
+        }
+    }
+
+    private suspend fun reserveChargeAndShip(order: Order): String {
+        warehouse.reserve(order.order)
+        val amount = order.price - (order.discount ?: 0)
+        pay(order.order, order.card, amount)
+        return ship(main, backup, order.order, order.weight) ?: error("no carrier could take it")
+    }
+
+    // ANCHOR_END: checkout
+
+    // ANCHOR: pay
+    /** Charges an order's card through the payment workflow, and gives back the receipt. */
+    private suspend fun pay(order: String, card: String, amount: Long): String {
+        val instance = Payment().instance().initialData(Due(order, card, amount)).create()
+        val result =
+            try {
+                AsyncLocalExecutor().run(instance)
+            } catch (refusal: Refusal) {
+                throw PaymentNotRun(refusal.message)
+            }
+        return when (val status = result.status) {
+            is JourneyStatus.Succeeded -> result.output<Paid>().receipt
+            is JourneyStatus.Failed ->
+                if (status.failure.reason?.code == "card-expired") throw Declined(Why.EXPIRED_CARD)
+                else throw Declined(Why.REFUSED)
+            is JourneyStatus.Aborted -> throw PaymentNotRun("${status.abort.reason}")
+        }
+    }
+    // ANCHOR_END: pay
+}
+
+fun main() = runBlocking {
+    val shop =
+        Shop(
+            warehouse = Warehouse(outOfStock = emptyList()),
+            main = Carrier(name = "Rapid", trackingPrefix = "T", maxWeight = 20),
+            backup = Carrier(name = "Steady", trackingPrefix = "B", maxWeight = 50),
+            messages = Messages(),
+        )
+    val orders =
+        listOf(
+            Order("A-1", "Ann", "ann-card-2028", price = 40, discount = 5, weight = 2),
+            Order("A-2", "Ben", "ben-card-2024", price = 25, weight = 1),
+            Order("A-3", "Cat", "cat-card-2027", price = 30, weight = 30),
+            Order("A-4", "Dan", "dan-card-2025", price = 1200, weight = 3),
+        )
+    for (order in orders) {
+        try {
+            println("${order.order}: shipped, ${shop.checkout(order)}")
+        } catch (error: Exception) {
+            println("${order.order}: failed, ${error.message}")
+        }
+        println()
+    }
+}

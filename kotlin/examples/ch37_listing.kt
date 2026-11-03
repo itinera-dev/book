@@ -545,6 +545,7 @@ class Desk : Reporter {
     }
 }
 
+// ANCHOR: workflow
 /**
  * The shop's workflow: it looks the order up, and finishes an order already completed. Otherwise it
  * works out what the order costs, then charges it, repairing a charge that fails and auditing one
@@ -598,6 +599,8 @@ class Orders(private val channel: String) : ItineraWorkflow, Messages, Refunds {
     /** The order book, which has the orders completed before today. */
     @Provider(key = "orderBook") fun ledger(): Provided<OrderBook> = provide(Ledger(listOf("A-13")))
 }
+
+// ANCHOR_END: workflow
 
 /**
  * How the warehouse describes an order's parcel: its weight in kg, and its length, width and height
