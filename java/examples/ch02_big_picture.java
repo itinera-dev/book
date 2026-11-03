@@ -242,7 +242,7 @@ final class RenewCard implements ItineraRescueStep {
   }
 
   public RescueOutcome run(@Service Payments payments, Contributor contributor) {
-    if (!reason.map(Reason::code).equals(Optional.of("expired-card"))) {
+    if (reason.map(Reason::code).filter("expired-card"::equals).isEmpty()) {
       return fail("nothing-to-renew");
     }
     contributor.contribute("card", payments.renewedCard(card));
@@ -268,7 +268,7 @@ final class Ship implements ItineraStep {
     Optional<String> tracking = carrier.send(order, weight);
     if (tracking.isEmpty()) return fail("parcel-refused");
     stock.handOver(order);
-    contributor.contribute("tracking", tracking.get());
+    contributor.contribute("tracking", tracking.orElseThrow());
     return succeed();
   }
 }

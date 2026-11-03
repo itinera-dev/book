@@ -30,7 +30,7 @@ Every chapter teaches one thing, in four sections:
 
 Every piece of code in the book is part of a complete program, built and run every time the book changes, and every output is what that program really printed. Each block of code has a caption naming its program, with a link to the whole of it; to run it yourself, follow the [README of the book's `java` directory](../README.md), then run `./gradlew -q example -Pname=NAME` there.
 
-Every program is built with Gradle for JDK 17 and later, with every compiler warning an error. In Java, every step, hook and reporter is an ordinary method, run by one executor, `LocalExecutor`, so there is only one form of each program to show.
+Every program is built with Gradle for JDK 17 and later, with every compiler warning an error, and with javac's `-parameters`, which keeps each parameter's name so that itinera can use it as the key the parameter asks for. In Java, a step's `run`, a hook and a reporter's `report` are ordinary methods, run by one executor, `LocalExecutor`, so there is only one form of each program to show.
 
 Some mistakes can't even be written: Java's types refuse some of them, and itinera's checker, which javac runs as the program is built, reports others as errors of the build. Such a program's caption says it **does not compile**, and what the compiler says follows, word for word.
 

@@ -64,14 +64,15 @@ dependencyLocking {
 }
 
 /**
- * How javac compiles every program: for the oldest JVM itinera runs on, with every warning an
- * error, and with the names of parameters kept, which itinera reads as the keys they ask for.
+ * What javac is told for every program, besides compiling for JDK 17, the oldest JVM itinera runs
+ * on: every warning is an error, and the names of parameters are kept, which itinera reads as the
+ * keys they ask for.
  */
-val javacOptions = listOf("--release", "17", "-Xlint:all", "-Werror", "-parameters")
+val javacOptions = listOf("-Xlint:all", "-Werror", "-parameters")
 
 tasks.withType<JavaCompile>().configureEach {
     options.release = 17
-    options.compilerArgs.addAll(javacOptions.drop(2))
+    options.compilerArgs.addAll(javacOptions)
 }
 
 spotless {
@@ -160,7 +161,7 @@ tasks.test {
     book.report = report
     book.itinera.from(configurations.compileClasspath)
     book.checker.from(checkerPath.get())
-    book.javac = javacOptions
+    book.javac = listOf("--release", "17") + javacOptions
     book.directory = layout.projectDirectory
     book.recorded.from(
         fileTree("expected"),

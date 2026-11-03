@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 final class Book {
   private Book() {}
 
-  /** The book's `java` directory. */
+  /** The book's {@code java} directory. */
   static final Path BOOK = Path.of(System.getProperty("book.directory"));
 
   /** A setting the build gives the checks, such as a class path, by its system property's name. */
