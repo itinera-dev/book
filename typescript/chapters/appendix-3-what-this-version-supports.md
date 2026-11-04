@@ -22,7 +22,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The `itinera` this book covers
 
-This book covers `itinera` `0.1.0-beta.6`, the second release, a beta, published on [npm](https://www.npmjs.com/package/itinera) under the tag `next` and built from its [repository](https://github.com/itinera-dev/itinera-ts) at the tag `v0.1.0-beta.6`, and every example you read here compiles and runs against it. It passes every proposal of tier 1, with the capabilities test support and value conversions.
+This book covers `itinera` `0.1.0-beta.7`, the third release, a beta, published on [npm](https://www.npmjs.com/package/itinera) under the tag `next` and built from its [repository](https://github.com/itinera-dev/itinera-ts) at the tag `v0.1.0-beta.7`, and every example you read here compiles and runs against it. It passes every proposal of tier 1, with the capabilities test support and value conversions.
 
 ## Capabilities
 
@@ -34,7 +34,7 @@ A tier says what Itinera means; capabilities say what an executor accepts, and w
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/v0.1.0-beta.6/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.6`, it runs the conformance cases `v0.1.0-rc.18`, and lists all 40 proposals of tier 1 of specification 0.1 as passing, including those of test support and value conversions.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-ts/blob/v0.1.0-beta.7/conformance.json), in its repository. It says which version of the conformance cases the package runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.7`, it runs the conformance cases `v0.1.0-rc.20`, and lists all 40 proposals of tier 1 of specification 0.1 as passing, including those of test support and value conversions.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in TypeScript. Instead, a type test of the package proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in TypeScript, each with the type tests that prove it:
 
