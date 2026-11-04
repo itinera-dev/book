@@ -20,11 +20,15 @@
 // and their assets. The pages of every edition are then checked in the whole
 // site, so links from one edition to another are checked too.
 //
+// It writes editions.json at the site's root, listing each edition built and
+// the commit it came from, so that the Deploy workflow can tell when a
+// deployment is live.
+//
 // It needs every branch and tag fetched: in CI, a checkout with its whole
 // history.
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { dist, editions, root } from '../book.config.mjs';
@@ -58,6 +62,11 @@ function editionsOf({ language, directory, released }, next) {
 	const missing = planned.filter((edition) => !holds(directory, edition.ref));
 	for (const edition of missing) console.warn(`${edition.source} has no ${directory}/chapters/README.md, so its ${language} edition is not built.`);
 	return planned.filter((edition) => !missing.includes(edition));
+}
+
+/** What editions.json says of an edition: where it is served from, and the commit it was built from. */
+function builtFrom(edition) {
+	return { language: edition.language, version: edition.version || 'latest', commit: git('rev-parse', `${edition.ref ?? 'HEAD'}^{commit}`) };
 }
 
 /** Runs one of these scripts for an edition, and stops everything when it fails. */
@@ -112,6 +121,7 @@ try {
 		}
 	});
 	planned.forEach((edition, index) => run('scripts/pages.mjs', edition, checkouts[index], dist));
+	writeFileSync(join(dist, 'editions.json'), `${JSON.stringify({ editions: planned.map(builtFrom) })}\n`);
 	console.log(`\nBuilt ${planned.length} edition(s): ${planned.map((edition) => `${edition.language} ${edition.version || 'latest'}`).join(', ')}.`);
 } finally {
 	for (const path of worktrees) git('worktree', 'remove', '--force', path);
