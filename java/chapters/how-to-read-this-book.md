@@ -4,7 +4,7 @@ A few things work the same way on every page. Here they are, once.
 
 ## A book for Java
 
-This is the Java book of Itinera. Every program in it is Java, every output is what that program printed, and every detail is about `itinera-java`, the library that brings Itinera to Java, and the core it builds on. Each language that has an Itinera gets a book of its own, with the same shop, the same chapters and the same words. On the web pages, the **programming language** selector at the top of every page takes you to the same page in another language's book, or, for a language whose book is still being written ahead of its first release, to that book's contents.
+This is the Java book of Itinera. Every program in it is Java, every output is what that program printed, and every detail is about `itinera-java`, the library that brings Itinera to Java, and the core it builds on. Each language that has an Itinera gets a book of its own, with the same shop, the same chapters and the same words. On the web pages, the **programming language** selector at the top of every page takes you to the same page in another language's book.
 
 ## Meet the shop
 
