@@ -1,0 +1,9 @@
+Ann's order:
+the bank charges 40 for order A-1
+the carrier books order A-1
+the parcel leaves with receipt R-A-1
+the journey succeeded, with receipt R-A-1 and tracking T-A-1
+Gil's order:
+the bank charges 45 for order A-7
+the carrier books order A-7
+the journey failed, with receipt R-A-7 and tracking none

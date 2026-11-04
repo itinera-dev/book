@@ -1,0 +1,41 @@
+name: Kotlin book
+
+# Runs every example of the Kotlin book and checks that it prints what the book shows, that every
+# compile error gives the message the book shows, that every tested program builds without test
+# support and its tests report what the book shows, and that every program is formatted, with
+# `./gradlew check` in kotlin/ (kotlin/tests/). On `main`, kotlin/build.gradle.kts names the latest
+# release of itinera, from Maven Central. On `next`, it names what `./gradlew itinera` publishes
+# first, from the commit of itinera-j that kotlin/itinera.json pins; `main` has no itinera.json, so
+# the step does nothing there.
+
+on:
+  pull_request:
+  push:
+    branches: [main, next]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kotlin-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  examples:
+    name: Kotlin examples print what the book shows
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: kotlin
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+      - run: ./gradlew itinera
+      - run: ./gradlew check

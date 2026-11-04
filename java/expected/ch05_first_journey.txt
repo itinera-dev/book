@@ -1,0 +1,5 @@
+Ann's order:
+the bank charges 40
+the journey succeeded
+Hal's order:
+the journey failed

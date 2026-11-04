@@ -1,0 +1,30 @@
+Pat's order:
+JourneyStarted(sequence=1, timestamp=2026-10-30T02:35:46.286248862Z, journeyId=A-15, workflow=orders, initialKeys=[order, customer, price, parcel, card, giftCard])
+log orders A-15 #1 journey_started order, customer, price, parcel, card, giftCard
+AttemptStarted(sequence=2, timestamp=2026-10-30T02:35:46.316041216Z, journeyId=A-15, workflow=orders, step=lookup, attempt=1)
+log orders A-15 #2 attempt_started lookup, attempt 1
+ServiceProvided(sequence=3, timestamp=2026-10-30T02:35:46.332045762Z, journeyId=A-15, workflow=orders, step=lookup, attempt=1, key=orderBook, provider=ledger, implementation=ch32_seeing_every_event_of_a_journey.Ledger, data=null)
+log orders A-15 #3 service_provided lookup gets orderBook from ledger, a ch32_seeing_every_event_of_a_journey.Ledger
+the order book has no order A-15 yet
+StepSucceeded(sequence=4, timestamp=2026-10-30T02:35:46.347340651Z, journeyId=A-15, workflow=orders, step=lookup, attempt=1)
+log orders A-15 #4 step_succeeded lookup
+ContributionCommitted(sequence=5, timestamp=2026-10-30T02:35:46.349679958Z, journeyId=A-15, workflow=orders, key=completed, source=StepSource(step=lookup, attempt=1))
+log orders A-15 #5 contribution_committed completed
+StepHookCalled(sequence=6, timestamp=2026-10-30T02:35:46.357951201Z, journeyId=A-15, workflow=orders, source=StepHookSource(policy=alreadyCompleted, hook=on step success, step=lookup, attempt=1), lifecycle=null)
+log orders A-15 #6 hook_called alreadyCompleted: on step success of lookup
+AttemptStarted(sequence=7, timestamp=2026-10-30T02:35:46.363821540Z, journeyId=A-15, workflow=orders, step=price, attempt=1)
+log orders A-15 #7 attempt_started price, attempt 1
+OptionalInputAbsent(sequence=8, timestamp=2026-10-30T02:35:46.365134599Z, journeyId=A-15, workflow=orders, key=discount, requester=StepSource(step=price, attempt=1))
+log orders A-15 #8 optional_input_absent discount
+StepSucceeded(sequence=9, timestamp=2026-10-30T02:35:46.369498054Z, journeyId=A-15, workflow=orders, step=price, attempt=1)
+log orders A-15 #9 step_succeeded price
+ContributionCommitted(sequence=10, timestamp=2026-10-30T02:35:46.369743464Z, journeyId=A-15, workflow=orders, key=amount, source=StepSource(step=price, attempt=1))
+log orders A-15 #10 contribution_committed amount
+AttemptStarted(sequence=11, timestamp=2026-10-30T02:35:46.369885688Z, journeyId=A-15, workflow=orders, step=charge, attempt=1)
+log orders A-15 #11 attempt_started charge, attempt 1
+ServiceProvided(sequence=12, timestamp=2026-10-30T02:35:46.372353009Z, journeyId=A-15, workflow=orders, step=charge, attempt=1, key=payments, provider=bank, implementation=ch32_seeing_every_event_of_a_journey.Bank, data=null)
+log orders A-15 #12 service_provided charge gets payments from bank, a ch32_seeing_every_event_of_a_journey.Bank
+the bank charges 50 for order A-15
+StepSucceeded(sequence=13, timestamp=2026-10-30T02:35:46.379707318Z, journeyId=A-15, workflow=orders, step=charge, attempt=1)
+JourneyAborted(sequence=14, timestamp=2026-10-30T02:35:46.381314443Z, journeyId=A-15, workflow=orders, abort=ReporterFailed(step=charge, errorMessage=the logging service is down))
+the journey was aborted (reporter failed: the logging service is down)

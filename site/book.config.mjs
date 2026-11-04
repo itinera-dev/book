@@ -36,6 +36,8 @@ import { resolve } from 'node:path';
 export const editions = [
 	{ language: 'rust', name: 'Rust', directory: 'rust', extension: 'rs', highlight: 'rust', asynchronous: true, released: true },
 	{ language: 'typescript', name: 'TypeScript', directory: 'typescript', extension: 'ts', highlight: 'typescript', asynchronous: false, released: true },
+	{ language: 'kotlin', name: 'Kotlin', directory: 'kotlin', extension: 'kt', highlight: 'kotlin', asynchronous: true, released: true },
+	{ language: 'java', name: 'Java', directory: 'java', extension: 'java', highlight: 'java', asynchronous: false, released: true },
 ];
 
 /** The directories of a language's directory that the book reads. */

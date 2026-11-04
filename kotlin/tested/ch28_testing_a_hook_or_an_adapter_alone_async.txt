@@ -1,0 +1,31 @@
+JUnit Jupiter > HooksTest > audit writes the step, the amount and the receipt() :: STARTED
+JUnit Jupiter > HooksTest > audit writes the step, the amount and the receipt() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > failedShipping lets a shipping that ended in an error be retried() :: STARTED
+JUnit Jupiter > HooksTest > failedShipping lets a shipping that ended in an error be retried() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > failedShipping lets a shipping that failed with too-heavy be retried() :: STARTED
+JUnit Jupiter > HooksTest > failedShipping lets a shipping that failed with too-heavy be retried() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > failedShipping refunds a shipping the executor gave up() :: STARTED
+JUnit Jupiter > HooksTest > failedShipping refunds a shipping the executor gave up() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > failedShipping refunds and gives up a shipping that failed with over-parcel-limit() :: STARTED
+JUnit Jupiter > HooksTest > failedShipping refunds and gives up a shipping that failed with over-parcel-limit() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > notify gives a gift card's code and says sorry for a failed order() :: STARTED
+JUnit Jupiter > HooksTest > notify gives a gift card's code and says sorry for a failed order() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > parcels gives the shipping the parcel's weight() :: STARTED
+JUnit Jupiter > HooksTest > parcels gives the shipping the parcel's weight() :: SUCCESSFUL
+JUnit Jupiter > HooksTest > parcels leaves every other input to the data bag() :: STARTED
+JUnit Jupiter > HooksTest > parcels leaves every other input to the data bag() :: SUCCESSFUL
+
+Test run finished after 381 ms
+[         2 containers found      ]
+[         0 containers skipped    ]
+[         2 containers started    ]
+[         0 containers aborted    ]
+[         2 containers successful ]
+[         0 containers failed     ]
+[         8 tests found           ]
+[         0 tests skipped         ]
+[         8 tests started         ]
+[         0 tests aborted         ]
+[         8 tests successful      ]
+[         0 tests failed          ]
+

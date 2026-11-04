@@ -1,0 +1,29 @@
+JUnit Jupiter > StepsTest > a charge lets the error of a bank that is down escape() :: STARTED
+JUnit Jupiter > StepsTest > a charge lets the error of a bank that is down escape() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > a charge the bank declines fails with card-expired and no receipt() :: STARTED
+JUnit Jupiter > StepsTest > a charge the bank declines fails with card-expired and no receipt() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > a charge the bank takes gives back the bank's receipt() :: STARTED
+JUnit Jupiter > StepsTest > a charge the bank takes gives back the bank's receipt() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > a failure that is not an expired card is not repairable() :: STARTED
+JUnit Jupiter > StepsTest > a failure that is not an expired card is not repairable() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > a parcel of 2 kg leaves with its receipt() :: STARTED
+JUnit Jupiter > StepsTest > a parcel of 2 kg leaves with its receipt() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > a parcel of 90 kg fails with over-parcel-limit before the carrier is called() :: STARTED
+JUnit Jupiter > StepsTest > a parcel of 90 kg fails with over-parcel-limit before the carrier is called() :: SUCCESSFUL
+JUnit Jupiter > StepsTest > renewing an expired card gives back the card that replaced it() :: STARTED
+JUnit Jupiter > StepsTest > renewing an expired card gives back the card that replaced it() :: SUCCESSFUL
+
+Test run finished after 389 ms
+[         2 containers found      ]
+[         0 containers skipped    ]
+[         2 containers started    ]
+[         0 containers aborted    ]
+[         2 containers successful ]
+[         0 containers failed     ]
+[         7 tests found           ]
+[         0 tests skipped         ]
+[         7 tests started         ]
+[         0 tests aborted         ]
+[         7 tests successful      ]
+[         0 tests failed          ]
+

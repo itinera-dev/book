@@ -1,0 +1,5 @@
+compile-errors/ch37_rescue_step_skips.java:29: error: cannot find symbol
+    return skipBecause("card-expired");
+           ^
+  symbol:   method skipBecause(String)
+  location: class LetItGo
