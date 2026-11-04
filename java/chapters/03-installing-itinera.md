@@ -13,7 +13,7 @@ Itinera for Java is a small family of artifacts, published under the group `org.
 
 With Gradle, that is two lines under `dependencies`: `implementation(platform("org.itinera-dev:itinera-bom:VERSION"))`, then `implementation("org.itinera-dev:itinera-java")`, with no version of its own, since the bill of materials gives it. With Maven, you import `itinera-bom` under `dependencyManagement`, with `<type>pom</type>` and `<scope>import</scope>`, then add `itinera-java` under `dependencies`, again with no version.
 
-`VERSION` is the release you install, and Itinera for Java has none yet. From its first release, every artifact is on Maven Central, where Gradle and Maven find it as they find any other library. Until then, this book follows Itinera's code ahead of a release: its programs build against a commit of [itinera-j](https://github.com/itinera-dev/itinera-j), the repository Itinera for Java lives in, as the [README of the book's `java` directory](../README.md) says.
+`VERSION` is the release you install. This book is written for `0.1.0-beta.7`, the first release, a beta, and every artifact is on [Maven Central](https://central.sonatype.com/namespace/org.itinera-dev), where Gradle and Maven find it as they find any other library.
 
 It needs JDK 17 or later. Compile with javac's `-parameters`, which keeps the name of each parameter in the compiled class: Itinera reads a parameter's name as the name of the data it asks for, as the next chapter shows. With Gradle, that is `options.compilerArgs.add("-parameters")` on each `JavaCompile` task; with Maven, `<parameters>true</parameters>` in the compiler plugin's configuration.
 
@@ -27,8 +27,8 @@ There is no program in this chapter, so nothing is printed.
 2. **The bill of materials keeps the family together.** You write the version once, on `itinera-bom`, and every artifact of the family you add takes the same one, so two of them can never come from different releases. When a release comes out, moving to it is one line.
 3. **A Java application adds `itinera-java`, never the core alone.** The core is what every application on the JVM shares, and `itinera-java` adds what only Java writes, such as a parameter that may have nothing to give, declared as an `Optional`. **Without `itinera-java`, the core refuses a Java class that asks for an `Optional`**, so it is the one artifact you add besides the bill of materials, and the core comes along with it.
 4. **Each concept has a package of its own.** Everything Itinera offers is under the package `org.itineradev.itinera`, in a package of its own for each of Itinera's concepts, named after the concept. Each chapter's program shows its imports, so you always see which package a name comes from.
-5. **Each release says which specification it implements.** Itinera is defined once, by a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each release of Itinera for Java will say which version of it the release implements. Until a first release, features may be added and the API may still change.
-6. **The book's programs are pinned.** Each of them is built against exactly the commit of itinera-j it was written for, so what you read is what that code does.
+5. **Each release says which specification it implements.** Itinera is defined once, by a [specification](https://github.com/itinera-dev/spec) that names no programming language, and each release of Itinera for Java says which version of it the release implements. This book is written for `0.1.0-beta.7`. It is a beta: until `0.1.0`, features may be added and the API may still change.
+6. **The book's programs are pinned.** Each of them names exactly `0.1.0-beta.7`, so what you read is what that release does.
 
 ## Outcomes
 

@@ -6,7 +6,7 @@ Everything here runs with Gradle, through the wrapper, `./gradlew`, which fetche
 
 ## Getting itinera
 
-On `main`, once itinera has a release, Gradle fetches it from Maven Central like any other dependency; until then, [settings.gradle.kts](settings.gradle.kts) has Gradle look for itinera only where `./gradlew itinera` puts it, so the first release changes that file as well as the version in [build.gradle.kts](build.gradle.kts). On `next`, `./gradlew itinera` publishes it first:
+On `main`, Gradle fetches itinera from Maven Central like any other dependency. On `next`, [settings.gradle.kts](settings.gradle.kts) has Gradle look for itinera only where `./gradlew itinera` puts it, and `./gradlew itinera` publishes it first:
 
 1. It fetches the commit that `itinera.json` names into `.itinera/source`, and has that checkout's own build publish every artifact, as Maven Central would receive them, at the version `next`. itinera-j's build needs a JDK 25, which Gradle downloads when none is installed.
 2. It copies them into `.itinera/repository`, where [settings.gradle.kts](settings.gradle.kts) has Gradle look for itinera, and only there.
