@@ -22,7 +22,7 @@ Each part of the specification is written from accepted proposals, listed at the
 
 ## The version of `itinera` this book covers
 
-This book covers `itinera` `0.1.0-beta.6`, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.6`, and every example you read here compiles and runs against it.
+This book covers `itinera` `0.1.0-beta.7`, a beta, published on [crates.io](https://crates.io/crates/itinera) and built from its [repository](https://github.com/itinera-dev/itinera-rs) at the tag `v0.1.0-beta.7`, and every example you read here compiles and runs against it.
 
 ## Services, rescue steps and global metadata
 
@@ -34,14 +34,14 @@ A tier says what Itinera means; capabilities say what an executor accepts. In ti
 
 ## The conformance report
 
-The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.6/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.6`, it runs the conformance cases `v0.1.0-rc.18`, and lists every tier 1 proposal of specification 0.1 as passing except 0113, on value conversions, whose every case needs the capability `value-conversions`.
+The report of `itinera` is [`conformance.json`](https://github.com/itinera-dev/itinera-rs/blob/v0.1.0-beta.7/conformance.json), in its repository. It says which version of the conformance cases the crate runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.7`, it runs the conformance cases `v0.1.0-rc.20`, and lists every tier 1 proposal of specification 0.1 as passing except 0113, on value conversions, whose every case needs the capability `value-conversions`.
 
 A rule the specification lets a language make impossible, such as a policy attached to a workflow that doesn't provide its role, isn't run as a case in Rust. Instead, a test of the crate proves that the mistake doesn't compile, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows. The report lists these rules as impossible to write in Rust, each with the tests that prove it:
 
 1. a lifecycle a hook may not return (`invalid-lifecycle`);
 2. a policy needing a role the workflow doesn't provide (`role-not-provided`);
 3. something that is not a value in the data bag, initial data, an input adapter's answer, a reason's details, an event or global metadata (`non-value`);
-4. an asynchronous step or service provider on the synchronous executor (`mode-not-accepted`);
+4. an asynchronous step or service provider on the synchronous executor, or an asynchronous input adapter (`mode-not-accepted`);
 5. a handle used after its attempt or call (`late-handle`);
 6. a write through an input adapter's access to the data bag (`bag-write`);
 7. a rescue step that skips (`rescue-skip`);
