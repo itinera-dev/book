@@ -35,6 +35,9 @@ fun read(path: String): String = book.resolve(path).readText()
 /** What a program printed, and how it ended. */
 class Ran(val status: Int, val stdout: String, val stderr: String)
 
+/** [text] with `\n` line endings, as on Linux, whatever the platform printed. */
+fun withNewlines(text: String): String = text.replace("\r\n", "\n")
+
 /**
  * Runs a fresh JVM, the one running the checks, with [arguments], in the book's directory, and
  * waits for it to end.
@@ -54,7 +57,11 @@ fun java(vararg arguments: String): Ran {
             process.destroyForcibly()
             error("java ${arguments.last()} took more than five minutes")
         }
-        return Ran(process.exitValue(), output.readText(), errors.readText())
+        return Ran(
+            process.exitValue(),
+            withNewlines(output.readText()),
+            withNewlines(errors.readText()),
+        )
     } finally {
         output.deleteExisting()
         errors.deleteExisting()

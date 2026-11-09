@@ -54,6 +54,11 @@ final class Book {
   /** What a program printed, and how it ended. */
   record Ran(int status, String stdout, String stderr) {}
 
+  /** {@code text} with {@code \n} line endings, as on Linux, whatever the platform printed. */
+  static String withNewlines(String text) {
+    return text.replace("\r\n", "\n");
+  }
+
   /**
    * Runs a fresh JVM, the one running the checks, with {@code arguments}, in the book's directory,
    * and waits for it to end.
@@ -75,7 +80,10 @@ final class Book {
         throw new IllegalStateException(
             "java " + arguments.get(arguments.size() - 1) + " took more than five minutes");
       }
-      return new Ran(process.exitValue(), Files.readString(output), Files.readString(errors));
+      return new Ran(
+          process.exitValue(),
+          withNewlines(Files.readString(output)),
+          withNewlines(Files.readString(errors)));
     } finally {
       Files.delete(output);
       Files.delete(errors);
