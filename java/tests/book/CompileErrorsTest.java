@@ -15,6 +15,7 @@ import static book.Book.BOOK;
 import static book.Book.names;
 import static book.Book.read;
 import static book.Book.setting;
+import static book.Book.withNewlines;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -66,7 +67,9 @@ class CompileErrorsTest {
     assertNotEquals(0, status, () -> name + " compiles");
     var message =
         String.join(
-            "\n", errorsOf(printed.toString(StandardCharsets.UTF_8), program.toString(), name));
+            "\n",
+            errorsOf(
+                withNewlines(printed.toString(StandardCharsets.UTF_8)), program.toString(), name));
     var given = Files.createDirectories(BOOK.resolve("build/compile-errors"));
     Files.writeString(given.resolve(name + ".txt"), message + "\n");
     assertEquals(read("compile-errors/" + name + ".txt").stripTrailing(), message);

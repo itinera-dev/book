@@ -57,7 +57,7 @@ class CompileErrorsTest {
         val result = compilation.compile()
         assertNotEquals(KotlinCompilation.ExitCode.OK, result.exitCode) { "$name compiles" }
         assertNotEquals(KotlinCompilation.ExitCode.INTERNAL_ERROR, result.exitCode, result.messages)
-        val message = errorsOf(result.messages, name).joinToString("\n")
+        val message = errorsOf(withNewlines(result.messages), name).joinToString("\n")
         val given = book.resolve("build/compile-errors").createDirectories()
         given.resolve("$name.txt").writeText("$message\n")
         assertEquals(read("compile-errors/$name.txt").trimEnd(), message)
