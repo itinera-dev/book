@@ -14,9 +14,10 @@ import { test } from "node:test";
 
 import { book, names, read, tsc } from "./book.js";
 
-/** The compiler's message, with every path written as the book shows it. */
+/** The compiler's message, with `\n` line endings and every path written as the book shows it. */
 function asShown(message: string): string {
   return message
+    .replaceAll("\r\n", "\n")
     .replaceAll(`${book}/`, "")
     .replaceAll("node_modules/itinera/", "itinera-ts/packages/itinera/");
 }
