@@ -4,8 +4,9 @@
 //! Each program is an example that only the `compile-errors` feature builds, so the test builds
 //! them one at a time and keeps the compiler's errors, without Cargo's progress lines. The path of
 //! `itinera`'s crates, whether from the registry, a git checkout or a local checkout that replaces
-//! them, is written as a path inside its repository, as the recorded messages write it. Nothing
-//! else is rewritten: the message is compared exactly.
+//! them, is written as a path inside its repository, as the recorded messages write it, and every
+//! location is written with `/`, as on Linux. Nothing else is rewritten: the message is compared
+//! exactly.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -38,6 +39,7 @@ fn errors(name: &str, checkout: &Regex) -> String {
         .map(Result::unwrap)
         .filter(is_error)
         .filter_map(rendered)
+        .map(|message| with_slashes(&message))
         .collect();
     checkout
         .replace_all(&rendered, "itinera-rs/crates/${crate}/src/")
@@ -52,11 +54,27 @@ fn rendered(message: Value) -> Option<String> {
     message["message"]["rendered"].as_str().map(str::to_owned)
 }
 
+/// The message with each location written with `/`, as on Linux, and every other line unchanged.
+fn with_slashes(message: &str) -> String {
+    message
+        .split_inclusive('\n')
+        .map(|line| {
+            let location = line.trim_start();
+            if location.starts_with("--> ") || location.starts_with("::: ") {
+                line.replace('\\', "/")
+            } else {
+                line.to_owned()
+            }
+        })
+        .collect()
+}
+
 #[test]
 fn every_compile_error_gives_its_recorded_message() {
-    let checkout =
-        Regex::new(r"/\S*?/(?:crates/)?(?<crate>itinera(?:-core|-macros)?)(?:-[0-9][^/]*)?/src/")
-            .unwrap();
+    let checkout = Regex::new(
+        r"(?:[A-Za-z]:)?/\S*?/(?:crates/)?(?<crate>itinera(?:-core|-macros)?)(?:-[0-9][^/]*)?/src/",
+    )
+    .unwrap();
     let exactly = Assert::new().normalize_paths(false);
     let mut programs: Vec<PathBuf> = fs::read_dir(compile_errors())
         .unwrap()
