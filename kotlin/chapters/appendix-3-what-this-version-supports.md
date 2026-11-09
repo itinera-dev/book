@@ -18,11 +18,11 @@ This book follows specification 0.1, the first version of the [Itinera specifica
 10. admission, violations and refusals;
 11. the local executor, and the two execution modes, synchronous and asynchronous.
 
-Each part of the specification is written from accepted proposals, listed at the top of each of its chapters, and is checked by the [conformance cases](https://github.com/itinera-dev/conformance), a set of scenarios every implementation runs. Until a first implementation passes every case of tier 1, the cases are released as candidates.
+Each part of the specification is written from accepted proposals, listed at the top of each of its chapters, and is checked by the [conformance cases](https://github.com/itinera-dev/conformance), a set of scenarios every implementation runs. The cases of tier 1 were released as candidates until an implementation first passed every one of them, and are now tagged `v0.1.0`, like the specification.
 
 ## The Itinera for Kotlin this book covers
 
-This book covers Itinera for Kotlin `0.1.0-beta.7`, the first release, a beta, published on [Maven Central](https://central.sonatype.com/namespace/org.itinera-dev) and built from its repository, [itinera-j](https://github.com/itinera-dev/itinera-j), at the tag `v0.1.0-beta.7`, and every example you read here compiles and runs against it. It implements all of tier 1, and test support.
+This book covers Itinera for Kotlin `0.1.0`, the second release and the first that is not a pre-release, published on [Maven Central](https://central.sonatype.com/namespace/org.itinera-dev) and built from its repository, [itinera-j](https://github.com/itinera-dev/itinera-j), at the tag `v0.1.0`, and every example you read here compiles and runs against it. It implements all of tier 1, and test support.
 
 ## Capabilities
 
@@ -36,7 +36,7 @@ It doesn't claim `value-conversions`, which a language claims when it calls your
 
 ## The conformance report
 
-The report of Itinera for Kotlin is [`conformance-kotlin.json`](https://github.com/itinera-dev/itinera-j/blob/v0.1.0-beta.7/conformance-kotlin.json), in its repository. It says which version of the conformance cases the library runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0-beta.7`, it runs the conformance cases `v0.1.0-rc.20`, and lists 39 proposals as passing: every proposal of tier 1 of specification 0.1, including test support, except 0113, on value conversions, whose every case needs the capability `value-conversions`.
+The report of Itinera for Kotlin is [`conformance-kotlin.json`](https://github.com/itinera-dev/itinera-j/blob/v0.1.0/conformance-kotlin.json), in its repository. It says which version of the conformance cases the library runs, the proposals whose cases all pass, the capabilities it claims, and the rules it makes impossible to write. In `0.1.0`, it runs the conformance cases `v0.1.0`, and lists 39 proposals as passing: every proposal of tier 1 of specification 0.1, including test support, except 0113, on value conversions, whose every case needs the capability `value-conversions`.
 
 A rule the specification lets a language make impossible, such as a hook that returns a lifecycle its kind may not, isn't run as a case in Kotlin. Instead, a test of the library proves that the mistake doesn't compile, and where an annotated class can still write it, that itinera's checker reports it as the program is built, as [chapter 37](37-mistakes-caught-before-a-journey.md) shows, or, without the checker, that the workflow is refused before any instance. The report lists these rules as impossible to write in Kotlin, each with the tests that prove it:
 

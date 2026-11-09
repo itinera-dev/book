@@ -11,7 +11,7 @@ plugins {
 }
 
 // The version of itinera the programs use: on `main`, the latest release, from Maven Central.
-val itinera = "0.1.0-beta.7"
+val itinera = "0.1.0"
 
 sourceSets {
     // Every example and tested program as it would ship: without the tests of the tested programs,
